@@ -29,7 +29,7 @@ public final class MenuRegistry {
     }
 
     /** Ações embutidas reconhecidas em menu.yml. */
-    public static final List<String> BUILTIN = List.of("itens", "perfil", "opcoes", "ajuda", "logout");
+    public static final List<String> BUILTIN = List.of("itens", "inventario", "perfil", "opcoes", "ajuda", "logout");
     public static final String DEFAULT_API_GROUP = "config";
 
     private final Map<String, Group> groups = new LinkedHashMap<>();

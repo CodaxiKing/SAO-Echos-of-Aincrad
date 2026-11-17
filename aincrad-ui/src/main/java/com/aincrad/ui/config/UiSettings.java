@@ -53,6 +53,8 @@ public final class UiSettings {
     public final int hudNameMaxPx;
     public final int hudFillX;
     public final int hudNumbersX;
+    public final int hudPartyMax;
+    public final int hudPartyIndent;
 
     public final boolean shardsPlayers;
     public final boolean shardsMobs;
@@ -97,6 +99,8 @@ public final class UiSettings {
         hudNameMaxPx = c.getInt("hud.moldura.nome_largura", 44);
         hudFillX = c.getInt("hud.moldura.barra_x", 57);
         hudNumbersX = c.getInt("hud.moldura.numeros_x", 62);
+        hudPartyMax = Math.max(0, c.getInt("hud.party.maximo", 7));
+        hudPartyIndent = c.getInt("hud.party.recuo", 8);
 
         shardsPlayers = c.getBoolean("morte.estilhacos_jogador", true);
         shardsMobs = c.getBoolean("morte.estilhacos_mobs", true);

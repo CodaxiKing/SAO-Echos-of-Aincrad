@@ -103,10 +103,14 @@ public final class ChestRenderer implements Renderer {
                 stack.setItemMeta(meta);
             }
         }
-        if (e.item() == null) {
+        if (e.item() == null || e.kind() == ScreenElement.Kind.ROW) {
             ItemMeta meta = stack.getItemMeta();
             meta.displayName(noItalic(e.label()));
-            List<Component> lore = new ArrayList<>(e.lore());
+            List<Component> lore = new ArrayList<>();
+            if (e.detail() != null) {
+                lore.add(e.detail().colorIfAbsent(NamedTextColor.GRAY));
+            }
+            lore.addAll(e.lore());
             if (e.locked()) {
                 lore.add(plugin.messages().get("menu.em_breve_lore"));
             }

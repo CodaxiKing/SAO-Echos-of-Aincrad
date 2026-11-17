@@ -5,7 +5,8 @@
 # entradas: ícones do submenu. "icone" é o id de um glifo de glyphs.yml.
 #
 # "acao" das entradas:
-#   itens        abre o inventário do jogador
+#   itens        abre a lista de itens (equipar, segurar, jogar fora)
+#   inventario   fecha o menu e abre o inventário padrão do jogo
 #   perfil       abre a janela de perfil (equipamento)
 #   opcoes       abre as opções (modo cursor/baú, HUD)
 #   ajuda        abre a janela de ajuda
@@ -25,12 +26,12 @@ grupos:
     nome: "<aqua>Party"
     icone: icons/party
     material: TOTEM_OF_UNDYING
-    entradas: [amigos, guilda, chamada]
+    entradas: [party, amigos, guilda]
   mensagens:
     nome: "<aqua>Mensagens"
     icone: icons/message
     material: WRITABLE_BOOK
-    entradas: [amigos, chamada]
+    entradas: [caixa, enviar_mensagem]
   mapa:
     nome: "<aqua>Mapa"
     icone: icons/map
@@ -57,6 +58,11 @@ entradas:
     nome: "<white>Skills"
     icone: under_icons/skills
     material: ENCHANTED_BOOK
+  # party, amigos, caixa e enviar_mensagem são ligados pelo AincradSocial.
+  party:
+    nome: "<white>Party"
+    icone: under_icons/player
+    material: TOTEM_OF_UNDYING
   amigos:
     nome: "<white>Amigos"
     icone: under_icons/friends
@@ -65,10 +71,14 @@ entradas:
     nome: "<white>Guilda"
     icone: under_icons/guild
     material: WHITE_BANNER
-  chamada:
-    nome: "<white>Chamada"
+  caixa:
+    nome: "<white>Caixa"
+    icone: under_icons/quests
+    material: WRITABLE_BOOK
+  enviar_mensagem:
+    nome: "<white>Escrever"
     icone: under_icons/call
-    material: BELL
+    material: FEATHER
   mapa:
     nome: "<white>Mapa"
     icone: under_icons/map

@@ -2,6 +2,9 @@ package com.aincrad.ui.screen;
 
 import com.aincrad.ui.AincradUIPlugin;
 import com.aincrad.ui.api.MenuAction;
+import com.aincrad.ui.api.UiList;
+import com.aincrad.ui.items.ItemActions;
+import com.aincrad.ui.items.ItemCategory;
 import com.aincrad.ui.config.Messages;
 import com.aincrad.ui.config.UiSettings.DrawMode;
 import com.aincrad.ui.menu.MenuRegistry;
@@ -36,7 +39,12 @@ import java.util.Map;
  */
 public final class Screens {
 
-    public static final List<String> NAMES = List.of("menu", "perfil", "detalhes", "confirmar", "opcoes", "ajuda", "icones");
+    public static final List<String> NAMES = List.of("menu", "itens", "perfil", "detalhes", "confirmar", "opcoes", "ajuda", "icones");
+
+    // Listas
+    static final int LIST_PAGE = 6;
+    static final double LIST_TOP = 0.51;
+    static final int[] LIST_CHEST_SLOTS = {10, 11, 12, 13, 14, 15, 16};
 
     private static final String WINDOW = "window";
     private static final String WINDOW_CHEST = "window_bau";
@@ -87,6 +95,7 @@ public final class Screens {
     public Screen byName(Player p, String name) {
         return switch (name.toLowerCase(Locale.ROOT)) {
             case "menu" -> main(p, null);
+            case "itens" -> items(p, ItemCategory.TUDO, 0);
             case "perfil" -> profile(p);
             case "detalhes" -> itemDetails(p, p.getInventory().getItemInMainHand());
             case "opcoes" -> options(p);
@@ -220,16 +229,18 @@ public final class Screens {
             double[] at = panelPoint(en.getValue()[0], en.getValue()[1], cx, cy, ph);
             ItemStack piece = inv.getItem(en.getKey());
             boolean empty = piece == null || piece.getType().isAir();
-            ScreenElement el = new ScreenElement("no:" + en.getKey().name().toLowerCase(Locale.ROOT))
+            EquipmentSlot slot = en.getKey();
+            ScreenElement el = new ScreenElement("no:" + slot.name().toLowerCase(Locale.ROOT))
                     .kind(ScreenElement.Kind.HIT)
                     .onlyInCursor()
                     .at(at[0], at[1], node)
-                    .label(empty ? msg().get("perfil.slot." + slotKey(en.getKey())) : itemName(piece));
+                    .label(empty ? msg().get("perfil.slot." + slotKey(slot)) : itemName(piece));
             if (!empty) {
-                ItemStack copy = piece.clone();
-                el.item(copy).action((pl, ss) -> ss.push(itemDetails(pl, copy)));
+                // Peça equipada: detalhes, desequipar ou trocar.
+                el.item(piece.clone()).action((pl, ss) -> ss.push(equippedWindow(pl, slot)));
             } else {
-                el.decorative();
+                // Ponto vazio: escolher na mochila o que equipar ali.
+                el.action((pl, ss) -> ss.push(list(pl, equipChooser(pl, slot), 0)));
             }
             s.add(el);
         }
@@ -256,7 +267,7 @@ public final class Screens {
         MenuRegistry menu = plugin.menu();
         MenuAction api = menu.apiAction(id);
         if (api != null) {
-            plugin.sessions().close(p, false);
+            // O menu continua aberto: a ação pode abrir uma lista por cima ou fechar o menu.
             api.run(p);
             return;
         }
@@ -267,7 +278,8 @@ public final class Screens {
         String action = e.action().trim();
         String lower = action.toLowerCase(Locale.ROOT);
         switch (lower) {
-            case "itens" -> {
+            case "itens" -> s.push(items(p, ItemCategory.TUDO, 0));
+            case "inventario" -> {
                 plugin.sessions().close(p, false);
                 p.openInventory(p.getInventory());
             }
@@ -514,6 +526,301 @@ public final class Screens {
         body(s, msg().list("ajuda.linhas"), 0.4 * sc());
         s.add(backButton(0, 31));
         return s;
+    }
+
+    // ------------------------------------------------------------------ listas
+
+    /** Quantas páginas tem uma lista de {@code rows} linhas (no mínimo 1). */
+    static int pages(int rows) {
+        return Math.max(1, (rows + LIST_PAGE - 1) / LIST_PAGE);
+    }
+
+    /**
+     * Lista estilo SAO: título em cima, até 6 linhas centralizadas, botões redondos embaixo e
+     * setas de página nas laterais. No baú, as linhas vão para a segunda fileira.
+     */
+    public Screen list(Player p, UiList list, int page) {
+        double sc = sc();
+        List<UiList.Row> rows = list.rows();
+        int total = pages(rows.size());
+        int pg = Math.max(0, Math.min(total - 1, page));
+        Component title = total > 1
+                ? list.title().append(Component.text("  " + (pg + 1) + "/" + total))
+                : list.title();
+        Screen s = new Screen("lista").title(title).rows(6).chestBackground(WINDOW_CHEST);
+        double rh = ROW_HEIGHT * sc;
+        double rsp = ROW_SPACING * sc;
+        double rowW = rh * 3.83;
+        double top = LIST_TOP * sc;
+        s.label("titulo", List.of(list.title().append(total > 1
+                        ? Component.text("  " + (pg + 1) + "/" + total) : Component.empty())),
+                0, top + rh / 2.0 + 0.04 * sc, 0.6 * sc, false, false);
+
+        int from = pg * LIST_PAGE;
+        int to = Math.min(rows.size(), from + LIST_PAGE);
+        for (int i = from; i < to; i++) {
+            UiList.Row r = rows.get(i);
+            int n = i - from;
+            ScreenElement e = new ScreenElement("row:" + i)
+                    .kind(ScreenElement.Kind.ROW)
+                    .glyph(r.icon() != null ? r.icon() : "under_icons/items", null)
+                    .label(r.label())
+                    .detail(r.detail())
+                    .at(-rowW / 2.0, top - n * rsp, rh)
+                    .slot(n < LIST_CHEST_SLOTS.length ? LIST_CHEST_SLOTS[n] : -1)
+                    .fallback(Material.PAPER);
+            if (r.item() != null) {
+                e.item(r.item().clone());
+            }
+            MenuAction action = r.action();
+            if (action != null) {
+                e.action((pl, ss) -> action.run(pl));
+            } else {
+                e.decorative();
+            }
+            s.add(e);
+        }
+        if (rows.isEmpty()) {
+            s.label("vazio", List.of(list.emptyText()), 0, top - rsp, 0.5 * sc, false, false);
+            s.chestInfo(List.of(list.emptyText())).info(13, Material.PAPER);
+        }
+
+        double by = top - LIST_PAGE * rsp - 0.06 * sc;
+        List<UiList.Button> buttons = list.buttons();
+        double bsp = 0.3 * sc;
+        double bx0 = -(buttons.size() - 1) / 2.0 * bsp;
+        for (int i = 0; i < buttons.size(); i++) {
+            UiList.Button b = buttons.get(i);
+            MenuAction action = b.action();
+            s.add(new ScreenElement("btn:" + i)
+                    .glyph(b.icon(), onOf(b.icon()))
+                    .label(b.label())
+                    .at(bx0 + i * bsp, by, 0.22 * sc)
+                    .slot(47 + Math.min(i, 4))
+                    .fallback(Material.STONE_BUTTON)
+                    .action((pl, ss) -> action.run(pl)));
+        }
+        if (pg > 0) {
+            s.add(new ScreenElement("prev").glyph("arrow_left", null)
+                    .label(msg().get("lista.anterior"))
+                    .at(-rowW / 2.0 - 0.14 * sc, top - (LIST_PAGE - 1) / 2.0 * rsp, 0.1 * sc)
+                    .slot(45).fallback(Material.ARROW)
+                    .action((pl, ss) -> ss.replace(list(pl, list, pg - 1))));
+        }
+        if (pg < total - 1) {
+            s.add(new ScreenElement("next").glyph("arrow_right", null)
+                    .label(msg().get("lista.proxima"))
+                    .at(rowW / 2.0 + 0.14 * sc, top - (LIST_PAGE - 1) / 2.0 * rsp, 0.1 * sc)
+                    .slot(53).fallback(Material.ARROW)
+                    .action((pl, ss) -> ss.replace(list(pl, list, pg + 1))));
+        }
+        return s;
+    }
+
+    /** Janela de texto com botões (API openWindow). */
+    public Screen textWindow(Component title, List<Component> lines, List<UiList.Button> buttons) {
+        double sc = sc();
+        Screen s = window("texto", title).info(13, Material.PAPER);
+        body(s, lines, 0.42 * sc);
+        double bsp = 0.28 * sc;
+        double x0 = -(buttons.size() - 1) / 2.0 * bsp;
+        int[] slots = {29, 30, 31, 32, 33};
+        for (int i = 0; i < buttons.size(); i++) {
+            UiList.Button b = buttons.get(i);
+            MenuAction action = b.action();
+            s.add(new ScreenElement("btn:" + i)
+                    .glyph(b.icon(), onOf(b.icon()))
+                    .label(b.label())
+                    .at(x0 + i * bsp, buttonsY(), 0.22 * sc)
+                    .slot(slots[Math.min(i, 4)])
+                    .fallback(Material.STONE_BUTTON)
+                    .action((pl, ss) -> action.run(pl)));
+        }
+        return s;
+    }
+
+    // ------------------------------------------------------------------ itens
+
+    /** Itens da mochila e da hotbar, com filtro por categoria. Clicar abre as ações do item. */
+    public Screen items(Player p, ItemCategory filter, int page) {
+        List<UiList.Row> rows = new ArrayList<>();
+        for (ItemActions.Entry e : ItemActions.list(p, filter)) {
+            Component detail = e.item().getAmount() > 1 ? Component.text("x" + e.item().getAmount()) : null;
+            if (e.slot() == p.getInventory().getHeldItemSlot()) {
+                detail = msg().get("itens.na_mao_tag");
+            }
+            rows.add(UiList.Row.item(e.item(), itemName(e.item()), detail,
+                    pl -> session(pl).push(itemWindow(pl, e, filter, page))));
+        }
+        UiList list = UiList.of(msg().get("itens.titulo",
+                        Placeholder.component("filtro", msg().get("itens.categoria." + filter.key()))))
+                .rows(rows)
+                .empty(msg().get("itens.vazio_lista"))
+                .button(new UiList.Button("buttons/list",
+                        msg().get("itens.filtro", Placeholder.component("filtro", msg().get("itens.categoria." + filter.next().key()))),
+                        pl -> session(pl).replace(items(pl, filter.next(), 0))))
+                .button(new UiList.Button("buttons/cancel", msg().get("perfil.botao_voltar"),
+                        pl -> plugin.sessions().back(pl)));
+        Screen s = list(p, list, page);
+        return s;
+    }
+
+    private MenuSession session(Player p) {
+        MenuSession s = plugin.sessions().get(p);
+        if (s == null) {
+            throw new IllegalStateException("menu fechado");
+        }
+        return s;
+    }
+
+    private List<Component> detailLines(ItemStack item) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(itemName(item));
+        lines.add(msg().get("detalhes.quantidade", Placeholder.unparsed("qtd", String.valueOf(item.getAmount()))));
+        ItemMeta meta = item.getItemMeta();
+        int maxDur = item.getType().getMaxDurability();
+        if (maxDur > 0 && meta instanceof Damageable d) {
+            lines.add(msg().get("detalhes.durabilidade",
+                    Placeholder.unparsed("atual", String.valueOf(maxDur - d.getDamage())),
+                    Placeholder.unparsed("max", String.valueOf(maxDur))));
+        }
+        for (Map.Entry<Enchantment, Integer> en : item.getEnchantments().entrySet()) {
+            lines.add(en.getKey().displayName(en.getValue()));
+        }
+        if (meta != null && meta.hasLore() && meta.lore() != null) {
+            lines.addAll(meta.lore());
+        }
+        return lines;
+    }
+
+    /** Janela de um item da mochila: detalhes e as ações Equipar, Segurar e Jogar fora. */
+    private Screen itemWindow(Player p, ItemActions.Entry entry, ItemCategory filter, int page) {
+        double sc = sc();
+        ItemStack item = entry.item();
+        Screen s = window("item", msg().get("itens.janela")).info(4, Material.BOOK);
+        body(s, detailLines(item), 0.42 * sc);
+        s.add(new ScreenElement("item").onlyInChest().decorative().slot(13).item(item.clone()));
+        s.add(new ScreenElement("item_3d").kind(ScreenElement.Kind.HIT).onlyInCursor().decorative()
+                .at(0, buttonsY() + 0.32 * sc, 0.28 * sc).item(item.clone()));
+
+        List<ScreenElement> buttons = new ArrayList<>();
+        if (ItemActions.equipSlot(item) != null) {
+            buttons.add(new ScreenElement("equipar").glyph("buttons/start", onOf("buttons/start"))
+                    .label(msg().get("itens.acao.equipar")).fallback(Material.IRON_CHESTPLATE)
+                    .action((pl, ss) -> afterItemAction(pl, ItemActions.equip(pl, entry.slot(), item), "itens.equipado", filter, page)));
+        }
+        buttons.add(new ScreenElement("segurar").glyph("buttons/plus", onOf("buttons/plus"))
+                .label(msg().get("itens.acao.segurar")).fallback(Material.STICK)
+                .action((pl, ss) -> afterItemAction(pl, ItemActions.hold(pl, entry.slot(), item), "itens.na_mao", filter, page)));
+        buttons.add(new ScreenElement("jogar").glyph("buttons/minus", onOf("buttons/minus"))
+                .label(msg().get("itens.acao.jogar")).fallback(Material.HOPPER)
+                .action((pl, ss) -> ss.push(confirm(msg().get("itens.confirmar_jogar", Placeholder.component("item", itemName(item))),
+                        (p2, s2) -> {
+                            s2.back();
+                            afterItemAction(p2, ItemActions.drop(p2, entry.slot(), item), "itens.jogado", filter, page);
+                        },
+                        (p2, s2) -> plugin.sessions().back(p2)))));
+        buttons.add(new ScreenElement("voltar").glyph("buttons/cancel", onOf("buttons/cancel"))
+                .label(msg().get("perfil.botao_voltar")).fallback(Material.ARROW)
+                .action((pl, ss) -> plugin.sessions().back(pl)));
+
+        double bsp = 0.26 * sc;
+        double x0 = -(buttons.size() - 1) / 2.0 * bsp;
+        int[] slots = {29, 30, 32, 33};
+        for (int i = 0; i < buttons.size(); i++) {
+            s.add(buttons.get(i).at(x0 + i * bsp, buttonsY(), 0.2 * sc).slot(slots[Math.min(i, 3)]));
+        }
+        return s;
+    }
+
+    /** Depois de uma ação: mensagem, fecha a janela do item e atualiza a lista. */
+    private void afterItemAction(Player p, ItemActions.Result r, String okKey, ItemCategory filter, int page) {
+        msg().send(p, r == ItemActions.Result.OK ? okKey : "itens.erro." + r.name().toLowerCase(Locale.ROOT));
+        MenuSession s = plugin.sessions().get(p);
+        if (s == null) {
+            return;
+        }
+        s.back();
+        if (s.current() != null && "lista".equals(s.current().id())) {
+            s.replace(items(p, filter, page));
+        } else {
+            s.replace(s.current() != null && "perfil".equals(s.current().id()) ? profile(p) : s.current());
+        }
+    }
+
+    /** Peça equipada: detalhes e Desequipar. */
+    private Screen equippedWindow(Player p, EquipmentSlot slot) {
+        double sc = sc();
+        ItemStack item = p.getInventory().getItem(slot);
+        Screen s = window("equipado", msg().get("itens.janela")).info(4, Material.BOOK);
+        if (item == null || item.getType().isAir()) {
+            body(s, List.of(msg().get("perfil.slot." + slotKey(slot))), 0.42 * sc);
+        } else {
+            body(s, detailLines(item), 0.42 * sc);
+            s.add(new ScreenElement("item").onlyInChest().decorative().slot(13).item(item.clone()));
+            s.add(new ScreenElement("item_3d").kind(ScreenElement.Kind.HIT).onlyInCursor().decorative()
+                    .at(0, buttonsY() + 0.32 * sc, 0.28 * sc).item(item.clone()));
+        }
+        if (slot != EquipmentSlot.HAND) {
+            s.add(new ScreenElement("desequipar").glyph("buttons/minus", onOf("buttons/minus"))
+                    .label(msg().get("itens.acao.desequipar"))
+                    .at(-0.15 * sc, buttonsY(), 0.2 * sc).slot(30).fallback(Material.HOPPER)
+                    .action((pl, ss) -> {
+                        ItemActions.Result r = ItemActions.unequip(pl, slot);
+                        msg().send(pl, r == ItemActions.Result.OK ? "itens.desequipado" : "itens.erro." + r.name().toLowerCase(Locale.ROOT));
+                        ss.back();
+                        ss.replace(refreshed(pl, ss.current()));
+                    }));
+        }
+        s.add(new ScreenElement("trocar").glyph("buttons/list", onOf("buttons/list"))
+                .label(msg().get("itens.acao.trocar"))
+                .at(slot != EquipmentSlot.HAND ? 0.15 * sc : -0.15 * sc, buttonsY(), 0.2 * sc).slot(31).fallback(Material.CHEST)
+                .action((pl, ss) -> ss.replace(list(pl, equipChooser(pl, slot), 0))));
+        s.add(backButton(slot != EquipmentSlot.HAND ? 0.45 : 0.15, 32));
+        return s;
+    }
+
+    /** Itens da mochila que servem num slot de equipamento. */
+    private UiList equipChooser(Player p, EquipmentSlot slot) {
+        List<UiList.Row> rows = new ArrayList<>();
+        for (ItemActions.Entry e : ItemActions.candidates(p, slot)) {
+            rows.add(UiList.Row.item(e.item(), itemName(e.item()),
+                    e.item().getAmount() > 1 ? Component.text("x" + e.item().getAmount()) : null,
+                    pl -> {
+                        ItemActions.Result r = slot == EquipmentSlot.HAND
+                                ? ItemActions.hold(pl, e.slot(), e.item())
+                                : ItemActions.equip(pl, e.slot(), e.item());
+                        msg().send(pl, r == ItemActions.Result.OK ? "itens.equipado" : "itens.erro." + r.name().toLowerCase(Locale.ROOT));
+                        MenuSession ss = session(pl);
+                        ss.back();
+                        ss.replace(refreshed(pl, ss.current()));
+                    }));
+        }
+        return UiList.of(msg().get("itens.escolher", Placeholder.component("slot", msg().get("perfil.slot_nome." + slotKey(slot)))))
+                .rows(rows)
+                .empty(msg().get("itens.nada_para_slot"))
+                .button(new UiList.Button("buttons/cancel", msg().get("perfil.botao_voltar"), pl -> plugin.sessions().back(pl)));
+    }
+
+    /** Recria a tela atual com os dados novos (menu e perfil mostram o equipamento). */
+    private Screen refreshed(Player p, Screen current) {
+        if (current == null) {
+            return main(p, null);
+        }
+        return switch (current.id()) {
+            case "perfil" -> profile(p);
+            case "menu" -> main(p, selectedGroup(current));
+            default -> current;
+        };
+    }
+
+    private static String selectedGroup(Screen menu) {
+        for (ScreenElement e : menu.elements()) {
+            if (e.id().startsWith("g:") && e.selected()) {
+                return e.id().substring(2);
+            }
+        }
+        return null;
     }
 
     /** Ícones dos grupos de glyphs.yml; passar o cursor mostra a versão _on. */

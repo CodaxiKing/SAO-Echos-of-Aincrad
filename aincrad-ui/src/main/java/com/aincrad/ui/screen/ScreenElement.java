@@ -29,6 +29,7 @@ public final class ScreenElement {
     private String glyph;
     private String glyphOn;
     private Component label = Component.empty();
+    private Component detail;
     private List<Component> lore = List.of();
     private double x;
     private double y;
@@ -56,6 +57,16 @@ public final class ScreenElement {
     public ScreenElement label(Component label) {
         this.label = label;
         return this;
+    }
+
+    /** Texto menor depois do nome, nas linhas (ex.: "online", "x32"). */
+    public ScreenElement detail(Component detail) {
+        this.detail = detail;
+        return this;
+    }
+
+    public Component detail() {
+        return detail;
     }
 
     public ScreenElement lore(List<Component> lore) {

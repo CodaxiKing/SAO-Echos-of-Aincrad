@@ -38,6 +38,51 @@ perfil:
     outro: "<gray>(vazio)"
   botao_detalhes: "<white>Detalhes do item na mão"
   botao_voltar: "<white>Voltar"
+  slot_nome:
+    cabeca: "cabeça"
+    peito: "peito"
+    pernas: "pernas"
+    pes: "pés"
+    mao: "mão"
+    mao_secundaria: "mão secundária"
+    outro: "slot"
+
+lista:
+  anterior: "<white>Página anterior"
+  proxima: "<white>Próxima página"
+
+itens:
+  titulo: "<white>Itens <gray>· <filtro>"
+  janela: "<dark_gray>Item"
+  vazio_lista: "<gray>Nenhum item aqui."
+  filtro: "<white>Filtro: <filtro>"
+  na_mao_tag: "<aqua>na mão"
+  categoria:
+    tudo: "Tudo"
+    armas: "Armas"
+    armaduras: "Armaduras"
+    consumiveis: "Consumíveis"
+    blocos: "Blocos"
+    outros: "Outros"
+  acao:
+    equipar: "<white>Equipar"
+    segurar: "<white>Segurar"
+    jogar: "<white>Jogar fora"
+    desequipar: "<white>Desequipar"
+    trocar: "<white>Trocar"
+  confirmar_jogar: "<white>Jogar fora <item>?"
+  escolher: "<white>Equipar em: <slot>"
+  nada_para_slot: "<gray>Nada na mochila serve aqui."
+  equipado: "<green>Equipado."
+  na_mao: "<green>Item na mão."
+  jogado: "<yellow>Item jogado fora."
+  desequipado: "<green>Peça guardada na mochila."
+  erro:
+    ok: "<green>Pronto."
+    vazio: "<red>Não há nada aí."
+    nao_equipavel: "<red>Esse item não pode ser equipado."
+    inventario_cheio: "<red>Mochila cheia."
+    mudou: "<yellow>O inventário mudou. Lista atualizada."
 
 detalhes:
   titulo: "<dark_gray>Detalhes"

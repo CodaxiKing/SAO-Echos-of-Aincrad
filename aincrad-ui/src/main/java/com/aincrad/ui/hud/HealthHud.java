@@ -1,6 +1,7 @@
 package com.aincrad.ui.hud;
 
 import com.aincrad.ui.AincradUIPlugin;
+import com.aincrad.ui.api.PartyHudProvider;
 import com.aincrad.ui.config.UiSettings;
 import com.aincrad.ui.glyph.Glyph;
 import com.aincrad.ui.glyph.LineBuilder;
@@ -42,6 +43,8 @@ public final class HealthHud implements Listener {
 
     private final AincradUIPlugin plugin;
     private final Map<UUID, BossBar> bars = new HashMap<>();
+    private final Map<UUID, List<BossBar>> memberBars = new HashMap<>();
+    private PartyHudProvider partyProvider;
     private final Map<UUID, Long> lastAlert = new HashMap<>();
     private final Map<UUID, Long> forcedUntil = new HashMap<>();
     private BukkitTask task;
@@ -142,12 +145,90 @@ public final class HealthHud implements Listener {
                 plugin.sounds().play(p, UiSound.CRITICAL);
             }
         }
+        updateParty(p, st);
+    }
+
+    // ------------------------------------------------------------------ party
+
+    public void setPartyProvider(PartyHudProvider provider) {
+        this.partyProvider = provider;
+    }
+
+    /** Uma BossBar menor por membro da party, embaixo da barra do próprio jogador. */
+    private void updateParty(Player p, UiSettings st) {
+        List<Player> members = List.of();
+        if (partyProvider != null) {
+            try {
+                members = partyProvider.members(p);
+            } catch (RuntimeException e) {
+                members = List.of();
+            }
+        }
+        List<Player> shown = members.stream()
+                .filter(m -> m != null && m.isOnline() && !m.equals(p))
+                .limit(st.hudPartyMax)
+                .toList();
+        List<BossBar> list = memberBars.computeIfAbsent(p.getUniqueId(), k -> new ArrayList<>());
+        while (list.size() > shown.size()) {
+            p.hideBossBar(list.remove(list.size() - 1));
+        }
+        while (list.size() < shown.size()) {
+            BossBar b = BossBar.bossBar(Component.empty(), 1f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
+            p.showBossBar(b);
+            list.add(b);
+        }
+        Glyph mini = plugin.glyphs().get("hud_mini");
+        List<Glyph> fills = groupGlyphs("hud_mini_fill");
+        boolean pack = plugin.packStatus().hasPack(p) && mini != null && mini.present() && !fills.isEmpty();
+        for (int i = 0; i < shown.size(); i++) {
+            Player m = shown.get(i);
+            AttributeInstance a = m.getAttribute(Attribute.MAX_HEALTH);
+            double max = a != null ? Math.max(1.0, a.getValue()) : 20.0;
+            double ratio = m.isDead() ? 0 : Math.min(1.0, Math.max(0, m.getHealth()) / max);
+            HealthState state = HealthState.of(ratio, st.hudYellow, st.hudRed);
+            BossBar bar = list.get(i);
+            if (pack) {
+                bar.name(memberTitle(m.getName(), ratio, state, mini, fills, st));
+                bar.color(BossBar.Color.WHITE);
+                bar.progress(1f);
+            } else {
+                bar.name(Component.text(m.getName(), NamedTextColor.WHITE));
+                bar.color(switch (state) {
+                    case NORMAL -> BossBar.Color.GREEN;
+                    case WARNING -> BossBar.Color.YELLOW;
+                    case CRITICAL -> BossBar.Color.RED;
+                });
+                bar.progress((float) ratio);
+            }
+        }
+    }
+
+    /** Barra pequena + nome, alinhada um pouco para dentro da moldura principal. */
+    private Component memberTitle(String name, double ratio, HealthState state, Glyph mini, List<Glyph> fills, UiSettings st) {
+        LineBuilder line = new LineBuilder();
+        line.add(mini, mini.component());
+        line.moveTo(0);
+        int filled = HealthState.filledSegments(ratio, fills.size());
+        TextColor color = colorOf(state, false);
+        for (int i = 0; i < filled; i++) {
+            Glyph g = fills.get(i);
+            line.add(g, g.component(color));
+            line.shift(-1);
+        }
+        line.moveTo(mini.advance() + 3);
+        line.add(Component.text(name, NamedTextColor.WHITE), TextWidth.of(name));
+        int indent = st.hudPartyIndent;
+        return line.build().append(SpaceFont.component(trailingShift(line.x(), st.hudOffsetX - indent)));
     }
 
     /** Fatias da barra (grupo hud_fill de glyphs.yml), só se todas existirem. */
     private List<Glyph> fillGlyphs() {
+        return groupGlyphs("hud_fill");
+    }
+
+    private List<Glyph> groupGlyphs(String group) {
         List<Glyph> out = new ArrayList<>();
-        for (String id : plugin.glyphs().groups().getOrDefault("hud_fill", List.of())) {
+        for (String id : plugin.glyphs().groups().getOrDefault(group, List.of())) {
             Glyph g = plugin.glyphs().get(id);
             if (g == null || !g.present()) {
                 return List.of();
@@ -222,12 +303,17 @@ public final class HealthHud implements Listener {
         if (bar != null) {
             p.hideBossBar(bar);
         }
+        List<BossBar> members = memberBars.remove(p.getUniqueId());
+        if (members != null) {
+            members.forEach(p::hideBossBar);
+        }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID id = event.getPlayer().getUniqueId();
         bars.remove(id);
+        memberBars.remove(id);
         lastAlert.remove(id);
         forcedUntil.remove(id);
     }

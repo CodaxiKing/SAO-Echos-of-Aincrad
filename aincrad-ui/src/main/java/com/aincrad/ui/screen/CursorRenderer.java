@@ -20,6 +20,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
@@ -54,7 +55,9 @@ public final class CursorRenderer implements Renderer {
 
     /** Linha do submenu: posições dentro do fundo row_bg (pixels de fonte). */
     private static final int ROW_ICON_X = 5;
+    private static final int ROW_ICON_PX = 18;
     private static final int ROW_TEXT_GAP = 5;
+    private static final TextColor ROW_DETAIL = TextColor.color(0x8C8C8C);
     private static final TextColor ROW_TEXT = TextColor.color(0x474747);
     private static final TextColor ROW_TEXT_LOCKED = TextColor.color(0x9A9A9A);
 
@@ -97,15 +100,22 @@ public final class CursorRenderer implements Renderer {
                 continue;
             }
             String key = "el:" + e.id();
+            boolean hasItem = e.item() != null && !e.item().getType().isAir();
             if (e.kind() == ScreenElement.Kind.HIT) {
-                if (e.item() != null && !e.item().getType().isAir()) {
+                if (hasItem) {
                     keep.add(key);
-                    putItem(key, e);
+                    putItem(key, e.item(), e.x(), e.y(), e.size());
                 }
                 continue;
             }
             keep.add(key);
             draw(e, false);
+            if (e.kind() == ScreenElement.Kind.ROW && hasItem) {
+                // Item 3D no lugar do ícone da linha (o fundo deixa o espaço vazio).
+                double s = e.size();
+                keep.add(key + ":item");
+                putItem(key + ":item", e.item(), e.x() + s * (ROW_ICON_X + ROW_ICON_PX / 2.0) / 24.0, e.y(), s * 0.8);
+            }
         }
         for (Screen.TextBlock t : next.texts()) {
             String key = "txt:" + t.id();
@@ -206,11 +216,19 @@ public final class CursorRenderer implements Renderer {
             line.add(bg, bg.component());
         }
         line.moveTo(ROW_ICON_X);
-        if (icon != null && icon.present()) {
+        if (e.item() != null) {
+            line.shift(ROW_ICON_PX + 1); // o item 3D fica neste espaço
+        } else if (icon != null && icon.present()) {
             line.add(icon, icon.component(e.locked() ? NamedTextColor.GRAY : NamedTextColor.WHITE));
         }
         line.shift(ROW_TEXT_GAP);
         line.add(Component.text(name, color).font(UiFonts.SAO), UiFonts.saoWidth(name));
+        if (e.detail() != null) {
+            String detail = plain(e.detail());
+            line.shift(4);
+            line.add(Component.text(detail, hover && !e.locked() ? NamedTextColor.WHITE : ROW_DETAIL).font(UiFonts.SAO),
+                    UiFonts.saoWidth(detail));
+        }
         if (e.locked() && glyphs.has("lock")) {
             Glyph lock = glyphs.get("lock");
             line.shift(4);
@@ -238,8 +256,8 @@ public final class CursorRenderer implements Renderer {
 
     // ------------------------------------------------------------------ itens e textos
 
-    private void putItem(String key, ScreenElement e) {
-        Location loc = frame.toWorld(e.x(), e.y(), -0.02).toLocation(world);
+    private void putItem(String key, ItemStack item, double x, double y, double size) {
+        Location loc = frame.toWorld(x, y, -0.02).toLocation(world);
         Entity existing = displays.get(key);
         ItemDisplay d;
         if (existing instanceof ItemDisplay id && id.isValid()) {
@@ -260,8 +278,8 @@ public final class CursorRenderer implements Renderer {
             player.showEntity(plugin, d);
             displays.put(key, d);
         }
-        d.setItemStack(e.item());
-        float s = (float) (e.size() * 0.9);
+        d.setItemStack(item);
+        float s = (float) (size * 0.9);
         d.setTransformation(new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(s, s, 0.02f), new AxisAngle4f()));
     }
 

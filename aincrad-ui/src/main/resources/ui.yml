@@ -38,6 +38,12 @@ hud:
     nome_largura: 44
     barra_x: 57
     numeros_x: 62
+  # Barras menores dos membros da party, embaixo da barra principal (precisa de um plugin de
+  # party, como o AincradSocial).
+  party:
+    maximo: 7
+    # Quantos pixels as barras dos membros ficam para dentro em relação à moldura principal.
+    recuo: 8
   # Abaixo deste valor a barra fica amarela.
   limite_amarelo: 0.5
   # Abaixo deste valor a barra fica vermelha, pisca e toca o alerta.

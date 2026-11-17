@@ -1,0 +1,29 @@
+# ============================================================
+#  AincradSocial — amigos, party e mensagens
+# ============================================================
+
+amigos:
+  maximo: 100
+  # Avisa os amigos quando alguém entra ou sai do servidor.
+  avisar_entrada: true
+
+party:
+  # No anime uma party tem até 8 jogadores.
+  tamanho_maximo: 8
+  convite_expira_segundos: 60
+  # Membros da mesma party podem se machucar?
+  fogo_amigo: false
+  # Mensagens no chat que começam com este prefixo vão só para a party. Vazio desliga.
+  chat_prefixo: "@"
+
+mensagens:
+  # Só dá para mandar mensagem para amigos (como no anime).
+  so_amigos: true
+  # Quantas mensagens cabem na caixa de entrada; as mais antigas saem.
+  caixa_maxima: 50
+
+menu:
+  # Na lista "Convidar" / "Adicionar", quem está a até este raio aparece primeiro.
+  raio_perto: 32
+  # Quanto tempo o jogador tem para digitar no chat (mensagem ou nome).
+  tempo_digitar_segundos: 60

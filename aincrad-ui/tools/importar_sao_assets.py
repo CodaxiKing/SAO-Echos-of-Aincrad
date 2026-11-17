@@ -233,6 +233,58 @@ def import_hud(sao):
           % (total_w // s, HUD_HEIGHT, start // s, HUD_SEGMENTS, HUD_SEGMENT_PX, (end - start) // s - (HUD_SEGMENTS - 1) * HUD_SEGMENT_PX))
 
 
+MINI_SEGMENT_PX = 3   # barras dos membros da party: 20 fatias de 3 px
+MINI_HEIGHT = 8       # altura da linha (a barra fica no meio)
+
+
+def import_hud_mini(sao):
+    """Barra menor (sem moldura) para os membros da party, no mesmo esquema de fatias."""
+    gauge = load(os.path.join(sao, "SAO_Life_Gauge", "1st", "[Blank].png"))
+    fx0, fy0, fx1, fy1 = GAUGE_FILL
+    cx0, cy0, cx1, cy1 = GAUGE_CROP
+    s = HUD_SCALE
+    f = HUD_SEGMENTS * MINI_SEGMENT_PX * s / (fx1 - fx0 + 1)
+    bar = gauge.crop((cx0, cy0, cx1 + 1, cy1 + 1))
+    bar = bar.resize((round(bar.width * f), round(bar.height * f)), Image.LANCZOS)
+    empty = bar.copy()
+    fill = Image.new("RGBA", bar.size, (0, 0, 0, 0))
+    bp, ep, fp = bar.load(), empty.load(), fill.load()
+    for y in range(bar.height):
+        for x in range(bar.width):
+            r, g, b, a = bp[x, y]
+            if a > 40 and g > r + 25 and g > b + 25:
+                lum = (0.3 * r + 0.59 * g + 0.11 * b) / 255
+                v = int(170 + 85 * min(1.0, lum / 0.75))
+                fp[x, y] = (v, v, v, a)
+                ep[x, y] = (40, 42, 46, 170)
+    w = -(-bar.width // s) * s
+    h = MINI_HEIGHT * s
+    y0 = (h - bar.height) // 2
+    frame = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    frame.alpha_composite(empty, (0, y0))
+    px = frame.load()
+    if px[w - 1, h - 1][3] == 0:
+        px[w - 1, h - 1] = (255, 255, 255, 1)
+    save(frame, "hud", "mini.png")
+
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    layer.alpha_composite(fill, (0, y0))
+    box = layer.getbbox()
+    start = box[0] // s * s
+    end = -(-box[2] // s) * s
+    seg = MINI_SEGMENT_PX * s
+    for i in range(HUD_SEGMENTS):
+        x0 = start + i * seg
+        x1 = end if i == HUD_SEGMENTS - 1 else x0 + seg
+        sl = layer.crop((x0, 0, x1, h))
+        sp = sl.load()
+        for x in (0, sl.width - 1):
+            if sp[x, h - 1][3] == 0:
+                sp[x, h - 1] = (255, 255, 255, 1)
+        save(sl, "hud", "mini_%02d.png" % i)
+    print("HUD mini: %dx%d px de fonte; preenchimento começa em x=%d" % (w // s, MINI_HEIGHT, start // s))
+
+
 def import_font(root):
     src = os.path.join(root, "fonts", "SAO_Fonts_v4.000", "TTF", "SAOUITT-Regular.ttf")
     dst = os.path.join(PACK, "font", "sao_ui.ttf")
@@ -259,6 +311,7 @@ def main():
     draw_rows()
     draw_small_extras()
     import_hud(sao)
+    import_hud_mini(sao)
     import_font(root)
     print("Artes importadas para", os.path.normpath(PACK))
     return 0

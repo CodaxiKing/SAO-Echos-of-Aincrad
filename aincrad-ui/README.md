@@ -75,8 +75,18 @@ Quem recusa o pack vê a versão simples: menu de baú com itens comuns, HUD com
   cima). O jogador fica parado (velocidade e pulo zerados), o cursor segue o olhar e cada troca de
   item faz som. Clique escolhe; agachar volta; levar dano fecha. Janelas (detalhes, confirmação,
   opções, ajuda) são painéis brancos com título, texto escuro e botões redondos.
+- **Itens** (Perfil → Itens): a mochila e a hotbar em lista, com o item em 3D, filtro por
+  categoria (armas, armaduras, consumíveis, blocos, outros) e páginas. Clicar num item abre a janela
+  com Equipar, Segurar (vai para a mão), Jogar fora (com confirmação) e os detalhes.
+- **Equipamento** (painel de perfil): clicar num ponto ocupado abre a peça com Desequipar e Trocar;
+  num ponto vazio, lista o que da mochila serve ali.
+- **O inventário padrão continua existindo**: a tela do inventário (tecla E), a hotbar e o chat são
+  desenhados pelo próprio jogo e um plugin não consegue substituí-los. O menu SAO cobre tudo o que
+  se faz nelas; a entrada com `acao: inventario` em menu.yml abre o inventário padrão, se quiser.
 - **Modo baú**: menu de inventário com `window_blank` de fundo e ícones do pack (`item_model`).
   É usado por quem escolher em Opções e sempre por quem está sem o pack.
+- **Party na HUD**: com um plugin de party (AincradSocial), cada membro aparece embaixo da barra
+  principal com uma barra menor e o nome (`hud.party`).
 - **HUD de vida**: moldura no canto de cima com o nome, a barra do SAO (com o degrau no meio) e
   "vida/máx LV:n" embaixo, desenhada no título de uma BossBar (o deslocamento para a esquerda é
   `hud.deslocamento_x`). A barra é feita de 20 fatias pintadas na cor da vida: verde, amarela abaixo
@@ -98,6 +108,21 @@ Quem recusa o pack vê a versão simples: menu de baú com itens comuns, HUD com
 redireciona `/aincrad ui ...` para ele, com ou sem o AincradFloors instalado.
 
 ## API para outros plugins
+
+Além das entradas do menu, outros plugins montam telas SAO com listas, janelas e confirmações, e
+podem mostrar membros de party embaixo da barra de vida (o AincradSocial usa tudo isso):
+
+```java
+ui.openList(player, UiList.of(Component.text("Amigos"))
+        .row(UiList.Row.item(cabeca, Component.text("Asuna"), Component.text("online"), p -> abrirAmigo(p)))
+        .button(new UiList.Button("buttons/plus", Component.text("Adicionar"), p -> adicionar(p))));
+ui.replaceList(player, listaAtualizada);   // atualiza a lista atual
+ui.openWindow(player, titulo, linhas, botoes);
+ui.setPartyHudProvider(viewer -> membrosOnline(viewer));
+```
+
+A ação de uma entrada do menu roda com o menu aberto: ela pode abrir uma lista por cima (agachar
+volta) ou chamar `closeMenu`.
 
 ```java
 AincradUIAPI ui = Bukkit.getServicesManager().load(AincradUIAPI.class);
@@ -136,7 +161,8 @@ estilhaços tem o id de `morte.efeito_estilhacos` (padrão `aincrad_estilhacos`)
 ## Ficou para depois
 
 - Modelo 3D da barra de vida (health_bar.glb, Sockona, CC BY 4.0): precisa de conversão.
-- Ações de party, guilda, amigos, quests, mapa, skills e chamada: aparecem com cadeado até um plugin registrar.
+- Guilda, quests, mapa e skills: aparecem com cadeado até um plugin registrar (party, amigos e
+  mensagens já são ligados pelo AincradSocial).
 - Relógio e data no canto de baixo (como no SAO Utils).
 - Menu desenhado na tela (2D) com shaders próprios, como alternativa ao menu no mundo.
 

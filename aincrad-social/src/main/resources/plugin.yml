@@ -1,0 +1,34 @@
+name: AincradSocial
+version: '${version}'
+main: com.aincrad.social.AincradSocialPlugin
+api-version: '1.21'
+description: Amigos, party e mensagens no estilo SAO (integra com o menu do AincradUI).
+authors: [CodaxiKing]
+softdepend: [AincradUI]
+
+commands:
+  amigo:
+    description: Amigos — lista, adicionar, aceitar, recusar, remover, pedidos.
+    usage: /amigo [lista|adicionar|aceitar|recusar|remover|pedidos] [jogador]
+    aliases: [amigos, friend, friends]
+    permission: aincrad.social.use
+  party:
+    description: Party — convidar, aceitar, recusar, sair, expulsar, líder, desfazer, lista, chat.
+    usage: /party [convidar|aceitar|recusar|sair|expulsar|lider|desfazer|lista|chat] [jogador|mensagem]
+    aliases: [grupo]
+    permission: aincrad.social.use
+  mensagem:
+    description: Manda uma mensagem para um amigo (fica na caixa de entrada dele).
+    usage: /mensagem <jogador> <texto>
+    aliases: [carta]
+    permission: aincrad.social.use
+  caixa:
+    description: Mostra sua caixa de entrada.
+    usage: /caixa [ler <n>|apagar <n>]
+    aliases: [inbox]
+    permission: aincrad.social.use
+
+permissions:
+  aincrad.social.use:
+    description: Usar amigos, party e mensagens.
+    default: true

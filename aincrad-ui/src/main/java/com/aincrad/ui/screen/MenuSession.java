@@ -63,6 +63,13 @@ public final class MenuSession {
         push(screen);
     }
 
+    /** Volta para a tela anterior sem fechar o menu (não faz nada na primeira tela). */
+    public void back() {
+        if (!closed) {
+            pop();
+        }
+    }
+
     /** @return false quando não há tela anterior (o menu deve fechar) */
     boolean pop() {
         if (stack.size() <= 1) {
