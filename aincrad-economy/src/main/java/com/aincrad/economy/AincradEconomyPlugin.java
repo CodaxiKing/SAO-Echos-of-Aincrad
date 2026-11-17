@@ -5,15 +5,19 @@ import com.aincrad.core.AincradReloadEvent;
 import com.aincrad.core.config.ConfigFile;
 import com.aincrad.core.message.Messages;
 import com.aincrad.economy.api.AincradEconomyAPI;
+import com.aincrad.economy.auction.AuctionService;
 import com.aincrad.economy.command.AdminCommands;
+import com.aincrad.economy.command.MarketCommands;
 import com.aincrad.economy.command.PlayerCommands;
 import com.aincrad.economy.data.Accounts;
+import com.aincrad.economy.house.HouseService;
 import com.aincrad.economy.shop.ShopService;
 import com.aincrad.economy.trade.TradeService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,6 +40,8 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         try {
             core.database().migrate("economy", Accounts.MIGRATIONS);
             core.database().migrate("economy_shops", ShopService.MIGRATIONS);
+            core.database().migrate("economy_auctions", AuctionService.MIGRATIONS);
+            core.database().migrate("economy_houses", HouseService.MIGRATIONS);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradEconomy não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -51,6 +57,13 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
             getLogger().warning("Não foi possível ler as ligações de loja: " + e.getMessage());
         }
         trade = new TradeService(this, eco);
+        AuctionService auction = new AuctionService(this, eco, core.database());
+        HouseService houses = new HouseService(this, eco, core.database());
+        try {
+            houses.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler as casas: " + e.getMessage());
+        }
 
         // Quem já está online (/reload): carrega agora.
         for (Player p : getServer().getOnlinePlayers()) {
@@ -65,6 +78,25 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new EcoListener(this, eco), this);
         getServer().getPluginManager().registerEvents(shops, this);
         getServer().getPluginManager().registerEvents(trade, this);
+        getServer().getPluginManager().registerEvents(houses, this);
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onJoin(PlayerJoinEvent event) {
+                Player p = event.getPlayer();
+                getServer().getScheduler().runTaskLater(AincradEconomyPlugin.this, () -> {
+                    if (p.isOnline()) {
+                        auction.notifyMailbox(p);
+                    }
+                }, 60L);
+            }
+        }, this);
+        core.subscribe(AuctionService.BUS_SOLD, auction::onSold);
+        core.subscribe(HouseService.BUS_CHANNEL, m -> {
+            if (!core.server().equals(m.origin())) {
+                houses.reloadAsync();
+            }
+        });
+        getServer().getScheduler().runTaskTimer(this, auction::expire, 20L * 30, 20L * 60);
         core.subscribe(Accounts.BUS_CHANNEL, accounts::onBus);
         core.subscribe(ShopService.BUS_CHANNEL, m -> {
             if (!core.server().equals(m.origin())) {
@@ -82,6 +114,15 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         }
         core.commands().register(this, AdminCommands.col(eco));
         core.commands().register(this, AdminCommands.shop(eco, shops));
+        MarketCommands market = new MarketCommands(eco, auction, houses);
+        for (String name : new String[]{"leilao", "casa"}) {
+            PluginCommand c = getCommand(name);
+            if (c != null) {
+                c.setExecutor(market);
+                c.setTabCompleter(market);
+            }
+        }
+        core.commands().register(this, market.admin());
 
         AincradEconomyAPI.init(eco, shops);
         getServer().getServicesManager().register(AincradEconomyAPI.class, AincradEconomyAPI.instance(), this, ServicePriority.Normal);

@@ -25,11 +25,21 @@ commands:
     usage: /trocar <jogador>|aceitar|recusar
     aliases: [trade, troca]
     permission: aincrad.economy.use
+  leilao:
+    description: Leilão — ver anúncios, anunciar o item da mão, caixa de retirada.
+    usage: /leilao [vender <preço> [horas]|retirar]
+    aliases: [leiloes, ah, auction]
+    permission: aincrad.economy.use
+  casa:
+    description: Sua casa — comprar, ir, convidar, remover, definir chegada, vender.
+    usage: /casa [info|comprar|ir|convidar|remover|definirspawn|vender] [jogador]
+    aliases: [casas, home]
+    permission: aincrad.economy.use
 
 permissions:
   aincrad.economy.use:
-    description: /col, /pagar e /trocar.
+    description: /col, /pagar, /trocar, /leilao e /casa.
     default: true
   aincrad.economy.admin:
-    description: /aincrad col, /aincrad loja e ver o saldo dos outros.
+    description: /aincrad col|loja|casa, ver o saldo dos outros e mexer em qualquer casa.
     default: op

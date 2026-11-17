@@ -19,6 +19,20 @@ A moeda **Col** e o que se compra com ela (etapas A3–A4 do plano). Precisa do 
   mudança derruba as confirmações e trava o confirmar por `espera_confirmar` segundos. Os dois
   confirmam → itens e Col trocam de dono juntos. Fechar, sair ou desligar o servidor devolve tudo.
 
+## O que faz (A4)
+
+- **Leilão** (`/leilao`) — anuncia o item da mão com preço e prazo (`horas_padrao`, máximo
+  `horas_maximo`), até `max_anuncios` por jogador. Os anúncios valem para a rede toda. Comprar pelo
+  menu pede confirmação; a taxa (`taxa_venda`) sai do valor do vendedor, que recebe mesmo offline
+  e é avisado no servidor onde estiver. Dois compradores ao mesmo tempo: só um leva (o outro recebe
+  o Col de volta). Clicar no próprio anúncio cancela. Vencidos e cancelados vão para a **caixa de
+  retirada** (`/leilao retirar`); quem entra com itens lá é avisado.
+- **Casas** — o admin marca a área com `/aincrad varinha` e cria com `/aincrad casa criar <nome> <preço> [andar]`
+  (vira a região `casa_<nome>` do core; a chegada é onde o admin está). Quem está dentro de uma casa
+  à venda usa `/casa comprar` (uma por jogador por padrão). Dentro da casa só o dono, os convidados
+  (`/casa convidar <jogador>`) e admins quebram, colocam, abrem portas, baús, botões, molduras e
+  suportes de armadura. Casa sem dono: só admin mexe. `/casa vender` devolve `reembolso` do preço.
+
 ## Comandos
 
 | Comando | O que faz | Permissão |
@@ -27,6 +41,9 @@ A moeda **Col** e o que se compra com ela (etapas A3–A4 do plano). Precisa do 
 | `/col <jogador>` | Saldo de outro (online ou não) | `aincrad.economy.admin` |
 | `/pagar <jogador> <qtd>` | Paga Col (`1500`, `1.500`, `1,5k`, `2m`) | `aincrad.economy.use` |
 | `/trocar <jogador>` · `aceitar` · `recusar` | Troca segura | `aincrad.economy.use` |
+| `/leilao` · `/leilao vender <preço> [horas]` · `/leilao retirar` | Leilão | `aincrad.economy.use` |
+| `/casa [info]` · `comprar` · `ir` · `convidar <j>` · `remover <j>` · `definirspawn` · `vender` | Casa | `aincrad.economy.use` |
+| `/aincrad casa criar <nome> <preço> [andar]` · `remover <nome>` · `despejar <nome>` · `listar` | Admin de casas | `aincrad.economy.admin` |
 | `/aincrad col dar\|tirar\|definir <jogador> <qtd>` · `ver <jogador>` | Admin do saldo | `aincrad.economy.admin` |
 | `/aincrad loja criar <id>` / `npc <id>` | Liga a loja ao bloco / entidade que você olha | `aincrad.economy.admin` |
 | `/aincrad loja remover` · `listar` · `abrir <id> [jogador]` | Remove ligação, lista, abre | `aincrad.economy.admin` |
@@ -51,7 +68,8 @@ tesouro da guilda.
 ## Banco
 
 `eco_accounts` (uuid, name, balance, updated), `eco_transactions` (registro), `eco_shop_links`
-(bloco/entidade → loja). Criadas pelas migrações do core.
+(bloco/entidade → loja), `eco_auctions` (anúncios, item serializado), `eco_mailbox` (caixa de
+retirada) e `eco_houses` (casas, dono, convidados, chegada). Criadas pelas migrações do core.
 
 ## Compilar
 
@@ -61,4 +79,9 @@ tesouro da guilda.
 
 Compila com o `../aincrad-core` (build composto) e o VaultAPI (jitpack, só para compilar). O jar sai
 em `build/libs/AincradEconomy-<versão>.jar`. Testes: `EcoMathTest` (formatação, taxa, Col de mob,
-soma sem estouro, leitura de quantidades).
+soma sem estouro, leitura de quantidades) e `AuctionMathTest` (prazo, taxas do leilão, acesso da casa).
+
+## Ainda falta
+
+- Estalagem e ferreiro do AincradLife cobrando em Col (quando o Life existir).
+- Teleporte para casa em outro servidor da rede (`/casa ir` só funciona no servidor da casa).
