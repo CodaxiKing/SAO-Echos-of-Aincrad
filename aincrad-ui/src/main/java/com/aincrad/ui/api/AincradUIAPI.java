@@ -67,4 +67,10 @@ public interface AincradUIAPI {
 
     /** Quem aparece com barras menores embaixo da barra de vida (membros da party). */
     void setPartyHudProvider(PartyHudProvider provider);
+
+    /**
+     * Símbolo antes do nome do jogador na barra de vida e no painel de perfil (ex.: o emblema da
+     * guilda). A função devolve null para "nenhum". Use texto curto (1 ou 2 caracteres).
+     */
+    void setHudBadgeProvider(java.util.function.Function<Player, Component> provider);
 }

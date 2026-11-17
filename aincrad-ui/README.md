@@ -119,6 +119,7 @@ ui.openList(player, UiList.of(Component.text("Amigos"))
 ui.replaceList(player, listaAtualizada);   // atualiza a lista atual
 ui.openWindow(player, titulo, linhas, botoes);
 ui.setPartyHudProvider(viewer -> membrosOnline(viewer));
+ui.setHudBadgeProvider(p -> emblemaDaGuilda(p));   // símbolo antes do nome na HUD e no perfil
 ```
 
 A ação de uma entrada do menu roda com o menu aberto: ela pode abrir uma lista por cima (agachar
@@ -161,7 +162,7 @@ estilhaços tem o id de `morte.efeito_estilhacos` (padrão `aincrad_estilhacos`)
 ## Ficou para depois
 
 - Modelo 3D da barra de vida (health_bar.glb, Sockona, CC BY 4.0): precisa de conversão.
-- Guilda, quests, mapa e skills: aparecem com cadeado até um plugin registrar (party, amigos e
+- Quests, mapa e skills: aparecem com cadeado até um plugin registrar (party, amigos, guilda e
   mensagens já são ligados pelo AincradSocial).
 - Relógio e data no canto de baixo (como no SAO Utils).
 - Menu desenhado na tela (2D) com shaders próprios, como alternativa ao menu no mundo.

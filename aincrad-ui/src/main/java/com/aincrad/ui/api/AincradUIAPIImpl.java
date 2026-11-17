@@ -112,4 +112,9 @@ public final class AincradUIAPIImpl implements AincradUIAPI {
     public void setPartyHudProvider(PartyHudProvider provider) {
         plugin.hud().setPartyProvider(provider);
     }
+
+    @Override
+    public void setHudBadgeProvider(java.util.function.Function<Player, Component> provider) {
+        plugin.hud().setBadgeProvider(provider);
+    }
 }

@@ -58,6 +58,10 @@ public final class UiMenu implements MenuHook {
         ui.registerMenuEntry("amigos", null, this::openFriends);
         ui.registerMenuEntry("caixa", null, this::openInbox);
         ui.registerMenuEntry("enviar_mensagem", null, this::openWriteTo);
+        GuildUi guilds = new GuildUi(plugin, ui);
+        ui.registerMenuEntry("guilda", null, guilds::open);
+        // Emblema da guilda antes do nome na barra de vida e no painel de perfil.
+        ui.setHudBadgeProvider(plugin.guildManager()::badge);
         ui.setPartyHudProvider(viewer -> {
             PartyService.Party party = plugin.parties().partyOf(viewer.getUniqueId());
             if (party == null) {
@@ -83,10 +87,11 @@ public final class UiMenu implements MenuHook {
 
     @Override
     public void shutdown() {
-        for (String id : List.of("party", "amigos", "caixa", "enviar_mensagem")) {
+        for (String id : List.of("party", "amigos", "caixa", "enviar_mensagem", "guilda")) {
             ui.unregisterMenuEntry(id);
         }
         ui.setPartyHudProvider(null);
+        ui.setHudBadgeProvider(null);
     }
 
     private Messages msg() {

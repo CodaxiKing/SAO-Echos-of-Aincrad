@@ -21,6 +21,14 @@ public final class Messages {
         return parse(cfg.getString(path, "<red>[" + path + "]"), resolvers);
     }
 
+    public java.util.List<Component> list(String path, TagResolver... resolvers) {
+        java.util.List<Component> out = new java.util.ArrayList<>();
+        for (String line : cfg.getStringList(path)) {
+            out.add(parse(line, resolvers));
+        }
+        return out;
+    }
+
     public void send(CommandSender to, String path, TagResolver... resolvers) {
         to.sendMessage(get("prefixo").append(get(path, resolvers)));
     }

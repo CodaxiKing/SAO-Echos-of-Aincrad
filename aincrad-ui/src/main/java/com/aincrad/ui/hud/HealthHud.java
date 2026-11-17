@@ -45,6 +45,7 @@ public final class HealthHud implements Listener {
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private final Map<UUID, List<BossBar>> memberBars = new HashMap<>();
     private PartyHudProvider partyProvider;
+    private java.util.function.Function<Player, Component> badgeProvider;
     private final Map<UUID, Long> lastAlert = new HashMap<>();
     private final Map<UUID, Long> forcedUntil = new HashMap<>();
     private BukkitTask task;
@@ -120,12 +121,13 @@ public final class HealthHud implements Listener {
         List<Glyph> fills = fillGlyphs();
 
         if (plugin.packStatus().hasPack(p) && frame != null && frame.present() && !fills.isEmpty()) {
-            bar.name(packTitle(p.getName(), ratio, state, blinkOff, numbers, level, frame, fills, st));
+            bar.name(packTitle(p.getName(), badge(p), ratio, state, blinkOff, numbers, level, frame, fills, st));
             bar.color(BossBar.Color.WHITE);
             bar.progress(1f);
         } else {
             TextColor c = colorOf(state, blinkOff);
-            Component title = Component.text(p.getName(), NamedTextColor.WHITE)
+            Component b = badge(p);
+            Component title = (b == null ? Component.empty() : b).append(Component.text(p.getName(), NamedTextColor.WHITE))
                     .append(Component.text("  " + numbers, c))
                     .append(Component.text("  " + level, NamedTextColor.AQUA));
             bar.name(title);
@@ -149,6 +151,32 @@ public final class HealthHud implements Listener {
     }
 
     // ------------------------------------------------------------------ party
+
+    public void setBadgeProvider(java.util.function.Function<Player, Component> provider) {
+        this.badgeProvider = provider;
+    }
+
+    /** Símbolo antes do nome (emblema da guilda), ou null. Usado também pelo painel de perfil. */
+    public Component badge(Player p) {
+        if (badgeProvider == null) {
+            return null;
+        }
+        try {
+            return badgeProvider.apply(p);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** Largura aproximada do símbolo: letras comuns pela tabela, símbolos como 9 px. */
+    static int badgeWidth(String text) {
+        int w = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            w += c < 128 ? TextWidth.of(c) : 9;
+        }
+        return w;
+    }
 
     public void setPartyProvider(PartyHudProvider provider) {
         this.partyProvider = provider;
@@ -246,7 +274,7 @@ public final class HealthHud implements Listener {
      * <p>O título da BossBar é centralizado. Para a moldura começar a {@code hudOffsetX} pixels à
      * esquerda do centro, soma-se no fim um espaço que deixa a largura total em 2 × deslocamento.
      */
-    private Component packTitle(String name, double ratio, HealthState state, boolean blinkOff,
+    private Component packTitle(String name, Component badge, double ratio, HealthState state, boolean blinkOff,
                                 String numbers, String level, Glyph frame, List<Glyph> fills, UiSettings st) {
         LineBuilder line = new LineBuilder();
         line.add(frame, frame.component());
@@ -261,8 +289,14 @@ public final class HealthHud implements Listener {
             line.shift(-1);
         }
 
-        String shown = fit(name, st.hudNameMaxPx);
         line.moveTo(st.hudNameX);
+        int maxName = st.hudNameMaxPx;
+        if (badge != null) {
+            int bw = badgeWidth(net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(badge));
+            line.add(badge, bw);
+            maxName = Math.max(12, maxName - bw);
+        }
+        String shown = fit(name, maxName);
         line.add(Component.text(shown, TEXT).font(UiFonts.SAO), UiFonts.saoWidth(shown));
 
         line.moveTo(st.hudNumbersX);

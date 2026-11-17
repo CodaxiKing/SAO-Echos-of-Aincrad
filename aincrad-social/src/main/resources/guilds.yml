@@ -1,0 +1,76 @@
+# ============================================================
+#  AincradSocial — guildas (estrutura como no anime)
+# ============================================================
+
+criacao:
+  # Requisitos para fundar uma guilda. Os que dependem de outro plugin só valem quando ele está
+  # instalado (andar: AincradFloors; quest: AincradQuests). Level = level do AincradRPG ou,
+  # sem ele, o level de XP do Minecraft.
+  andar_minimo: 3
+  quest: selo_da_guilda
+  level_minimo: 10
+  # Col cobrado do fundador (AincradEconomy ou Vault). Sem economia, não cobra.
+  custo: 5000
+  # A guilda precisa chegar a este número de membros no prazo, senão é desfeita e devolve
+  # esta fração do custo ao fundador.
+  membros_minimos: 3
+  prazo_dias: 7
+  reembolso: 0.5
+
+nome:
+  minimo: 3
+  maximo: 24
+tag:
+  minimo: 2
+  maximo: 4
+# Partes de palavras proibidas em nome e tag (sem diferenciar maiúsculas).
+palavras_bloqueadas: []
+
+# Emblemas que o líder pode escolher (aparecem antes do nome na barra de vida e no chat).
+emblemas: ["⚔", "✦", "☠", "♛", "❖", "✚", "☾", "✿", "⚑", "♞"]
+
+recruta_dias: 3
+lider_inativo_dias: 30
+espera_nova_horas: 24
+convite_expira_segundos: 120
+
+cofre:
+  # Quantos itens um membro (não oficial) pode tirar do cofre por dia.
+  retiradas_membro_por_dia: 16
+
+tesouro:
+  taxa_maxima: 10
+
+aliancas:
+  maximo: 3
+  nivel_minimo: 3
+
+uniforme:
+  nivel_minimo: 2
+casa:
+  nivel_minimo: 2
+  # Segundos parado antes de ir para a casa da guilda (cancela se mover ou levar dano).
+  espera_segundos: 3
+
+# Membros da mesma guilda e de guildas aliadas podem se ferir?
+fogo_amigo: false
+# Mensagens no chat que começam com este prefixo vão só para a guilda. Vazio desliga.
+chat_prefixo: "#"
+extrato_maximo: 200
+
+# XP da guilda por conquista dos membros.
+xp:
+  chefe: 100
+  last_attack: 50
+  quest: 20
+  # Por mob hostil derrotado (0 desliga). Limite por membro por dia.
+  mob: 1
+  mob_limite_dia: 200
+
+# Níveis: XP total para chegar, vagas de membros e espaços do cofre (múltiplo de 9).
+niveis:
+  - { nivel: 1, xp: 0,     vagas: 10, cofre: 9 }
+  - { nivel: 2, xp: 1000,  vagas: 20, cofre: 18 }
+  - { nivel: 3, xp: 3000,  vagas: 30, cofre: 27 }
+  - { nivel: 4, xp: 7000,  vagas: 40, cofre: 36 }
+  - { nivel: 5, xp: 15000, vagas: 50, cofre: 54 }

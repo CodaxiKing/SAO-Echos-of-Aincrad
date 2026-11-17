@@ -214,7 +214,8 @@ public final class Screens {
         s.add(new ScreenElement("painel").glyph(PANEL, null).decorative().onlyInCursor()
                 .at(cx, cy, ph).depth(0.08));
         List<Component> title = new ArrayList<>();
-        title.add(Component.text(p.getName()));
+        Component badge = plugin.hud().badge(p);
+        title.add(badge == null ? Component.text(p.getName()) : badge.append(Component.text(p.getName())));
         double titleScale = 0.5 * sc;
         double titleY = cy + ph / 2.0 - ph * (78.0 / 600.0);
         if (stats) {

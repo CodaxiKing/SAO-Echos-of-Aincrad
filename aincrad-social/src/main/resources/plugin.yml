@@ -2,9 +2,9 @@ name: AincradSocial
 version: '${version}'
 main: com.aincrad.social.AincradSocialPlugin
 api-version: '1.21'
-description: Amigos, party e mensagens no estilo SAO (integra com o menu do AincradUI).
+description: Amigos, party, guilda e mensagens no estilo SAO (integra com o menu do AincradUI).
 authors: [CodaxiKing]
-softdepend: [AincradUI]
+softdepend: [AincradUI, Vault, AincradEconomy, AincradFloors, AincradQuests, AincradRPG, AincradReputation]
 
 commands:
   amigo:
@@ -21,6 +21,19 @@ commands:
     description: Manda uma mensagem para um amigo (fica na caixa de entrada dele).
     usage: /mensagem <jogador> <texto>
     aliases: [carta]
+    permission: aincrad.social.use
+  guilda:
+    description: Guilda — criar, info, convidar, cargos, cofre, tesouro, casa, uniforme, aliança, ranking.
+    usage: /guilda [criar|info|lista|convidar|aceitar|recusar|candidatar|candidaturas|sair|expulsar|promover|rebaixar|lider|cofre|tesouro|casa|uniforme|alianca|ranking|desfazer|config]
+    aliases: [guild, guildas]
+    permission: aincrad.social.use
+  g:
+    description: Chat da guilda.
+    usage: /g <mensagem>
+    permission: aincrad.social.use
+  ga:
+    description: Chat das guildas aliadas.
+    usage: /ga <mensagem>
     permission: aincrad.social.use
   caixa:
     description: Mostra sua caixa de entrada.
