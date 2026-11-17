@@ -1,0 +1,21 @@
+# ============================================================
+#  AincradBosses — configuração
+#  Chefes: pasta bosses/ (um ou mais por arquivo)
+#  Salas (salas.yml) e zonas do labirinto (labirinto.yml) são criadas pelos comandos.
+# ============================================================
+
+sala:
+  # Segundos entre o primeiro jogador pisar na sala e a porta fechar (para o grupo entrar junto).
+  espera_segundos: 10
+  # Bloco que tapa o vão da porta durante a luta. BARRIER fica invisível.
+  porta_material: IRON_BARS
+  # Depois de uma derrota dos jogadores (ou do tempo acabar), o chefe só volta após este tempo.
+  recarga_derrota_segundos: 60
+
+# Padrões das zonas novas do labirinto (cada zona pode ser ajustada em labirinto.yml).
+labirinto:
+  mobs: [ZOMBIE, SKELETON, SPIDER]
+  # Máximo de mobs vivos por zona.
+  limite: 6
+  # Segundos entre um nascimento e outro, por zona.
+  intervalo_segundos: 8

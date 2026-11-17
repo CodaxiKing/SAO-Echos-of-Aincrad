@@ -1,0 +1,77 @@
+# ============================================================
+#  Chefes. A chave (illfang) é o id usado nos comandos. Um arquivo pode ter vários chefes.
+#
+#  mob: tipo do Minecraft (ZOMBIE, WITHER_SKELETON, IRON_GOLEM...)
+#  equipamento: mao, mao_secundaria, cabeca, peito, pernas, pes  (AIR tira o item)
+#  fases: "vida" é o percentual em que a fase começa. Cada fase pode trocar equipamento,
+#         multiplicar dano (dano_x) e velocidade (velocidade_x), falar e ter habilidades.
+#  habilidades (recarga em segundos):
+#    investida  — dano, raio
+#    area       — dano, raio, aviso_ticks (círculo vermelho no chão antes do golpe)
+#    lacaios    — mob, quantidade, level, nome
+#    projetil   — dano, mob: flecha | bola_de_fogo
+#    salto      — dano, raio
+#    furia      — segundos, multiplicador
+#    "nome" nas outras habilidades é a fala do chefe ao usar (MiniMessage).
+#  recompensas: itens são materiais ou "rpg:<id>[:raridade]" (items.yml do AincradRPG).
+# ============================================================
+illfang:
+  andar: 1
+  nome: "Illfang the Kobold Lord"
+  level: 10
+  mob: WITHER_SKELETON
+  vida: 600
+  dano: 8
+  armadura: 6
+  velocidade: 0.24
+  resistencia_empurrao: 0.8
+  escala: 1.6
+  equipamento:
+    mao: IRON_AXE
+    mao_secundaria: SHIELD
+    cabeca: GOLDEN_HELMET
+    peito: LEATHER_CHESTPLATE
+  # Chefe parado e invulnerável enquanto a barra de vida enche.
+  intro_segundos: 5
+  # 0 = sem limite.
+  tempo_limite_segundos: 900
+  # Depois da primeira vitória, volta só como desafio a cada X horas (0 = não volta).
+  reaparece_horas: 6
+  fases:
+    - vida: 100
+      nome: "Machado e escudo"
+      habilidades:
+        - { tipo: lacaios, recarga: 30, mob: ZOMBIE, quantidade: 3, level: 6, nome: "Ruin Kobold Sentinel" }
+        - { tipo: area, recarga: 12, dano: 8, raio: 4, aviso_ticks: 30 }
+    - vida: 50
+      nome: "Enfurecido"
+      mensagem: "<red><chefe> ruge e avança!"
+      habilidades:
+        - { tipo: lacaios, recarga: 35, mob: ZOMBIE, quantidade: 3, level: 7, nome: "Ruin Kobold Sentinel" }
+        - { tipo: area, recarga: 10, dano: 9, raio: 4, aviso_ticks: 25 }
+        - { tipo: investida, recarga: 14, dano: 10, raio: 3 }
+    - vida: 25
+      nome: "Nodachi"
+      mensagem: "<dark_red><chefe> larga o machado e o escudo e puxa uma espada enorme!"
+      equipamento:
+        mao: NETHERITE_SWORD
+        mao_secundaria: AIR
+      dano_x: 1.3
+      velocidade_x: 1.4
+      habilidades:
+        - { tipo: investida, recarga: 9, dano: 12, raio: 3 }
+        - { tipo: salto, recarga: 12, dano: 12, raio: 4 }
+        - { tipo: furia, recarga: 25, segundos: 8, multiplicador: 1.5, nome: "<dark_red>Os olhos de <chefe> brilham em vermelho!" }
+  recompensas:
+    # Dano mínimo (em % da vida do chefe) para contar como participante.
+    dano_minimo_pct: 5
+    # Para cada participante.
+    xp: 800
+    col: 500
+    # Só para quem deu o golpe final.
+    last_attack: "rpg:casaco_couro:lendario"
+    # Divididos em rodízio entre os participantes, começando por quem causou mais dano.
+    itens:
+      - { item: IRON_INGOT, quantidade: 12 }
+      - { item: GOLDEN_APPLE, quantidade: 4 }
+      - { item: "rpg:anneal_blade:raro", quantidade: 1 }

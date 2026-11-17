@@ -1,0 +1,13 @@
+name: AincradBosses
+version: '${version}'
+main: com.aincrad.bosses.AincradBossesPlugin
+api-version: '1.21'
+description: Chefes de andar do Aincrad — sala, fases, habilidades, Last Attack e labirinto.
+authors: [CodaxiKing]
+depend: [AincradCore, AincradFloors]
+softdepend: [AincradRPG, AincradEconomy, AincradSocial]
+
+permissions:
+  aincrad.admin:
+    description: Comandos de administração do Aincrad (/aincrad chefe, /aincrad labirinto) e entrar numa sala em luta.
+    default: op
