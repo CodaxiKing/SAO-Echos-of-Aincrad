@@ -14,6 +14,7 @@ public final class AincradLifeAPI {
     private static final AincradLifeAPI INSTANCE = new AincradLifeAPI();
     private static ProfessionService professions;
     private static InnService inns;
+    private static com.aincrad.life.cooking.FoodBuffService food;
 
     private AincradLifeAPI() {
     }
@@ -21,6 +22,11 @@ public final class AincradLifeAPI {
     public static void init(ProfessionService p, InnService i) {
         professions = p;
         inns = i;
+    }
+
+    /** Interno: o módulo de culinária (null quando desligado). */
+    public static void food(com.aincrad.life.cooking.FoodBuffService f) {
+        food = f;
     }
 
     public static AincradLifeAPI instance() {
@@ -69,5 +75,16 @@ public final class AincradLifeAPI {
     /** Tem um quarto alugado numa estalagem? */
     public static boolean hasRoom(Player player) {
         return inns != null && inns.of(player.getUniqueId()) != null;
+    }
+
+    /** Tipo do buff de comida ativo ("forca", "regeneracao", "velocidade", "vida_maxima", "xp", "sorte_pesca"), ou null. */
+    public static String getFoodBuff(Player player) {
+        var b = food == null ? null : food.current(player);
+        return b == null ? null : b.type().key();
+    }
+
+    /** Fração de sorte a mais na pesca vinda da comida (0.1 = +10%). */
+    public static double getFishingLuck(Player player) {
+        return food == null ? 0 : food.fishingLuck(player);
     }
 }

@@ -2,7 +2,7 @@ name: AincradLife
 version: '${version}'
 main: com.aincrad.life.AincradLifePlugin
 api-version: '1.21'
-description: A vida no Aincrad — profissões, bancadas, estalagens (e, depois, familiares e casamento).
+description: A vida no Aincrad — profissões, culinária, bancadas, estalagens (e, depois, familiares e casamento).
 authors: [CodaxiKing]
 depend: [AincradCore]
 softdepend: [AincradRPG, AincradEconomy, AincradFloors, AincradEffects, AincradUI]
@@ -12,5 +12,5 @@ softdepend: [AincradRPG, AincradEconomy, AincradFloors, AincradEffects, AincradU
 
 permissions:
   aincrad.admin:
-    description: Comandos de administração do Aincrad (/aincrad estacao, saber, arvore, profissao, estalagem).
+    description: Comandos de administração do Aincrad (/aincrad estacao, saber, arvore, profissao, cozinha, estalagem).
     default: op

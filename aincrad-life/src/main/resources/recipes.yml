@@ -1,0 +1,99 @@
+# ============================================================
+#  Receitas da culinária.
+#
+#  encaixes:             o ingrediente (de ingredients.yml) de cada encaixe. base, proteina,
+#                        vegetal e tempero são obrigatórios; especial só se a receita pedir.
+#                        Duas receitas não podem ter a mesma combinação.
+#  proficiencia_estudo:  para aprender a receita (usando o livro dela).
+#  proficiencia_minima:  para cozinhar.
+#  dificuldade:          quanto mais perto da proficiência do cozinheiro, mais pontos ele ganha;
+#                        proficiência acima da dificuldade aumenta a chance de "excelente".
+#  etapas:               cortar, fogo, mexer, temperar, empratar — na ordem em que acontecem.
+#  buff:                 tipo: forca (% de dano), regeneracao (nível), velocidade (%),
+#                        vida_maxima (pontos de vida), xp (%), sorte_pesca (%).
+#  porcoes:              1 = prato individual; mais = prato de panela (até o máximo da config).
+#  secreta:              true — não tem livro: o cozinheiro descobre acertando a combinação.
+#  caminho/especializacao: exclusivo de um ramo da árvore (trees/culinaria.yml).
+#  item:                 material do prato pronto (precisa ser comestível).
+#
+#  Livro de uma receita: /aincrad saber dar <jogador> receita <id>
+# ============================================================
+receitas:
+  ensopado_do_viajante:
+    nome: "Ensopado do Viajante"
+    encaixes: {base: batata, proteina: carne_bovina, vegetal: cenoura, tempero: ervas_finas}
+    proficiencia_estudo: 0
+    proficiencia_minima: 0
+    dificuldade: 50
+    etapas: [cortar, fogo]
+    buff: {tipo: regeneracao, valor: 1, minutos: 10}
+    item: RABBIT_STEW
+  pao_doce:
+    nome: "Pão Doce"
+    encaixes: {base: trigo, proteina: ovo, vegetal: maca, tempero: acucar}
+    proficiencia_estudo: 0
+    proficiencia_minima: 50
+    dificuldade: 120
+    etapas: [mexer, fogo]
+    buff: {tipo: velocidade, valor: 10, minutos: 10}
+    item: BREAD
+  torta_de_abobora:
+    nome: "Torta de Abóbora"
+    encaixes: {base: trigo, proteina: ovo, vegetal: abobora, tempero: acucar}
+    proficiencia_estudo: 100
+    proficiencia_minima: 150
+    dificuldade: 220
+    etapas: [cortar, mexer, fogo]
+    buff: {tipo: xp, valor: 5, minutos: 15}
+    item: PUMPKIN_PIE
+  peixe_grelhado:
+    nome: "Peixe Grelhado com Algas"
+    encaixes: {base: batata, proteina: peixe, vegetal: algas, tempero: ervas_finas}
+    proficiencia_estudo: 150
+    proficiencia_minima: 200
+    dificuldade: 280
+    etapas: [cortar, temperar, fogo]
+    buff: {tipo: sorte_pesca, valor: 10, minutos: 15}
+    item: COOKED_COD
+  frango_ao_mel:
+    nome: "Frango ao Mel"
+    encaixes: {base: trigo, proteina: frango, vegetal: cenoura, tempero: mel}
+    proficiencia_estudo: 250
+    proficiencia_minima: 300
+    dificuldade: 380
+    etapas: [cortar, temperar, fogo, empratar]
+    buff: {tipo: forca, valor: 8, minutos: 15}
+    item: COOKED_CHICKEN
+  caldeirada:
+    nome: "Caldeirada da Linha de Frente"
+    encaixes: {base: batata, proteina: salmao, vegetal: cogumelo, tempero: tempero_basico}
+    proficiencia_estudo: 250
+    proficiencia_minima: 350
+    dificuldade: 430
+    etapas: [cortar, fogo, mexer, empratar]
+    buff: {tipo: vida_maxima, valor: 6, minutos: 20}
+    # Prato de panela: exclusivo do Chef de banquete.
+    porcoes: 3
+    caminho: chef_de_banquete
+    item: MUSHROOM_STEW
+  ensopado_de_coelho:
+    nome: "Ensopado de Coelho"
+    encaixes: {base: agua_pura, proteina: carne_coelho_raro, vegetal: cenoura, tempero: tempero_basico}
+    proficiencia_estudo: 400
+    proficiencia_minima: 500
+    dificuldade: 600
+    etapas: [cortar, temperar, fogo, mexer, empratar]
+    buff: {tipo: vida_maxima, valor: 20, minutos: 30}
+    caminho: gourmet
+    item: RABBIT_STEW
+  # Secreta: não existe livro. Quem acertar a combinação aprende a receita.
+  peixe_ao_molho_escuro:
+    nome: "Peixe ao Molho Escuro"
+    encaixes: {base: batata, proteina: peixe, vegetal: algas, tempero: cacau}
+    proficiencia_estudo: 150
+    proficiencia_minima: 200
+    dificuldade: 300
+    etapas: [cortar, temperar, fogo]
+    buff: {tipo: xp, valor: 8, minutos: 20}
+    secreta: true
+    item: COOKED_SALMON

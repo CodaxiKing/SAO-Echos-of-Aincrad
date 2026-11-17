@@ -1,0 +1,142 @@
+# ============================================================
+#  Ingredientes da culinária.
+#
+#  encaixe:       em que lugar do prato o ingrediente entra: base, proteina, vegetal, tempero
+#                 ou especial (o especial é opcional em todo prato).
+#  rank:          E, D, C, B, A ou S.
+#  material:      o item do Minecraft que representa o ingrediente.
+#  item_proprio:  false (padrão) — qualquer item comum desse material serve.
+#                 true — só vale o item próprio do plugin (com nome e marca), que vem de drop,
+#                 loja, quest ou de /aincrad cozinha ingrediente <jogador> <id> [qtd].
+#  origem:        texto mostrado na descrição do item próprio.
+#
+#  Dois ingredientes comuns não podem usar o mesmo material.
+# ============================================================
+ingredientes:
+  # ----- base -----
+  trigo:
+    nome: "Trigo"
+    encaixe: base
+    rank: E
+    material: WHEAT
+  batata:
+    nome: "Batata"
+    encaixe: base
+    rank: E
+    material: POTATO
+  agua_pura:
+    nome: "Água Pura da Nascente"
+    encaixe: base
+    rank: C
+    material: POTION
+    item_proprio: true
+    origem: "Nascentes dos andares altos"
+
+  # ----- proteína -----
+  carne_bovina:
+    nome: "Carne Bovina"
+    encaixe: proteina
+    rank: E
+    material: BEEF
+  frango:
+    nome: "Frango"
+    encaixe: proteina
+    rank: E
+    material: CHICKEN
+  ovo:
+    nome: "Ovo"
+    encaixe: proteina
+    rank: E
+    material: EGG
+  peixe:
+    nome: "Peixe"
+    encaixe: proteina
+    rank: E
+    material: COD
+  salmao:
+    nome: "Salmão"
+    encaixe: proteina
+    rank: D
+    material: SALMON
+  carne_coelho:
+    nome: "Carne de Coelho"
+    encaixe: proteina
+    rank: D
+    material: RABBIT
+  carne_coelho_raro:
+    nome: "Carne do Coelho do Ragu"
+    encaixe: proteina
+    rank: S
+    material: RABBIT
+    item_proprio: true
+    origem: "Drop de um coelho raro"
+
+  # ----- vegetal -----
+  cenoura:
+    nome: "Cenoura"
+    encaixe: vegetal
+    rank: E
+    material: CARROT
+  cogumelo:
+    nome: "Cogumelo"
+    encaixe: vegetal
+    rank: E
+    material: BROWN_MUSHROOM
+  maca:
+    nome: "Maçã"
+    encaixe: vegetal
+    rank: E
+    material: APPLE
+  abobora:
+    nome: "Abóbora"
+    encaixe: vegetal
+    rank: D
+    material: PUMPKIN
+  algas:
+    nome: "Algas Secas"
+    encaixe: vegetal
+    rank: D
+    material: DRIED_KELP
+
+  # ----- tempero -----
+  acucar:
+    nome: "Açúcar"
+    encaixe: tempero
+    rank: E
+    material: SUGAR
+  ervas_finas:
+    nome: "Ervas Finas"
+    encaixe: tempero
+    rank: E
+    material: FERN
+  cacau:
+    nome: "Cacau"
+    encaixe: tempero
+    rank: D
+    material: COCOA_BEANS
+  mel:
+    nome: "Mel"
+    encaixe: tempero
+    rank: C
+    material: HONEYCOMB
+  tempero_basico:
+    nome: "Tempero Básico"
+    encaixe: tempero
+    rank: D
+    material: GLOWSTONE_DUST
+    item_proprio: true
+    origem: "Lojas de NPC"
+
+  # ----- especial (opcional; qualquer um deles dá um capricho a mais no prato) -----
+  frutas_brilhantes:
+    nome: "Frutas Brilhantes"
+    encaixe: especial
+    rank: C
+    material: GLOW_BERRIES
+  creme_raro:
+    nome: "Creme Raro"
+    encaixe: especial
+    rank: A
+    material: MILK_BUCKET
+    item_proprio: true
+    origem: "Drop de mobs raros"

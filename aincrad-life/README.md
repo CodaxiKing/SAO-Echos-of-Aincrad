@@ -1,8 +1,10 @@
 # AincradLife
 
-A vida fora do combate. Esta versão traz **a base** (etapa 22 do plano): proficiência, "aprender
-antes de fazer", árvore de especialização, bancadas com painel flutuante e estalagens. As quatro
-profissões em si (receitas, minigames), os pedidos, os familiares e o casamento ainda não têm código.
+A vida fora do combate. Esta versão traz **a base** (etapa 22 do plano: proficiência, "aprender
+antes de fazer", árvore de especialização, bancadas com painel flutuante e estalagens) e a
+**culinária** (começo da etapa 23, tarefas 23.1 a 23.3: ingredientes, receitas, preparo na bancada
+e buffs de comida). Pesca, ferreiro, alquimia, barracas, pedidos, familiares e casamento ainda não
+têm código.
 
 Precisa do **AincradCore**. Opcionais: AincradEconomy (preços em Col e caixa de correio), AincradRPG
 (bônus de XP do descanso), AincradFloors (volta ao andar 1), AincradEffects (envia os modelos das
@@ -13,8 +15,8 @@ bancadas no pack único).
 ## Módulos (`config.yml → modulos`)
 
 Cada módulo liga e desliga, e `/aincrad reload` aplica: os comandos de um módulo desligado somem.
-Hoje têm código a base das profissões (ligada se qualquer uma das quatro estiver) e `estalagens`.
-`familiares` e `casamento` só aparecem no console como "ainda sem código".
+Hoje têm código a base das profissões (ligada se qualquer uma das quatro estiver), `culinaria` e
+`estalagens`. Os outros só aparecem no console como "ainda sem código".
 
 ## Proficiência (`professions.yml`)
 
@@ -35,8 +37,8 @@ Nada é produzido sem ter sido aprendido. Um projeto, receita ou fórmula tem a 
 - Pergaminho em branco: quem conhece pode transcrever para outro jogador, se o item permitir.
 - Um item ligado a um caminho da árvore é recusado para quem escolheu outro.
 
-As profissões registram os próprios itens por `ProfessionService.register`; os de
-`professions.yml → exemplos_de_aprendizado` servem para testar agora.
+As profissões registram os próprios itens por `ProfessionService.register` (a culinária registra
+as receitas como tipo `receita`); os de `professions.yml → exemplos_de_aprendizado` servem para testar.
 
 ## Árvore de especialização (`trees/<profissão>.yml`)
 
@@ -64,6 +66,46 @@ invisível; sem o pack, vira um bloco provisório do Minecraft.
   `resourcepack/assets/aincrad/models/station/<id>.json`. Um `items/station/<id>_active.json`, se
   existir, é usado enquanto a bancada está em uso. `tools/gerar_modelos_provisorios.py` refaz os provisórios.
 
+## Culinária (`ingredients.yml`, `recipes.yml`, `config.yml → culinaria`)
+
+Cozinhar acontece em cima da bancada de cozinha (`/aincrad cozinha criar`), sem menu de baú.
+
+1. **Montar o prato**: clique na bancada. Aparecem cinco encaixes — Base, Proteína, Vegetal,
+   Tempero e Especial (opcional). Clique num encaixe com o ingrediente na mão. O holograma mostra o
+   nome da receita, se você a conhece, ou "Prato desconhecido".
+2. **Cozinhar**: clique de novo na bancada. Agachado + clique desiste (antes de começar, os
+   ingredientes voltam; depois, se perdem).
+3. **Etapas**, na ordem da receita:
+   - *Cortar* e *Empratar*: clique no ponto dourado quando o anel fecha.
+   - *Mexer*: as marcas andam para um lado; siga a sequência.
+   - *Temperar*: a marca acende de repente e some logo.
+   - *Fogo*: a chama cai sozinha. Clique na direita para pôr lenha e na esquerda para abafar, e
+     mantenha a chama na faixa verde. Quente demais por 3 s queima o prato na hora.
+4. **Qualidade**: a soma dos acertos dá queimado, comum, bom ou excelente. A chance de "excelente"
+   cresce com a proficiência acima da dificuldade da receita, com o empratar perfeito e com um
+   ingrediente a mais no encaixe Especial.
+
+Regras:
+
+- **Ingredientes**: os comuns são itens do Minecraft (cenoura, trigo, peixe...). Os de
+  `item_proprio: true` só valem com a marca do plugin (`/aincrad cozinha ingrediente`, e depois
+  drops e lojas).
+- **Receitas**: precisam ser aprendidas pelo livro (`/aincrad saber dar <jogador> receita <id>`) e
+  pedem a proficiência de produção. As de `caminho:` são exclusivas de um ramo da árvore.
+- **Receitas secretas** não têm livro: quem acerta a combinação e termina o prato sem queimar
+  aprende a receita.
+- **Combinação errada** (ou receita que você não conhece) gasta os ingredientes e vira "gororoba".
+  Para só avisar, sem gastar: `mistura_errada_consome: false`.
+- **Pratos de panela** (`porcoes` maior que 1) rendem várias porções, até `porcoes_maximo`.
+- **Buffs**: força, regeneração, velocidade, vida máxima, XP (precisa do AincradRPG) e sorte na
+  pesca (guardada para o módulo de pesca). Só um buff de comida por vez — comer outro prato
+  troca. O buff fica no perfil do core: continua depois de relogar e de trocar de servidor.
+  Queimado não dá nada; excelente dura 50% mais.
+- Os nós da árvore de culinária já valem: janela de corte, de mexer e de tempero, faixa do fogo,
+  chance de excelente, porções, duração e força do buff, ingrediente poupado e "nunca queima".
+- No Bedrock (modo simples) os encaixes viram um menu, as marcas contam só o tempo e, no fogo,
+  cada batida põe lenha.
+
 ## Estalagens (`inns.yml`)
 
 - Balcão: aluga um quarto de 1 a 7 dias; renovar soma ao que resta, até 7 dias à frente.
@@ -83,17 +125,31 @@ Sem o AincradEconomy, os preços viram itens (`sem_economia`).
 | `/aincrad saber dar\|ensinar\|esquecer <jogador> <tipo> <id>`, `pergaminho <jogador> [qtd]`, `lista` | Conhecimento |
 | `/aincrad arvore resetar <jogador> <profissão>` | Devolve os pontos e reabre os caminhos |
 | `/aincrad profissao definir <jogador> <profissão> <0-1000>`, `ver <jogador>` | Proficiência |
+| `/aincrad cozinha criar`, `ingrediente <jogador> <id> [qtd]`, `prato <jogador> <receita> [qualidade]`, `lista` | Culinária |
 | `/aincrad estalagem …` | Estalagens |
 
 ## API
 
 `AincradLifeAPI` (estático, também no ServicesManager): `getProficiency`, `getRank`, `getPath`,
-`getSpecialization`, `knows`, `isRested`, `hasRoom`.
+`getSpecialization`, `knows`, `isRested`, `hasRoom`, `getFoodBuff`, `getFishingLuck`.
 
 ## Escolhas diferentes do plano
 
 - Os dados ficam no banco do AincradCore (não num SQLite próprio), para funcionar em rede.
 - Pacote `com.aincrad.life`, como os outros plugins.
+- Culinária: toda receita usa os quatro encaixes obrigatórios; o `preparo_segundos` do exemplo do
+  plano deu lugar à lista de `etapas`.
+- "Mexer" é uma sequência de marcas para um lado, e não girar o olhar em volta da panela (girando,
+  o jogador perderia o painel de vista).
+- Comum dura 80% do tempo da receita, bom 100% e excelente 150% (`culinaria.duracao`); o plano só
+  define o excelente.
+- Os buffs específicos de ramo (ex.: `forca_buff_carne`, `festim_regeneracao`) e as técnicas dos
+  nós finais ainda não têm efeito; chegam com as receitas de cada ramo.
+
+## O que falta da etapa 23
+
+Barraca e banca (23.4), pesca (23.5 a 23.7), ferreiro e forja (23.8 a 23.12), alquimia (23.13 a
+23.16) e as encomendas (C1 a C7).
 
 ## Compilar
 

@@ -4,7 +4,7 @@
 # ============================================================
 
 # Cada módulo liga e desliga aqui (/aincrad reload aplica; os comandos de um módulo desligado somem).
-# Nesta versão têm código: a base das profissões (ligada se alguma das quatro estiver) e estalagens.
+# Nesta versão têm código: a base das profissões (ligada se alguma das quatro estiver), culinária e estalagens.
 modulos:
   culinaria: true
   pesca: true
@@ -18,6 +18,68 @@ estacoes:
   # Modelos 3D das bancadas (do resource pack). "auto" usa os modelos só quando o AincradEffects
   # está no servidor; "sim" sempre; "nao" nunca (a bancada é o bloco provisório).
   modelos: auto
+
+# Culinária. Receitas em recipes.yml, ingredientes em ingredients.yml. Tempos em ticks (20 = 1 s).
+culinaria:
+  # Tipo de bancada (stations.yml) que serve de cozinha.
+  estacao: kitchen
+  # Cortar: marcas em pontos sorteados. "anel_ticks" é o tempo do anel para fechar; "perfeita" e
+  # "boa" são a folga, para mais ou para menos, do clique.
+  cortar:
+    marcas: 4
+    anel_ticks: 24
+    perfeita: 2
+    boa: 5
+  # Mexer: as marcas andam em sequência para um lado.
+  mexer:
+    marcas: 5
+    anel_ticks: 18
+    perfeita: 2
+    boa: 5
+  # Temperar: uma marca acende de repente, depois de uma espera sorteada.
+  temperar:
+    espera_min_ticks: 20
+    espera_max_ticks: 70
+    aceso_ticks: 14
+    perfeita: 4
+    boa: 7
+  # Empratar: uma marca só, lenta e com folga pequena. Perfeita, aumenta a chance de "excelente".
+  empratar:
+    anel_ticks: 40
+    perfeita: 1
+    boa: 4
+  # Fogo: a chama (de 0 a 1) cai sozinha; lenha sobe, abafar desce.
+  fogo:
+    segundos: 8
+    # Largura da faixa certa.
+    faixa: 0.24
+    queda_por_tick: 0.006
+    lenha: 0.12
+    abafar: 0.10
+    # Ticks seguidos acima da faixa que queimam o prato na hora.
+    queima_ticks: 60
+  # A nota do preparo vai de 0 a 1 (perfeita = 1, boa = 0.6, ruim = 0; o fogo pesa por três marcas).
+  qualidade:
+    queimado_abaixo: 0.25
+    bom_a_partir: 0.55
+    # A partir desta nota o prato pode sair excelente, com a chance abaixo.
+    excelente_a_partir: 0.85
+    chance_excelente_base: 0.5
+    # A cada 100 de proficiência acima (ou abaixo) da dificuldade da receita.
+    chance_por_100_de_folga: 0.15
+    bonus_empratar_perfeito: 0.2
+  # Chance a mais de "excelente" por pôr um ingrediente no encaixe Especial que a receita não pede.
+  bonus_especial: 0.1
+  # Duração do buff conforme a qualidade (vezes os minutos da receita). Queimado não dá buff.
+  duracao:
+    comum: 0.8
+    bom: 1.0
+    excelente: 1.5
+  # Máximo de porções de um prato de panela (com os bônus da árvore).
+  porcoes_maximo: 6
+  # Uma combinação que não é receita conhecida gasta os ingredientes e vira "gororoba".
+  # false: a bancada só avisa e não gasta nada.
+  mistura_errada_consome: true
 
 estalagens:
   descanso:

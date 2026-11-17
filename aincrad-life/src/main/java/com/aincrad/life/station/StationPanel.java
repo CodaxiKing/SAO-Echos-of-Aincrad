@@ -21,6 +21,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
 /**
@@ -83,6 +84,7 @@ public final class StationPanel {
     private Consumer<Boolean> onClose = returned -> { };
     private boolean simple;
     private boolean closed;
+    private boolean slotsLocked;
 
     // A marca em andamento.
     private TextDisplay ring;
@@ -92,6 +94,7 @@ public final class StationPanel {
     private int perfectTicks;
     private int goodTicks;
     private Consumer<Hit> markResult;
+    private IntConsumer pointClick = point -> { };
 
     StationPanel(PanelManager manager, Player owner, Location base, float yaw, double[] hologramAt, boolean simple) {
         this.manager = manager;
@@ -191,6 +194,11 @@ public final class StationPanel {
         return true;
     }
 
+    /** Trava os encaixes (o trabalho começou: nada mais entra nem sai). */
+    public void lockSlots(boolean locked) {
+        this.slotsLocked = locked;
+    }
+
     /** Chamado quando um encaixe enche ou esvazia. */
     public void onSlotChange(Runnable r) {
         this.onSlotChange = r;
@@ -198,7 +206,7 @@ public final class StationPanel {
 
     /** O dono clicou num encaixe (ou escolheu no menu, no modo simples). */
     void clickSlot(int index) {
-        if (closed || index < 0 || index >= slots.size()) {
+        if (closed || slotsLocked || index < 0 || index >= slots.size()) {
             return;
         }
         Slot s = slots.get(index);
@@ -291,6 +299,19 @@ public final class StationPanel {
     }
 
     /**
+     * Cliques num ponto de batida quando não há marca em andamento (ex.: lenha e abafar, na etapa
+     * do fogo). Recebe o índice do ponto, ou -1 no modo simples (clique sem mira).
+     */
+    public void onPointClick(IntConsumer handler) {
+        this.pointClick = handler == null ? point -> { } : handler;
+    }
+
+    /** Tira a marca em andamento, sem resultado. */
+    public void cancelMark() {
+        clearMark();
+    }
+
+    /**
      * Mostra uma marca: um ponto brilhante e um anel que se fecha sobre ele em {@code ticks}. O
      * artesão clica no ponto quando o anel fecha.
      *
@@ -357,7 +378,12 @@ public final class StationPanel {
 
     /** O dono clicou num ponto de batida ({@code point} -1 = clique sem mira, do modo simples). */
     void clickMark(int point) {
-        if (closed || markResult == null) {
+        if (closed) {
+            return;
+        }
+        if (markResult == null) {
+            // Sem marca em andamento: clique livre (ex.: pôr lenha na etapa do fogo).
+            pointClick.accept(point);
             return;
         }
         boolean right = simple || point == markPoint;

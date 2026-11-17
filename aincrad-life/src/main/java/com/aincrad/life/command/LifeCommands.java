@@ -3,6 +3,10 @@ package com.aincrad.life.command;
 import com.aincrad.core.AincradAdminActionEvent;
 import com.aincrad.core.command.SubCommand;
 import com.aincrad.core.message.Messages;
+import com.aincrad.life.cooking.CookingService;
+import com.aincrad.life.cooking.Ingredient;
+import com.aincrad.life.cooking.Quality;
+import com.aincrad.life.cooking.Recipe;
 import com.aincrad.life.inn.Inn;
 import com.aincrad.life.inn.InnService;
 import com.aincrad.life.model.Learnable;
@@ -33,7 +37,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
-/** Os subcomandos de admin do AincradLife em {@code /aincrad}: estacao, saber, arvore, profissao e estalagem. */
+/** Os subcomandos de admin do AincradLife em {@code /aincrad}: estacao, saber, arvore, profissao, cozinha e estalagem. */
 public final class LifeCommands {
 
     private final Plugin plugin;
@@ -437,6 +441,85 @@ public final class LifeCommands {
             }
             default -> List.of();
         });
+    }
+
+    // ------------------------------------------------------------------ /aincrad cozinha
+
+    public SubCommand kitchen(CookingService cooking) {
+        return sub("cozinha", "cozinha criar | ingrediente <jogador> <id> [qtd] | prato <jogador> <receita> [qualidade] | lista", "admin.descricao_cozinha", (sender, args) -> {
+            String op = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+            switch (op) {
+                case "lista" -> msg.send(sender, "cozinha.lista", Messages.vars(
+                        "ingredientes", String.join(", ", cooking.registry().ingredients().keySet()),
+                        "receitas", String.join(", ", cooking.registry().recipes().keySet())));
+                case "criar" -> {
+                    // Atalho para /aincrad estacao criar <bancada de cozinha>.
+                    if (!(sender instanceof Player p)) {
+                        msg.send(sender, "geral.so_jogador");
+                        return;
+                    }
+                    StationType type = stations.types().get(cooking.stationType());
+                    Block target = p.getTargetBlockExact(5);
+                    Block at = target == null ? null : target.getRelative(BlockFace.UP);
+                    if (type == null || at == null || !at.getType().isAir() || stations.at(at) != null) {
+                        msg.send(p, type == null ? "estacao.tipo_desconhecido" : "estacao.sem_lugar",
+                                Messages.vars("tipos", String.join(", ", stations.types().keySet())));
+                        return;
+                    }
+                    stations.create(p, type, at);
+                    log(sender, "estacao.criar", type.id() + " em " + at.getWorld().getName() + " " + at.getX() + "," + at.getY() + "," + at.getZ());
+                }
+                case "ingrediente", "prato" -> {
+                    Player t = args.length > 2 ? online(sender, args[1]) : null;
+                    if (t == null) {
+                        if (args.length < 3) {
+                            msg.send(sender, "admin.uso_cozinha");
+                        }
+                        return;
+                    }
+                    if (op.equals("ingrediente")) {
+                        Ingredient i = cooking.registry().ingredient(args[2]);
+                        if (i == null) {
+                            msg.send(sender, "cozinha.desconhecido", Messages.vars("id", args[2]));
+                            return;
+                        }
+                        int n = amount(args, 3);
+                        t.getInventory().addItem(cooking.ingredientItem(i, n)).values().forEach(r -> t.getWorld().dropItemNaturally(t.getLocation(), r));
+                        msg.send(sender, "cozinha.ingrediente_dado", Messages.vars("qtd", n, "nome", i.name(), "jogador", t.getName()));
+                        log(sender, "cozinha.ingrediente", t.getName() + " " + n + "x " + i.id());
+                    } else {
+                        Recipe r = cooking.registry().recipe(args[2]);
+                        Quality q = args.length > 3 ? Quality.parse(args[3]) : Quality.BOM;
+                        if (r == null || q == null) {
+                            msg.send(sender, r == null ? "cozinha.desconhecido" : "admin.uso_cozinha", Messages.vars("id", args[2]));
+                            return;
+                        }
+                        t.getInventory().addItem(cooking.dish(r, q, sender.getName(), 0, 0, 1)).values().forEach(x -> t.getWorld().dropItemNaturally(t.getLocation(), x));
+                        msg.send(sender, "cozinha.prato_dado", Messages.vars("nome", r.name(), "jogador", t.getName()));
+                        log(sender, "cozinha.prato", t.getName() + " " + r.id() + " " + q.key());
+                    }
+                }
+                default -> msg.send(sender, "admin.uso_cozinha");
+            }
+        }, args -> {
+            String op = args[0].toLowerCase(Locale.ROOT);
+            return switch (args.length) {
+                case 1 -> filter(List.of("criar", "ingrediente", "prato", "lista"), args[0]);
+                case 2 -> op.equals("ingrediente") || op.equals("prato") ? filter(players(), args[1]) : List.of();
+                case 3 -> op.equals("ingrediente") ? filter(new ArrayList<>(cooking.registry().ingredients().keySet()), args[2])
+                        : op.equals("prato") ? filter(new ArrayList<>(cooking.registry().recipes().keySet()), args[2]) : List.of();
+                case 4 -> op.equals("prato") ? filter(List.of("queimado", "comum", "bom", "excelente"), args[3]) : List.of();
+                default -> List.of();
+            };
+        });
+    }
+
+    private static int amount(String[] args, int index) {
+        try {
+            return args.length > index ? Math.max(1, Math.min(64, Integer.parseInt(args[index]))) : 1;
+        } catch (NumberFormatException e) {
+            return 1;
+        }
     }
 
     /** Ao desligar: encerra os painéis de teste. */

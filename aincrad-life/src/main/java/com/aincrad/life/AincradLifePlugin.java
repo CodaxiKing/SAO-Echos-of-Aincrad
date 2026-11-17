@@ -6,6 +6,8 @@ import com.aincrad.core.config.ConfigFile;
 import com.aincrad.core.message.Messages;
 import com.aincrad.life.api.AincradLifeAPI;
 import com.aincrad.life.command.LifeCommands;
+import com.aincrad.life.cooking.CookingService;
+import com.aincrad.life.cooking.FoodBuffService;
 import com.aincrad.life.data.LifeStore;
 import com.aincrad.life.hook.Hooks;
 import com.aincrad.life.hook.RpgXpListener;
@@ -40,14 +42,15 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * AincradLife: a vida fora do combate. Esta versão traz a base (etapa 22): profissões com
+ * AincradLife: a vida fora do combate. Esta versão traz a base (etapa 22: profissões com
  * proficiência, "aprender antes de fazer", árvore de especialização, bancadas com painel
- * flutuante e as estalagens. Cada módulo liga e desliga em config.yml → modulos.
+ * flutuante e estalagens) e a culinária (etapa 23: receitas, preparo na bancada e buffs de
+ * comida). Cada módulo liga e desliga em config.yml → modulos.
  */
 public final class AincradLifePlugin extends JavaPlugin implements Listener {
 
     /** Módulos do plano que ainda não têm código nesta versão (ficam só anunciados no console). */
-    private static final List<String> PENDING = List.of("culinaria", "pesca", "ferreiro", "alquimia", "familiares", "casamento");
+    private static final List<String> PENDING = List.of("pesca", "ferreiro", "alquimia", "familiares", "casamento");
 
     private ConfigFile config;
     private ConfigFile professionsConfig;
@@ -57,6 +60,8 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
     private StationService stations;
     private PanelManager panels;
     private InnService inns;
+    private CookingService cooking;
+    private FoodBuffService foodBuffs;
     private LifeCommands commands;
     private final List<Listener> moduleListeners = new ArrayList<>();
     private final List<BukkitTask> moduleTasks = new ArrayList<>();
@@ -134,6 +139,9 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             core.commands().register(this, commands.knowledge());
             core.commands().register(this, commands.tree());
             core.commands().register(this, commands.profession());
+            if (on("culinaria")) {
+                startCooking(core);
+            }
         }
         if (on("estalagens")) {
             inns = new InnService(this, msg, hooks, core.database(), config);
@@ -161,19 +169,43 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             core.commands().register(this, commands.inn(inns));
         }
         AincradLifeAPI.init(professions, inns);
+        AincradLifeAPI.food(foodBuffs);
         List<String> later = new ArrayList<>();
         for (String m : PENDING) {
             if (on(m)) {
                 later.add(m);
             }
         }
-        getLogger().info("Módulos ligados: " + (anyProfession ? "profissões (base) " : "") + (inns != null ? "estalagens " : "")
+        getLogger().info("Módulos ligados: " + (anyProfession ? "profissões (base) " : "") + (cooking != null ? "culinária " : "") + (inns != null ? "estalagens " : "")
                 + (later.isEmpty() ? "" : "— ainda sem código nesta versão: " + String.join(", ", later)));
+    }
+
+    /** Culinária: receitas, preparo na bancada de cozinha e buffs de comida. */
+    private void startCooking(AincradCore core) {
+        foodBuffs = new FoodBuffService(this, msg);
+        cooking = new CookingService(this, msg, config, professions, stations, panels, foodBuffs);
+        cooking.load();
+        listen(cooking);
+        listen(foodBuffs);
+        foodBuffs.refreshAll();
+        if (hooks.hasRpg()) {
+            try {
+                listen(new RpgXpListener(p -> foodBuffs == null ? 0 : foodBuffs.xpBonus(p)));
+            } catch (LinkageError e) {
+                getLogger().warning("AincradRPG incompatível: a comida não dá bônus de XP (" + e + ").");
+            }
+        }
+        moduleTasks.add(getServer().getScheduler().runTaskTimer(this, cooking::tick, 1L, 1L));
+        moduleTasks.add(getServer().getScheduler().runTaskTimer(this, foodBuffs::second, 20L, 20L));
+        core.commands().register(this, commands.kitchen(cooking));
     }
 
     private void stopModules() {
         if (panels != null) {
             panels.closeAll();
+        }
+        if (foodBuffs != null) {
+            foodBuffs.stripAll();
         }
         if (commands != null) {
             commands.shutdown();
@@ -192,8 +224,11 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         AincradCore.get().bus().unsubscribeAll("life:");
         if (stations != null) {
             stations.removeAllEntities();
+            stations.clearHandlers();
         }
         inns = null;
+        cooking = null;
+        foodBuffs = null;
     }
 
     private void listen(Listener l) {
@@ -278,6 +313,7 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             stopModules();
         }
         AincradLifeAPI.init(null, null);
+        AincradLifeAPI.food(null);
         getServer().getServicesManager().unregisterAll(this);
     }
 

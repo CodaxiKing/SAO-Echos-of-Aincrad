@@ -160,6 +160,11 @@ public final class StationService implements Listener {
         handlers.put(type.toLowerCase(Locale.ROOT), handler);
     }
 
+    /** Esquece o que os módulos registraram (ao religar os módulos). */
+    public void clearHandlers() {
+        handlers.clear();
+    }
+
     // ------------------------------------------------------------------ banco
 
     /** Lê as bancadas deste servidor e monta as que estão em pedaços carregados. */
