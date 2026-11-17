@@ -3,8 +3,10 @@ package com.aincrad.ui.hud;
 import com.aincrad.ui.AincradUIPlugin;
 import com.aincrad.ui.config.UiSettings;
 import com.aincrad.ui.glyph.Glyph;
+import com.aincrad.ui.glyph.LineBuilder;
 import com.aincrad.ui.glyph.SpaceFont;
 import com.aincrad.ui.glyph.TextWidth;
+import com.aincrad.ui.glyph.UiFonts;
 import com.aincrad.ui.sound.UiSound;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -18,24 +20,25 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
  * HUD de vida estilo SAO no alto da tela, desenhada no título de uma BossBar.
- * Com o pack: barra de segmentos (glifo hud_segment), deslocada para a esquerda com a fonte
- * aincrad:space, e a barra branca da BossBar fica transparente. Sem o pack: BossBar comum
+ * Com o pack: a moldura e as fatias da barra do SAO_Life_Gauge, deslocadas para a esquerda com a
+ * fonte aincrad:space, e a barra branca da BossBar fica transparente. Sem o pack: BossBar comum
  * colorida com nome, vida e level.
  */
 public final class HealthHud implements Listener {
 
-    private static final TextColor GREEN = TextColor.color(0x5CE65C);
-    private static final TextColor YELLOW = TextColor.color(0xF2D43D);
+    private static final TextColor GREEN = TextColor.color(0x7BD23A);
+    private static final TextColor YELLOW = TextColor.color(0xF2C83D);
     private static final TextColor RED = TextColor.color(0xE8413C);
-    private static final TextColor RED_DARK = TextColor.color(0x5A1414);
-    private static final TextColor EMPTY = TextColor.color(0x3A3F47);
-    private static final int GAP = 4;
+    private static final TextColor RED_DARK = TextColor.color(0x7A1A1A);
+    private static final TextColor TEXT = TextColor.color(0x3C3C3C);
 
     private final AincradUIPlugin plugin;
     private final Map<UUID, BossBar> bars = new HashMap<>();
@@ -110,10 +113,11 @@ public final class HealthHud implements Listener {
 
         String numbers = st.hudNumbers ? (int) Math.ceil(health) + "/" + (int) Math.round(max) : "";
         String level = st.hudLevelText + p.getLevel();
-        Glyph seg = plugin.glyphs().get("hud_segment");
+        Glyph frame = plugin.glyphs().get("hud_frame");
+        List<Glyph> fills = fillGlyphs();
 
-        if (plugin.packStatus().hasPack(p) && seg != null && seg.present()) {
-            bar.name(packTitle(p.getName(), ratio, state, blinkOff, numbers, level, seg, st));
+        if (plugin.packStatus().hasPack(p) && frame != null && frame.present() && !fills.isEmpty()) {
+            bar.name(packTitle(p.getName(), ratio, state, blinkOff, numbers, level, frame, fills, st));
             bar.color(BossBar.Color.WHITE);
             bar.progress(1f);
         } else {
@@ -140,27 +144,64 @@ public final class HealthHud implements Listener {
         }
     }
 
+    /** Fatias da barra (grupo hud_fill de glyphs.yml), só se todas existirem. */
+    private List<Glyph> fillGlyphs() {
+        List<Glyph> out = new ArrayList<>();
+        for (String id : plugin.glyphs().groups().getOrDefault("hud_fill", List.of())) {
+            Glyph g = plugin.glyphs().get(id);
+            if (g == null || !g.present()) {
+                return List.of();
+            }
+            out.add(g);
+        }
+        return out;
+    }
+
     /**
-     * O título da BossBar é centralizado. Para a barra começar a {@code hudOffsetX} pixels à esquerda
-     * do centro, soma-se no fim um espaço que deixa a largura total em 2 × deslocamento.
+     * HUD estilo SAO: moldura com o nome à esquerda, barra com as fatias pintadas na cor da vida
+     * e, embaixo da barra, "vida/máx LV:n". Tudo numa linha: cada parte é posicionada com a fonte
+     * de espaços a partir do início da moldura.
+     *
+     * <p>O título da BossBar é centralizado. Para a moldura começar a {@code hudOffsetX} pixels à
+     * esquerda do centro, soma-se no fim um espaço que deixa a largura total em 2 × deslocamento.
      */
     private Component packTitle(String name, double ratio, HealthState state, boolean blinkOff,
-                                String numbers, String level, Glyph seg, UiSettings st) {
-        int segments = st.hudSegments;
-        int filled = HealthState.filledSegments(ratio, segments);
-        String segChar = String.valueOf(seg.ch());
+                                String numbers, String level, Glyph frame, List<Glyph> fills, UiSettings st) {
+        LineBuilder line = new LineBuilder();
+        line.add(frame, frame.component());
 
-        Component content = Component.text(name, NamedTextColor.WHITE)
-                .append(SpaceFont.component(GAP))
-                .append(Component.text(segChar.repeat(filled)).font(seg.component().font()).color(colorOf(state, blinkOff)))
-                .append(Component.text(segChar.repeat(segments - filled)).font(seg.component().font()).color(EMPTY))
-                .append(SpaceFont.component(GAP))
-                .append(Component.text(numbers, NamedTextColor.WHITE))
-                .append(SpaceFont.component(GAP))
-                .append(Component.text(level, NamedTextColor.AQUA));
+        line.moveTo(st.hudFillX);
+        TextColor color = colorOf(state, blinkOff);
+        int filled = HealthState.filledSegments(ratio, fills.size());
+        for (int i = 0; i < filled; i++) {
+            Glyph g = fills.get(i);
+            // As fatias se encostam: o jogo soma 1 px depois de cada glifo, que é desfeito aqui.
+            line.add(g, g.component(color));
+            line.shift(-1);
+        }
 
-        int width = TextWidth.of(name) + GAP + segments * seg.advance() + GAP + TextWidth.of(numbers) + GAP + TextWidth.of(level);
-        return content.append(SpaceFont.component(trailingShift(width, st.hudOffsetX)));
+        String shown = fit(name, st.hudNameMaxPx);
+        line.moveTo(st.hudNameX);
+        line.add(Component.text(shown, TEXT).font(UiFonts.SAO), UiFonts.saoWidth(shown));
+
+        line.moveTo(st.hudNumbersX);
+        if (!numbers.isEmpty()) {
+            line.add(Component.text(numbers, TEXT).font(UiFonts.HUD_LOW), TextWidth.of(numbers));
+            line.shift(6);
+        }
+        line.add(Component.text(level, TEXT).font(UiFonts.HUD_LOW), TextWidth.of(level));
+
+        line.moveTo(frame.advance());
+        return line.build().append(SpaceFont.component(trailingShift(frame.advance(), st.hudOffsetX)));
+    }
+
+    /** Corta o nome para caber na área da moldura. */
+    private static String fit(String name, int maxPx) {
+        String s = name;
+        while (s.length() > 1 && UiFonts.saoWidth(s) > maxPx) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s.equals(name) ? s : s.substring(0, Math.max(1, s.length() - 1)) + ".";
     }
 
     /** Espaço final para que um texto de largura {@code width} comece {@code offset} px à esquerda do centro. */

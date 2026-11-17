@@ -26,6 +26,16 @@ perfil:
     - "<gray>Pés: <white><pes>"
     - "<gray>Mão: <white><mao>"
   vazio: "—"
+  resumo: "<gray>Lv <white><level></white>  ·  HP <white><vida></white>/<white><vida_max>"
+  # Nome de cada ponto de equipamento vazio no painel de perfil.
+  slot:
+    cabeca: "<gray>Cabeça (vazio)"
+    peito: "<gray>Peito (vazio)"
+    pernas: "<gray>Pernas (vazio)"
+    pes: "<gray>Pés (vazio)"
+    mao: "<gray>Mão (vazio)"
+    mao_secundaria: "<gray>Mão secundária (vazio)"
+    outro: "<gray>(vazio)"
   botao_detalhes: "<white>Detalhes do item na mão"
   botao_voltar: "<white>Voltar"
 

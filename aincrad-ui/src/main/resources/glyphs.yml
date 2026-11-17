@@ -5,47 +5,72 @@
 # "textura" / "pasta" são relativas a resourcepack/assets/aincrad/textures/.
 # "altura" é o tamanho do glifo em pixels de fonte (o texto normal tem 8).
 # "subida" (ascent) desloca o glifo para cima; precisa ser <= altura.
-#
-# Para usar as artes do pacote aincrad-ui-assets.zip, copie o conteúdo de
-# pack_otimizado/textures/ para resourcepack/assets/aincrad/textures/ui/
-# e ajuste os "nomes" abaixo se os arquivos tiverem outros nomes.
 # Grupos com com_on: true esperam também <nome>_on.png (cursor em cima).
+#
+# As artes vêm do projeto SAO-UI/sao-assets (ver CREDITOS.md) e são importadas por
+# tools/importar_sao_assets.py.
 
 grupos:
+  # Coluna principal: ícones em anel.
   icons:
     pasta: ui/icons
     altura: 32
     subida: 28
     com_on: true
     nomes: [profile, party, message, map, config]
+  # Ícones do submenu em tamanho grande (modo baú, teste de ícones).
   under_icons:
     pasta: ui/under_icons
     altura: 32
     subida: 28
     com_on: true
-    nomes: [items, equipment, skills, friends, guild, quests, map, options, help, logout, call]
+    nomes: [items, equipment, skills, friends, guild, quests, map, options, help, logout, call, invite, player, dungeon]
+  # Os mesmos ícones menores, para as linhas do submenu (ícone + nome sobre row_bg).
+  linha:
+    pasta: ui/under_icons
+    altura: 18
+    subida: 12
+    com_on: true
+    nomes: [items, equipment, skills, friends, guild, quests, map, options, help, logout, call, invite, player, dungeon]
   buttons:
     pasta: ui/buttons
     altura: 24
     subida: 20
     com_on: true
-    nomes: [yes, no, plus, minus, list, details, start, cancel]
+    # "yes" e "no" entre aspas: sem elas o YAML lê true/false.
+    nomes: ["yes", "no", plus, minus, list, details, start, cancel]
   skills:
     pasta: ui/skills
     altura: 32
     subida: 28
     com_on: false
     nomes: [skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7]
+  # Preenchimento da barra de vida, em fatias (o plugin pinta de verde, amarelo ou vermelho).
+  hud_fill:
+    pasta: ui/hud
+    altura: 24
+    subida: 15
+    com_on: false
+    nomes: [fill_00, fill_01, fill_02, fill_03, fill_04, fill_05, fill_06, fill_07, fill_08, fill_09,
+            fill_10, fill_11, fill_12, fill_13, fill_14, fill_15, fill_16, fill_17, fill_18, fill_19]
 
 avulsos:
-  # Janela usada no modo cursor (perfil, detalhes, confirmação).
-  window:       { textura: ui/window_blank.png,          altura: 128, subida: 124 }
+  # Janela branca (perfil, detalhes, confirmação, opções, ajuda) no modo cursor.
+  window:        { textura: ui/window_blank.png,         altura: 128, subida: 124 }
   # Mesma janela como fundo do menu de baú (título do inventário).
-  window_bau:   { textura: ui/window_blank.png,          altura: 176, subida: 13 }
-  person:       { textura: ui/person.png,                altura: 64,  subida: 60 }
+  window_bau:    { textura: ui/window_blank.png,         altura: 206, subida: 13 }
+  # Painel de perfil com a silhueta e os pontos de equipamento.
+  profile_panel: { textura: ui/profile_panel.png,        altura: 128, subida: 124 }
+  person:        { textura: ui/person.png,               altura: 64,  subida: 60 }
+  arrow_left:    { textura: ui/extra/arrow_left.png,     altura: 8,   subida: 7 }
+  arrow_right:   { textura: ui/extra/arrow_right.png,    altura: 8,   subida: 7 }
   # Imagem central da tela de morte (mostrada como título).
-  you_are_dead: { textura: ui/effects/you_are_dead.png,  altura: 48,  subida: 24 }
-  # Glifos próprios do AincradUI (provisórios, ver README).
-  cursor:       { textura: ui/extra/cursor.png,          altura: 8,   subida: 7 }
-  hud_segment:  { textura: ui/extra/hud_segment.png,     altura: 8,   subida: 7 }
-  lock:         { textura: ui/extra/lock.png,            altura: 16,  subida: 14 }
+  you_are_dead:  { textura: ui/effects/you_are_dead.png, altura: 48,  subida: 24 }
+  # Fundo das linhas do submenu (92x24 px de fonte): normal, com o cursor e bloqueada.
+  row_bg:        { textura: ui/extra/row_bg.png,         altura: 24,  subida: 15 }
+  row_bg_on:     { textura: ui/extra/row_bg_on.png,      altura: 24,  subida: 15 }
+  row_bg_locked: { textura: ui/extra/row_bg_locked.png,  altura: 24,  subida: 15 }
+  cursor:        { textura: ui/extra/cursor.png,         altura: 8,   subida: 7 }
+  lock:          { textura: ui/extra/lock.png,           altura: 8,   subida: 7 }
+  # Moldura da barra de vida (186x24 px de fonte; o preenchimento começa em x=57).
+  hud_frame:     { textura: ui/hud/frame.png,            altura: 24,  subida: 15 }

@@ -3,6 +3,7 @@ package com.aincrad.ui.pack;
 import com.aincrad.ui.AincradUIPlugin;
 import com.aincrad.ui.config.UiSettings;
 import com.aincrad.ui.glyph.GlyphRegistry;
+import com.aincrad.ui.glyph.UiFonts;
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import org.bukkit.entity.Player;
@@ -62,6 +63,7 @@ public final class PackService {
             plugin.getLogger().severe("Falha ao gerar o resource pack: " + e.getMessage());
             return;
         }
+        UiFonts.load(new File(builder.root(), "assets/aincrad/font/" + UiFonts.SAO_TTF), plugin.getLogger());
 
         if (effects.available() && effects.registerPackFolder(plugin, builder.root())) {
             mode = Mode.EFFECTS;

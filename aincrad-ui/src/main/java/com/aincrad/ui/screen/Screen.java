@@ -10,6 +10,16 @@ import java.util.List;
 /** Descrição de uma tela (menu, perfil, confirmação...), desenhada por um {@link Renderer}. */
 public final class Screen {
 
+    /**
+     * Bloco de texto do modo cursor, com a base em (x, y).
+     *
+     * @param onLight texto sobre painel branco: cores claras viram escuras e a fonte é a SAO
+     * @param left    alinhado à esquerda (senão, centralizado)
+     */
+    public record TextBlock(String id, List<Component> lines, double x, double y, double scale,
+                            boolean onLight, boolean left) {
+    }
+
     private final String id;
     private Component title = Component.empty();
     private String background;
@@ -19,9 +29,7 @@ public final class Screen {
     private String chestBackground;
     private final List<ScreenElement> elements = new ArrayList<>();
     private final List<Component> lines = new ArrayList<>();
-    private double textX;
-    private double textY;
-    private double textScale = 0.5;
+    private final List<TextBlock> texts = new ArrayList<>();
     private int infoSlot = -1;
     private Material infoMaterial = Material.BOOK;
     private int rows = 6;
@@ -55,13 +63,28 @@ public final class Screen {
         return this;
     }
 
-    /** Bloco de texto; no modo cursor fica com a base em (x, y), no baú vira o item de informação. */
+    /**
+     * Texto principal: no modo cursor vira um bloco sobre o painel (base em x, y); no modo baú
+     * vira o item de informação.
+     */
     public Screen text(List<Component> lines, double x, double y, double scale) {
         this.lines.clear();
         this.lines.addAll(lines);
-        this.textX = x;
-        this.textY = y;
-        this.textScale = scale;
+        texts.removeIf(t -> t.id().equals("txt"));
+        texts.add(new TextBlock("txt", List.copyOf(lines), x, y, scale, background != null, true));
+        return this;
+    }
+
+    /** Linhas só do item de informação do modo baú (sem bloco de texto no modo cursor). */
+    public Screen chestInfo(List<Component> lines) {
+        this.lines.clear();
+        this.lines.addAll(lines);
+        return this;
+    }
+
+    /** Texto extra só do modo cursor (título de janela, nome no painel...). */
+    public Screen label(String id, List<Component> lines, double x, double y, double scale, boolean onLight, boolean left) {
+        texts.add(new TextBlock(id, List.copyOf(lines), x, y, scale, onLight, left));
         return this;
     }
 
@@ -108,20 +131,13 @@ public final class Screen {
         return Collections.unmodifiableList(elements);
     }
 
+    /** Linhas do texto principal (item de informação do modo baú). */
     public List<Component> lines() {
         return Collections.unmodifiableList(lines);
     }
 
-    public double textX() {
-        return textX;
-    }
-
-    public double textY() {
-        return textY;
-    }
-
-    public double textScale() {
-        return textScale;
+    public List<TextBlock> texts() {
+        return Collections.unmodifiableList(texts);
     }
 
     public int infoSlot() {

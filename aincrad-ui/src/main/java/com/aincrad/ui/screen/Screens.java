@@ -27,8 +27,12 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Monta as telas. Cada tela descreve as posições do modo cursor (blocos no plano) e os slots do
- * modo baú; o renderizador escolhido usa só o que precisa.
+ * Monta as telas. Cada tela descreve as posições do modo cursor (blocos no plano, (0, 0) no
+ * centro, y para cima) e os slots do modo baú; o renderizador escolhido usa só o que precisa.
+ *
+ * <p>Layout do menu principal, como no anime: coluna de ícones em anel no centro; à esquerda, o
+ * painel de perfil (silhueta com o equipamento) e uma seta apontando para a coluna; à direita do
+ * ícone escolhido, uma seta e as linhas do submenu (ícone + nome sobre fundo branco).
  */
 public final class Screens {
 
@@ -36,6 +40,34 @@ public final class Screens {
 
     private static final String WINDOW = "window";
     private static final String WINDOW_CHEST = "window_bau";
+    private static final String PANEL = "profile_panel";
+
+    // Coluna principal
+    static final double COLUMN_ICON = 0.28;
+    static final double COLUMN_SPACING = 0.33;
+    // Submenu
+    static final double ARROW_SIZE = 0.06;
+    static final double ROW_HEIGHT = 0.19;
+    static final double ROW_SPACING = 0.205;
+    static final double ROW_LEFT = 0.25;
+    // Painel de perfil (textura 512x600)
+    static final double PANEL_HEIGHT = 1.25;
+    static final double PANEL_RATIO = 512.0 / 600.0;
+    static final double PANEL_GAP = 0.22;
+    // Janelas (textura 512x600, linha do título a 64 px do topo)
+    static final double WINDOW_HEIGHT = 1.3;
+
+    /**
+     * Pontos de equipamento no painel de perfil (pixels da textura 512x600). Os outros pontos
+     * do desenho ficam só de enfeite.
+     */
+    static final Map<EquipmentSlot, int[]> PANEL_NODES = Map.of(
+            EquipmentSlot.HEAD, new int[]{255, 138},
+            EquipmentSlot.HAND, new int[]{63, 266},
+            EquipmentSlot.OFF_HAND, new int[]{446, 266},
+            EquipmentSlot.CHEST, new int[]{47, 346},
+            EquipmentSlot.LEGS, new int[]{462, 346},
+            EquipmentSlot.FEET, new int[]{255, 553});
 
     private final AincradUIPlugin plugin;
 
@@ -80,9 +112,8 @@ public final class Screens {
         MenuRegistry menu = plugin.menu();
         List<Group> groups = menu.groups();
         double sc = sc();
-        double spacing = 0.42 * sc;
-        double size = 0.36 * sc;
-        double gx = -0.3 * sc;
+        double spacing = COLUMN_SPACING * sc;
+        double size = COLUMN_ICON * sc;
         double top = (groups.size() - 1) / 2.0 * spacing;
 
         Screen s = new Screen("menu").title(msg().get("menu.titulo")).rows(6);
@@ -101,7 +132,7 @@ public final class Screens {
             s.add(new ScreenElement("g:" + gid)
                     .glyph(g.icon(), onOf(g.icon()))
                     .label(g.name())
-                    .at(gx, y, size)
+                    .at(0, y, size)
                     .slot(row * 9 + 1)
                     .fallback(g.material())
                     .selected(isSel)
@@ -116,19 +147,33 @@ public final class Screens {
                     }));
         }
 
+        if (plugin.settings().menuProfilePanel) {
+            double ph = PANEL_HEIGHT * sc;
+            double pw = ph * PANEL_RATIO;
+            double cx = -(PANEL_GAP * sc + pw / 2.0);
+            addProfilePanel(s, p, cx, 0, ph, false);
+            // Seta do painel para a coluna, na altura do ícone escolhido.
+            double ay = selected != null ? selY : 0;
+            ay = Math.max(-ph / 2 + 0.1, Math.min(ph / 2 - 0.1, ay));
+            s.add(new ScreenElement("seta_painel").glyph("arrow_right", null).decorative().onlyInCursor()
+                    .at(-(PANEL_GAP * sc) + ARROW_SIZE * sc / 2.0, ay, ARROW_SIZE * sc));
+        }
+
         if (selected != null) {
             List<Entry> entries = menu.entriesOf(selected);
-            double esp = 0.36 * sc;
-            double esize = 0.30 * sc;
-            double ex = 0.18 * sc;
-            double etop = selY + (entries.size() - 1) / 2.0 * esp;
+            double rsp = ROW_SPACING * sc;
+            double rh = ROW_HEIGHT * sc;
+            double rtop = selY + (entries.size() - 1) / 2.0 * rsp;
+            s.add(new ScreenElement("seta_sub").glyph("arrow_left", null).decorative().onlyInCursor()
+                    .at(ROW_LEFT * sc - ARROW_SIZE * sc * 0.7, selY, ARROW_SIZE * sc));
             for (int j = 0; j < entries.size(); j++) {
                 Entry e = entries.get(j);
                 String eid = e.id();
                 s.add(new ScreenElement("e:" + eid)
+                        .kind(ScreenElement.Kind.ROW)
                         .glyph(e.icon(), onOf(e.icon()))
                         .label(e.name())
-                        .at(ex, etop - j * esp, esize)
+                        .at(ROW_LEFT * sc, rtop - j * rsp, rh)
                         .slot(submenuSlot(selRow, j))
                         .fallback(e.material())
                         .locked(!menu.available(e))
@@ -143,6 +188,63 @@ public final class Screens {
         int r = Math.min(5, row + index / 6);
         int col = 3 + index % 6;
         return r * 9 + col;
+    }
+
+    /** Converte um ponto da textura do painel (512x600) para o plano do menu. */
+    static double[] panelPoint(int px, int py, double cx, double cy, double ph) {
+        double pw = ph * PANEL_RATIO;
+        return new double[]{cx - pw / 2.0 + px / 512.0 * pw, cy + ph / 2.0 - py / 600.0 * ph};
+    }
+
+    /**
+     * Painel de perfil do modo cursor: desenho com a silhueta, nome do jogador no topo e o
+     * equipamento flutuando sobre os pontos (clicar abre os detalhes da peça).
+     */
+    private void addProfilePanel(Screen s, Player p, double cx, double cy, double ph, boolean stats) {
+        double sc = sc();
+        s.add(new ScreenElement("painel").glyph(PANEL, null).decorative().onlyInCursor()
+                .at(cx, cy, ph).depth(0.08));
+        List<Component> title = new ArrayList<>();
+        title.add(Component.text(p.getName()));
+        double titleScale = 0.5 * sc;
+        double titleY = cy + ph / 2.0 - ph * (78.0 / 600.0);
+        if (stats) {
+            title.add(msg().get("perfil.resumo", statTags(p)));
+            titleScale = 0.36 * sc;
+        }
+        s.label("perfil_nome", title, cx, titleY, titleScale, true, false);
+
+        PlayerInventory inv = p.getInventory();
+        double node = 0.11 * sc;
+        for (Map.Entry<EquipmentSlot, int[]> en : PANEL_NODES.entrySet()) {
+            double[] at = panelPoint(en.getValue()[0], en.getValue()[1], cx, cy, ph);
+            ItemStack piece = inv.getItem(en.getKey());
+            boolean empty = piece == null || piece.getType().isAir();
+            ScreenElement el = new ScreenElement("no:" + en.getKey().name().toLowerCase(Locale.ROOT))
+                    .kind(ScreenElement.Kind.HIT)
+                    .onlyInCursor()
+                    .at(at[0], at[1], node)
+                    .label(empty ? msg().get("perfil.slot." + slotKey(en.getKey())) : itemName(piece));
+            if (!empty) {
+                ItemStack copy = piece.clone();
+                el.item(copy).action((pl, ss) -> ss.push(itemDetails(pl, copy)));
+            } else {
+                el.decorative();
+            }
+            s.add(el);
+        }
+    }
+
+    private static String slotKey(EquipmentSlot slot) {
+        return switch (slot) {
+            case HEAD -> "cabeca";
+            case CHEST -> "peito";
+            case LEGS -> "pernas";
+            case FEET -> "pes";
+            case HAND -> "mao";
+            case OFF_HAND -> "mao_secundaria";
+            default -> "outro";
+        };
     }
 
     private String onOf(String glyph) {
@@ -201,46 +303,73 @@ public final class Screens {
 
     // ------------------------------------------------------------------ janelas
 
+    /** Janela branca: fundo, título acima da linha e área de texto logo abaixo dela. */
     private Screen window(String id, Component title) {
-        return new Screen(id)
+        double sc = sc();
+        double wh = WINDOW_HEIGHT * sc;
+        Screen s = new Screen(id)
                 .title(title)
-                .background(WINDOW, 0, 0, 1.5 * sc())
+                .background(WINDOW, 0, 0, wh)
                 .chestBackground(WINDOW_CHEST)
                 .rows(6);
+        s.label("titulo", List.of(title), 0, wh / 2.0 - wh * (56.0 / 600.0), 0.55 * sc, true, false);
+        return s;
     }
 
-    private ScreenElement backButton(double x, double y, int slot) {
+    /** Base do bloco de texto para que ele comece logo abaixo da linha do título. */
+    private double bodyBottom(int lines, double scale) {
+        double wh = WINDOW_HEIGHT * sc();
+        double top = wh / 2.0 - wh * (84.0 / 600.0);
+        return top - lines * CursorRenderer.ROW_LINE_PX * CursorRenderer.BLOCKS_PER_PX * scale;
+    }
+
+    private Screen body(Screen s, List<Component> lines, double scale) {
+        return s.text(lines, 0, bodyBottom(lines.size(), scale), scale);
+    }
+
+    private double buttonsY() {
+        return -WINDOW_HEIGHT * sc() / 2.0 + 0.2 * sc();
+    }
+
+    private ScreenElement backButton(double x, int slot) {
         return new ScreenElement("voltar")
                 .glyph("buttons/cancel", onOf("buttons/cancel"))
                 .label(msg().get("perfil.botao_voltar"))
-                .at(x * sc(), y * sc(), 0.2 * sc())
+                .at(x * sc(), buttonsY(), 0.2 * sc())
                 .slot(slot)
                 .fallback(Material.ARROW)
                 .action((pl, ss) -> plugin.sessions().back(pl));
     }
 
-    public Screen profile(Player p) {
-        double sc = sc();
-        PlayerInventory inv = p.getInventory();
+    private TagResolver statTags(Player p) {
         AttributeInstance maxAttr = p.getAttribute(Attribute.MAX_HEALTH);
         double max = maxAttr != null ? maxAttr.getValue() : 20.0;
-        TagResolver tags = TagResolver.resolver(
+        return TagResolver.resolver(
                 Placeholder.unparsed("jogador", p.getName()),
                 Placeholder.unparsed("level", String.valueOf(p.getLevel())),
                 Placeholder.unparsed("vida", String.valueOf((int) Math.ceil(p.getHealth()))),
-                Placeholder.unparsed("vida_max", String.valueOf((int) Math.round(max))),
+                Placeholder.unparsed("vida_max", String.valueOf((int) Math.round(max))));
+    }
+
+    /** Perfil: no modo cursor, o painel com a silhueta; no baú, as peças em slots. */
+    public Screen profile(Player p) {
+        double sc = sc();
+        PlayerInventory inv = p.getInventory();
+        TagResolver tags = TagResolver.resolver(statTags(p),
                 Placeholder.component("cabeca", itemName(inv.getHelmet())),
                 Placeholder.component("peito", itemName(inv.getChestplate())),
                 Placeholder.component("pernas", itemName(inv.getLeggings())),
                 Placeholder.component("pes", itemName(inv.getBoots())),
                 Placeholder.component("mao", itemName(inv.getItemInMainHand())));
 
-        Screen s = window("perfil", msg().get("perfil.titulo"))
-                .text(msg().list("perfil.linhas", tags), 0.22 * sc, -0.38 * sc, 0.42 * sc)
-                .info(13, Material.PLAYER_HEAD);
-
-        s.add(new ScreenElement("pessoa").glyph("person", null).decorative().onlyInCursor()
-                .at(-0.42 * sc, 0.12 * sc, 0.8 * sc));
+        Screen s = new Screen("perfil")
+                .title(msg().get("perfil.titulo"))
+                .chestBackground(WINDOW_CHEST)
+                .chestInfo(msg().list("perfil.linhas", tags))
+                .info(13, Material.PLAYER_HEAD)
+                .rows(6);
+        double ph = WINDOW_HEIGHT * sc;
+        addProfilePanel(s, p, 0, 0.08 * sc, ph, true);
 
         Map<EquipmentSlot, Integer> slots = Map.of(
                 EquipmentSlot.HEAD, 20, EquipmentSlot.CHEST, 29, EquipmentSlot.LEGS, 38,
@@ -262,19 +391,25 @@ public final class Screens {
             s.add(el);
         }
 
+        double by = -ph / 2.0 + 0.08 * sc - 0.16 * sc;
         s.add(new ScreenElement("detalhes")
                 .glyph("buttons/details", onOf("buttons/details"))
                 .label(msg().get("perfil.botao_detalhes"))
-                .at(0.05 * sc, -0.6 * sc, 0.2 * sc)
+                .at(-0.15 * sc, by, 0.2 * sc)
                 .slot(40)
                 .fallback(Material.SPYGLASS)
                 .action((pl, ss) -> ss.push(itemDetails(pl, pl.getInventory().getItemInMainHand()))));
-        s.add(backButton(0.4, -0.6, 44));
+        s.add(new ScreenElement("voltar")
+                .glyph("buttons/cancel", onOf("buttons/cancel"))
+                .label(msg().get("perfil.botao_voltar"))
+                .at(0.15 * sc, by, 0.2 * sc)
+                .slot(44)
+                .fallback(Material.ARROW)
+                .action((pl, ss) -> plugin.sessions().back(pl)));
         return s;
     }
 
     public Screen itemDetails(Player p, ItemStack item) {
-        double sc = sc();
         List<Component> lines = new ArrayList<>();
         Screen s = window("detalhes", msg().get("detalhes.titulo")).info(22, Material.BOOK);
         if (item == null || item.getType().isAir()) {
@@ -296,28 +431,30 @@ public final class Screens {
                 lines.addAll(meta.lore());
             }
             s.add(new ScreenElement("item").onlyInChest().decorative().slot(13).item(item.clone()));
+            // No modo cursor o item flutua na janela, acima dos botões.
+            s.add(new ScreenElement("item_3d").kind(ScreenElement.Kind.HIT).onlyInCursor().decorative()
+                    .at(0, buttonsY() + 0.3 * sc(), 0.28 * sc()).item(item.clone()));
         }
-        s.text(lines, 0, -0.35 * sc, 0.5 * sc);
-        s.add(backButton(0.45, -0.6, 44));
+        body(s, lines, 0.45 * sc());
+        s.add(backButton(0, 44));
         return s;
     }
 
     public Screen confirm(Component question, ElementAction yes, ElementAction no) {
         double sc = sc();
-        Screen s = window("confirmar", msg().get("confirmar.titulo"))
-                .text(List.of(question), 0, 0.05 * sc, 0.6 * sc)
-                .info(13, Material.PAPER);
+        Screen s = window("confirmar", msg().get("confirmar.titulo")).info(13, Material.PAPER);
+        body(s, List.of(question), 0.5 * sc);
         s.add(new ScreenElement("sim")
                 .glyph("buttons/yes", onOf("buttons/yes"))
                 .label(msg().get("confirmar.sim"))
-                .at(-0.3 * sc, -0.35 * sc, 0.28 * sc)
+                .at(-0.22 * sc, buttonsY(), 0.24 * sc)
                 .slot(29)
                 .fallback(Material.LIME_WOOL)
                 .action(yes));
         s.add(new ScreenElement("nao")
                 .glyph("buttons/no", onOf("buttons/no"))
                 .label(msg().get("confirmar.nao"))
-                .at(0.3 * sc, -0.35 * sc, 0.28 * sc)
+                .at(0.22 * sc, buttonsY(), 0.24 * sc)
                 .slot(33)
                 .fallback(Material.RED_WOOL)
                 .action(no));
@@ -331,20 +468,19 @@ public final class Screens {
         TagResolver tags = TagResolver.resolver(
                 Placeholder.component("modo", msg().get(mode == DrawMode.CURSOR ? "opcoes.modo_cursor" : "opcoes.modo_bau")),
                 Placeholder.component("hud", msg().get(hud ? "opcoes.ligado" : "opcoes.desligado")));
-        Screen s = window("opcoes", msg().get("opcoes.titulo"))
-                .text(msg().list("opcoes.linhas", tags), 0, 0.0, 0.5 * sc)
-                .info(13, Material.REPEATER);
+        Screen s = window("opcoes", msg().get("opcoes.titulo")).info(13, Material.REPEATER);
+        body(s, msg().list("opcoes.linhas", tags), 0.45 * sc);
         s.add(new ScreenElement("modo")
                 .glyph("buttons/list", onOf("buttons/list"))
                 .label(msg().get("opcoes.botao_modo"))
-                .at(-0.35 * sc, -0.4 * sc, 0.24 * sc)
+                .at(-0.3 * sc, buttonsY(), 0.22 * sc)
                 .slot(29)
                 .fallback(Material.COMPASS)
                 .action((pl, ss) -> toggleMode(pl)));
         s.add(new ScreenElement("hud")
                 .glyph(hud ? "buttons/minus" : "buttons/plus", onOf(hud ? "buttons/minus" : "buttons/plus"))
                 .label(msg().get("opcoes.botao_hud"))
-                .at(0, -0.4 * sc, 0.24 * sc)
+                .at(0, buttonsY(), 0.22 * sc)
                 .slot(31)
                 .fallback(Material.REDSTONE)
                 .action((pl, ss) -> {
@@ -352,7 +488,7 @@ public final class Screens {
                     plugin.hud().update(pl);
                     ss.replace(options(pl));
                 }));
-        s.add(backButton(0.35, -0.4, 33));
+        s.add(backButton(0.3, 33));
         return s;
     }
 
@@ -374,18 +510,19 @@ public final class Screens {
     }
 
     public Screen help(Player p) {
-        Screen s = window("ajuda", msg().get("ajuda.titulo"))
-                .text(msg().list("ajuda.linhas"), 0, -0.3 * sc(), 0.45 * sc())
-                .info(13, Material.KNOWLEDGE_BOOK);
-        s.add(backButton(0.45, -0.6, 31));
+        Screen s = window("ajuda", msg().get("ajuda.titulo")).info(13, Material.KNOWLEDGE_BOOK);
+        body(s, msg().list("ajuda.linhas"), 0.4 * sc());
+        s.add(backButton(0, 31));
         return s;
     }
 
-    /** Todos os ícones dos grupos de glyphs.yml; passar o cursor mostra a versão _on. */
+    /** Ícones dos grupos de glyphs.yml; passar o cursor mostra a versão _on. */
     public Screen iconTest() {
         double sc = sc();
         List<String> ids = new ArrayList<>();
-        plugin.glyphs().groups().values().forEach(ids::addAll);
+        for (String group : List.of("icons", "under_icons", "buttons", "skills")) {
+            ids.addAll(plugin.glyphs().groups().getOrDefault(group, List.of()));
+        }
         int cols = 8;
         double spacing = 0.3 * sc;
         double size = 0.24 * sc;

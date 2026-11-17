@@ -67,8 +67,12 @@ public final class PlaneFrame {
 
     /** O ponto (u, v) cai dentro do quadrado de lado {@code size} centrado em (x, y)? */
     public static boolean inside(double u, double v, double x, double y, double size) {
-        double half = size / 2.0;
-        return Math.abs(u - x) <= half && Math.abs(v - y) <= half;
+        return inside(u, v, x, y, size, size);
+    }
+
+    /** O ponto (u, v) cai dentro do retângulo w × h centrado em (x, y)? */
+    public static boolean inside(double u, double v, double x, double y, double w, double h) {
+        return Math.abs(u - x) <= w / 2.0 && Math.abs(v - y) <= h / 2.0;
     }
 
     public Vector forward() {

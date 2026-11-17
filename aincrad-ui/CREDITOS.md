@@ -1,8 +1,9 @@
 # Créditos — AincradUI
 
-## Artes e sons da interface
-- Mod **SAO MC UI**, por **A-G Projects**. Ícones, botões, janela, silhueta, "You are dead" e sons usados com autorização do autor.
-- As imagens que vêm dentro do plugin são provisórias (geradas por tools/gerar_placeholders.py) até as artes do pacote aincrad-ui-assets.zip serem instaladas.
+## Artes e fonte da interface
+- **darkblackswords** (DeviantArt): Sword Art Online Vector Graphics All-in-one e a fonte SAO UI. Ícones do menu, ícones do submenu, botões, skills, painel de perfil, silhueta, barra de vida e "You are dead".
+- Reunidas pelo projeto **SAO-UI/sao-assets** ([github.com/SAO-UI/sao-assets](https://github.com/SAO-UI/sao-assets)) e importadas por tools/importar_sao_assets.py, que redimensiona e recorta as imagens.
+- Janela em branco, setas, cursor, cadeado, fundos das linhas do submenu e moldura da barra de vida foram desenhados para o AincradUI, no mesmo estilo.
 
 ## Modelo 3D (futuro)
 - health_bar.glb, por **Sockona**, licença CC BY 4.0 ([creativecommons.org/licenses/by/4.0](https://creativecommons.org/licenses/by/4.0/)). Ainda não usado: precisa ser convertido para modelo do Minecraft.

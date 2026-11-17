@@ -12,7 +12,20 @@ import java.util.List;
  */
 public final class ScreenElement {
 
+    /** Como o elemento é desenhado no modo cursor. */
+    public enum Kind {
+        /** Glifo (ícone, painel, seta); troca para a versão _on com o cursor em cima. */
+        ICON,
+        /** Linha de submenu estilo SAO: ícone pequeno + nome sobre um fundo branco translúcido. */
+        ROW,
+        /** Área clicável sem desenho (ex.: pontos de equipamento do painel de perfil). */
+        HIT
+    }
+
     private final String id;
+    private Kind kind = Kind.ICON;
+    private double width = -1;
+    private double depth;
     private String glyph;
     private String glyphOn;
     private Component label = Component.empty();
@@ -54,6 +67,23 @@ public final class ScreenElement {
         this.x = x;
         this.y = y;
         this.size = size;
+        return this;
+    }
+
+    public ScreenElement kind(Kind kind) {
+        this.kind = kind;
+        return this;
+    }
+
+    /** Largura da área clicável (blocos); sem isso é igual à altura ({@code size}). */
+    public ScreenElement width(double width) {
+        this.width = width;
+        return this;
+    }
+
+    /** Recuo para trás (blocos), para fundos e painéis ficarem atrás dos ícones. */
+    public ScreenElement depth(double depth) {
+        this.depth = depth;
         return this;
     }
 
@@ -104,6 +134,18 @@ public final class ScreenElement {
 
     public String id() {
         return id;
+    }
+
+    public Kind kind() {
+        return kind;
+    }
+
+    public double width() {
+        return width > 0 ? width : size;
+    }
+
+    public double depth() {
+        return depth;
     }
 
     public String glyph() {

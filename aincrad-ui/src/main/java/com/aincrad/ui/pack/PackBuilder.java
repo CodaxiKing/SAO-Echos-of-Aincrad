@@ -5,6 +5,7 @@ import com.aincrad.ui.config.UiSettings.SoundDef;
 import com.aincrad.ui.glyph.Glyph;
 import com.aincrad.ui.glyph.GlyphRegistry;
 import com.aincrad.ui.glyph.SpaceFont;
+import com.aincrad.ui.glyph.UiFonts;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -33,8 +34,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Monta a pasta resourcepack/ do AincradUI: copia as imagens provisórias do .jar (sem
- * sobrescrever as artes do usuário) e gera fontes, modelos de item e sounds.json.
+ * Monta a pasta resourcepack/ do AincradUI: copia as artes do .jar (sem sobrescrever as do
+ * usuário) e gera fontes, modelos de item e sounds.json.
  */
 public final class PackBuilder {
 
@@ -57,8 +58,24 @@ public final class PackBuilder {
         return new File(root, "assets/aincrad/textures");
     }
 
-    /** Copia do .jar os arquivos que ainda não existem na pasta. */
+    /**
+     * Versão das artes que vêm no .jar. Quando muda, a pasta resourcepack/ antiga é guardada em
+     * resourcepack_antigo_&lt;versão&gt;/ e as artes novas são copiadas por cima.
+     */
+    public static final String ART_VERSION = "sao-assets-1";
+    private static final String ART_MARKER = ".versao_artes";
+
+    /** Copia do .jar os arquivos que ainda não existem na pasta (ou todos, se as artes mudaram). */
     public int copyDefaults(File pluginJar) throws IOException {
+        File marker = new File(root, ART_MARKER);
+        String current = marker.isFile() ? Files.readString(marker.toPath(), StandardCharsets.UTF_8).trim() : "";
+        if (root.isDirectory() && !current.equals(ART_VERSION)) {
+            File backup = new File(root.getParentFile(), "resourcepack_antigo_" + (current.isEmpty() ? "provisorio" : current));
+            if (!backup.exists() && root.renameTo(backup)) {
+                log.info("Artes novas no plugin: a pasta resourcepack/ antiga foi guardada em " + backup.getName()
+                        + ". Copie de volta o que você tinha personalizado.");
+            }
+        }
         int copied = 0;
         try (JarFile jar = new JarFile(pluginJar)) {
             Enumeration<JarEntry> entries = jar.entries();
@@ -78,6 +95,8 @@ public final class PackBuilder {
                 copied++;
             }
         }
+        Files.createDirectories(root.toPath());
+        Files.writeString(marker.toPath(), ART_VERSION, StandardCharsets.UTF_8);
         return copied;
     }
 
@@ -85,6 +104,7 @@ public final class PackBuilder {
     public void generate(GlyphRegistry glyphs, UiSettings settings) throws IOException {
         writeUiFont(glyphs);
         writeSpaceFont();
+        writeTextFonts();
         writeItemModels(glyphs);
         writeSounds(settings);
         File barDir = new File(root, "assets/minecraft/textures/gui/sprites/boss_bar");
@@ -118,6 +138,50 @@ public final class PackBuilder {
         JsonObject font = new JsonObject();
         font.add("providers", providers);
         writeJson(new File(root, "assets/aincrad/font/ui.json"), font);
+    }
+
+    /**
+     * aincrad:sao — fonte SAO UI (TTF do pack) para os textos do menu; letras que ela não tem
+     * caem na fonte padrão. aincrad:hud_low — fonte padrão rebaixada, para a linha de números
+     * embaixo da barra de vida.
+     */
+    private void writeTextFonts() throws IOException {
+        JsonArray sao = new JsonArray();
+        if (new File(root, "assets/aincrad/font/" + UiFonts.SAO_TTF).isFile()) {
+            JsonObject ttf = new JsonObject();
+            ttf.addProperty("type", "ttf");
+            ttf.addProperty("file", "aincrad:" + UiFonts.SAO_TTF);
+            ttf.addProperty("size", UiFonts.SAO_SIZE);
+            ttf.addProperty("oversample", 6.0);
+            JsonArray shift = new JsonArray();
+            shift.add(0.0);
+            shift.add(UiFonts.SAO_SHIFT_Y);
+            ttf.add("shift", shift);
+            sao.add(ttf);
+        }
+        JsonObject fallback = new JsonObject();
+        fallback.addProperty("type", "reference");
+        fallback.addProperty("id", "minecraft:default");
+        sao.add(fallback);
+        JsonObject saoFont = new JsonObject();
+        saoFont.add("providers", sao);
+        writeJson(new File(root, "assets/aincrad/font/sao.json"), saoFont);
+
+        JsonObject low = new JsonObject();
+        low.addProperty("type", "bitmap");
+        low.addProperty("file", "minecraft:font/ascii.png");
+        low.addProperty("height", 8);
+        low.addProperty("ascent", UiFonts.HUD_LOW_ASCENT);
+        JsonArray rows = new JsonArray();
+        for (String row : UiFonts.asciiRows()) {
+            rows.add(row);
+        }
+        low.add("chars", rows);
+        JsonArray lowProviders = new JsonArray();
+        lowProviders.add(low);
+        JsonObject lowFont = new JsonObject();
+        lowFont.add("providers", lowProviders);
+        writeJson(new File(root, "assets/aincrad/font/hud_low.json"), lowFont);
     }
 
     private void writeSpaceFont() throws IOException {
@@ -201,7 +265,7 @@ public final class PackBuilder {
             zip.closeEntry();
             for (Path p : files) {
                 String name = base.relativize(p).toString().replace('\\', '/');
-                if (name.equals("pack.mcmeta")) {
+                if (name.equals("pack.mcmeta") || name.equals(ART_MARKER)) {
                     continue;
                 }
                 zip.putNextEntry(new ZipEntry(name));

@@ -36,6 +36,7 @@ public final class UiSettings {
     public final double menuScale;
     public final double menuOffsetY;
     public final boolean closeOnDamage;
+    public final boolean menuProfilePanel;
 
     public final boolean hudEnabled;
     public final int hudIntervalTicks;
@@ -47,6 +48,11 @@ public final class UiSettings {
     public final int hudAlertSeconds;
     public final boolean hudNumbers;
     public final String hudLevelText;
+    /** Posições dentro da moldura da barra (pixels de fonte). */
+    public final int hudNameX;
+    public final int hudNameMaxPx;
+    public final int hudFillX;
+    public final int hudNumbersX;
 
     public final boolean shardsPlayers;
     public final boolean shardsMobs;
@@ -75,6 +81,7 @@ public final class UiSettings {
         menuScale = clamp(c.getDouble("menu.escala", 1.0), 0.3, 3.0);
         menuOffsetY = c.getDouble("menu.ajuste_y", -0.1);
         closeOnDamage = c.getBoolean("menu.fechar_ao_levar_dano", true);
+        menuProfilePanel = c.getBoolean("menu.painel_perfil", true);
 
         hudEnabled = c.getBoolean("hud.ativo", true);
         hudIntervalTicks = Math.max(1, c.getInt("hud.intervalo_ticks", 4));
@@ -85,7 +92,11 @@ public final class UiSettings {
         hudBlinkTicks = Math.max(1, c.getInt("hud.piscar_ticks", 8));
         hudAlertSeconds = Math.max(1, c.getInt("hud.alerta_intervalo_segundos", 3));
         hudNumbers = c.getBoolean("hud.mostrar_numeros", true);
-        hudLevelText = c.getString("hud.texto_level", "Lv.");
+        hudLevelText = c.getString("hud.texto_level", "LV:");
+        hudNameX = c.getInt("hud.moldura.nome_x", 9);
+        hudNameMaxPx = c.getInt("hud.moldura.nome_largura", 44);
+        hudFillX = c.getInt("hud.moldura.barra_x", 57);
+        hudNumbersX = c.getInt("hud.moldura.numeros_x", 62);
 
         shardsPlayers = c.getBoolean("morte.estilhacos_jogador", true);
         shardsMobs = c.getBoolean("morte.estilhacos_mobs", true);

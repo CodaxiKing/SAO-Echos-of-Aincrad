@@ -20,16 +20,24 @@ menu:
   ajuste_y: -0.1
   # Fecha o menu quando o jogador leva dano.
   fechar_ao_levar_dano: true
+  # Mostra o painel de perfil (silhueta com o equipamento) à esquerda da coluna de ícones.
+  painel_perfil: true
 
 hud:
   ativo: true
   # De quantos em quantos ticks a barra é atualizada (20 ticks = 1 s).
   intervalo_ticks: 4
-  # Quantos segmentos tem a barra de vida.
+  # Segmentos da barra para quem está SEM o pack (com o pack, são as 20 fatias da arte).
   segmentos: 20
-  # Distância (pixels de interface) do centro da tela até o início da barra.
+  # Distância (pixels de interface) do centro da tela até o início da moldura.
   # Aumente para encostar mais à esquerda. Depende da escala de interface do cliente.
   deslocamento_x: 200
+  # Posições dentro da moldura (ui/hud/frame.png), em pixels de fonte. Só mude se trocar a arte.
+  moldura:
+    nome_x: 9
+    nome_largura: 44
+    barra_x: 57
+    numeros_x: 62
   # Abaixo deste valor a barra fica amarela.
   limite_amarelo: 0.5
   # Abaixo deste valor a barra fica vermelha, pisca e toca o alerta.
@@ -39,7 +47,7 @@ hud:
   # Intervalo mínimo entre dois alertas de vida crítica (segundos).
   alerta_intervalo_segundos: 3
   mostrar_numeros: true
-  texto_level: "Lv."
+  texto_level: "LV:"
 
 morte:
   # Estilhaços azuis quando um jogador morre.
