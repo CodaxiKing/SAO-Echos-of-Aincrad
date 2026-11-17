@@ -1,0 +1,26 @@
+# ============================================================
+#  AincradItems — configuração
+#  Cristais: crystals.yml
+# ============================================================
+
+# Modelos próprios dos cristais (do resource pack). "auto" usa os modelos só quando o
+# AincradEffects está no servidor (é ele que envia o pack); "sim" sempre; "nao" nunca.
+# Sem o modelo, o cristal aparece como o material base, brilhando.
+modelos: auto
+
+ressurreicao:
+  # Ao levar um golpe fatal, o jogador fica "se desfazendo" por este tempo antes de morrer,
+  # e outro jogador pode salvá-lo com o Cristal de Ressurreição. 0 = desligado (morre na hora).
+  janela_segundos: 10
+  # Só abre a janela se houver outro jogador a até esta distância (sozinho, morre na hora).
+  # 0 = abre sempre.
+  precisa_alguem_a: 24
+  # Distância máxima para usar o cristal em quem está se desfazendo.
+  alcance: 5
+
+anti_cristal:
+  # Regiões do AincradCore onde nenhum cristal funciona (além das salas de chefe do AincradBosses).
+  regioes: []
+
+# Cristais caem de mobs conforme "drop" em crystals.yml.
+drops: true

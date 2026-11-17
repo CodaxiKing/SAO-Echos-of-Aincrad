@@ -1,0 +1,88 @@
+# ============================================================
+#  Cristais. A chave é o id usado em /aincrad cristal dar <jogador> <id>.
+#
+#  tipo:      cura | antidoto | teleporte | ressurreicao | gravacao
+#  nome, descricao: MiniMessage
+#  material:  item do Minecraft que serve de base (quem está sem o pack vê este item)
+#  modelo:    modelo do resource pack (pasta resourcepack/ deste plugin, enviada pelo AincradEffects)
+#  recarga:   segundos até poder usar outro cristal do mesmo "grupo_recarga"
+#  consumido: true = gasta um a cada uso
+#  drop (opcional): chance por abate de mob com pelo menos o level indicado (level do AincradRPG)
+#
+#  Campos por tipo:
+#    cura          → cura: fração da vida máxima recuperada (1.0 = toda)
+#    antidoto      → remove: efeitos de poção removidos
+#    teleporte     → espera: segundos parado antes de ir (dano ou movimento cancela)
+#    ressurreicao  → vida: fração da vida máxima com que o jogador volta
+#    gravacao      → maximo: tamanho máximo da mensagem
+# ============================================================
+cristais:
+  cura:
+    tipo: cura
+    nome: "<light_purple>Cristal de Cura"
+    descricao:
+      - "<gray>Recupera toda a vida na hora."
+    material: AMETHYST_SHARD
+    modelo: "aincrad:crystal/cura"
+    recarga: 30
+    grupo_recarga: cura
+    consumido: true
+    cura: 1.0
+    drop: { chance: 0.01, level_mob: 3 }
+
+  antidoto:
+    tipo: antidoto
+    nome: "<green>Cristal de Antídoto"
+    descricao:
+      - "<gray>Remove veneno, wither e lentidão."
+    material: AMETHYST_SHARD
+    modelo: "aincrad:crystal/antidoto"
+    recarga: 10
+    grupo_recarga: antidoto
+    consumido: true
+    remove: [POISON, WITHER, SLOWNESS]
+    drop: { chance: 0.01, level_mob: 1 }
+
+  teleporte:
+    tipo: teleporte
+    nome: "<aqua>Cristal de Teleporte"
+    descricao:
+      - "<gray>Leva à cidade de um andar liberado."
+      - "<gray>Fique parado por 3 s. Dano cancela."
+    material: AMETHYST_SHARD
+    modelo: "aincrad:crystal/teleporte"
+    recarga: 60
+    grupo_recarga: teleporte
+    consumido: true
+    espera: 3
+    drop: { chance: 0.004, level_mob: 5 }
+
+  ressurreicao:
+    tipo: ressurreicao
+    nome: "<gold>Cristal de Ressurreição"
+    descricao:
+      - "<gray>Use em um jogador que está se desfazendo"
+      - "<gray>para cancelar a morte dele."
+    material: AMETHYST_SHARD
+    modelo: "aincrad:crystal/ressurreicao"
+    recarga: 0
+    grupo_recarga: ressurreicao
+    consumido: true
+    vida: 0.5
+    # Raríssimo: só cai de mob forte.
+    drop: { chance: 0.0002, level_mob: 10 }
+
+  gravacao:
+    tipo: gravacao
+    nome: "<dark_purple>Cristal de Gravação"
+    descricao:
+      - "<gray>Guarda uma mensagem de até 256 letras."
+      - "<gray>Clique para gravar; depois, para ler."
+    material: AMETHYST_SHARD
+    modelo: "aincrad:crystal/gravacao"
+    # Modelo depois de gravado.
+    modelo_gravado: "aincrad:crystal/gravacao_gravado"
+    recarga: 0
+    grupo_recarga: gravacao
+    consumido: false
+    maximo: 256

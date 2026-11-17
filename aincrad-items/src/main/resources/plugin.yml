@@ -1,0 +1,16 @@
+name: AincradItems
+version: '${version}'
+main: com.aincrad.items.AincradItemsPlugin
+api-version: '1.21'
+description: Cristais do Aincrad — cura, antídoto, teleporte, ressurreição e gravação.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [AincradFloors, AincradBosses, AincradEffects, AincradRPG]
+
+permissions:
+  aincrad.items.use:
+    description: Usar cristais.
+    default: true
+  aincrad.admin:
+    description: Comandos de administração do Aincrad (/aincrad cristal).
+    default: op

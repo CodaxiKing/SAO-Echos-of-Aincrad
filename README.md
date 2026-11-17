@@ -12,6 +12,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-economy/` | **AincradEconomy** — Col, Vault, lojas de NPC, /pagar, troca segura, leilão e casas | pronto (etapas A3–A4) |
 | `aincrad-floors/` | **AincradFloors** — andares, bloqueio de entrada, zona segura, anúncio, Teleport Gates | pronto (etapas 1–4) |
 | `aincrad-bosses/` | **AincradBosses** — chefes com fases e habilidades, sala, Last Attack, liberação do andar, labirinto | pronto (etapas 5–9, 18–19: proteção contra abuso, guia, raid, editor) |
+| `aincrad-items/` | **AincradItems** — cristais de cura, antídoto, teleporte, ressurreição e gravação | pronto (etapas 20–21) |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | pronto (etapas 10–13): motor geral e integração com andares e chefes |
 
 ## Plano

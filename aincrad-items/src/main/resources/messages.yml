@@ -1,0 +1,57 @@
+# ============================================================
+#  AincradItems — mensagens (MiniMessage)
+# ============================================================
+cristal:
+  recarga: "<red>Espere <white><segundos>s</white> para usar outro cristal desses."
+  bloqueado: "<red>Os cristais não funcionam aqui."
+  lore_recarga: "<dark_gray>Recarga: <segundos>s"
+  lore_consumido: "<dark_gray>Consumido ao usar"
+  desconhecido: "<red>Cristal desconhecido: <white><id></white>. Existem: <white><lista>"
+
+cura:
+  usado: "<light_purple>Vida recuperada."
+  cheia: "<gray>Sua vida já está cheia."
+
+antidoto:
+  usado: "<green>Efeitos removidos."
+  nada: "<gray>Você não tem nenhum efeito que o antídoto remova."
+
+teleporte:
+  titulo: "<dark_gray>Cristal de Teleporte"
+  sem_andares: "<red>O cristal de teleporte precisa do AincradFloors."
+  andar: "<aqua><andar>"
+  andar_lore: "<yellow>Clique para ir"
+  aqui: "<gray><andar> <dark_gray>(você está aqui)"
+  fechar: "<gray>Fechar"
+  espera: "<aqua>Teleportando para <white><andar></white> em <white><segundos>s</white>. Não se mexa."
+  cancelado: "<yellow>Teleporte cancelado. O cristal não foi gasto."
+  falhou: "<red>Não foi possível ir para lá. O cristal não foi gasto."
+
+ressurreicao:
+  morrendo_titulo: "<red>Você está se desfazendo"
+  morrendo_titulo_sub: "<gray>Alguém pode salvar você com um Cristal de Ressurreição"
+  morrendo_barra: "<red>Se desfazendo: <white><segundos>s"
+  aviso_perto: "<red><jogador></red> <gray>está se desfazendo! Use um <gold>Cristal de Ressurreição</gold> nele em <white><segundos>s</white>."
+  salvo: "<gold><salvador></gold> <green>cancelou a sua morte."
+  salvou: "<green>Você salvou <white><jogador></white>."
+  ninguem: "<gray>Use em um jogador que está se desfazendo (clique nele)."
+
+gravacao:
+  pedir: "<dark_purple>Digite a mensagem no chat (até <white><maximo></white> letras). Digite <white>cancelar</white> para desistir."
+  cancelado: "<gray>Gravação cancelada."
+  gravado: "<dark_purple>Mensagem gravada. Clique com o cristal para ouvir; entregue a quem quiser."
+  sem_cristal: "<red>Você precisa estar segurando o cristal em branco."
+  ouvir_cabecalho: "<dark_purple>✦ Gravação de <white><autor></white> <gray>(<data>)"
+  ouvir_texto: "<gray>“<white><texto></white>”"
+  nome_gravado: "<dark_purple>Cristal de Gravação <gray>— <autor>"
+  lore_gravado:
+    - "<gray>Gravado por <white><autor>"
+    - "<gray>em <white><data>"
+    - "<yellow>Clique para ouvir"
+
+admin:
+  descricao: "Cristais: dar, listar"
+  uso: "<gray>Uso: <white>/aincrad cristal dar <jogador> <tipo> [qtd]</white>, <white>/aincrad cristal lista"
+  dado: "<green><qtd>x <cristal></green> <gray>para <white><jogador></white>."
+  offline: "<red>Jogador não encontrado online."
+  lista: "<gray>Cristais: <white><lista>"
