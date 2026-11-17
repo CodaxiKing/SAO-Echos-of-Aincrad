@@ -1,0 +1,36 @@
+# ============================================================
+#  Lojas de NPC. Ligue uma loja a um bloco ou NPC olhando para ele:
+#    /aincrad loja criar <id>   (bloco)     /aincrad loja npc <id>   (entidade)
+#  item: material do Minecraft, ou "rpg:<id>" / "rpg:<id>:<raridade>" (items.yml do AincradRPG)
+#  compra: preço para o jogador comprar (sem = não vende)
+#  venda: quanto a loja paga ao jogador (sem = não compra)
+#  quantidade: quantos vêm por compra
+# ============================================================
+lojas:
+  mercador_andar1:
+    titulo: "<dark_gray>Mercador — Andar 1"
+    itens:
+      - item: BREAD
+        quantidade: 4
+        compra: 20
+        venda: 2
+      - item: COOKED_BEEF
+        quantidade: 2
+        compra: 30
+      - item: ARROW
+        quantidade: 16
+        compra: 40
+      - item: ROTTEN_FLESH
+        venda: 1
+      - item: BONE
+        venda: 2
+  ferreiro_andar1:
+    titulo: "<dark_gray>Ferreiro — Andar 1"
+    itens:
+      - item: "rpg:espada_pequena:comum"
+        compra: 150
+      - item: "rpg:anneal_blade:comum"
+        compra: 2500
+      - item: IRON_INGOT
+        compra: 60
+        venda: 15

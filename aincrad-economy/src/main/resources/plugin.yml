@@ -1,0 +1,35 @@
+name: AincradEconomy
+version: '${version}'
+main: com.aincrad.economy.AincradEconomyPlugin
+api-version: '1.21'
+description: Col (moeda da rede), lojas de NPC, /pagar, troca segura, leilão e casas do Aincrad.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [Vault, AincradRPG]
+# Liga antes dos plugins que procuram a economia ao ligar.
+loadbefore: [AincradSocial]
+
+commands:
+  col:
+    description: Mostra seu saldo de Col (ou o de outro jogador).
+    usage: /col [jogador]
+    aliases: [saldo, money, balance]
+    permission: aincrad.economy.use
+  pagar:
+    description: Paga Col para outro jogador.
+    usage: /pagar <jogador> <quantidade>
+    aliases: [pay]
+    permission: aincrad.economy.use
+  trocar:
+    description: Troca segura de itens e Col com outro jogador.
+    usage: /trocar <jogador>|aceitar|recusar
+    aliases: [trade, troca]
+    permission: aincrad.economy.use
+
+permissions:
+  aincrad.economy.use:
+    description: /col, /pagar e /trocar.
+    default: true
+  aincrad.economy.admin:
+    description: /aincrad col, /aincrad loja e ver o saldo dos outros.
+    default: op

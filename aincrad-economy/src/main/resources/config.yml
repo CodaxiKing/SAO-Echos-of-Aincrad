@@ -1,0 +1,31 @@
+# ============================================================
+#  AincradEconomy — configuração
+#  Lojas: shops.yml
+# ============================================================
+
+# Col de quem entra pela primeira vez na rede.
+saldo_inicial: 100
+
+# Col que cai ao matar mobs (direto no saldo, com aviso na action bar).
+mobs:
+  ativo: true
+  col_por_level: 3        # Col = level do mob × este valor
+  variacao: 0.25          # ±25% de sorte
+  chance: 1.0             # chance de dar Col por abate (0 a 1)
+  # Mob sem level do AincradRPG (RPG desligado ou mob sem level) conta como este level; 0 = não dá Col.
+  level_sem_rpg: 1
+
+pagar:
+  minimo: 1
+  taxa: 0.0               # fração que some no /pagar (0.05 = 5%)
+
+troca:
+  distancia_maxima: 16    # blocos; 0 = qualquer distância (mesmo mundo)
+  expira_pedido: 60       # segundos para aceitar o pedido
+  passo_col: 100          # quanto cada clique no botão de Col soma ou tira (shift = ×10)
+  espera_confirmar: 2     # segundos sem poder confirmar depois de alguém mudar a oferta
+
+# Nome da moeda nas mensagens e no Vault.
+moeda:
+  singular: "Col"
+  plural: "Col"

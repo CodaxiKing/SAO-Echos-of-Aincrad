@@ -9,6 +9,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD de vida, vida crítica, tela de morte | pronto (etapas 14–17), com as artes do SAO-UI/sao-assets |
 | `aincrad-social/` | **AincradSocial** — amigos, party, guilda (como no anime) e mensagens | pronto (dados em YAML até o aincrad-core) |
 | `aincrad-rpg/` | **AincradRPG** — level, XP, atributos, level dos mobs, itens com raridade | pronto (etapas A1–A2) |
+| `aincrad-economy/` | **AincradEconomy** — Col, Vault, lojas de NPC, /pagar, troca segura, leilão e casas | A3 pronto; A4 (leilão, casas) em andamento |
 | `aincrad-floors/` | AincradFloors — andares, bloqueio, Teleport Gates | planejado |
 | `aincrad-bosses/` | AincradBosses — chefes, salas, Last Attack | planejado |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | motor geral pronto (etapa 10); integração com Floors/Bosses pendente (11–13) |
