@@ -1,0 +1,57 @@
+# ============================================================
+#  AincradEffects — integração com o Aincrad
+#  Liga sozinha quando o AincradFloors e/ou o AincradBosses estão no servidor.
+# ============================================================
+
+# Qual efeito (de effects/*.yml) toca em cada momento. Deixe vazio ("") para desligar um deles.
+efeitos:
+  # Andar liberado, para todos os jogadores. Com ele ligado, o título simples do AincradFloors
+  # não aparece (o chat dele continua).
+  floor_cleared: aincrad_floor_cleared
+  chegada_andar: aincrad_chegada_andar
+  gate: aincrad_gate
+  chefe_entrada: aincrad_chefe_entrada
+  dano: aincrad_dano
+  dano_critico: aincrad_dano_critico
+  fase: aincrad_fase
+  congratulations: aincrad_congratulations
+
+# Placa do chefe em cima da porta da sala: aparece só para quem chega perto.
+placa:
+  ativo: true
+  # Blocos de distância para a placa aparecer.
+  distancia: 8
+  # Blocos acima do topo da porta.
+  altura: 1.2
+  escala: 1.0
+  # Texto (MiniMessage, <img:id> de images.yml). Variáveis: {chefe} {level} {andar} {jogador}
+  texto: "<img:placa_chefe>\n<white>{chefe} <gray>· Lv. {level}"
+  # Depois da primeira vitória ({jogador} = quem deu o Last Attack).
+  texto_derrotado: "<img:placa_chefe>\n<gray>{chefe} · Lv. {level}\n<green>Derrotado por {jogador}"
+
+numeros_dano:
+  # Máximo de números por segundo em cada chefe (os golpes além disso não mostram número).
+  max_por_segundo: 12
+  # Só quem está a até esta distância do chefe vê os números.
+  raio: 32
+
+# Janela que abre depois do "Congratulations!". Só mostra: os itens já foram entregues.
+janela_resultado:
+  ativo: true
+  # Segundos entre a vitória e a janela.
+  atraso_segundos: 2.5
+  fundo: janela_resultado
+  titulo: "<dark_gray>Resultado — {chefe}"
+  chefe: "<gold><bold>{chefe}</bold> <gray>derrotado"
+  chefe_lore:
+    - "<gray>Andar {andar}"
+  primeira_vitoria: "<aqua>Primeira vitória: o próximo andar foi liberado!"
+  xp: "<green>+{xp} XP"
+  col: "<yellow>+{col} Col"
+  dano: "<white>Seu dano: {dano} <gray>({pct}%)"
+  sem_recompensa: "<red>Dano abaixo do mínimo: sem recompensa."
+  last_attack: "<gold>★ Last Attack"
+  last_attack_lore:
+    - "<yellow>Você deu o golpe final."
+  last_attack_outro: "<gray>Last Attack: <white>{jogador}"
+  fechar: "<red>Fechar"

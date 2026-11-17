@@ -62,8 +62,9 @@ boolean canEnter(Player, int)        boolean isSafeZone(Location)  Location getS
 boolean teleport(Player, int)
 ```
 
-Eventos: `FloorUnlockEvent` (cancelável), `PlayerEnterFloorEvent` (de, para, primeira visita) e
-`GateTeleportEvent` (cancelável).
+Eventos: `FloorUnlockEvent` (cancelável, só no servidor que liberou), `FloorAnnounceEvent` (em todos os
+servidores, na hora do anúncio; um plugin de efeitos pode assumir o título), `PlayerEnterFloorEvent`
+(de, para, primeira visita) e `GateTeleportEvent` (cancelável).
 
 Placeholders (com o PlaceholderAPI): `%aincrad_frontline%`, `%aincrad_floor_atual%`, `%aincrad_floor_nome%`.
 

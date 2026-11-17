@@ -317,8 +317,10 @@ public final class FloorService {
         String guild = p.length > 2 ? p[2] : "";
         var vars = Messages.vars("n", n, "nome", name(n), "jogadores", names, "guilda", guild);
         String som = config.string("anuncio.som", "");
+        com.aincrad.floors.api.FloorAnnounceEvent ev = new com.aincrad.floors.api.FloorAnnounceEvent(n, name(n), names, guild);
+        plugin.getServer().getPluginManager().callEvent(ev);
         for (Player pl : plugin.getServer().getOnlinePlayers()) {
-            if (config.bool("anuncio.titulo", true)) {
+            if (config.bool("anuncio.titulo", true) && !ev.isTitleHandled()) {
                 msg.title(pl, "anuncio.titulo", Duration.ofSeconds(4), vars);
             }
             if (config.bool("anuncio.chat", true)) {

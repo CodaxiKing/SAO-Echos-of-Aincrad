@@ -68,8 +68,8 @@ As ações disparam o `AincradAdminActionEvent` do core.
 `isDefeated(andar)`, `isBossRoom(Location)`, `isFighting(Player)`, `getFight(Player)`.
 
 Eventos: `BossFightStartEvent` (jogadores, segundos de introdução), `BossDamageEvent` (jogador,
-dano, crítico), `BossPhaseChangeEvent`, `BossDefeatEvent` (Last Attack, participantes, dano, itens
-e XP de cada um, primeira vitória) e `BossFightEndEvent` (derrota, tempo ou reset).
+dano, crítico), `BossPhaseChangeEvent`, `BossDefeatEvent` (Last Attack e o item dele, participantes, dano, itens,
+XP e Col de cada um, primeira vitória) e `BossFightEndEvent` (derrota, tempo ou reset).
 
 ## Arquivos
 

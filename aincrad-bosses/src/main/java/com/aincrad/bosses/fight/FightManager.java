@@ -565,6 +565,8 @@ public final class FightManager implements Listener {
 
         Map<UUID, List<ItemStack>> items = new LinkedHashMap<>();
         Map<UUID, Long> xp = new LinkedHashMap<>();
+        Map<UUID, Long> col = new LinkedHashMap<>();
+        ItemStack lastItem = null;
         DamageLedger.split(rw.items(), eligible).forEach((id, map) -> map.forEach((spec, amount) -> {
             // Itens que não empilham (os do RPG) saem um a um, cada qual com seus bônus sorteados.
             int left = amount;
@@ -581,6 +583,7 @@ public final class FightManager implements Listener {
         if (last != null && rw.lastAttack() != null) {
             ItemStack bonus = hooks.item(rw.lastAttack(), 1);
             if (bonus != null) {
+                lastItem = bonus;
                 items.computeIfAbsent(last, k -> new ArrayList<>()).add(bonus);
             } else {
                 plugin.getLogger().warning("Chefe " + def.id() + ": item de Last Attack \"" + rw.lastAttack() + "\" não existe.");
@@ -599,7 +602,10 @@ public final class FightManager implements Listener {
             if (gained > 0) {
                 xp.put(id, gained);
             }
-            hooks.giveCol(p, rw.col());
+            long paid = hooks.giveCol(p, rw.col());
+            if (paid > 0) {
+                col.put(id, paid);
+            }
         }
         items.forEach((id, list) -> {
             Player p = Bukkit.getPlayer(id);
@@ -630,7 +636,7 @@ public final class FightManager implements Listener {
         states.recordKill(def.id(), System.currentTimeMillis(), lastName, String.join(", ", names))
                 .thenRun(() -> AincradCore.get().runSync(() -> AincradCore.get().publish(BUS_STATE, def.id())));
         plugin.getServer().getPluginManager().callEvent(new BossDefeatEvent(def.id(), def.name(), def.floor(), f.entity, last, eligible,
-                f.ledger.all(), items, xp, first));
+                f.ledger.all(), items, xp, col, lastItem, first));
         hooks.recordBossKill(eligible, def.floor(), last);
         if (first && def.floor() < AincradFloorsAPI.getFloorCount()) {
             AincradFloorsAPI.unlockFloor(def.floor() + 1, eligible);

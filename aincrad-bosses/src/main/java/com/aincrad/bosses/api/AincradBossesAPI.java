@@ -24,7 +24,7 @@ public final class AincradBossesAPI {
     /**
      * Um chefe, para placas e menus.
      *
-     * @param door       um bloco do vão da porta (null se não marcada ou em mundo não carregado)
+     * @param door       o meio do vão da porta, logo acima dele (null se não marcada ou em mundo não carregado)
      * @param room       centro da sala, no chão (null sem sala)
      * @param defeated   já foi derrotado na rede
      * @param defeatedBy quem deu o Last Attack na primeira vitória (null se ainda não derrotado)
@@ -61,8 +61,18 @@ public final class AincradBossesAPI {
             RoomStore.Room r = fights.rooms().get(d.id());
             Cuboid box = r == null ? null : r.box;
             World w = box == null ? null : Bukkit.getWorld(box.world());
-            Location door = w == null || r.door.isEmpty() ? null
-                    : new Location(w, r.door.get(0)[0] + 0.5, r.door.get(0)[1], r.door.get(0)[2] + 0.5);
+            Location door = null;
+            if (w != null && !r.door.isEmpty()) {
+                double x = 0;
+                double z = 0;
+                int top = Integer.MIN_VALUE;
+                for (int[] b : r.door) {
+                    x += b[0] + 0.5;
+                    z += b[2] + 0.5;
+                    top = Math.max(top, b[1]);
+                }
+                door = new Location(w, x / r.door.size(), top + 1, z / r.door.size());
+            }
             Location room = w == null ? null : new Location(w, box.centerX(), box.minY(), box.centerZ());
             BossStateStore.State s = fights.states().get(d.id());
             out.add(new BossInfo(d.id(), d.name(), d.level(), d.floor(), door, room, s != null && s.kills() > 0,

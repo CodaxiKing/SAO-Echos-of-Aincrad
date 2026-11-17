@@ -43,6 +43,7 @@ public final class AincradEffectsPlugin extends JavaPlugin {
     private PackManager pack;
     private PackStatus packStatus;
     private TriggerManager triggers;
+    private com.aincrad.effects.aincrad.AincradIntegration aincrad;
 
     @Override
     public void onEnable() {
@@ -75,12 +76,18 @@ public final class AincradEffectsPlugin extends JavaPlugin {
 
         // O pack é montado no primeiro tick, depois que os outros plugins registraram suas pastas.
         pack.scheduleBuild();
+        // Floors e Bosses ligam depois deste plugin (softdepend deles): a integração espera o primeiro tick.
+        aincrad = new com.aincrad.effects.aincrad.AincradIntegration(this);
+        getServer().getScheduler().runTask(this, aincrad::start);
         getLogger().info("AincradEffects ligado: " + engine.ids().size() + " efeitos, " + images.presentCount()
                 + " imagens, " + triggers.count() + " gatilhos.");
     }
 
     @Override
     public void onDisable() {
+        if (aincrad != null) {
+            aincrad.stop();
+        }
         if (engine != null) {
             engine.stopAll();
         }
@@ -110,6 +117,9 @@ public final class AincradEffectsPlugin extends JavaPlugin {
         List<String> errors = loadAll();
         errors.forEach(e -> getLogger().warning(e));
         pack.build();
+        if (aincrad != null) {
+            aincrad.start();
+        }
         return errors;
     }
 

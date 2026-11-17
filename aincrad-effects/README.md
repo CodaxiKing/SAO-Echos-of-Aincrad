@@ -141,12 +141,41 @@ fx.stop(player);
 No `plugin.yml` do outro plugin: `softdepend: [AincradEffects]` e `compileOnly` contra este .jar.
 O AincradUI já se liga sozinho (procura `com.aincrad.effects.api.AincradEffectsAPI`).
 
-## Ficou para depois (etapas 11–13 do plano)
+## Integração com o Aincrad (etapas 11–13)
 
-A integração com o Floors e o Bosses (placa do chefe na porta, entrada do chefe, números de dano,
-aviso de fase, Congratulations com janela de resultado, chegada no andar, animação do Teleport
-Gate e Floor Cleared) depende das APIs desses plugins, que ainda não existem. As imagens
-provisórias dela já estão em images.yml.
+Liga sozinha no primeiro tick quando o **AincradFloors** e/ou o **AincradBosses** estão no
+servidor; sem eles o plugin funciona igual. O AincradEffects só desenha: não dá itens, não libera
+andares e não mexe nas lutas.
+
+Cada momento toca um efeito comum do motor, definido em `effects/aincrad.yml` e escolhido em
+`aincrad.yml → efeitos` (deixe `""` para desligar um deles):
+
+| Momento | Efeito padrão | Variáveis |
+|---|---|---|
+| Andar liberado, para todos os jogadores | `aincrad_floor_cleared` | `{andar}` `{nome}` `{jogadores}` `{guilda}` |
+| Chegada num andar | `aincrad_chegada_andar` | `{andar}` `{nome}` |
+| Teleport Gate | `aincrad_gate` | `{andar}` `{nome}` |
+| Introdução do chefe | `aincrad_chefe_entrada` | `{chefe}` `{level}` `{andar}` |
+| Golpe no chefe · golpe crítico | `aincrad_dano` · `aincrad_dano_critico` | `{dano}` |
+| Troca de fase | `aincrad_fase` | `{fase}` `{nome_fase}` `{chefe}` |
+| Vitória (cada participante) | `aincrad_congratulations` | `{chefe}` `{andar}` `{jogador}` |
+
+Além dos efeitos:
+
+- **Placa do chefe na porta** (`aincrad.yml → placa`): um Text Display em cima do vão da porta com
+  a imagem `placa_chefe` e, embaixo, o nome e o level lidos do YAML do chefe. Aparece só para
+  quem chega a 8 blocos, crescendo e com fade; some quando a luta começa; depois da primeira
+  vitória mostra "Derrotado por …". Precisa da porta marcada (`/aincrad chefe porta <id>`).
+- **Números de dano**: no máximo `numeros_dano.max_por_segundo` por chefe, só para quem está perto.
+- **Janela de resultado** (`aincrad.yml → janela_resultado`): abre 2,5 s depois do
+  "Congratulations!", com o fundo `janela_resultado` do pack: XP, Col (se houver economia), o
+  dano do jogador, os itens recebidos e o **Last Attack em destaque** (brilhando, no centro) para
+  quem deu o golpe final. É uma vitrine: nada sai dela, os itens já foram entregues pelo AincradBosses.
+- Com o efeito de andar liberado ligado, o título simples do AincradFloors não aparece (o chat
+  dele continua). No começo da luta, o título deste plugin substitui o do AincradBosses.
+
+Ainda não feito: a opção `estilo: mapa` da placa (imagem em quadros no lugar do Text Display).
+A integração ainda não foi vista rodando num servidor.
 
 ## Decisões tomadas (não definidas no plano)
 

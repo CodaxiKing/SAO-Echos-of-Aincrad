@@ -1,0 +1,162 @@
+# ============================================================
+#  AincradEffects — efeitos da integração com o Aincrad (andares e chefes)
+# ============================================================
+# São efeitos comuns do motor: edite à vontade. Qual efeito toca em cada momento fica em
+# aincrad.yml → efeitos. Variáveis de cada um estão no comentário.
+
+# Um andar foi liberado: todos os jogadores veem. {andar} {nome} {jogadores} {guilda}
+aincrad_floor_cleared:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: imagem
+      imagem: floor_cleared
+      subtitulo: "<white>{nome}"
+      entrada: 0.5
+      fica: 3.5
+      saida: 1
+    - em: 0
+      tipo: som
+      som: minecraft:ui.toast.challenge_complete
+      no_jogador: true
+    - em: 0.6
+      tipo: fogos
+      forma_fogo: BALL_LARGE
+      cores: ["#5BC8FF", "#FFFFFF"]
+      cores_fade: ["#1E3A5F"]
+      quantidade: 2
+      espalhar: 3
+      deslocamento: [0, 4, 0]
+
+# O jogador chegou a um andar. {andar} {nome}
+aincrad_chegada_andar:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: titulo
+      titulo: "<aqua>{nome}"
+      subtitulo: "<gray>Andar {andar}"
+      entrada: 0.5
+      fica: 2.5
+      saida: 1
+    - em: 0
+      tipo: som
+      som: minecraft:block.amethyst_block.chime
+      no_jogador: true
+      tom: 0.7
+
+# Teleport Gate: partículas e luz azul no jogador, vistas por quem está perto. {andar} {nome}
+aincrad_gate:
+  publico: raio:24
+  passos:
+    - em: 0
+      tipo: particulas
+      particula: END_ROD
+      forma: espiral
+      raio: 0.9
+      altura: 2.4
+      voltas: 3
+      quantidade: 50
+    - em: 0
+      tipo: particulas
+      particula: DUST
+      cor: "#5BC8FF"
+      tamanho: 1.5
+      forma: coluna
+      raio: 0.5
+      altura: 2.2
+      quantidade: 40
+    - em: 0
+      tipo: som
+      som: minecraft:block.beacon.power_select
+      tom: 1.4
+
+# Introdução do chefe: o nome grande na tela de quem está na sala. {chefe} {level} {andar}
+aincrad_chefe_entrada:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: titulo
+      titulo: "<dark_red><bold>{chefe}"
+      subtitulo: "<gray>Lv. {level} <dark_gray>· <gray>Chefe do andar {andar}"
+      entrada: 0.6
+      fica: 3
+      saida: 1
+    - em: 0
+      tipo: som
+      som: minecraft:entity.wither.spawn
+      no_jogador: true
+      volume: 0.5
+      tom: 0.8
+
+# Número de dano que sobe e some em 1 s. {dano}
+aincrad_dano:
+  passos:
+    - em: 0
+      tipo: texto_mundo
+      texto: "<white><bold>{dano}"
+      escala: 0.9
+      escala_final: 1.3
+      subir: 1.0
+      duracao: 1
+      fade_saida: 0.4
+
+# Golpe crítico: outra cor e maior. {dano}
+aincrad_dano_critico:
+  passos:
+    - em: 0
+      tipo: texto_mundo
+      texto: "<gold><bold>{dano}!"
+      escala: 1.2
+      escala_final: 1.8
+      subir: 1.2
+      duracao: 1
+      fade_saida: 0.4
+
+# Troca de fase. {fase} {nome_fase} {chefe}
+aincrad_fase:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: titulo
+      titulo: "<red><bold>Fase {fase}"
+      subtitulo: "<gray>{nome_fase}"
+      entrada: 0.2
+      fica: 1.5
+      saida: 0.6
+    - em: 0
+      tipo: som
+      som: minecraft:entity.ender_dragon.growl
+      no_jogador: true
+      volume: 0.5
+      tom: 1.3
+    # Efeito curto na visão. Apague este passo para desligar.
+    - em: 0
+      tipo: pocao
+      efeito: darkness
+      duracao: 1.5
+      nivel: 1
+
+# Vitória: cada participante vê. A janela de resultado abre depois (aincrad.yml). {chefe} {andar}
+aincrad_congratulations:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: imagem
+      imagem: congratulations
+      subtitulo: "<yellow>{chefe} foi derrotado"
+      entrada: 0.4
+      fica: 3
+      saida: 1
+    - em: 0
+      tipo: som
+      som: minecraft:ui.toast.challenge_complete
+      no_jogador: true
+    - em: 0.3
+      tipo: fogos
+      forma_fogo: STAR
+      cores: ["#FFD24A", "#FFFFFF"]
+      cores_fade: ["#FF8A00"]
+      quantidade: 3
+      espalhar: 3
+      deslocamento: [0, 4, 0]
