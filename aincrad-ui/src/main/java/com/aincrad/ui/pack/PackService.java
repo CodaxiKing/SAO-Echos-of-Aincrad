@@ -2,6 +2,7 @@ package com.aincrad.ui.pack;
 
 import com.aincrad.ui.AincradUIPlugin;
 import com.aincrad.ui.config.UiSettings;
+import com.aincrad.ui.flat.FlatAtlas;
 import com.aincrad.ui.glyph.GlyphRegistry;
 import com.aincrad.ui.glyph.UiFonts;
 import net.kyori.adventure.resource.ResourcePackInfo;
@@ -53,12 +54,13 @@ public final class PackService {
     }
 
     /** Gera os arquivos do pack e entrega ao Effects ou monta o .zip próprio. */
-    public void build(GlyphRegistry glyphs, UiSettings settings, EffectsBridge effects) {
+    public void build(GlyphRegistry glyphs, UiSettings settings, EffectsBridge effects, FlatAtlas flat) {
         stopHttp();
         url = null;
         hash = null;
         try {
             builder.generate(glyphs, settings);
+            builder.generateFlat(flat, settings);
         } catch (IOException e) {
             plugin.getLogger().severe("Falha ao gerar o resource pack: " + e.getMessage());
             return;

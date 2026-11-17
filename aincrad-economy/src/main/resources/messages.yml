@@ -37,6 +37,18 @@ loja:
   inventario_cheio: "<yellow>Inventário cheio: o que não coube caiu no chão."
   indisponivel: "<red>Esse item não está disponível (o AincradRPG está ligado?)."
   desconhecida: "<red>Loja desconhecida: <white><id></white>."
+  # Textos da loja em tela plana (AincradUI). Sem cores nem tags: são desenhados letra a letra.
+  tela:
+    shop: "SHOP"
+    itens: "ITENS"
+    comprar: "COMPRAR"
+    vender: "VENDER"
+    quantidade: "QUANTIDADE"
+    total: "TOTAL"
+    vazio: "Nada para negociar nesta aba."
+    dica: "Clique esquerdo: escolher · Agachar: fechar"
+    porCompra: "<n> por compra"
+    voceTem: "Você tem <n>"
 
 troca:
   uso: "<gray>Uso: <white>/trocar <jogador></white>, <white>/trocar aceitar</white>, <white>/trocar recusar"

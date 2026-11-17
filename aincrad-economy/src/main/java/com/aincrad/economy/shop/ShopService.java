@@ -53,7 +53,7 @@ public final class ShopService implements Listener {
     public static final String BUS_CHANNEL = "economy:shops";
 
     /** Um item à venda. {@code buy}/{@code sell} = -1 quando não compra/vende. */
-    public record Offer(String spec, int amount, long buy, long sell) {
+    public record Offer(String spec, int amount, long buy, long sell, String name, String icon) {
     }
 
     /** Uma loja de shops.yml. */
@@ -67,6 +67,7 @@ public final class ShopService implements Listener {
     private final Database db;
     private final NamespacedKey rpgItemKey = NamespacedKey.fromString("aincradrpg:item");
     private Map<String, Shop> shops = Map.of();
+    private ShopFlat flat;
     private final Map<String, String> links = new ConcurrentHashMap<>();
 
     public ShopService(Plugin plugin, EconomyService eco, ConfigFile file, Database db) {
@@ -81,6 +82,18 @@ public final class ShopService implements Listener {
     public void reload() {
         file.reload();
         load();
+        if (flat != null) {
+            flat.prepare();
+        }
+    }
+
+    /** Liga a loja nas telas planas do AincradUI (se ele estiver instalado). */
+    public void hookFlat() {
+        flat = ShopFlat.hook(plugin, eco, this);
+    }
+
+    public java.util.Collection<Shop> shops() {
+        return shops.values();
     }
 
     private void load() {
@@ -99,7 +112,9 @@ public final class ShopService implements Listener {
                         continue;
                     }
                     offers.add(new Offer(item.toString(), Math.max(1, num(m.get("quantidade"), 1)),
-                            num(m.get("compra"), -1), num(m.get("venda"), -1)));
+                            num(m.get("compra"), -1), num(m.get("venda"), -1),
+                            m.get("nome") == null ? null : m.get("nome").toString(),
+                            m.get("icone") == null ? null : m.get("icone").toString()));
                 }
                 String key = id.toLowerCase(Locale.ROOT);
                 out.put(key, new Shop(key, s.getString("titulo", id), List.copyOf(offers)));
@@ -212,6 +227,9 @@ public final class ShopService implements Listener {
             msg.send(p, "loja.desconhecida", Messages.vars("id", String.valueOf(id)));
             return false;
         }
+        if (flat != null && flat.open(p, shop)) {
+            return true;
+        }
         Menu menu = Menu.of(Messages.parse(shop.title())).rows(6);
         for (Offer o : shop.offers()) {
             ItemStack icon = create(o, 1);
@@ -275,13 +293,13 @@ public final class ShopService implements Listener {
         AincradCore.get().menus().open(p, menu);
     }
 
-    private Component name(ItemStack it) {
+    Component name(ItemStack it) {
         ItemMeta m = it.getItemMeta();
         Component n = m != null && m.hasDisplayName() ? m.displayName() : null;
         return n != null ? n : Component.translatable(it.translationKey());
     }
 
-    private void buy(Player p, Offer o, int times) {
+    void buy(Player p, Offer o, int times) {
         long price = o.buy() * times;
         if (!eco.has(p, price)) {
             msg.send(p, "loja.sem_saldo", eco.col(price));
@@ -314,7 +332,7 @@ public final class ShopService implements Listener {
         }
     }
 
-    private void sell(Player p, Offer o, int amount) {
+    void sell(Player p, Offer o, int amount) {
         if (amount <= 0 || count(p, o) < amount) {
             msg.send(p, "loja.sem_item");
             return;
@@ -330,7 +348,7 @@ public final class ShopService implements Listener {
     // ------------------------------------------------------------------ itens
 
     /** Item da oferta: material ou "rpg:id[:raridade]" (pela API do AincradRPG). */
-    private ItemStack create(Offer o, int amount) {
+    ItemStack create(Offer o, int amount) {
         String spec = o.spec();
         if (spec.toLowerCase(Locale.ROOT).startsWith("rpg:")) {
             String[] parts = spec.split(":");
@@ -388,7 +406,7 @@ public final class ShopService implements Listener {
         return !meta.hasDisplayName() && !meta.hasLore() && meta.getPersistentDataContainer().isEmpty();
     }
 
-    private int count(Player p, Offer o) {
+    int count(Player p, Offer o) {
         int n = 0;
         for (ItemStack it : p.getInventory().getStorageContents()) {
             if (matches(it, o)) {

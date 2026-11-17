@@ -14,6 +14,10 @@ A moeda **Col** e o que se compra com ela (etapas A3–A4 do plano). Precisa do 
 - **Lojas de NPC** (`shops.yml`) — preços fixos de compra e venda, itens do Minecraft ou do RPG
   (`rpg:<id>[:raridade]`). Abrem ao clicar num bloco ou entidade ligados pelo admin; NPCs de loja
   não tomam dano. Só compra de volta itens “limpos” (sem nome/marca de outro plugin).
+- **Loja em tela plana** — com o AincradUI instalado e o pack carregado, a loja abre desenhada na
+  tela, com cursor: cabeçalho com o saldo, abas Comprar/Vender, lista com páginas e o painel do item
+  com quantidade (− e +), total e o botão. Sem o AincradUI ou sem o pack, abre o menu de baú.
+  `nome:` e `icone:` em `shops.yml` ajustam o que aparece; os textos ficam em `loja.tela` das mensagens.
 - **/pagar** — com mínimo e taxa configuráveis; paga quem está offline também.
 - **Troca segura** (`/trocar`) — janela onde cada um só mexe no seu lado e oferece Col; qualquer
   mudança derruba as confirmações e trava o confirmar por `espera_confirmar` segundos. Os dois

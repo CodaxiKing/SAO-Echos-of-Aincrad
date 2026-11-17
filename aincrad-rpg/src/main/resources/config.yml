@@ -21,6 +21,9 @@ vida_por_level: 0.5
 
 # O XP do Minecraft é desligado; a barra de XP mostra o level e o progresso do RPG.
 barra_de_xp: true
+# Com barra_de_xp: false (ex.: a HUD em barras do AincradUI já mostra level e XP), a barra do
+# Minecraft fica vazia. Ponha true aqui para devolver o XP normal do Minecraft (orbes, encantar).
+xp_vanilla: false
 
 morte:
   # Fração do XP já juntado no level atual que se perde ao morrer. Nunca desce de level.

@@ -5,12 +5,15 @@
 #  compra: preço para o jogador comprar (sem = não vende)
 #  venda: quanto a loja paga ao jogador (sem = não compra)
 #  quantidade: quantos vêm por compra
+#  nome (opcional): nome mostrado na loja em tela plana (sem ele, o nome do item em inglês)
+#  icone (opcional): textura do ícone, ex.: "minecraft:block/oak_log_top"
 # ============================================================
 lojas:
   mercador_andar1:
     titulo: "<dark_gray>Mercador — Andar 1"
     itens:
       - item: BREAD
+        nome: "Pão"
         quantidade: 4
         compra: 20
         venda: 2

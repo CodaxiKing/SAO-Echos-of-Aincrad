@@ -2,6 +2,7 @@ package com.aincrad.ui.pack;
 
 import com.aincrad.ui.config.UiSettings;
 import com.aincrad.ui.config.UiSettings.SoundDef;
+import com.aincrad.ui.flat.FlatAtlas;
 import com.aincrad.ui.glyph.Glyph;
 import com.aincrad.ui.glyph.GlyphRegistry;
 import com.aincrad.ui.glyph.SpaceFont;
@@ -117,6 +118,86 @@ public final class PackBuilder {
             Files.deleteIfExists(bg.toPath());
             Files.deleteIfExists(progress.toPath());
         }
+    }
+
+    /** Fontes e texturas das telas planas, e a troca da HUD do Minecraft (estilo "barras"). */
+    public void generateFlat(FlatAtlas atlas, UiSettings settings) throws IOException {
+        atlas.write(root);
+        File hud = new File(root, "assets/minecraft/textures/gui/sprites/hud");
+        File list = new File(hud, GENERATED_LIST);
+        // Apaga só o que este plugin gerou da outra vez (artes suas na mesma pasta ficam).
+        if (list.isFile()) {
+            for (String name : Files.readAllLines(list.toPath(), StandardCharsets.UTF_8)) {
+                if (!name.isBlank()) {
+                    Files.deleteIfExists(new File(hud, name.trim()).toPath());
+                }
+            }
+            Files.delete(list.toPath());
+        }
+        if (!settings.hudFlat) {
+            return;
+        }
+        List<String> made = new ArrayList<>();
+        if (settings.flatHideVanilla) {
+            for (String name : vanillaHudSprites()) {
+                boolean bar = name.startsWith("experience_bar");
+                made.add(writeGenerated(hud, name, new BufferedImage(bar ? 182 : 9, bar ? 5 : 9, BufferedImage.TYPE_INT_ARGB)));
+            }
+        }
+        if (settings.flatHotbar) {
+            made.add(writeGenerated(hud, "hotbar.png", HotbarArt.hotbar()));
+            made.add(writeGenerated(hud, "hotbar_selection.png", HotbarArt.selection()));
+            made.add(writeGenerated(hud, "hotbar_offhand_left.png", HotbarArt.offhand(true)));
+            made.add(writeGenerated(hud, "hotbar_offhand_right.png", HotbarArt.offhand(false)));
+        }
+        made.removeIf(String::isEmpty);
+        if (!made.isEmpty()) {
+            Files.write(list.toPath(), made, StandardCharsets.UTF_8);
+        }
+    }
+
+    private static final String GENERATED_LIST = ".aincrad_gerado";
+
+    /** Grava a imagem se o arquivo não existe (arte do usuário tem preferência). Devolve o nome gravado. */
+    private String writeGenerated(File dir, String name, BufferedImage img) throws IOException {
+        File f = new File(dir, name);
+        if (f.isFile()) {
+            return "";
+        }
+        Files.createDirectories(f.getParentFile().toPath());
+        ImageIO.write(img, "png", f);
+        return name;
+    }
+
+    /** Corações, fome, armadura e barra de XP do Minecraft (a HUD em barras mostra tudo isso). */
+    static List<String> vanillaHudSprites() {
+        List<String> out = new ArrayList<>();
+        for (String c : new String[]{"container", "container_hardcore"}) {
+            out.add("heart/" + c + ".png");
+            out.add("heart/" + c + "_blinking.png");
+        }
+        for (String effect : new String[]{"", "absorbing_", "frozen_", "poisoned_", "withered_"}) {
+            for (String hardcore : new String[]{"", "hardcore_"}) {
+                for (String fill : new String[]{"full", "half"}) {
+                    out.add("heart/" + effect + hardcore + fill + ".png");
+                    out.add("heart/" + effect + hardcore + fill + "_blinking.png");
+                }
+            }
+        }
+        for (String v : new String[]{"vehicle_container", "vehicle_full", "vehicle_half"}) {
+            out.add("heart/" + v + ".png");
+        }
+        for (String kind : new String[]{"food", "armor"}) {
+            for (String fill : new String[]{"empty", "half", "full"}) {
+                out.add(kind + "_" + fill + ".png");
+                if (kind.equals("food")) {
+                    out.add(kind + "_" + fill + "_hunger.png");
+                }
+            }
+        }
+        out.add("experience_bar_background.png");
+        out.add("experience_bar_progress.png");
+        return out;
     }
 
     private void writeUiFont(GlyphRegistry glyphs) throws IOException {

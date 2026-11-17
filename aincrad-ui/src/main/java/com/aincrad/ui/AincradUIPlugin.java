@@ -8,6 +8,7 @@ import com.aincrad.ui.config.Messages;
 import com.aincrad.ui.config.UiSettings;
 import com.aincrad.ui.death.DeathEffects;
 import com.aincrad.ui.glyph.GlyphRegistry;
+import com.aincrad.ui.flat.FlatManager;
 import com.aincrad.ui.hud.HealthHud;
 import com.aincrad.ui.listener.CommandRedirectListener;
 import com.aincrad.ui.listener.MenuListener;
@@ -38,6 +39,7 @@ public final class AincradUIPlugin extends JavaPlugin {
     private SessionManager sessions;
     private Screens screens;
     private HealthHud hud;
+    private FlatManager flat;
     private DeathEffects deathEffects;
 
     @Override
@@ -49,6 +51,7 @@ public final class AincradUIPlugin extends JavaPlugin {
         sessions = new SessionManager(this);
         screens = new Screens(this);
         hud = new HealthHud(this);
+        flat = new FlatManager(this);
         deathEffects = new DeathEffects(this);
 
         loadAll();
@@ -58,6 +61,7 @@ public final class AincradUIPlugin extends JavaPlugin {
         pm.registerEvents(new MenuListener(this), this);
         pm.registerEvents(new CommandRedirectListener(), this);
         pm.registerEvents(hud, this);
+        pm.registerEvents(flat, this);
         pm.registerEvents(deathEffects, this);
 
         UiCommands commands = new UiCommands(this);
@@ -72,6 +76,7 @@ public final class AincradUIPlugin extends JavaPlugin {
         getServer().getServicesManager().register(AincradUIAPI.class, new AincradUIAPIImpl(this), this, ServicePriority.Normal);
 
         sessions.start();
+        flat.start();
         hud.start();
         getLogger().info("AincradUI ligado: " + glyphs.presentCount() + " glifos, pack " + pack.mode()
                 + (effects.available() ? " (AincradEffects encontrado)" : " (sem AincradEffects)"));
@@ -84,6 +89,9 @@ public final class AincradUIPlugin extends JavaPlugin {
         }
         if (hud != null) {
             hud.stop();
+        }
+        if (flat != null) {
+            flat.stop();
         }
         if (pack != null) {
             pack.stopHttp();
@@ -99,12 +107,24 @@ public final class AincradUIPlugin extends JavaPlugin {
         pack.prepare(getFile());
         glyphs = GlyphRegistry.load(ConfigFiles.load(this, "glyphs.yml"), pack.texturesRoot(), getLogger());
         menu.load(ConfigFiles.load(this, "menu.yml"));
-        pack.build(glyphs, settings, effects);
+        flat.atlas().texturesRoot(pack.texturesRoot());
+        flat.prepareBuiltins();
+        pack.build(glyphs, settings, effects, flat.atlas());
+    }
+
+    /** Refaz só o pack (peças novas das telas planas). */
+    public void rebuildPack() {
+        pack.build(glyphs, settings, effects, flat.atlas());
+    }
+
+    public FlatManager flat() {
+        return flat;
     }
 
     /** /aincrad ui reload: fecha menus abertos, relê tudo e reinicia a HUD. */
     public void reloadAll() {
         sessions.closeAll();
+        flat.closeAll();
         hud.stop();
         loadAll();
         hud.start();

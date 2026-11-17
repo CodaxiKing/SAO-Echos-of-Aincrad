@@ -18,6 +18,9 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     // Obrigatório (depend): config, mensagens, banco, comandos e menus vêm do core.
     compileOnly("com.aincrad:aincrad-core:0.1.0")
+    compileOnly("com.aincrad:aincrad-ui:0.1.0")
+    testImplementation("com.aincrad:aincrad-ui:0.1.0")
+    testImplementation("com.aincrad:aincrad-core:0.1.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         isTransitive = false
     }

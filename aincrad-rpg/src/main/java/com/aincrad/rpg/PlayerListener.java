@@ -67,7 +67,7 @@ public final class PlayerListener implements Listener {
     /** XP vanilla (orbes) não entra: a barra é do RPG. */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onExp(PlayerExpChangeEvent event) {
-        if (rpg.settings().xpBar) {
+        if (rpg.settings().blockVanillaXp) {
             event.setAmount(0);
         }
     }

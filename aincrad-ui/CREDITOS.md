@@ -10,3 +10,10 @@
 
 ## Inspiração
 - Sword Art Online, de Reki Kawahara. Projeto de fãs, sem fins lucrativos e sem ligação com os detentores dos direitos.
+
+## Telas planas
+
+- Letras das telas planas (`textures/flat/inter_*.png`): desenhadas a partir da fonte **Inter**, de
+  Rasmus Andersson e colaboradores, licença SIL Open Font License 1.1 (https://rsms.me/inter/).
+- Larguras dos ícones (`flat/vanilla_icons.txt`): medidas das texturas do Minecraft 1.21.11
+  (só os números; as texturas continuam sendo as do jogo do próprio jogador).

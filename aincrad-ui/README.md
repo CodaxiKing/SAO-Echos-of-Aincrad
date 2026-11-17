@@ -64,6 +64,39 @@ fonte SAO com reserva na fonte padrão), `font/hud_low.json` (números embaixo d
 Quem recusa o pack vê a versão simples: menu de baú com itens comuns, HUD como BossBar colorida e
 "You are dead" em texto.
 
+## Telas planas (HUD em barras e loja)
+
+Além do menu que flutua no mundo, o AincradUI desenha **direto na tela** do jogador, sem mod e sem
+trocar shaders: tudo vai no título de uma BossBar (a branca, que o pack deixa invisível), em
+caracteres posicionados no pixel. Cada retângulo, ícone e linha de texto é um caractere de fonte do
+pack; a linha inteira tem largura zero, então começa exatamente no meio da tela.
+
+- **HUD em barras** (`hud.estilo: barras`, padrão): barra de vida com o nome e os números, barra
+  azul de energia (a fome, até existir o plugin de Sword Skills — `flat().setEnergyProvider`), XP e
+  level do AincradRPG, e as barras da party embaixo. Com `hotbar_redonda` a hotbar vira bolinhas e
+  com `esconder_vanilla` somem corações, fome, armadura e a barra de XP do Minecraft.
+  `hud.estilo: sao` volta para a moldura do anime.
+- **Telas com cursor** (`tela_plana`): o jogador fica parado, girar a câmera move uma seta na tela,
+  clique esquerdo aciona o botão embaixo dela e agachar fecha. A loja do AincradEconomy usa isto.
+- **Para outros plugins**: `AincradUIAPI#flat()` → `FlatApi` (`prepare`, `open`, `canShow`,
+  `itemTexture`) e `FlatScreen#draw(FlatDraw, Player)` com `rect`, `text`, `icon` e `button`.
+  Tudo o que a tela desenha precisa ser desenhado uma vez em `prepare` (é como as peças entram no
+  pack); se entrar peça nova, o pack é refeito sozinho.
+
+Limites (por ser fonte, não shader):
+
+- As posições são em pixels de interface a partir do **centro** da tela, no topo. `deslocamento_x: 232`
+  encosta a HUD no canto em 1080p com a interface em escala 4; em outra resolução ou escala ela
+  fica mais para dentro ou para fora. O tamanho acompanha a escala de interface do jogador.
+- Ícones de itens usam a textura 16×16 do Minecraft (itens e blocos de textura simples; animados
+  e modelos 3D caem num ícone reserva).
+- Outra BossBar criada antes da do AincradUI empurra tudo 19 px para baixo.
+- Quem recusa o pack vê a HUD de BossBar colorida e a loja em baú.
+
+`tools/gerar_tela_plana.py` refaz as folhas de letras (fonte Inter) e o cursor. Os testes
+(`FlatEngineTest`) geram um pack de verdade, simulam o desenho do jogo (`FlatPreview`) e conferem
+as posições no pixel; as prévias ficam em `build/preview/`.
+
 ## Como funciona
 
 - **Abrir**: agachar + clique esquerdo com a mão vazia, ou `/menu`.

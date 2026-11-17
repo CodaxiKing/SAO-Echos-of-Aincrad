@@ -25,6 +25,17 @@ menu:
 
 hud:
   ativo: true
+  # "barras": barra de vida com o nome, barra azul de energia, XP e level (precisa do pack).
+  # "sao": a moldura do anime com a barra em fatias.
+  estilo: barras
+  barras:
+    # Distância (pixels de interface) do centro da tela até a borda esquerda da HUD.
+    # 232 encosta no canto em 1080p com a interface em escala 4 (480 px de largura).
+    deslocamento_x: 232
+    # Troca a hotbar do Minecraft por bolinhas.
+    hotbar_redonda: true
+    # Esconde corações, fome, armadura e a barra de XP do Minecraft (a HUD já mostra).
+    esconder_vanilla: true
   # De quantos em quantos ticks a barra é atualizada (20 ticks = 1 s).
   intervalo_ticks: 4
   # Segmentos da barra para quem está SEM o pack (com o pack, são as 20 fatias da arte).
@@ -54,6 +65,13 @@ hud:
   alerta_intervalo_segundos: 3
   mostrar_numeros: true
   texto_level: "LV:"
+
+# Telas desenhadas direto na tela, com cursor (a loja do AincradEconomy e outras).
+# O jogador fica parado, o mouse move o cursor, clique esquerdo aciona e agachar fecha.
+tela_plana:
+  ativo: true
+  # Pixels de interface que o cursor anda por grau de giro da câmera.
+  sensibilidade: 6.0
 
 morte:
   # Estilhaços azuis quando um jogador morre.

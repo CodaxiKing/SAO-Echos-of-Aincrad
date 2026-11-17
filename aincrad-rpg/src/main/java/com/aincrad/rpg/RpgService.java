@@ -181,6 +181,11 @@ public final class RpgService {
     /** Barra de XP do Minecraft = level e progresso do RPG. */
     public void refresh(Player p) {
         if (!settings.xpBar) {
+            // A HUD do AincradUI mostra level e XP: a barra do Minecraft fica vazia.
+            if (settings.blockVanillaXp) {
+                p.setLevel(0);
+                p.setExp(0);
+            }
             return;
         }
         Progress pr = progress(p);

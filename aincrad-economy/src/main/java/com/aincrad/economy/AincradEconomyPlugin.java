@@ -57,6 +57,13 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
             getLogger().warning("Não foi possível ler as ligações de loja: " + e.getMessage());
         }
         trade = new TradeService(this, eco);
+        if (getServer().getPluginManager().isPluginEnabled("AincradUI")) {
+            try {
+                shops.hookFlat();
+            } catch (LinkageError | RuntimeException e) {
+                getLogger().warning("AincradUI encontrado, mas a loja em tela plana não ligou: " + e);
+            }
+        }
         AuctionService auction = new AuctionService(this, eco, core.database());
         HouseService houses = new HouseService(this, eco, core.database());
         try {

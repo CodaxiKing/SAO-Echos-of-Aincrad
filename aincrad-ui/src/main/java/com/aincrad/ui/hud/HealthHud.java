@@ -3,6 +3,7 @@ package com.aincrad.ui.hud;
 import com.aincrad.ui.AincradUIPlugin;
 import com.aincrad.ui.api.PartyHudProvider;
 import com.aincrad.ui.config.UiSettings;
+import com.aincrad.ui.flat.FlatHud;
 import com.aincrad.ui.glyph.Glyph;
 import com.aincrad.ui.glyph.LineBuilder;
 import com.aincrad.ui.glyph.SpaceFont;
@@ -109,6 +110,23 @@ public final class HealthHud implements Listener {
         HealthState state = HealthState.of(ratio, st.hudYellow, st.hudRed);
         boolean blinkOff = state == HealthState.CRITICAL && (tick / st.hudBlinkTicks) % 2 == 1;
 
+        boolean flat = st.hudFlat && plugin.packStatus().hasPack(p);
+        if (flat) {
+            // HUD em barras: desenhada pelas telas planas, numa BossBar só.
+            hideBars(p);
+            int[] energy = plugin.flat().energy(p);
+            FlatHud.Data data = new FlatHud.Data(p.getName(), (int) Math.ceil(health), (int) Math.round(max), ratio,
+                    colorOf(state, blinkOff).value(), energy[0], energy[1], FlatHud.xpText(p), FlatHud.level(p), partyData(p, st));
+            plugin.flat().hud(p, plugin.flat().paint(d -> FlatHud.paint(d, data, -st.flatHudX)));
+            alert(p, state, st);
+            return;
+        }
+        plugin.flat().hud(p, null);
+        if (plugin.flat().isOpen(p)) {
+            // Uma tela plana precisa ser a primeira BossBar: a HUD do anime sai enquanto ela está aberta.
+            hideBars(p);
+            return;
+        }
         BossBar bar = bars.computeIfAbsent(p.getUniqueId(), id -> {
             BossBar b = BossBar.bossBar(Component.empty(), 1f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
             p.showBossBar(b);
@@ -139,15 +157,47 @@ public final class HealthHud implements Listener {
             bar.progress((float) ratio);
         }
 
-        if (state == HealthState.CRITICAL) {
-            long now = System.currentTimeMillis();
-            Long last = lastAlert.get(p.getUniqueId());
-            if (last == null || now - last >= st.hudAlertSeconds * 1000L) {
-                lastAlert.put(p.getUniqueId(), now);
-                plugin.sounds().play(p, UiSound.CRITICAL);
+        alert(p, state, st);
+        updateParty(p, st);
+    }
+
+    private void alert(Player p, HealthState state, UiSettings st) {
+        if (state != HealthState.CRITICAL) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Long last = lastAlert.get(p.getUniqueId());
+        if (last == null || now - last >= st.hudAlertSeconds * 1000L) {
+            lastAlert.put(p.getUniqueId(), now);
+            plugin.sounds().play(p, UiSound.CRITICAL);
+        }
+    }
+
+    /** Membros da party para a HUD em barras. */
+    private List<FlatHud.Member> partyData(Player p, UiSettings st) {
+        List<FlatHud.Member> out = new ArrayList<>();
+        for (Player m : partyOf(p, st)) {
+            AttributeInstance a = m.getAttribute(Attribute.MAX_HEALTH);
+            double max = a != null ? Math.max(1.0, a.getValue()) : 20.0;
+            double ratio = m.isDead() ? 0 : Math.min(1.0, Math.max(0, m.getHealth()) / max);
+            out.add(new FlatHud.Member(m.getName(), ratio, colorOf(HealthState.of(ratio, st.hudYellow, st.hudRed), false).value()));
+        }
+        return out;
+    }
+
+    private List<Player> partyOf(Player p, UiSettings st) {
+        List<Player> members = List.of();
+        if (partyProvider != null) {
+            try {
+                members = partyProvider.members(p);
+            } catch (RuntimeException e) {
+                members = List.of();
             }
         }
-        updateParty(p, st);
+        return members.stream()
+                .filter(m -> m != null && m.isOnline() && !m.equals(p))
+                .limit(st.hudPartyMax)
+                .toList();
     }
 
     // ------------------------------------------------------------------ party
@@ -184,18 +234,7 @@ public final class HealthHud implements Listener {
 
     /** Uma BossBar menor por membro da party, embaixo da barra do próprio jogador. */
     private void updateParty(Player p, UiSettings st) {
-        List<Player> members = List.of();
-        if (partyProvider != null) {
-            try {
-                members = partyProvider.members(p);
-            } catch (RuntimeException e) {
-                members = List.of();
-            }
-        }
-        List<Player> shown = members.stream()
-                .filter(m -> m != null && m.isOnline() && !m.equals(p))
-                .limit(st.hudPartyMax)
-                .toList();
+        List<Player> shown = partyOf(p, st);
         List<BossBar> list = memberBars.computeIfAbsent(p.getUniqueId(), k -> new ArrayList<>());
         while (list.size() > shown.size()) {
             p.hideBossBar(list.remove(list.size() - 1));
@@ -333,6 +372,11 @@ public final class HealthHud implements Listener {
     }
 
     public void hide(Player p) {
+        hideBars(p);
+        plugin.flat().hud(p, null);
+    }
+
+    private void hideBars(Player p) {
         BossBar bar = bars.remove(p.getUniqueId());
         if (bar != null) {
             p.hideBossBar(bar);

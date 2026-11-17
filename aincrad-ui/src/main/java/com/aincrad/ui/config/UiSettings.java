@@ -63,6 +63,14 @@ public final class UiSettings {
 
     public final boolean logoutDeathGame;
 
+    /** HUD em barras (desenhada pelas telas planas) no lugar da moldura do anime. */
+    public final boolean hudFlat;
+    public final int flatHudX;
+    public final boolean flatHotbar;
+    public final boolean flatHideVanilla;
+    public final boolean flatEnabled;
+    public final double flatSensitivity;
+
     public final int packFormat;
     public final String packDescription;
     public final boolean packAssumeLoaded;
@@ -112,6 +120,12 @@ public final class UiSettings {
         packFormat = c.getInt("pack.formato", 75);
         packDescription = c.getString("pack.descricao", "Aincrad UI");
         packAssumeLoaded = c.getBoolean("pack.assumir_carregado", false);
+        hudFlat = "barras".equalsIgnoreCase(c.getString("hud.estilo", "barras"));
+        flatHudX = c.getInt("hud.barras.deslocamento_x", 232);
+        flatHotbar = c.getBoolean("hud.barras.hotbar_redonda", true);
+        flatHideVanilla = c.getBoolean("hud.barras.esconder_vanilla", true);
+        flatEnabled = c.getBoolean("tela_plana.ativo", true);
+        flatSensitivity = clamp(c.getDouble("tela_plana.sensibilidade", 6.0), 0.5, 40.0);
         packHideWhiteBar = c.getBoolean("pack.ocultar_barra_branca", true);
         packUrl = c.getString("pack.url", "").trim();
         packRequired = c.getBoolean("pack.obrigatorio", false);

@@ -32,6 +32,7 @@ public final class RpgSettings {
     public final double healthPerVit;
     public final double healthPerLevel;
     public final boolean xpBar;
+    public final boolean blockVanillaXp;
     public final double deathLoss;
     public final Set<String> noLossWorlds;
     public final boolean blockEnchanting;
@@ -61,6 +62,7 @@ public final class RpgSettings {
         healthPerVit = config.decimal("atributos.vitalidade.vida", 1, 0, 100);
         healthPerLevel = config.decimal("vida_por_level", 0.5, 0, 100);
         xpBar = config.bool("barra_de_xp", true);
+        blockVanillaXp = xpBar || !config.bool("xp_vanilla", false);
         deathLoss = config.decimal("morte.perda_xp", 0.1, 0, 1);
         noLossWorlds = new HashSet<>(config.yaml().getStringList("morte.mundos_sem_perda"));
         blockEnchanting = !"permitir".equalsIgnoreCase(config.string("encantamento", "bloquear"));

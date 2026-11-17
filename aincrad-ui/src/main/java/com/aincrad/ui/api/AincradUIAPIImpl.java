@@ -117,4 +117,9 @@ public final class AincradUIAPIImpl implements AincradUIAPI {
     public void setHudBadgeProvider(java.util.function.Function<Player, Component> provider) {
         plugin.hud().setBadgeProvider(provider);
     }
+
+    @Override
+    public FlatApi flat() {
+        return plugin.flat();
+    }
 }

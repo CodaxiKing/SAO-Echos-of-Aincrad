@@ -73,4 +73,7 @@ public interface AincradUIAPI {
      * guilda). A função devolve null para "nenhum". Use texto curto (1 ou 2 caracteres).
      */
     void setHudBadgeProvider(java.util.function.Function<Player, Component> provider);
+
+    /** Telas planas: desenhadas direto na tela, com cursor (como a loja). */
+    FlatApi flat();
 }
