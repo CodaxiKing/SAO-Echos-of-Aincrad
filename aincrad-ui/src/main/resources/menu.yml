@@ -1,0 +1,94 @@
+# ============================================================
+#  AincradUI — estrutura do menu
+# ============================================================
+# grupos: coluna principal (ícones em anel). A ordem aqui é a ordem na tela.
+# entradas: ícones do submenu. "icone" é o id de um glifo de glyphs.yml.
+#
+# "acao" das entradas:
+#   itens        abre o inventário do jogador
+#   perfil       abre a janela de perfil (equipamento)
+#   opcoes       abre as opções (modo cursor/baú, HUD)
+#   ajuda        abre a janela de ajuda
+#   logout       pede confirmação e desconecta
+#   comando:<x>  fecha o menu e executa /<x> como o jogador (ex.: comando:spawn)
+# Sem "acao", a entrada aparece com cadeado ("em breve") até um plugin
+# registrar a ação pela API registerMenuEntry(id, icone, acao).
+# "material" é o item usado no modo baú para quem está sem o resource pack.
+
+grupos:
+  perfil:
+    nome: "<aqua>Perfil"
+    icone: icons/profile
+    material: PLAYER_HEAD
+    entradas: [itens, equipamento, skills]
+  party:
+    nome: "<aqua>Party"
+    icone: icons/party
+    material: TOTEM_OF_UNDYING
+    entradas: [amigos, guilda, chamada]
+  mensagens:
+    nome: "<aqua>Mensagens"
+    icone: icons/message
+    material: WRITABLE_BOOK
+    entradas: [amigos, chamada]
+  mapa:
+    nome: "<aqua>Mapa"
+    icone: icons/map
+    material: FILLED_MAP
+    entradas: [mapa, quests]
+  config:
+    nome: "<aqua>Configurações"
+    icone: icons/config
+    material: COMPARATOR
+    entradas: [opcoes, ajuda, logout]
+
+entradas:
+  itens:
+    nome: "<white>Itens"
+    icone: under_icons/items
+    material: CHEST
+    acao: itens
+  equipamento:
+    nome: "<white>Equipamento"
+    icone: under_icons/equipment
+    material: IRON_CHESTPLATE
+    acao: perfil
+  skills:
+    nome: "<white>Skills"
+    icone: under_icons/skills
+    material: ENCHANTED_BOOK
+  amigos:
+    nome: "<white>Amigos"
+    icone: under_icons/friends
+    material: POPPY
+  guilda:
+    nome: "<white>Guilda"
+    icone: under_icons/guild
+    material: WHITE_BANNER
+  chamada:
+    nome: "<white>Chamada"
+    icone: under_icons/call
+    material: BELL
+  mapa:
+    nome: "<white>Mapa"
+    icone: under_icons/map
+    material: MAP
+  quests:
+    nome: "<white>Quests"
+    icone: under_icons/quests
+    material: BOOK
+  opcoes:
+    nome: "<white>Opções"
+    icone: under_icons/options
+    material: REPEATER
+    acao: opcoes
+  ajuda:
+    nome: "<white>Ajuda"
+    icone: under_icons/help
+    material: KNOWLEDGE_BOOK
+    acao: ajuda
+  logout:
+    nome: "<red>Logout"
+    icone: under_icons/logout
+    material: BARRIER
+    acao: logout

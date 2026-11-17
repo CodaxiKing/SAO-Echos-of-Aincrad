@@ -1,0 +1,51 @@
+# ============================================================
+#  AincradUI — glifos do resource pack (fonte aincrad:ui)
+# ============================================================
+# Cada glifo é uma imagem PNG transformada num caractere da fonte aincrad:ui.
+# "textura" / "pasta" são relativas a resourcepack/assets/aincrad/textures/.
+# "altura" é o tamanho do glifo em pixels de fonte (o texto normal tem 8).
+# "subida" (ascent) desloca o glifo para cima; precisa ser <= altura.
+#
+# Para usar as artes do pacote aincrad-ui-assets.zip, copie o conteúdo de
+# pack_otimizado/textures/ para resourcepack/assets/aincrad/textures/ui/
+# e ajuste os "nomes" abaixo se os arquivos tiverem outros nomes.
+# Grupos com com_on: true esperam também <nome>_on.png (cursor em cima).
+
+grupos:
+  icons:
+    pasta: ui/icons
+    altura: 32
+    subida: 28
+    com_on: true
+    nomes: [profile, party, message, map, config]
+  under_icons:
+    pasta: ui/under_icons
+    altura: 32
+    subida: 28
+    com_on: true
+    nomes: [items, equipment, skills, friends, guild, quests, map, options, help, logout, call]
+  buttons:
+    pasta: ui/buttons
+    altura: 24
+    subida: 20
+    com_on: true
+    nomes: [yes, no, plus, minus, list, details, start, cancel]
+  skills:
+    pasta: ui/skills
+    altura: 32
+    subida: 28
+    com_on: false
+    nomes: [skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7]
+
+avulsos:
+  # Janela usada no modo cursor (perfil, detalhes, confirmação).
+  window:       { textura: ui/window_blank.png,          altura: 128, subida: 124 }
+  # Mesma janela como fundo do menu de baú (título do inventário).
+  window_bau:   { textura: ui/window_blank.png,          altura: 176, subida: 13 }
+  person:       { textura: ui/person.png,                altura: 64,  subida: 60 }
+  # Imagem central da tela de morte (mostrada como título).
+  you_are_dead: { textura: ui/effects/you_are_dead.png,  altura: 48,  subida: 24 }
+  # Glifos próprios do AincradUI (provisórios, ver README).
+  cursor:       { textura: ui/extra/cursor.png,          altura: 8,   subida: 7 }
+  hud_segment:  { textura: ui/extra/hud_segment.png,     altura: 8,   subida: 7 }
+  lock:         { textura: ui/extra/lock.png,            altura: 16,  subida: 14 }

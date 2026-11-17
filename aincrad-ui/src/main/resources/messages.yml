@@ -1,0 +1,92 @@
+# ============================================================
+#  AincradUI — mensagens (formato MiniMessage)
+# ============================================================
+prefixo: "<dark_aqua>[<aqua>Aincrad</aqua>]</dark_aqua> "
+
+geral:
+  so_jogador: "<red>Este comando só pode ser usado por jogadores."
+  sem_permissao: "<red>Você não tem permissão para isso."
+
+menu:
+  titulo: "<dark_gray>Menu"
+  em_breve: "<gray><nome> <dark_gray>— <yellow>em breve"
+  em_breve_lore: "<dark_gray>🔒 Em breve"
+  dica_cursor: "<gray>Mire e clique para escolher · <white>agache</white> para voltar"
+
+perfil:
+  titulo: "<dark_gray>Perfil"
+  linhas:
+    - "<aqua><bold><jogador>"
+    - "<gray>Level <white><level>"
+    - "<gray>Vida <white><vida></white>/<white><vida_max>"
+    - ""
+    - "<gray>Cabeça: <white><cabeca>"
+    - "<gray>Peito: <white><peito>"
+    - "<gray>Pernas: <white><pernas>"
+    - "<gray>Pés: <white><pes>"
+    - "<gray>Mão: <white><mao>"
+  vazio: "—"
+  botao_detalhes: "<white>Detalhes do item na mão"
+  botao_voltar: "<white>Voltar"
+
+detalhes:
+  titulo: "<dark_gray>Detalhes"
+  nada_na_mao: "<gray>Você não está segurando nada."
+  quantidade: "<gray>Quantidade: <white><qtd>"
+  durabilidade: "<gray>Durabilidade: <white><atual></white>/<white><max>"
+  encantamento: "<light_purple>✦ <nome> <nivel>"
+
+confirmar:
+  titulo: "<dark_gray>Confirmar"
+  sim: "<green>Sim"
+  nao: "<red>Não"
+
+opcoes:
+  titulo: "<dark_gray>Opções"
+  linhas:
+    - "<aqua><bold>Opções"
+    - "<gray>Modo do menu: <white><modo>"
+    - "<gray>HUD de vida: <white><hud>"
+  modo_cursor: "cursor"
+  modo_bau: "baú"
+  ligado: "ligada"
+  desligado: "desligada"
+  botao_modo: "<white>Trocar modo do menu"
+  botao_hud: "<white>Ligar/desligar HUD"
+  modo_alterado: "<green>Modo do menu: <white><modo></white>."
+  sem_pack: "<yellow>Sem o resource pack o menu usa o modo baú."
+
+ajuda:
+  titulo: "<dark_gray>Ajuda"
+  linhas:
+    - "<aqua><bold>Ajuda"
+    - "<gray>Abrir o menu: <white>agachar + clique esquerdo</white> ou <white>/menu"
+    - "<gray>Modo cursor: mire num ícone e clique"
+    - "<gray>Voltar: <white>agachar"
+    - "<gray>Ícones com cadeado chegam em breve."
+
+logout:
+  pergunta: "<white>Deseja mesmo sair do jogo?"
+  kick: "<aqua>Logout realizado.<newline><gray>Até a próxima, espadachim."
+  death_game: "<red><bold>O botão de logout não existe.</bold><newline><gray>Este jogo só termina quando o andar 100 for conquistado."
+
+morte:
+  titulo: "<red><bold>You are dead"
+  subtitulo: "<gray>Você morreu"
+
+pack:
+  recusado: "<yellow>Você recusou o resource pack: o menu vai usar o modo baú e a HUD simples."
+
+creditos:
+  nao_encontrado: "<red>Arquivo de créditos não encontrado."
+
+admin:
+  uso: "<gray>Uso: <white>/aincrad ui teste <tela></white> ou <white>/aincrad ui reload"
+  telas: "<gray>Telas: <white><telas>"
+  tela_invalida: "<red>Tela desconhecida: <white><tela>"
+  reload_ok: "<green>AincradUI recarregado (<white><glifos></white> glifos, pack <white><pack></white>)."
+  som: "<gray>Tocando <white><som></white> (<white><evento></white>)"
+  critico: "<gray>Simulando vida crítica por <white><segundos></white> s."
+  teste_sim: "<green>Você escolheu SIM."
+  teste_nao: "<red>Você escolheu NÃO."
+  teste_pergunta: "<white>Esta é uma janela de teste. Confirmar?"

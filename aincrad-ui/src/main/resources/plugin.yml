@@ -1,0 +1,29 @@
+name: AincradUI
+version: '${version}'
+main: com.aincrad.ui.AincradUIPlugin
+api-version: '1.21'
+description: Interface estilo SAO — menu de ícones, HUD de vida, vida crítica e tela de morte.
+authors: [CodaxiKing]
+softdepend: [AincradEffects, PlaceholderAPI]
+
+commands:
+  menu:
+    description: Abre o menu principal.
+    usage: /menu
+    permission: aincrad.ui.menu
+  creditos:
+    description: Mostra os créditos das artes.
+    usage: /creditos
+    aliases: [credits]
+  aincradui:
+    description: Comandos de administração do AincradUI (também via /aincrad ui ...).
+    usage: /aincradui <teste|reload>
+    permission: aincrad.admin
+
+permissions:
+  aincrad.ui.menu:
+    description: Abrir o menu.
+    default: true
+  aincrad.admin:
+    description: Comandos de administração do Aincrad.
+    default: op

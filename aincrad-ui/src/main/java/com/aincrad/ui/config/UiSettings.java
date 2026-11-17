@@ -1,0 +1,122 @@
+package com.aincrad.ui.config;
+
+import com.aincrad.ui.sound.UiSound;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.util.EnumMap;
+import java.util.Locale;
+import java.util.Map;
+
+/** Valores de ui.yml já convertidos. Recriado a cada reload. */
+public final class UiSettings {
+
+    public enum DrawMode {
+        CURSOR, BAU;
+
+        public static DrawMode parse(String s, DrawMode fallback) {
+            if (s == null) {
+                return fallback;
+            }
+            return switch (s.toLowerCase(Locale.ROOT)) {
+                case "cursor" -> CURSOR;
+                case "bau", "baú", "chest" -> BAU;
+                default -> fallback;
+            };
+        }
+    }
+
+    public record SoundDef(String event, String file, String fallback, float volume, float pitch) {
+    }
+
+    public final DrawMode defaultMode;
+    public final boolean gestureEnabled;
+    public final boolean gestureEmptyHand;
+    public final double menuDistance;
+    public final double menuScale;
+    public final double menuOffsetY;
+    public final boolean closeOnDamage;
+
+    public final boolean hudEnabled;
+    public final int hudIntervalTicks;
+    public final int hudSegments;
+    public final int hudOffsetX;
+    public final double hudYellow;
+    public final double hudRed;
+    public final int hudBlinkTicks;
+    public final int hudAlertSeconds;
+    public final boolean hudNumbers;
+    public final String hudLevelText;
+
+    public final boolean shardsPlayers;
+    public final boolean shardsMobs;
+    public final int deathTitleSeconds;
+    public final String shardsEffect;
+
+    public final boolean logoutDeathGame;
+
+    public final int packFormat;
+    public final String packDescription;
+    public final boolean packAssumeLoaded;
+    public final boolean packHideWhiteBar;
+    public final String packUrl;
+    public final boolean packRequired;
+    public final boolean packServerEnabled;
+    public final int packServerPort;
+    public final String packServerPublicAddress;
+
+    public final Map<UiSound, SoundDef> sounds = new EnumMap<>(UiSound.class);
+
+    public UiSettings(YamlConfiguration c) {
+        defaultMode = DrawMode.parse(c.getString("menu.modo_padrao"), DrawMode.CURSOR);
+        gestureEnabled = c.getBoolean("menu.gesto.ativo", true);
+        gestureEmptyHand = c.getBoolean("menu.gesto.mao_vazia", true);
+        menuDistance = clamp(c.getDouble("menu.distancia", 2.2), 1.2, 6.0);
+        menuScale = clamp(c.getDouble("menu.escala", 1.0), 0.3, 3.0);
+        menuOffsetY = c.getDouble("menu.ajuste_y", -0.1);
+        closeOnDamage = c.getBoolean("menu.fechar_ao_levar_dano", true);
+
+        hudEnabled = c.getBoolean("hud.ativo", true);
+        hudIntervalTicks = Math.max(1, c.getInt("hud.intervalo_ticks", 4));
+        hudSegments = Math.max(4, Math.min(60, c.getInt("hud.segmentos", 20)));
+        hudOffsetX = c.getInt("hud.deslocamento_x", 200);
+        hudYellow = c.getDouble("hud.limite_amarelo", 0.5);
+        hudRed = c.getDouble("hud.limite_vermelho", 0.25);
+        hudBlinkTicks = Math.max(1, c.getInt("hud.piscar_ticks", 8));
+        hudAlertSeconds = Math.max(1, c.getInt("hud.alerta_intervalo_segundos", 3));
+        hudNumbers = c.getBoolean("hud.mostrar_numeros", true);
+        hudLevelText = c.getString("hud.texto_level", "Lv.");
+
+        shardsPlayers = c.getBoolean("morte.estilhacos_jogador", true);
+        shardsMobs = c.getBoolean("morte.estilhacos_mobs", true);
+        deathTitleSeconds = Math.max(1, c.getInt("morte.titulo_segundos", 4));
+        shardsEffect = c.getString("morte.efeito_estilhacos", "aincrad_estilhacos");
+
+        logoutDeathGame = c.getBoolean("logout.modo_death_game", false);
+
+        packFormat = c.getInt("pack.formato", 75);
+        packDescription = c.getString("pack.descricao", "Aincrad UI");
+        packAssumeLoaded = c.getBoolean("pack.assumir_carregado", false);
+        packHideWhiteBar = c.getBoolean("pack.ocultar_barra_branca", true);
+        packUrl = c.getString("pack.url", "").trim();
+        packRequired = c.getBoolean("pack.obrigatorio", false);
+        packServerEnabled = c.getBoolean("pack.servidor_embutido.ativo", false);
+        packServerPort = c.getInt("pack.servidor_embutido.porta", 8164);
+        packServerPublicAddress = c.getString("pack.servidor_embutido.endereco_publico", "").trim();
+
+        ConfigurationSection s = c.getConfigurationSection("sons");
+        for (UiSound sound : UiSound.values()) {
+            ConfigurationSection e = s == null ? null : s.getConfigurationSection(sound.configKey());
+            String event = e == null ? sound.defaultEvent() : e.getString("evento", sound.defaultEvent());
+            String file = e == null ? sound.defaultEvent().replace('.', '/') : e.getString("arquivo", sound.defaultEvent().replace('.', '/'));
+            String fallback = e == null ? sound.defaultFallback() : e.getString("reserva", sound.defaultFallback());
+            float volume = e == null ? 1f : (float) e.getDouble("volume", 1.0);
+            float pitch = e == null ? 1f : (float) e.getDouble("tom", 1.0);
+            sounds.put(sound, new SoundDef(event, file, fallback, volume, pitch));
+        }
+    }
+
+    private static double clamp(double v, double min, double max) {
+        return Math.max(min, Math.min(max, v));
+    }
+}

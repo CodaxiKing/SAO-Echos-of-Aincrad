@@ -1,0 +1,89 @@
+# ============================================================
+#  AincradUI — configuração principal
+# ============================================================
+
+menu:
+  # Modo de desenho padrão: "cursor" (ícones flutuando na frente do jogador)
+  # ou "bau" (menu de inventário). Cada jogador pode trocar em Opções.
+  # Quem não tem o resource pack carregado usa sempre o modo baú.
+  modo_padrao: cursor
+  gesto:
+    # Agachar + clique esquerdo abre o menu.
+    ativo: true
+    # Só abre com a mão principal vazia.
+    mao_vazia: true
+  # Distância (blocos) entre os olhos do jogador e o menu no modo cursor.
+  distancia: 2.2
+  # Multiplica o tamanho e o espaçamento de todos os ícones do modo cursor.
+  escala: 1.0
+  # Ajuste vertical do menu (blocos). Negativo desce.
+  ajuste_y: -0.1
+  # Fecha o menu quando o jogador leva dano.
+  fechar_ao_levar_dano: true
+
+hud:
+  ativo: true
+  # De quantos em quantos ticks a barra é atualizada (20 ticks = 1 s).
+  intervalo_ticks: 4
+  # Quantos segmentos tem a barra de vida.
+  segmentos: 20
+  # Distância (pixels de interface) do centro da tela até o início da barra.
+  # Aumente para encostar mais à esquerda. Depende da escala de interface do cliente.
+  deslocamento_x: 200
+  # Abaixo deste valor a barra fica amarela.
+  limite_amarelo: 0.5
+  # Abaixo deste valor a barra fica vermelha, pisca e toca o alerta.
+  limite_vermelho: 0.25
+  # Período da piscada (ticks).
+  piscar_ticks: 8
+  # Intervalo mínimo entre dois alertas de vida crítica (segundos).
+  alerta_intervalo_segundos: 3
+  mostrar_numeros: true
+  texto_level: "Lv."
+
+morte:
+  # Estilhaços azuis quando um jogador morre.
+  estilhacos_jogador: true
+  # Mobs também se desfazem em estilhaços.
+  estilhacos_mobs: true
+  # Quanto tempo a imagem "You are dead" fica na tela.
+  titulo_segundos: 4
+  # Efeito do AincradEffects usado no lugar das partículas embutidas (quando instalado).
+  efeito_estilhacos: "aincrad_estilhacos"
+
+logout:
+  # Como no anime: o botão de logout "sumiu" e só mostra uma mensagem.
+  modo_death_game: false
+
+pack:
+  # Com o AincradEffects instalado, a pasta resourcepack/ é registrada no pack único dele
+  # e as opções abaixo (url, servidor_embutido) são ignoradas.
+  # Sem o AincradEffects, o AincradUI gera plugins/AincradUI/aincrad-ui-pack.zip.
+  formato: 75
+  descricao: "Aincrad UI"
+  # Considera que todo jogador tem o pack (útil para testar com o pack instalado no cliente).
+  assumir_carregado: false
+  # Deixa a barra branca da BossBar transparente (a HUD de vida usa a cor branca).
+  # Outros plugins devem usar outra cor de BossBar.
+  ocultar_barra_branca: true
+  # URL pública do .zip, se você hospedar o pack em outro lugar.
+  url: ""
+  obrigatorio: false
+  servidor_embutido:
+    # Servidor HTTP simples para entregar o pack sem hospedagem externa.
+    ativo: false
+    porta: 8164
+    # Endereço que os jogadores usam para baixar, ex.: http://123.45.67.89:8164
+    endereco_publico: ""
+
+# Sons do namespace aincrad. "arquivo" é o .ogg em
+# resourcepack/assets/aincrad/sounds/<arquivo>.ogg. Enquanto o .ogg não existir,
+# o pack aponta para o som "reserva" do Minecraft (quem está sem pack também ouve a reserva).
+sons:
+  abrir:    { evento: ui.open,     arquivo: ui/open,     reserva: minecraft:block.note_block.chime,   volume: 1.0, tom: 1.2 }
+  mover:    { evento: ui.move,     arquivo: ui/move,     reserva: minecraft:block.note_block.hat,     volume: 0.6, tom: 1.6 }
+  confirmar: { evento: ui.confirm,  arquivo: ui/confirm,  reserva: minecraft:entity.experience_orb.pickup, volume: 0.8, tom: 1.4 }
+  voltar:   { evento: ui.back,     arquivo: ui/back,     reserva: minecraft:block.note_block.bass,    volume: 0.8, tom: 1.0 }
+  fechar:   { evento: ui.close,    arquivo: ui/close,    reserva: minecraft:block.note_block.chime,   volume: 0.8, tom: 0.7 }
+  critico:  { evento: ui.critical, arquivo: ui/critical, reserva: minecraft:block.note_block.bit,     volume: 1.0, tom: 0.6 }
+  morte:    { evento: ui.death,    arquivo: ui/death,    reserva: minecraft:block.glass.break,        volume: 1.0, tom: 0.8 }
