@@ -1,0 +1,73 @@
+# ============================================================
+#  AincradRPG — mensagens (MiniMessage)
+# ============================================================
+xp:
+  ganho: "<aqua>+<qtd> XP</aqua> <gray>(<atual>/<proximo>)"
+  levelup_titulo: "<gold><bold>LEVEL UP!"
+  levelup_titulo_sub: "<yellow>Level <level>"
+  levelup: "<gold>Você subiu para o level <white><level></white>! <gray>+<pontos> pontos de atributo (<white>/status</white>)."
+  morte: "<red>Você perdeu <white><qtd></white> XP ao morrer."
+
+level:
+  proprio: "<aqua>Level <white><level></white> <gray>— <white><atual></white>/<white><proximo></white> XP (<pct>%)"
+  maximo: "<gold>Level <white><level></white> — level máximo."
+  outro: "<aqua><jogador></aqua> <gray>está no level <white><level></white>."
+  offline: "<red>Jogador não encontrado online."
+
+status:
+  titulo: "<dark_gray>Status — Lv.<level>"
+  info_nome: "<aqua>Level <level>"
+  info_lore:
+    - "<gray>XP: <white><atual></white>/<white><proximo></white>"
+    - "<gray>Pontos livres: <yellow><pontos>"
+    - "<gray>Vida máxima: <red><vida>"
+  atributo_nome: "<gold><nome>: <white><valor>"
+  atributo_lore:
+    - "<gray><efeito>"
+    - ""
+    - "<yellow>Clique: +1 ponto"
+  forca: "Força"
+  agilidade: "Agilidade"
+  vitalidade: "Vitalidade"
+  efeito_forca: "+<v> de dano por ponto"
+  efeito_agilidade: "+<v>% vel. de ataque e +<v2>% vel. por ponto"
+  efeito_vitalidade: "+<v> de vida por ponto"
+  resetar: "<red>Devolver pontos"
+  fechar: "<gray>Fechar"
+  gastou: "<green>+<qtd> em <nome>."
+  sem_pontos: "<red>Você não tem pontos livres."
+  atributo_invalido: "<red>Atributo inválido. Use forca, agilidade ou vitalidade."
+  resetou: "<yellow>Seus pontos voltaram: <white><pontos></white> livres."
+  texto:
+    - "<gold><bold>Status</bold> <gray>— Lv.<white><level></white> (<atual>/<proximo> XP)"
+    - "<gray>Força <white><forca></white> · Agilidade <white><agilidade></white> · Vitalidade <white><vitalidade></white>"
+    - "<gray>Pontos livres: <yellow><pontos></yellow> <dark_gray>(/status <atributo> [qtd])"
+
+item:
+  lore_raridade: "<raridade>"
+  lore_level: "<gray>Level mínimo: <white><level>"
+  lore_bonus: "<blue>+<valor><unidade> <nome>"
+  bonus_dano: "Dano"
+  bonus_vida: "Vida"
+  bonus_armadura: "Armadura"
+  bonus_resistencia: "Resistência"
+  bonus_velocidade_ataque: "Vel. de ataque"
+  bonus_velocidade: "Velocidade"
+  arma_level: "<red>Level <white><level></white> necessário — seu golpe sai fraco."
+  armadura_level: "<red>Você precisa do level <white><level></white> para usar <item>."
+
+encantamento:
+  bloqueado: "<red>Não existem encantamentos em Aincrad."
+
+admin:
+  descricao: "Admin do RPG: XP, level, itens e pontos"
+  uso: "<gray>Uso: <white>/aincrad rpg xp dar|tirar <jogador> <qtd></white>, <white>level <jogador> <n></white>, <white>item <id> [raridade] [jogador]</white>, <white>resetar <jogador></white>, <white>info <jogador>"
+  xp_dado: "<green><qtd> XP para <white><jogador></white>."
+  xp_tirado: "<yellow><qtd> XP tirado de <white><jogador></white>."
+  level_definido: "<green><jogador></green> agora está no level <white><level></white>."
+  item_desconhecido: "<red>Item desconhecido: <white><id></white>."
+  raridade_invalida: "<red>Raridade inválida. Use comum, incomum, raro, epico ou lendario."
+  item_dado: "<green>Item <white><id></white> entregue para <white><jogador></white>."
+  resetado: "<yellow>Pontos de <white><jogador></white> devolvidos."
+  numero_invalido: "<red>Número inválido: <white><valor></white>."
+  info: "<aqua><jogador></aqua> <gray>Lv.<white><level></white> XP <white><xp></white> pontos <white><pontos></white> F/A/V <white><forca>/<agilidade>/<vitalidade>"

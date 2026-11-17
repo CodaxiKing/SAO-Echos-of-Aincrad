@@ -1,0 +1,31 @@
+name: AincradRPG
+version: '${version}'
+main: com.aincrad.rpg.AincradRPGPlugin
+api-version: '1.21'
+description: Level, XP, atributos, level dos mobs e raridade de itens do Aincrad.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [AincradSocial]
+
+commands:
+  status:
+    description: Mostra seu level e distribui os pontos de atributo.
+    usage: /status [forca|agilidade|vitalidade|resetar] [quantidade]
+    aliases: [atributos, stats]
+    permission: aincrad.rpg.use
+  level:
+    description: Mostra o level e o XP (seu ou de outro jogador).
+    usage: /level [jogador]
+    aliases: [lvl, nivel]
+    permission: aincrad.rpg.use
+
+permissions:
+  aincrad.rpg.use:
+    description: /status e /level.
+    default: true
+  aincrad.rpg.admin:
+    description: /aincrad rpg (dar XP, definir level, gerar itens, resetar pontos).
+    default: op
+  aincrad.rpg.resetar:
+    description: Pode devolver os próprios pontos com /status resetar.
+    default: op

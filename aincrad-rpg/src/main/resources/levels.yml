@@ -1,0 +1,15 @@
+# ============================================================
+#  Curva de XP — quanto XP falta de um level para o próximo.
+# ============================================================
+level_maximo: 100
+
+# formula: XP do level L para L+1 = base × L ^ expoente (arredondado).
+# tabela: usa a lista "tabela" (1º valor = level 1→2). Faltando, repete o último.
+modo: formula
+formula:
+  base: 100
+  expoente: 1.5
+tabela:
+  - 100
+  - 280
+  - 520

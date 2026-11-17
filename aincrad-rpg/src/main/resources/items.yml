@@ -1,0 +1,34 @@
+# ============================================================
+#  Modelos de item. Cada bônus tem uma faixa [mín, máx]; o valor sorteado
+#  é multiplicado pela raridade (config.yml → raridades).
+#  Bônus: dano, vida, armadura, resistencia, velocidade_ataque (%), velocidade (%)
+#  slot: MAINHAND, OFFHAND, HEAD, CHEST, LEGS, FEET
+#  drop (opcional): chance por abate de mob com level na faixa.
+# ============================================================
+itens:
+  espada_pequena:
+    material: IRON_SWORD
+    nome: "Small Sword"
+    level_minimo: 1
+    slot: MAINHAND
+    bonus:
+      dano: [1, 2]
+    drop: { chance: 0.02, level_mob: [1, 5] }
+  anneal_blade:
+    material: IRON_SWORD
+    nome: "Anneal Blade"
+    level_minimo: 5
+    slot: MAINHAND
+    bonus:
+      dano: [3, 5]
+      velocidade_ataque: [0, 6]
+    drop: { chance: 0.005, level_mob: [4, 10] }
+  casaco_couro:
+    material: LEATHER_CHESTPLATE
+    nome: "Casaco de Couro"
+    level_minimo: 3
+    slot: CHEST
+    bonus:
+      vida: [2, 4]
+      armadura: [0, 1]
+    drop: { chance: 0.01, level_mob: [2, 8] }

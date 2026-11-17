@@ -1,0 +1,47 @@
+# ============================================================
+#  AincradRPG — configuração
+#  Curva de XP: levels.yml · Mobs: mobs.yml · Itens: items.yml
+# ============================================================
+
+# Pontos de atributo ganhos a cada level.
+pontos_por_level: 3
+
+# Quanto cada ponto vale.
+atributos:
+  forca:
+    dano: 0.2                 # dano a mais por ponto (meio coração = 1)
+  agilidade:
+    velocidade_ataque: 1.0    # % de velocidade de ataque por ponto
+    velocidade: 0.5           # % de velocidade de movimento por ponto
+  vitalidade:
+    vida: 1.0                 # vida máxima a mais por ponto (1 = meio coração)
+
+# Vida máxima ganha só por subir de level (sem gastar pontos).
+vida_por_level: 0.5
+
+# O XP do Minecraft é desligado; a barra de XP mostra o level e o progresso do RPG.
+barra_de_xp: true
+
+morte:
+  # Fração do XP já juntado no level atual que se perde ao morrer. Nunca desce de level.
+  perda_xp: 0.10
+  # Mundos onde morrer não tira XP (ex.: arenas de duelo).
+  mundos_sem_perda: []
+
+# "bloquear" desliga a mesa de encantamento (o Aincrad não tem encantamentos vanilla);
+# "permitir" deixa como no Minecraft.
+encantamento: bloquear
+
+# Raridade dos itens: multiplicador dos bônus, cor do nome e peso no sorteio de drop.
+raridades:
+  comum:    { multiplicador: 1.0,  cor: "<white>",        peso: 60, nome: "Comum" }
+  incomum:  { multiplicador: 1.15, cor: "<green>",        peso: 25, nome: "Incomum" }
+  raro:     { multiplicador: 1.3,  cor: "<aqua>",         peso: 10, nome: "Raro" }
+  epico:    { multiplicador: 1.5,  cor: "<light_purple>", peso: 4,  nome: "Épico" }
+  lendario: { multiplicador: 1.8,  cor: "<gold>",         peso: 1,  nome: "Lendário" }
+
+# Usar arma acima do seu level: o dano é multiplicado por este valor.
+penalidade_arma: 0.25
+
+# Salva os jogadores com mudanças a cada N segundos (além de ao sair).
+salvar_a_cada: 60
