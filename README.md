@@ -14,6 +14,14 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-bosses/` | AincradBosses — chefes, salas, Last Attack | planejado |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | motor geral pronto (etapa 10); integração com Floors/Bosses pendente (11–13) |
 
+## Plano
+
+O plano de desenvolvimento (cópia do documento em https://claude.ai/artifact/A23oCqBsYC54PhuHKenyhW, de 17/11/2026):
+
+- [docs/plano/01-plano.md](docs/plano/01-plano.md) — plano geral dos plugins e das etapas
+- [docs/plano/02-tarefas-bloco-1.md](docs/plano/02-tarefas-bloco-1.md) — tarefas do bloco 1 (core, rpg, economy, floors)
+- [docs/plano/03-aincrad-life-detalhes.md](docs/plano/03-aincrad-life-detalhes.md) — detalhes do AincradLife
+
 ## Compilar
 
 Em cada pasta (o `aincrad-social` compila junto com o `aincrad-ui`, de quem usa a API):
