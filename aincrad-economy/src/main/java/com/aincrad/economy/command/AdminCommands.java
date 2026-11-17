@@ -84,6 +84,7 @@ public final class AdminCommands {
                     msg.send(sender, "admin.falhou");
                     return;
                 }
+                org.bukkit.Bukkit.getPluginManager().callEvent(new com.aincrad.core.AincradAdminActionEvent(sender, "economy", "col." + args[0].toLowerCase(Locale.ROOT), String.join(" ", args)));
                 long cached = eco.accounts().cached(t.getUniqueId());
                 if (cached >= 0) {
                     msg.send(sender, "admin.feito", Messages.vars("jogador", name), eco.col(cached));

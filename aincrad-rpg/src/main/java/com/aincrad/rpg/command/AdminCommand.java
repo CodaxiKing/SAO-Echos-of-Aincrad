@@ -57,6 +57,10 @@ public final class AdminCommand implements SubCommand {
             msg.send(sender, "admin.uso");
             return;
         }
+        if (List.of("xp", "level", "item", "resetar").contains(args[0].toLowerCase(Locale.ROOT))) {
+            // Registro de ações de admin (AincradAdmin): o comando como foi digitado.
+            org.bukkit.Bukkit.getPluginManager().callEvent(new com.aincrad.core.AincradAdminActionEvent(sender, "rpg", "rpg." + args[0].toLowerCase(Locale.ROOT), String.join(" ", args)));
+        }
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "xp" -> xp(sender, args);
             case "level" -> level(sender, args);

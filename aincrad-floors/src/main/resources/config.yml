@@ -1,0 +1,37 @@
+# ============================================================
+#  AincradFloors — configuração
+#  Andares: floors.yml
+# ============================================================
+
+# global       — andar liberado vale para todos.
+# por_jogador  — só entra quem participou da vitória (ou foi liberado por /aincrad andar conceder).
+# misto        — andar liberado é aberto a todos, mas o Teleport Gate só lista os andares que o
+#                jogador já visitou a pé.
+modo: global
+
+teleporte:
+  # /andar <n> funciona em qualquer lugar (false = só pelos Teleport Gates).
+  comando: false
+  # Segundos parado antes do /andar teleportar (mexer ou levar dano cancela). 0 = na hora.
+  espera: 3
+
+anuncio:
+  # Título grande na tela quando um andar é liberado. Desligue para o AincradEffects assumir.
+  titulo: true
+  chat: true
+  # Som tocado para todos (nome do Minecraft). Vazio = sem som.
+  som: "minecraft:ui.toast.challenge_complete"
+
+zona_segura:
+  # Aviso ao entrar e sair da cidade: titulo, actionbar ou nenhum.
+  aviso: actionbar
+  # De quantos em quantos ticks os mobs hostis dentro das cidades são removidos.
+  limpar_mobs_ticks: 40
+
+# Quem entra no servidor dentro de um andar bloqueado é levado para a chegada do andar 1.
+expulsar_ao_entrar: true
+
+rede:
+  # Como trocar o jogador de servidor quando o andar fica em outro (Velocity com o canal
+  # "BungeeCord" ligado: bungee-plugin-message-channel = true no velocity.toml).
+  canal: "BungeeCord"

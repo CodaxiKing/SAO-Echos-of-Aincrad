@@ -1,0 +1,37 @@
+# ============================================================
+#  Andares. Os números vão de 1 em diante, sem pular. O andar 1 começa liberado.
+#
+#  nome:     nome mostrado nos menus e no anúncio
+#  servidor: nome do servidor da rede onde o andar fica (o "servidor" do config.yml do
+#            AincradCore de lá). Vazio = este servidor.
+#  tipo:     mundo  → o andar é um mundo inteiro (campo "mundo")
+#            regiao → o andar é uma região do AincradCore (campo "regiao";
+#                     crie com /aincrad varinha e /aincrad regiao criar <nome>)
+#  chegada:  "mundo,x,y,z,yaw,pitch" — onde o jogador aparece. Mais fácil: fique no lugar e use
+#            /aincrad andar setspawn <n>.
+#  cidade:   região do AincradCore que é a cidade principal (zona segura). Opcional.
+#
+#  Teleport Gates: olhe para o bloco e use /aincrad gate criar <n>.
+# ============================================================
+andares:
+  1:
+    nome: "Andar 1 — Cidade do Início"
+    servidor: ""
+    tipo: mundo
+    mundo: world
+    chegada: ""
+    cidade: cidade_inicio
+  2:
+    nome: "Andar 2 — Urbus"
+    servidor: ""
+    tipo: regiao
+    regiao: andar2
+    chegada: ""
+    cidade: urbus
+  3:
+    nome: "Andar 3 — Zumfut"
+    servidor: ""
+    tipo: regiao
+    regiao: andar3
+    chegada: ""
+    cidade: zumfut

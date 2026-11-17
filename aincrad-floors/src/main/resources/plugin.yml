@@ -1,0 +1,36 @@
+name: AincradFloors
+version: '${version}'
+main: com.aincrad.floors.AincradFloorsPlugin
+api-version: '1.21'
+description: Andares do Aincrad — bloqueio, liberação, anúncio, zona segura e Teleport Gates.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [PlaceholderAPI, AincradSocial]
+# Liga antes de quem procura os andares ao ligar.
+loadbefore: [AincradBosses]
+
+commands:
+  andares:
+    description: Lista os andares, liberados e bloqueados.
+    usage: /andares
+    aliases: [floors]
+    permission: aincrad.floors.list
+  andar:
+    description: Teleporta para um andar liberado (se a config permitir fora do Gate).
+    usage: /andar <número>
+    aliases: [floor]
+    permission: aincrad.floors.tp
+
+permissions:
+  aincrad.floors.list:
+    description: /andares.
+    default: true
+  aincrad.floors.tp:
+    description: /andar <n> e usar os Teleport Gates.
+    default: true
+  aincrad.floors.bypass:
+    description: Entra em andar bloqueado e mexe nas zonas seguras.
+    default: op
+  aincrad.admin:
+    description: Comandos de administração do Aincrad.
+    default: op

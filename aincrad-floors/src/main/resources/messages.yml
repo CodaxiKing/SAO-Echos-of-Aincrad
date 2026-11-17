@@ -1,0 +1,67 @@
+# ============================================================
+#  AincradFloors — mensagens (MiniMessage)
+# ============================================================
+andar:
+  bloqueado: "<red>O <white><andar></white> ainda não foi liberado."
+  sem_acesso: "<red>Você ainda não tem acesso ao <white><andar></white>."
+  desconhecido: "<red>O andar <white><n></white> não existe."
+  sem_chegada: "<red>O <white><andar></white> ainda não tem ponto de chegada (admin: <white>/aincrad andar setspawn <n></white>)."
+  comando_desligado: "<red>Use um Teleport Gate para trocar de andar."
+  uso: "<gray>Uso: <white>/andar <número>"
+  espera: "<aqua>Teleportando para o <white><andar></white> em <white><segundos>s</white>. Não se mexa."
+  cancelado: "<yellow>Teleporte cancelado."
+  chegou: "<aqua><andar>"
+  expulso: "<yellow>Você estava num andar bloqueado e voltou para o Andar 1."
+  outro_servidor: "<aqua>Indo para o <white><andar></white>..."
+  rede_falhou: "<red>Não foi possível trocar de servidor."
+
+andares:
+  titulo: "<dark_gray>Andares — linha de frente: <linha>"
+  liberado: "<green><andar>"
+  bloqueado: "<red>🔒 <gray><andar>"
+  lore_liberado: "<gray>Liberado em <white><data>"
+  lore_sempre: "<gray>Sempre liberado"
+  lore_por: "<gray>Conquistado por <white><jogadores>"
+  lore_bloqueado: "<gray>Derrote o chefe do andar anterior."
+  lore_nao_visitado: "<gray>Chegue lá a pé uma vez para usar o Gate."
+  lore_sem_acesso: "<gray>Você não participou da conquista."
+  lore_ir: "<yellow>Clique para ir"
+  lore_aqui: "<aqua>Você está aqui"
+  fechar: "<gray>Fechar"
+
+gate:
+  titulo: "<dark_gray>Teleport Gate"
+
+anuncio:
+  titulo: "<gold><bold>ANDAR <n> LIBERADO"
+  titulo_sub: "<yellow><nome>"
+  chat: "<gold>⚔ O <white><nome></white> foi liberado!"
+  chat_por: "<gold>⚔ O <white><nome></white> foi conquistado por <white><jogadores></white>!"
+  chat_guilda: "<gold>⚔ A guilda <white><guilda></white> conquistou o <white><nome></white>!"
+
+zona:
+  entrou: "<green>Zona segura"
+  saiu: "<red>Fora da zona segura"
+
+admin:
+  descricao_andar: "Andares: liberar, bloquear, setspawn, conceder, info"
+  descricao_gate: "Teleport Gates: criar, remover, listar"
+  uso_andar: "<gray>Uso: <white>/aincrad andar liberar|bloquear <n></white>, <white>setspawn <n></white>, <white>conceder|revogar <jogador> <n></white>, <white>info <n>"
+  uso_gate: "<gray>Uso: <white>/aincrad gate criar <n></white> (olhando o bloco), <white>remover</white>, <white>listar"
+  liberado: "<green><andar> liberado."
+  ja_liberado: "<yellow><andar> já está liberado."
+  cancelado: "<red>Outro plugin cancelou a liberação."
+  bloqueado: "<yellow><andar> bloqueado de novo."
+  andar1: "<red>O andar 1 está sempre liberado."
+  setspawn: "<green>Ponto de chegada do <white><andar></white> definido aqui."
+  outro_lugar: "<yellow>Atenção: você não está dentro do <white><andar></white>."
+  concedido: "<green><jogador></green> agora tem acesso ao <white><andar></white>."
+  revogado: "<yellow><jogador></yellow> perdeu o acesso ao <white><andar></white>."
+  offline: "<red>Jogador não encontrado online."
+  info: "<aqua><andar></aqua> <gray>— <estado>; servidor <white><servidor></white>; <tipo>; cidade <white><cidade></white>; chegada <white><chegada>"
+  gate_criado: "<green>Teleport Gate do <white><andar></white> criado em <white><bloco></white>."
+  gate_removido: "<yellow>Teleport Gate removido."
+  gate_nada: "<red>Não há Teleport Gate nesse bloco."
+  gate_lista: "<gray>Teleport Gates (<n>): <white><lista>"
+  olhe_bloco: "<red>Olhe para um bloco a até 5 blocos."
+  erros: "<red>floors.yml tem <n> problema(s); veja o console."
