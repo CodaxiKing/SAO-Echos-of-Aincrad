@@ -5,6 +5,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 
 | Pasta | Plugin | Estado |
 |---|---|---|
+| `aincrad-core/` | **AincradCore** — config, mensagens, /aincrad, banco, regiões, menus, perfil, MessageBus | pronto (etapa 0) |
 | `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD de vida, vida crítica, tela de morte | pronto (etapas 14–17), com as artes do SAO-UI/sao-assets |
 | `aincrad-social/` | **AincradSocial** — amigos, party, guilda (como no anime) e mensagens | pronto (dados em YAML até o aincrad-core) |
 | `aincrad-floors/` | AincradFloors — andares, bloqueio, Teleport Gates | planejado |

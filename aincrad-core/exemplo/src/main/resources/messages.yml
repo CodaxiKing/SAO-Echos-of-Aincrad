@@ -1,0 +1,13 @@
+# Mensagens do plugin de exemplo. "prefixo" e "geral.*" vêm do AincradCore.
+menu:
+  titulo: "<dark_gray>Exemplo do AincradCore"
+  contar: "<green>Contar"
+  contar_lore:
+    - "<gray>Cliques guardados no perfil: <white><n>"
+    - "<gray>O valor continua depois de sair e entrar."
+  zerar: "<red>Zerar contador"
+  fechar: "<gray>Fechar"
+contou: "<green>Contador: <white><n></white> (gravado no perfil)."
+zerou: "<yellow>Contador zerado."
+regiao_entrou: "<aqua>Entrou na região <white><nome>"
+regiao_saiu: "<gray>Saiu da região <white><nome>"

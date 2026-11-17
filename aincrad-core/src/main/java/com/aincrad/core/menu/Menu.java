@@ -1,0 +1,114 @@
+package com.aincrad.core.menu;
+
+import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * Descrição de um menu, sem dizer como ele é desenhado: título, itens (que passam de página sozinhos)
+ * e botões fixos. Um {@link MenuRenderer} desenha (baú, cursor do AincradUI, formulário do Bedrock).
+ *
+ * <pre>
+ * Menu m = Menu.of(Component.text("Lojas"))
+ *     .item(Menu.Button.of(icone, Component.text("Ferreiro"), p -&gt; abrirFerreiro(p)))
+ *     .button(Menu.Button.of(icone, Component.text("Fechar"), Player::closeInventory));
+ * core.menus().open(player, m);
+ * </pre>
+ */
+public final class Menu {
+
+    /**
+     * Um item clicável. {@code lore} são as linhas embaixo do nome; {@code action} null = só mostra.
+     * {@code closeOnClick}: fecha o menu antes de rodar a ação.
+     */
+    public record Button(ItemStack icon, Component name, List<Component> lore, Consumer<Player> action, boolean closeOnClick) {
+
+        public static Button of(ItemStack icon, Component name, Consumer<Player> action) {
+            return new Button(icon, name, List.of(), action, false);
+        }
+
+        public Button lore(List<Component> lines) {
+            return new Button(icon, name, List.copyOf(lines), action, closeOnClick);
+        }
+
+        public Button closing() {
+            return new Button(icon, name, lore, action, true);
+        }
+    }
+
+    private final Component title;
+    private final List<Button> items = new ArrayList<>();
+    private final List<Button> buttons = new ArrayList<>();
+    private int rows = 6;
+    private Consumer<Player> onClose;
+
+    private Menu(Component title) {
+        this.title = title;
+    }
+
+    public static Menu of(Component title) {
+        return new Menu(title);
+    }
+
+    /** Conteúdo (paginado quando não cabe). */
+    public Menu item(Button b) {
+        items.add(b);
+        return this;
+    }
+
+    public Menu items(List<Button> list) {
+        items.addAll(list);
+        return this;
+    }
+
+    /** Botões fixos da última linha (até 5; o baú usa as pontas para trocar de página). */
+    public Menu button(Button b) {
+        buttons.add(b);
+        return this;
+    }
+
+    /** Linhas do baú (2 a 6). */
+    public Menu rows(int rows) {
+        this.rows = Math.max(2, Math.min(6, rows));
+        return this;
+    }
+
+    public Menu onClose(Consumer<Player> onClose) {
+        this.onClose = onClose;
+        return this;
+    }
+
+    public Component title() {
+        return title;
+    }
+
+    public List<Button> items() {
+        return Collections.unmodifiableList(items);
+    }
+
+    public List<Button> buttons() {
+        return Collections.unmodifiableList(buttons);
+    }
+
+    public int rows() {
+        return rows;
+    }
+
+    public Consumer<Player> onClose() {
+        return onClose;
+    }
+
+    /** Itens por página no baú: as linhas menos a de botões, 9 por linha. */
+    public int pageSize() {
+        return (rows - 1) * 9;
+    }
+
+    public int pages() {
+        return Math.max(1, (items.size() + pageSize() - 1) / pageSize());
+    }
+}

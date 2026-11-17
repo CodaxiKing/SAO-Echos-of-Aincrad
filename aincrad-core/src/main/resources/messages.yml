@@ -1,0 +1,56 @@
+# ============================================================
+#  AincradCore — mensagens (MiniMessage)
+# ============================================================
+prefixo: "<dark_aqua>[<aqua>Aincrad</aqua>]</dark_aqua> "
+
+geral:
+  sem_permissao: "<red>Você não tem permissão para isso."
+  so_jogador: "<red>Este comando só pode ser usado por jogadores."
+  desconhecido: "<red>Subcomando desconhecido: <white><sub></white>. Use <white>/aincrad</white>."
+  recarregado: "<green>Configs recarregadas (<white><plugins></white>)."
+  erro: "<red>Algo deu errado. Veja o console."
+
+ajuda:
+  titulo: "<gold><bold>Aincrad</bold> <gray>— comandos"
+  linha: "<white>/aincrad <uso></white> <gray>— <descricao>"
+  vazio: "<gray>Nenhum comando disponível para você."
+
+varinha:
+  nome: "<gold>Varinha de seleção"
+  lore:
+    - "<gray>Clique esquerdo: canto 1"
+    - "<gray>Clique direito: canto 2"
+  recebida: "<green>Varinha entregue. Esquerdo marca o canto 1, direito o canto 2."
+  canto: "<aqua>Canto <n>: <white><x>, <y>, <z></white> <gray>(<mundo>)"
+  tamanho: "<gray>Seleção: <white><blocos></white> blocos."
+
+regiao:
+  uso: "<gray>Uso: <white>/aincrad regiao criar <nome></white>, <white>remover <nome></white>, <white>listar</white>, <white>info [nome]"
+  sem_selecao: "<red>Marque os dois cantos com a varinha antes (<white>/aincrad varinha</white>)."
+  mundos_diferentes: "<red>Os dois cantos precisam estar no mesmo mundo."
+  nome_invalido: "<red>Nome inválido: use letras minúsculas, números, - e _."
+  ja_existe: "<red>Já existe uma região <white><nome></white>."
+  criada: "<green>Região <white><nome></white> criada (<white><blocos></white> blocos)."
+  removida: "<yellow>Região <white><nome></white> removida."
+  nao_existe: "<red>Região não encontrada: <white><nome></white>."
+  lista: "<aqua>Regiões (<white><total></white>): <white><nomes>"
+  info: "<aqua><nome></aqua> <gray>— <white><mundo></white> de <white><min></white> a <white><max></white>"
+  aqui: "<aqua>Você está em: <white><nomes>"
+  nenhuma_aqui: "<gray>Você não está em nenhuma região."
+  entrou: "<gray>Entrou em <white><nome></white>."
+  saiu: "<gray>Saiu de <white><nome></white>."
+
+menu:
+  anterior: "<white>Página anterior"
+  proxima: "<white>Próxima página"
+  fechar: "<red>Fechar"
+  confirmar: "<green>Confirmar"
+  cancelar: "<red>Cancelar"
+  pagina: "<gray>Página <white><atual></white>/<white><total></white>"
+
+tempo:
+  segundo: "s"
+  minuto: "min"
+  hora: "h"
+  dia: "d"
+  agora: "agora"

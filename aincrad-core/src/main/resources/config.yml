@@ -1,0 +1,38 @@
+# ============================================================
+#  AincradCore — configuração
+# ============================================================
+
+# Nome deste servidor na rede (Velocity). Precisa ser diferente em cada servidor.
+servidor: andar-1
+
+banco:
+  # mysql (rede, padrão do plano) ou sqlite (teste local: um arquivo em plugins/AincradCore/).
+  tipo: sqlite
+  mysql:
+    host: localhost
+    porta: 3306
+    banco: aincrad
+    usuario: aincrad
+    senha: ""
+    # Opções extras da URL JDBC.
+    parametros: "useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8"
+  sqlite:
+    arquivo: aincrad.db
+  # Conexões no pool (MySQL). SQLite usa 1.
+  conexoes: 8
+  # Threads que rodam as consultas (fora da thread principal).
+  threads: 4
+
+messagebus:
+  # Lê a tabela de eventos a cada X ticks (20 = 1 s).
+  intervalo_ticks: 20
+  # Apaga eventos mais velhos que isso (segundos).
+  guardar_segundos: 300
+
+perfil:
+  # Grava perfis alterados a cada X segundos (e sempre ao sair).
+  salvar_segundos: 60
+
+regioes:
+  # Item da varinha de seleção.
+  varinha: BLAZE_ROD

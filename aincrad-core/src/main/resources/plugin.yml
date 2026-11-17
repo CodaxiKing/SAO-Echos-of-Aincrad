@@ -1,0 +1,18 @@
+name: AincradCore
+version: '${version}'
+main: com.aincrad.core.AincradCorePlugin
+api-version: '1.21'
+load: STARTUP
+description: Peças comuns dos plugins Aincrad — config, mensagens, /aincrad, banco, regiões, menus, perfil e MessageBus.
+authors: [CodaxiKing]
+softdepend: [floodgate]
+# Baixadas do Maven Central pelo Paper na primeira vez que o servidor liga.
+libraries:
+  - com.zaxxer:HikariCP:${hikari}
+  - com.mysql:mysql-connector-j:${mysql}
+  - org.xerial:sqlite-jdbc:${sqlite}
+
+permissions:
+  aincrad.admin:
+    description: Comandos de administração do Aincrad.
+    default: op

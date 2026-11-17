@@ -1,0 +1,7 @@
+name: AincradExemplo
+version: '${version}'
+main: com.aincrad.exemplo.AincradExemploPlugin
+api-version: '1.21'
+description: Exemplo de uso do AincradCore (menu, perfil, regiões). Não é para servidor de jogo.
+authors: [CodaxiKing]
+depend: [AincradCore]
