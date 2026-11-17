@@ -16,6 +16,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -61,6 +62,7 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         command("level", new LevelCommand(rpg));
         core.commands().register(this, new AdminCommand(rpg, items));
         AincradRPGAPI.init(rpg, mobService, items, status);
+        getServer().getServicesManager().register(AincradRPGAPI.class, AincradRPGAPI.instance(), this, ServicePriority.Normal);
 
         // /reload ou plugin ligado com gente online: carrega quem já está.
         for (Player p : getServer().getOnlinePlayers()) {
@@ -88,6 +90,7 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         AincradRPGAPI.init(null, null, null, null);
+        getServer().getServicesManager().unregisterAll(this);
         if (rpg != null) {
             for (Player p : getServer().getOnlinePlayers()) {
                 rpg.clearAttributes(p);

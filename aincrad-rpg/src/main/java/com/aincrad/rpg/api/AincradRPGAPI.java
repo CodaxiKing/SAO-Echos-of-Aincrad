@@ -14,9 +14,12 @@ import org.bukkit.inventory.ItemStack;
 /**
  * API do AincradRPG para os outros plugins (andares, bosses, quests, social...). Métodos
  * estáticos para dar para chamar por reflexão sem depender do jar. Use na thread principal.
- * Sem o plugin ligado, os métodos devolvem valores neutros (level 1, 0, null).
+ * Sem o plugin ligado, os métodos devolvem valores neutros (level 1, 0, null). A instância
+ * {@link #instance()} fica registrada no ServicesManager do Bukkit (é assim que o AincradSocial acha).
  */
 public final class AincradRPGAPI {
+
+    private static final AincradRPGAPI INSTANCE = new AincradRPGAPI();
 
     private static RpgService rpg;
     private static MobService mobs;
@@ -32,6 +35,11 @@ public final class AincradRPGAPI {
         mobs = m;
         items = i;
         status = s;
+    }
+
+    /** Objeto registrado como serviço (os métodos são estáticos; serve só para ser encontrado). */
+    public static AincradRPGAPI instance() {
+        return INSTANCE;
     }
 
     public static boolean isEnabled() {
