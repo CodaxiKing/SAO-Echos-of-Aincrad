@@ -34,12 +34,17 @@ public final class BossCommands {
     private final FightManager fights;
     private final MazeService maze;
     private final Messages msg;
+    private com.aincrad.bosses.editor.BossEditor editor;
 
     public BossCommands(Plugin plugin, FightManager fights, MazeService maze) {
         this.plugin = plugin;
         this.fights = fights;
         this.maze = maze;
         this.msg = fights.messages();
+    }
+
+    public void editor(com.aincrad.bosses.editor.BossEditor e) {
+        this.editor = e;
     }
 
     private void log(CommandSender actor, String action, String detail) {
@@ -87,7 +92,7 @@ public final class BossCommands {
         return new SubCommand() {
             @Override public String name() { return "chefe"; }
             @Override public String permission() { return "aincrad.admin"; }
-            @Override public String usage() { return "chefe lista | info|invocar|resetar|porta|esquecer <id> | sala <id> canto1|canto2|spawn|entrada"; }
+            @Override public String usage() { return "chefe lista | info|invocar|resetar|porta|esquecer|editar <id> | sala <id> canto1|canto2|spawn|entrada"; }
             @Override public Component description() { return msg.get("admin.descricao_chefe"); }
 
             @Override
@@ -104,7 +109,7 @@ public final class BossCommands {
                     return;
                 }
                 BossDef def = args.length > 1 ? fights.registry().get(args[1]) : null;
-                if (!List.of("info", "invocar", "resetar", "porta", "sala", "esquecer").contains(op) || args.length < 2) {
+                if (!List.of("info", "invocar", "resetar", "porta", "sala", "esquecer", "editar").contains(op) || args.length < 2) {
                     msg.send(sender, "admin.uso_chefe");
                     return;
                 }
@@ -154,6 +159,13 @@ public final class BossCommands {
                         msg.send(sender, "admin.esquecido", chefe);
                         log(sender, "chefe.esquecer", def.id());
                     }
+                    case "editar" -> {
+                        if (sender instanceof Player p && editor != null) {
+                            editor.open(p, def.id());
+                        } else {
+                            msg.send(sender, "geral.so_jogador");
+                        }
+                    }
                     case "porta" -> door(sender, def);
                     default -> room(sender, def, args.length > 2 ? args[2].toLowerCase(Locale.ROOT) : "");
                 }
@@ -162,7 +174,7 @@ public final class BossCommands {
             @Override
             public List<String> complete(CommandSender sender, String[] args) {
                 return switch (args.length) {
-                    case 1 -> filter(List.of("lista", "info", "invocar", "resetar", "sala", "porta", "esquecer"), args[0]);
+                    case 1 -> filter(List.of("lista", "info", "invocar", "resetar", "sala", "porta", "esquecer", "editar"), args[0]);
                     case 2 -> args[0].equalsIgnoreCase("lista") ? List.of() : filter(ids(), args[1]);
                     case 3 -> args[0].equalsIgnoreCase("sala") ? filter(List.of("canto1", "canto2", "spawn", "entrada"), args[2]) : List.of();
                     default -> List.of();

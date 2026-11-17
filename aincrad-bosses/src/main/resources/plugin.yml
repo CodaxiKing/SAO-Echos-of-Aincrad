@@ -7,7 +7,25 @@ authors: [CodaxiKing]
 depend: [AincradCore, AincradFloors]
 softdepend: [AincradRPG, AincradEconomy, AincradSocial]
 
+commands:
+  chefe:
+    description: Guia de estratégia dos chefes (o que o servidor já descobriu).
+    usage: /chefe guia <id>
+    aliases: [boss]
+    permission: aincrad.bosses.guia
+  raid:
+    description: Quadro de raid — marcar, entrar, sair, cancelar.
+    usage: /raid [criar <chefe> <dd/MM> <HH:mm> [tanques] [danos] [suportes] | entrar <n> <funcao> | sair <n> | cancelar <n>]
+    aliases: [raids]
+    permission: aincrad.bosses.raid
+
 permissions:
+  aincrad.bosses.guia:
+    description: /chefe guia.
+    default: true
+  aincrad.bosses.raid:
+    description: /raid.
+    default: true
   aincrad.admin:
     description: Comandos de administração do Aincrad (/aincrad chefe, /aincrad labirinto) e entrar numa sala em luta.
     default: op

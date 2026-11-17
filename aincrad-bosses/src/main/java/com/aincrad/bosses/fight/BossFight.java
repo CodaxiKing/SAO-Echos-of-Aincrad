@@ -42,6 +42,10 @@ public final class BossFight {
     /** Todos os que começaram a luta. */
     final Set<UUID> started = new HashSet<>();
     final DamageLedger ledger = new DamageLedger();
+    /** Último tick em que cada lutador andou ou acertou o chefe (para saber quem está ausente). */
+    final Map<UUID, Long> lastActive = new HashMap<>();
+    /** Quem saiu do servidor no meio da luta: não volta e não recebe recompensa. */
+    final Set<UUID> quit = new HashSet<>();
     int phase;
     /** Índice da habilidade na fase → tick em que fica pronta. */
     final Map<Integer, Long> ready = new HashMap<>();

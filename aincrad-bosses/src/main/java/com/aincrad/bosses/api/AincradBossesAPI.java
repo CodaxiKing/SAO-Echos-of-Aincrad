@@ -99,6 +99,20 @@ public final class AincradBossesAPI {
         return fights != null && fights.isBossRoom(location);
     }
 
+    /** O lugar fica numa sala de chefe marcada como anti-cristal (o AincradItems não deixa usar cristais lá)? */
+    public static boolean isCrystalBlocked(Location location) {
+        if (fights == null || location == null) {
+            return false;
+        }
+        for (BossDef d : fights.registry().all()) {
+            RoomStore.Room r = fights.rooms().get(d.id());
+            if (d.antiCrystal() && r != null && r.box != null && r.box.contains(location)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** O jogador está numa luta de chefe agora? */
     public static boolean isFighting(Player player) {
         return fights != null && fights.fightOf(player) != null;

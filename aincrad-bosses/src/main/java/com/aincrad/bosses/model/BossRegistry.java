@@ -18,6 +18,7 @@ public final class BossRegistry {
 
     private final Map<String, BossDef> bosses = new LinkedHashMap<>();
     private final List<String> errors = new ArrayList<>();
+    private final Map<String, File> sources = new LinkedHashMap<>();
 
     public static BossRegistry load(File folder) {
         BossRegistry reg = new BossRegistry();
@@ -27,7 +28,15 @@ public final class BossRegistry {
         }
         Arrays.sort(files);
         for (File f : files) {
+            int before = reg.bosses.size();
             reg.add(YamlConfiguration.loadConfiguration(f), f.getName());
+            // Os chefes novos desta volta vieram deste arquivo.
+            int i = 0;
+            for (String id : reg.bosses.keySet()) {
+                if (i++ >= before) {
+                    reg.sources.put(id, f);
+                }
+            }
         }
         return reg;
     }
@@ -55,6 +64,11 @@ public final class BossRegistry {
 
     public BossDef get(String id) {
         return id == null ? null : bosses.get(id.toLowerCase(Locale.ROOT));
+    }
+
+    /** O arquivo .yml de onde o chefe foi lido (null se não veio de arquivo). */
+    public File source(String id) {
+        return id == null ? null : sources.get(id.toLowerCase(Locale.ROOT));
     }
 
     public Collection<BossDef> all() {

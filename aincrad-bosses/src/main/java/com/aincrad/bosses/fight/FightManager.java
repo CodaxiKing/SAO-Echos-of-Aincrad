@@ -81,6 +81,8 @@ public final class FightManager implements Listener {
     private final NamespacedKey bossKey;
     private final NamespacedKey minionKey;
     private BossRegistry registry;
+    private com.aincrad.bosses.data.GuideStore guide;
+    private com.aincrad.bosses.raid.RaidService raids;
     /** Uma luta por chefe. */
     private final Map<String, BossFight> fights = new HashMap<>();
     /** Quando cada chefe pode voltar depois de uma derrota dos jogadores (milissegundos). */
@@ -98,6 +100,30 @@ public final class FightManager implements Listener {
         this.bossKey = new NamespacedKey(plugin, "chefe");
         this.minionKey = new NamespacedKey(plugin, "lacaio");
         this.skills = new Skills(plugin, this, hooks);
+    }
+
+    public void guide(com.aincrad.bosses.data.GuideStore g) {
+        this.guide = g;
+    }
+
+    public void raids(com.aincrad.bosses.raid.RaidService r) {
+        this.raids = r;
+    }
+
+    void sawSkill(BossFight f, BossDef.Skill s) {
+        if (guide != null) {
+            guide.skill(f.def.id(), f.phase, s.type());
+        }
+    }
+
+    /** Ticks parado (sem andar nem acertar o chefe) para contar como ausente; 0 = desligado. */
+    private long idleLimit() {
+        return config.integer("abuso.ausente_segundos", 60, 0, 3600) * 20L;
+    }
+
+    private boolean idle(BossFight f, UUID id) {
+        long limit = idleLimit();
+        return limit > 0 && tick - f.lastActive.getOrDefault(id, f.stageStart) >= limit;
     }
 
     public void registry(BossRegistry r) {
@@ -242,6 +268,10 @@ public final class FightManager implements Listener {
         for (Player p : inside) {
             f.fighters.add(p.getUniqueId());
             f.started.add(p.getUniqueId());
+            f.lastActive.put(p.getUniqueId(), tick);
+        }
+        if (guide != null) {
+            guide.attempt(f.def.id());
         }
         door(f, true);
         f.entity = spawnBoss(f);
@@ -410,8 +440,22 @@ public final class FightManager implements Listener {
         // Quem morreu, saiu do servidor ou da sala não luta mais (e não volta).
         f.fighters.removeIf(id -> {
             Player p = Bukkit.getPlayer(id);
-            return p == null || p.isDead() || !f.inArena(p.getLocation());
+            if (p == null) {
+                // Deslogou no meio da luta: conta como morto, não volta e não recebe recompensa.
+                f.quit.add(id);
+                return true;
+            }
+            return p.isDead() || !f.inArena(p.getLocation());
         });
+        long limit = idleLimit();
+        if (limit > 0) {
+            for (Player p : fighters(f)) {
+                long idleFor = tick - f.lastActive.getOrDefault(p.getUniqueId(), f.stageStart);
+                if (idleFor >= limit * 3 / 4) {
+                    msg.actionBar(p, idleFor >= limit ? "luta.ausente" : "luta.ausente_aviso");
+                }
+            }
+        }
         if (f.fighters.isEmpty()) {
             end(f, BossFightEndEvent.Reason.DERROTA);
             return;
@@ -463,6 +507,9 @@ public final class FightManager implements Listener {
 
     private void applyPhase(BossFight f, int index, boolean announce) {
         f.phase = index;
+        if (guide != null) {
+            guide.phase(f.def.id(), index);
+        }
         BossDef.Phase ph = f.currentPhase();
         f.ready.clear();
         f.nextSkill = tick + 40;
@@ -559,7 +606,9 @@ public final class FightManager implements Listener {
         cleanup(f);
         BossDef def = f.def;
         BossDef.Rewards rw = def.rewards();
-        List<UUID> eligible = f.ledger.eligible(rw.minDamagePercent(), def.health());
+        List<UUID> eligible = new ArrayList<>(f.ledger.eligible(rw.minDamagePercent(), def.health()));
+        // Proteção contra abuso: quem deslogou ou ficou parado não conta como participante.
+        eligible.removeIf(id -> f.quit.contains(id) || idle(f, id));
         UUID last = killer != null ? killer.getUniqueId() : f.ledger.lastAttacker();
         boolean first = !states.defeated(def.id());
 
@@ -654,6 +703,38 @@ public final class FightManager implements Listener {
         }
         if (enter(event.getPlayer(), from, to)) {
             event.setCancelled(true);
+            return;
+        }
+        BossFight mine = fightOf(event.getPlayer());
+        if (mine != null) {
+            mine.lastActive.put(event.getPlayer().getUniqueId(), tick);
+        }
+    }
+
+    /** Quem entra no servidor dentro de uma sala em luta (deslogou lá) é posto para fora. */
+    @EventHandler
+    public void onJoin(org.bukkit.event.player.PlayerJoinEvent event) {
+        Player p = event.getPlayer();
+        for (Map.Entry<String, RoomStore.Room> e : rooms.all().entrySet()) {
+            RoomStore.Room room = e.getValue();
+            BossFight f = fights.get(e.getKey());
+            if (room.box == null || f == null || f.stage == BossFight.Stage.ESPERA || !room.box.contains(p.getLocation())
+                    || p.hasPermission(ADMIN)) {
+                continue;
+            }
+            Location out = RoomStore.location(room.entry);
+            if (out == null) {
+                out = AincradFloorsAPI.getSpawn(f.def.floor());
+            }
+            if (out == null) {
+                out = p.getWorld().getSpawnLocation();
+            }
+            Location to = out;
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                p.teleportAsync(to);
+                msg.send(p, "luta.voltou_fora", Messages.vars("chefe", f.def.name()));
+            });
+            return;
         }
     }
 
@@ -670,6 +751,10 @@ public final class FightManager implements Listener {
             RoomStore.Room room = e.getValue();
             if (room.box == null || !room.box.contains(to) || room.box.contains(from)) {
                 continue;
+            }
+            if (raids != null && raids.blocks(p, e.getKey())) {
+                msg.actionBar(p, "raid.sala_reservada");
+                return true;
             }
             BossFight f = fights.get(e.getKey());
             if (f != null && f.stage != BossFight.Stage.ESPERA) {
@@ -738,6 +823,7 @@ public final class FightManager implements Listener {
         }
         double dealt = Math.min(event.getFinalDamage(), f.entity.getHealth());
         f.ledger.add(p.getUniqueId(), dealt);
+        f.lastActive.put(p.getUniqueId(), tick);
         plugin.getServer().getPluginManager().callEvent(new BossDamageEvent(f.def.id(), f.def.name(), f.def.floor(), f.entity, p, dealt, event.isCritical()));
     }
 

@@ -14,11 +14,13 @@ import java.util.Map;
  * conferidos quando o chefe nasce.
  *
  * @param equipment espaço (mao, mao_secundaria, cabeca, peito, pernas, pes) → material
+ * @param antiCrystal na sala deste chefe nenhum cristal do AincradItems funciona
  * @param phases    da vida mais alta para a mais baixa; a primeira vale desde o começo
  */
 public record BossDef(String id, int floor, String name, int level, String mob, double health, double damage, double armor,
                       double speed, double knockbackResistance, double scale, Map<String, String> equipment,
-                      int introSeconds, int timeLimitSeconds, double respawnHours, List<Phase> phases, Rewards rewards) {
+                      int introSeconds, int timeLimitSeconds, double respawnHours, boolean antiCrystal, List<Phase> phases,
+                      Rewards rewards) {
 
     /** Tipos de habilidade. */
     public enum SkillType {
@@ -134,6 +136,7 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
                 Math.max(0, Math.min(1, s.getDouble("resistencia_empurrao", 0.5))), Math.max(0.1, Math.min(8, s.getDouble("escala", 1))),
                 strings(s.getConfigurationSection("equipamento")), Math.max(0, s.getInt("intro_segundos", 5)),
                 Math.max(0, s.getInt("tempo_limite_segundos", 900)), Math.max(0, s.getDouble("reaparece_horas", 6)),
+                s.getBoolean("anti_cristal", true),
                 List.copyOf(phases), rewards);
     }
 

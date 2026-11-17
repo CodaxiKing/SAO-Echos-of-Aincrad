@@ -90,6 +90,15 @@ public final class Hooks {
         if (spec == null || spec.isBlank()) {
             return null;
         }
+        if (spec.startsWith("b64:")) {
+            try {
+                ItemStack it = ItemStack.deserializeBytes(java.util.Base64.getDecoder().decode(spec.substring(4)));
+                it.setAmount(Math.min(amount, it.getMaxStackSize()));
+                return it;
+            } catch (RuntimeException e) {
+                return null;
+            }
+        }
         if (spec.toLowerCase(Locale.ROOT).startsWith("rpg:")) {
             if (!rpg) {
                 return null;
@@ -108,6 +117,28 @@ public final class Hooks {
         }
         Material m = Material.matchMaterial(spec);
         return m == null || !m.isItem() ? null : new ItemStack(m, Math.min(amount, m.getMaxStackSize()));
+    }
+
+    /**
+     * O texto que representa o item nas recompensas: o material (item comum), "rpg:id:raridade"
+     * (item do AincradRPG, sorteado de novo a cada entrega) ou "b64:..." (qualquer outro item
+     * com nome, lore ou encantos, guardado inteiro).
+     */
+    public String spec(ItemStack it) {
+        if (!it.hasItemMeta()) {
+            return it.getType().name();
+        }
+        var pdc = it.getItemMeta().getPersistentDataContainer();
+        org.bukkit.NamespacedKey idKey = org.bukkit.NamespacedKey.fromString("aincradrpg:item");
+        org.bukkit.NamespacedKey rarKey = org.bukkit.NamespacedKey.fromString("aincradrpg:raridade");
+        String id = idKey == null ? null : pdc.get(idKey, org.bukkit.persistence.PersistentDataType.STRING);
+        if (id != null) {
+            String rar = rarKey == null ? null : pdc.get(rarKey, org.bukkit.persistence.PersistentDataType.STRING);
+            return "rpg:" + id + (rar == null ? "" : ":" + rar);
+        }
+        ItemStack one = it.clone();
+        one.setAmount(1);
+        return "b64:" + java.util.Base64.getEncoder().encodeToString(one.serializeAsBytes());
     }
 
     /** Avisa o AincradSocial da vitória (XP de guilda, registro). */

@@ -63,6 +63,7 @@ final class Skills {
         BossDef.Skill s = list.get(pick);
         f.ready.put(pick, now + (long) (s.cooldown() * 20));
         f.nextSkill = now + GAP;
+        fights.sawSkill(f, s);
         use(f, s, target);
     }
 

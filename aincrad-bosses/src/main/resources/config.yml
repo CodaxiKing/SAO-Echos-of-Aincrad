@@ -12,6 +12,21 @@ sala:
   # Depois de uma derrota dos jogadores (ou do tempo acabar), o chefe só volta após este tempo.
   recarga_derrota_segundos: 60
 
+abuso:
+  # Lutador sem andar nem acertar o chefe por este tempo não recebe recompensa nem conta como
+  # participante (volta a contar se se mexer antes do fim). 0 = desligado.
+  ausente_segundos: 60
+
+raid:
+  # Só os inscritos entram na sala enquanto a raid estiver marcada (do aviso até o fim da duração).
+  reservar_sala: true
+  # Aviso aos inscritos, e começo da reserva da sala, este tempo antes da hora.
+  aviso_minutos_antes: 15
+  # Quanto tempo depois da hora a raid ainda vale (depois some do quadro).
+  duracao_minutos: 60
+  # Raids marcadas ao mesmo tempo por jogador.
+  max_por_jogador: 2
+
 # Padrões das zonas novas do labirinto (cada zona pode ser ajustada em labirinto.yml).
 labirinto:
   mobs: [ZOMBIE, SKELETON, SPIDER]

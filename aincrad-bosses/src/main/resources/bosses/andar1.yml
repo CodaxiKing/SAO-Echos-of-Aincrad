@@ -35,6 +35,8 @@ illfang:
   intro_segundos: 5
   # 0 = sem limite.
   tempo_limite_segundos: 900
+  # Na sala deste chefe nenhum cristal do AincradItems funciona.
+  anti_cristal: true
   # Depois da primeira vitória, volta só como desafio a cada X horas (0 = não volta).
   reaparece_horas: 6
   fases:
