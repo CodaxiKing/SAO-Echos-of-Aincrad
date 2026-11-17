@@ -1,0 +1,21 @@
+# ============================================================
+#  Estalagens. Cada quarto é uma região do AincradCore (/aincrad varinha e
+#  /aincrad regiao criar <nome>) que contém a porta, o baú e a cama.
+#
+#  servidor:    nome do servidor da rede onde a estalagem fica (vazio = este).
+#  preco_noite: Col por noite (um dia real). O aluguel vai de 1 a 7 dias.
+#  cama:        onde o hóspede aparece ao morrer: "mundo,x,y,z,yaw,pitch". Mais fácil: fique no
+#               lugar e use /aincrad estalagem cama <estalagem> <quarto>. Vazio = meio da região.
+#
+#  Balcão: olhe para o bloco ou NPC e use /aincrad estalagem balcao <id>.
+# ============================================================
+estalagens:
+  inicio:
+    nome: "Estalagem da Cidade do Início"
+    andar: 1
+    servidor: ""
+    preco_noite: 50
+    quartos:
+      q1: { regiao: estalagem_inicio_q1, cama: "" }
+      q2: { regiao: estalagem_inicio_q2, cama: "" }
+      q3: { regiao: estalagem_inicio_q3, cama: "" }

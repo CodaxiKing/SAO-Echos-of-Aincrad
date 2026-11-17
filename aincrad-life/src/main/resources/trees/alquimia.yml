@@ -1,0 +1,415 @@
+# ============================================================
+#  Árvore de especialização — alquimia
+#  Gerada por tools/gerar_arvores.py (no projeto); pode ser editada à mão no servidor.
+#
+#  caminhos: escolhidos aos 250 de proficiência (um entre três, sem volta);
+#            cada um tem duas especializações, escolhidas aos 500 (uma, sem volta).
+#  nos:      tipo passivo | desbloqueio | tecnica; "requer" são nós que vêm antes;
+#            "efeito" são números somados para quem comprou o nó.
+#  Pontos de ofício: 1 a cada 50 de proficiência (20 no total).
+# ============================================================
+caminhos:
+  curandeiro:
+    nome: "Curandeiro"
+    exclusivo: "Cura de grau alto, cristais de cura e antídoto"
+    especializacoes:
+      pocoes: "Poções"
+      cristais: "Cristais"
+  toxicologista:
+    nome: "Toxicologista"
+    exclusivo: "Venenos e óleos de grau alto"
+    especializacoes:
+      venenos: "Venenos"
+      oleos_de_arma: "Óleos de arma"
+  artifice:
+    nome: "Artífice"
+    exclusivo: "Frascos de área e insumos para as outras profissões"
+    especializacoes:
+      arremessaveis: "Arremessáveis"
+      insumos: "Insumos"
+
+nos:
+  # ----- tronco comum -----
+  mao_de_almofariz:
+    nome: "Mão de almofariz"
+    descricao: "O ritmo de moer fica 10% mais fácil."
+    tipo: passivo
+    proficiencia: 0
+    custo: 1
+    efeito: { janela_moer: 0.1 }
+  chama_constante:
+    nome: "Chama constante"
+    descricao: "Faixa certa da temperatura 10% maior."
+    tipo: passivo
+    proficiencia: 50
+    custo: 1
+    efeito: { faixa_temperatura: 0.1 }
+  colher_com_cuidado:
+    nome: "Colher com cuidado"
+    descricao: "+10% de reagentes na coleta."
+    tipo: passivo
+    proficiencia: 100
+    custo: 1
+    efeito: { colheita: 0.1 }
+  medida_exata:
+    nome: "Medida exata"
+    descricao: "10% de chance de poupar um reagente."
+    tipo: passivo
+    proficiencia: 150
+    custo: 1
+    efeito: { reagente_poupado: 0.1 }
+  vidro_limpo:
+    nome: "Vidro limpo"
+    descricao: "+3% de pureza inicial."
+    tipo: passivo
+    proficiencia: 200
+    custo: 1
+    efeito: { pureza: 0.03 }
+  # ----- caminho: Curandeiro -----
+  formulas_de_cura:
+    nome: "Fórmulas de cura"
+    descricao: "Libera as poções de cura de grau 3."
+    tipo: desbloqueio
+    caminho: curandeiro
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_cura_3: 1 }
+  erva_certa:
+    nome: "Erva certa"
+    descricao: "Poções de cura 5% mais fortes."
+    tipo: passivo
+    caminho: curandeiro
+    proficiencia: 300
+    custo: 2
+    requer: [formulas_de_cura]
+    efeito: { forca_cura: 0.05 }
+  dose_generosa:
+    nome: "Dose generosa"
+    descricao: "10% de chance de uma dose extra."
+    tipo: passivo
+    caminho: curandeiro
+    proficiencia: 350
+    custo: 2
+    requer: [formulas_de_cura]
+    efeito: { dose_extra: 0.1 }
+  sem_amargor:
+    nome: "Sem amargor"
+    descricao: "Poções impuras não dão efeito colateral."
+    tipo: passivo
+    caminho: curandeiro
+    proficiencia: 450
+    custo: 2
+    requer: [formulas_de_cura]
+    efeito: { sem_colateral: 1 }
+  # ----- especialização: Poções -----
+  grande_cura:
+    nome: "Grande cura"
+    descricao: "Libera as poções de cura de grau 4."
+    tipo: desbloqueio
+    caminho: curandeiro
+    especializacao: pocoes
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_cura_4: 1 }
+  acao_rapida:
+    nome: "Ação rápida"
+    descricao: "A cura das poções acontece em 8 s, não 10."
+    tipo: passivo
+    caminho: curandeiro
+    especializacao: pocoes
+    proficiencia: 600
+    custo: 2
+    requer: [grande_cura]
+    efeito: { tempo_cura: -2 }
+  frasco_cheio:
+    nome: "Frasco cheio"
+    descricao: "+1 dose em poções de cura."
+    tipo: passivo
+    caminho: curandeiro
+    especializacao: pocoes
+    proficiencia: 750
+    custo: 3
+    requer: [grande_cura]
+    efeito: { doses: 1 }
+  elixir:
+    nome: "Elixir"
+    descricao: "Uma poção perfeita cura na hora, como um cristal."
+    tipo: tecnica
+    caminho: curandeiro
+    especializacao: pocoes
+    proficiencia: 1000
+    custo: 3
+    requer: [grande_cura]
+    efeito: { tecnica_elixir: 1 }
+  # ----- especialização: Cristais -----
+  lapidar_cristais:
+    nome: "Lapidar cristais"
+    descricao: "Libera os cristais de cura e antídoto."
+    tipo: desbloqueio
+    caminho: curandeiro
+    especializacao: cristais
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_cristais: 1 }
+  cristal_limpo:
+    nome: "Cristal limpo"
+    descricao: "20% de chance de poupar o cristal bruto."
+    tipo: passivo
+    caminho: curandeiro
+    especializacao: cristais
+    proficiencia: 600
+    custo: 2
+    requer: [lapidar_cristais]
+    efeito: { cristal_poupado: 0.2 }
+  lapidacao_dupla:
+    nome: "Lapidação dupla"
+    descricao: "10% de chance de sair dois cristais."
+    tipo: passivo
+    caminho: curandeiro
+    especializacao: cristais
+    proficiencia: 750
+    custo: 3
+    requer: [lapidar_cristais]
+    efeito: { cristal_duplo: 0.1 }
+  cristal_puro:
+    nome: "Cristal Puro"
+    descricao: "O cristal feito tem metade da recarga."
+    tipo: tecnica
+    caminho: curandeiro
+    especializacao: cristais
+    proficiencia: 1000
+    custo: 3
+    requer: [lapidar_cristais]
+    efeito: { tecnica_cristal_puro: 1 }
+  # ----- caminho: Toxicologista -----
+  formulas_toxicas:
+    nome: "Fórmulas tóxicas"
+    descricao: "Libera venenos e óleos de grau 3."
+    tipo: desbloqueio
+    caminho: toxicologista
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_toxico_3: 1 }
+  luvas_grossas:
+    nome: "Luvas grossas"
+    descricao: "A mistura não explode ao superaquecer uma vez."
+    tipo: passivo
+    caminho: toxicologista
+    proficiencia: 300
+    custo: 2
+    requer: [formulas_toxicas]
+    efeito: { explosao_perdoada: 1 }
+  concentrado:
+    nome: "Concentrado"
+    descricao: "Venenos e óleos 5% mais fortes."
+    tipo: passivo
+    caminho: toxicologista
+    proficiencia: 350
+    custo: 2
+    requer: [formulas_toxicas]
+    efeito: { forca_toxico: 0.05 }
+  gota_a_mais:
+    nome: "Gota a mais"
+    descricao: "Venenos e óleos duram 2 golpes a mais."
+    tipo: passivo
+    caminho: toxicologista
+    proficiencia: 450
+    custo: 2
+    requer: [formulas_toxicas]
+    efeito: { golpes_extras: 2 }
+  # ----- especialização: Venenos -----
+  venenos_fortes:
+    nome: "Venenos fortes"
+    descricao: "Libera os venenos de grau 4 e o de paralisia."
+    tipo: desbloqueio
+    caminho: toxicologista
+    especializacao: venenos
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_veneno_4: 1 }
+  efeito_demorado:
+    nome: "Efeito demorado"
+    descricao: "O veneno dura 25% mais no alvo."
+    tipo: passivo
+    caminho: toxicologista
+    especializacao: venenos
+    proficiencia: 600
+    custo: 2
+    requer: [venenos_fortes]
+    efeito: { duracao_veneno: 0.25 }
+  mao_segura:
+    nome: "Mão segura"
+    descricao: "Aplicar veneno na arma não gasta tempo."
+    tipo: passivo
+    caminho: toxicologista
+    especializacao: venenos
+    proficiencia: 750
+    custo: 3
+    requer: [venenos_fortes]
+    efeito: { aplicar_rapido: 1 }
+  peconha:
+    nome: "Peçonha"
+    descricao: "Um veneno perfeito ignora metade da resistência do mob."
+    tipo: tecnica
+    caminho: toxicologista
+    especializacao: venenos
+    proficiencia: 1000
+    custo: 3
+    requer: [venenos_fortes]
+    efeito: { tecnica_peconha: 1 }
+  # ----- especialização: Óleos de arma -----
+  oleos_raros:
+    nome: "Óleos raros"
+    descricao: "Libera os óleos de grau 4."
+    tipo: desbloqueio
+    caminho: toxicologista
+    especializacao: oleos_de_arma
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_oleo_4: 1 }
+  camada_grossa:
+    nome: "Camada grossa"
+    descricao: "Óleos duram 5 golpes a mais."
+    tipo: passivo
+    caminho: toxicologista
+    especializacao: oleos_de_arma
+    proficiencia: 600
+    custo: 2
+    requer: [oleos_raros]
+    efeito: { golpes_extras: 5 }
+  mistura_fina:
+    nome: "Mistura fina"
+    descricao: "Óleos 10% mais fortes."
+    tipo: passivo
+    caminho: toxicologista
+    especializacao: oleos_de_arma
+    proficiencia: 750
+    custo: 3
+    requer: [oleos_raros]
+    efeito: { forca_oleo: 0.1 }
+  fio_de_fogo:
+    nome: "Fio de Fogo"
+    descricao: "Um óleo perfeito dá também dano em área."
+    tipo: tecnica
+    caminho: toxicologista
+    especializacao: oleos_de_arma
+    proficiencia: 1000
+    custo: 3
+    requer: [oleos_raros]
+    efeito: { tecnica_fio_de_fogo: 1 }
+  # ----- caminho: Artífice -----
+  formulas_de_oficina:
+    nome: "Fórmulas de oficina"
+    descricao: "Libera arremessáveis e insumos de grau 3."
+    tipo: desbloqueio
+    caminho: artifice
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_oficina_3: 1 }
+  vidro_fino:
+    nome: "Vidro fino"
+    descricao: "Frascos arremessáveis vão 20% mais longe."
+    tipo: passivo
+    caminho: artifice
+    proficiencia: 300
+    custo: 2
+    requer: [formulas_de_oficina]
+    efeito: { alcance_frasco: 0.2 }
+  lote_maior:
+    nome: "Lote maior"
+    descricao: "+1 unidade por produção de insumo."
+    tipo: passivo
+    caminho: artifice
+    proficiencia: 350
+    custo: 2
+    requer: [formulas_de_oficina]
+    efeito: { insumos_extras: 1 }
+  bancada_arrumada:
+    nome: "Bancada arrumada"
+    descricao: "Preparo 10% mais rápido."
+    tipo: passivo
+    caminho: artifice
+    proficiencia: 450
+    custo: 2
+    requer: [formulas_de_oficina]
+    efeito: { tempo_preparo: -0.1 }
+  # ----- especialização: Arremessáveis -----
+  frascos_de_area:
+    nome: "Frascos de área"
+    descricao: "Libera os arremessáveis de grau 4."
+    tipo: desbloqueio
+    caminho: artifice
+    especializacao: arremessaveis
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_frasco_4: 1 }
+  nuvem_larga:
+    nome: "Nuvem larga"
+    descricao: "A área dos frascos fica 25% maior."
+    tipo: passivo
+    caminho: artifice
+    especializacao: arremessaveis
+    proficiencia: 600
+    custo: 2
+    requer: [frascos_de_area]
+    efeito: { area_frasco: 0.25 }
+  estilhaco:
+    nome: "Estilhaço"
+    descricao: "Frascos duram 25% mais no chão."
+    tipo: passivo
+    caminho: artifice
+    especializacao: arremessaveis
+    proficiencia: 750
+    custo: 3
+    requer: [frascos_de_area]
+    efeito: { duracao_frasco: 0.25 }
+  tempestade_de_vidro:
+    nome: "Tempestade de Vidro"
+    descricao: "Um frasco perfeito se divide em três."
+    tipo: tecnica
+    caminho: artifice
+    especializacao: arremessaveis
+    proficiencia: 1000
+    custo: 3
+    requer: [frascos_de_area]
+    efeito: { tecnica_tempestade: 1 }
+  # ----- especialização: Insumos -----
+  insumos_raros:
+    nome: "Insumos raros"
+    descricao: "Libera a isca avançada, o tempero raro e o pó de têmpera."
+    tipo: desbloqueio
+    caminho: artifice
+    especializacao: insumos
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_insumos: 1 }
+  po_fino:
+    nome: "Pó fino"
+    descricao: "O pó de têmpera alarga a janela 50% a mais."
+    tipo: passivo
+    caminho: artifice
+    especializacao: insumos
+    proficiencia: 600
+    custo: 2
+    requer: [insumos_raros]
+    efeito: { forca_po_tempera: 0.5 }
+  rende_mais:
+    nome: "Rende mais"
+    descricao: "+2 unidades por produção de insumo."
+    tipo: passivo
+    caminho: artifice
+    especializacao: insumos
+    proficiencia: 750
+    custo: 3
+    requer: [insumos_raros]
+    efeito: { insumos_extras: 2 }
+  catalisador_universal:
+    nome: "Catalisador Universal"
+    descricao: "Um insumo que serve de catalisador em qualquer profissão."
+    tipo: tecnica
+    caminho: artifice
+    especializacao: insumos
+    proficiencia: 1000
+    custo: 3
+    requer: [insumos_raros]
+    efeito: { tecnica_catalisador: 1 }

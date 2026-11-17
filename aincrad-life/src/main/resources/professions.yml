@@ -1,0 +1,46 @@
+# ============================================================
+#  Profissões — proficiência de 0 a 1000, que sobe só com o uso.
+#  Ranks: Aprendiz 0 · Praticante 250 · Especialista 500 · Mestre 750 · Completo 1000
+# ============================================================
+
+ganho:
+  # Pontos por ação quando o item está no limite da proficiência (dificuldade igual ou maior).
+  maximo: 8
+  # Um item esta quantidade de pontos (ou mais) abaixo da proficiência do jogador dá 0.
+  # Entre o limite e isso, o ganho cai em linha reta.
+  faixa_facil: 200
+  # Uma falha dá esta fração do ganho normal.
+  fator_falha: 0.5
+
+transcricao:
+  # Custo em Col para um Mestre copiar algo que conhece para um pergaminho em branco.
+  custo_col: 2000
+
+# Exemplos de "aprender antes de fazer", para testar com /aincrad saber dar <jogador> exemplo <id>.
+# As receitas, os projetos e as fórmulas de verdade chegam com o módulo de cada profissão.
+exemplos_de_aprendizado:
+  cha_de_ervas:
+    nome: "Chá de Ervas"
+    categoria: "Receita"
+    profissao: culinaria
+    # Proficiência para aprender e para produzir.
+    estudo: 0
+    producao: 50
+  espada_de_aco:
+    nome: "Espada de Aço"
+    categoria: "Projeto de arma"
+    profissao: ferreiro
+    estudo: 250
+    producao: 300
+    # Exclusivo de um caminho da árvore (e, se quiser, de uma especialização).
+    caminho: armeiro
+  lamina_do_ferreiro_lendario:
+    nome: "Lâmina do Ferreiro Lendário"
+    categoria: "Projeto de arma"
+    profissao: ferreiro
+    estudo: 750
+    producao: 900
+    caminho: armeiro
+    especializacao: laminas
+    # Único: não pode ser transcrito.
+    unico: true

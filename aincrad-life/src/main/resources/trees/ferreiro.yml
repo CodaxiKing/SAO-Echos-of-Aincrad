@@ -1,0 +1,415 @@
+# ============================================================
+#  Árvore de especialização — ferreiro
+#  Gerada por tools/gerar_arvores.py (no projeto); pode ser editada à mão no servidor.
+#
+#  caminhos: escolhidos aos 250 de proficiência (um entre três, sem volta);
+#            cada um tem duas especializações, escolhidas aos 500 (uma, sem volta).
+#  nos:      tipo passivo | desbloqueio | tecnica; "requer" são nós que vêm antes;
+#            "efeito" são números somados para quem comprou o nó.
+#  Pontos de ofício: 1 a cada 50 de proficiência (20 no total).
+# ============================================================
+caminhos:
+  armeiro:
+    nome: "Armeiro"
+    exclusivo: "Armas de rank B ou maior"
+    especializacoes:
+      laminas: "Lâminas"
+      armas_pesadas: "Armas pesadas"
+  armoreiro:
+    nome: "Armoreiro"
+    exclusivo: "Armaduras e escudos de rank B ou maior"
+    especializacoes:
+      placas: "Placas"
+      couracas_leves: "Couraças leves"
+  refinador:
+    nome: "Refinador"
+    exclusivo: "Aprimoramento acima de +5, reparo de itens épicos e lendários"
+    especializacoes:
+      afiador: "Afiador"
+      restaurador: "Restaurador"
+
+nos:
+  # ----- tronco comum -----
+  mao_firme:
+    nome: "Mão firme"
+    descricao: "Janela da batida perfeita 5% maior."
+    tipo: passivo
+    proficiencia: 0
+    custo: 1
+    efeito: { janela_perfeita: 0.05 }
+  fole_eficiente:
+    nome: "Fole eficiente"
+    descricao: "O calor cai 10% mais devagar."
+    tipo: passivo
+    proficiencia: 50
+    custo: 1
+    efeito: { calor_estavel: 0.1 }
+  olho_para_o_metal:
+    nome: "Olho para o metal"
+    descricao: "Reparo 5% mais barato."
+    tipo: passivo
+    proficiencia: 100
+    custo: 1
+    efeito: { custo_reparo: -0.05 }
+  aproveitar_sobras:
+    nome: "Aproveitar sobras"
+    descricao: "10% de chance de poupar um material na forja."
+    tipo: passivo
+    proficiencia: 150
+    custo: 1
+    efeito: { material_poupado: 0.1 }
+  batida_ritmada:
+    nome: "Batida ritmada"
+    descricao: "Janela da batida boa 10% maior."
+    tipo: passivo
+    proficiencia: 200
+    custo: 1
+    efeito: { janela_boa: 0.1 }
+  # ----- caminho: Armeiro -----
+  projetos_de_armas:
+    nome: "Projetos de armas"
+    descricao: "Libera os projetos de armas de rank B."
+    tipo: desbloqueio
+    caminho: armeiro
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_armas_b: 1 }
+  fio_apurado:
+    nome: "Fio apurado"
+    descricao: "+3% de qualidade em armas."
+    tipo: passivo
+    caminho: armeiro
+    proficiencia: 300
+    custo: 2
+    requer: [projetos_de_armas]
+    efeito: { qualidade_armas: 0.03 }
+  nucleo_equilibrado:
+    nome: "Núcleo equilibrado"
+    descricao: "O atributo dominante fica 5% mais forte."
+    tipo: passivo
+    caminho: armeiro
+    proficiencia: 350
+    custo: 2
+    requer: [projetos_de_armas]
+    efeito: { atributo_dominante: 0.05 }
+  forja_rapida:
+    nome: "Forja rápida"
+    descricao: "Armas pedem 10% menos batidas."
+    tipo: passivo
+    caminho: armeiro
+    proficiencia: 450
+    custo: 2
+    requer: [projetos_de_armas]
+    efeito: { batidas: -0.1 }
+  # ----- especialização: Lâminas -----
+  projetos_de_laminas:
+    nome: "Projetos de lâminas"
+    descricao: "Libera espadas, floretes e adagas de rank A."
+    tipo: desbloqueio
+    caminho: armeiro
+    especializacao: laminas
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_laminas_a: 1 }
+  tempera_precisa:
+    nome: "Têmpera precisa"
+    descricao: "Janela da têmpera 25% maior."
+    tipo: passivo
+    caminho: armeiro
+    especializacao: laminas
+    proficiencia: 600
+    custo: 2
+    requer: [projetos_de_laminas]
+    efeito: { janela_tempera: 0.25 }
+  lamina_viva:
+    nome: "Lâmina viva"
+    descricao: "+1 tentativa de aprimoramento em lâminas."
+    tipo: passivo
+    caminho: armeiro
+    especializacao: laminas
+    proficiencia: 750
+    custo: 3
+    requer: [projetos_de_laminas]
+    efeito: { tentativas_extras: 1 }
+  golpe_de_mestre:
+    nome: "Golpe de Mestre"
+    descricao: "Uma batida perfeita garantida por forja."
+    tipo: tecnica
+    caminho: armeiro
+    especializacao: laminas
+    proficiencia: 1000
+    custo: 3
+    requer: [projetos_de_laminas]
+    efeito: { tecnica_golpe_de_mestre: 1 }
+  # ----- especialização: Armas pesadas -----
+  projetos_pesados:
+    nome: "Projetos pesados"
+    descricao: "Libera machados, lanças e espadas de duas mãos de rank A."
+    tipo: desbloqueio
+    caminho: armeiro
+    especializacao: armas_pesadas
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_pesadas_a: 1 }
+  braco_forte:
+    nome: "Braço forte"
+    descricao: "Itens grandes pedem um reaquecimento a menos."
+    tipo: passivo
+    caminho: armeiro
+    especializacao: armas_pesadas
+    proficiencia: 600
+    custo: 2
+    requer: [projetos_pesados]
+    efeito: { reaquecer: -1 }
+  peso_certo:
+    nome: "Peso certo"
+    descricao: "O atributo Peso sobe 10% a mais."
+    tipo: passivo
+    caminho: armeiro
+    especializacao: armas_pesadas
+    proficiencia: 750
+    custo: 3
+    requer: [projetos_pesados]
+    efeito: { atributo_peso: 0.1 }
+  martelada_esmagadora:
+    nome: "Martelada Esmagadora"
+    descricao: "A última batida vale por três."
+    tipo: tecnica
+    caminho: armeiro
+    especializacao: armas_pesadas
+    proficiencia: 1000
+    custo: 3
+    requer: [projetos_pesados]
+    efeito: { tecnica_martelada: 1 }
+  # ----- caminho: Armoreiro -----
+  projetos_de_armaduras:
+    nome: "Projetos de armaduras"
+    descricao: "Libera armaduras e escudos de rank B."
+    tipo: desbloqueio
+    caminho: armoreiro
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_armaduras_b: 1 }
+  rebites_firmes:
+    nome: "Rebites firmes"
+    descricao: "+5% de durabilidade em armaduras."
+    tipo: passivo
+    caminho: armoreiro
+    proficiencia: 300
+    custo: 2
+    requer: [projetos_de_armaduras]
+    efeito: { durabilidade_armaduras: 0.05 }
+  forro_bem_cortado:
+    nome: "Forro bem cortado"
+    descricao: "+3% de qualidade em armaduras."
+    tipo: passivo
+    caminho: armoreiro
+    proficiencia: 350
+    custo: 2
+    requer: [projetos_de_armaduras]
+    efeito: { qualidade_armaduras: 0.03 }
+  trabalho_de_placas:
+    nome: "Trabalho de placas"
+    descricao: "Armaduras pedem 10% menos batidas."
+    tipo: passivo
+    caminho: armoreiro
+    proficiencia: 450
+    custo: 2
+    requer: [projetos_de_armaduras]
+    efeito: { batidas: -0.1 }
+  # ----- especialização: Placas -----
+  projetos_de_placas:
+    nome: "Projetos de placas"
+    descricao: "Libera armaduras de placas e escudos de rank A."
+    tipo: desbloqueio
+    caminho: armoreiro
+    especializacao: placas
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_placas_a: 1 }
+  aco_dobrado:
+    nome: "Aço dobrado"
+    descricao: "+10% de defesa em placas."
+    tipo: passivo
+    caminho: armoreiro
+    especializacao: placas
+    proficiencia: 600
+    custo: 2
+    requer: [projetos_de_placas]
+    efeito: { defesa_placas: 0.1 }
+  sem_frestas:
+    nome: "Sem frestas"
+    descricao: "Uma trinca a mais antes de a peça quebrar."
+    tipo: passivo
+    caminho: armoreiro
+    especializacao: placas
+    proficiencia: 750
+    custo: 3
+    requer: [projetos_de_placas]
+    efeito: { trincas_extras: 1 }
+  muralha:
+    nome: "Muralha"
+    descricao: "A peça sai com a durabilidade dobrada."
+    tipo: tecnica
+    caminho: armoreiro
+    especializacao: placas
+    proficiencia: 1000
+    custo: 3
+    requer: [projetos_de_placas]
+    efeito: { tecnica_muralha: 1 }
+  # ----- especialização: Couraças leves -----
+  projetos_de_couracas:
+    nome: "Projetos de couraças"
+    descricao: "Libera couraças leves de rank A."
+    tipo: desbloqueio
+    caminho: armoreiro
+    especializacao: couracas_leves
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_couracas_a: 1 }
+  corte_leve:
+    nome: "Corte leve"
+    descricao: "Couraças não reduzem a velocidade."
+    tipo: passivo
+    caminho: armoreiro
+    especializacao: couracas_leves
+    proficiencia: 600
+    custo: 2
+    requer: [projetos_de_couracas]
+    efeito: { sem_penalidade_velocidade: 1 }
+  costura_dupla:
+    nome: "Costura dupla"
+    descricao: "+10% de durabilidade em couraças."
+    tipo: passivo
+    caminho: armoreiro
+    especializacao: couracas_leves
+    proficiencia: 750
+    custo: 3
+    requer: [projetos_de_couracas]
+    efeito: { durabilidade_couracas: 0.1 }
+  segunda_pele:
+    nome: "Segunda Pele"
+    descricao: "A couraça dá um bônus de esquiva."
+    tipo: tecnica
+    caminho: armoreiro
+    especializacao: couracas_leves
+    proficiencia: 1000
+    custo: 3
+    requer: [projetos_de_couracas]
+    efeito: { tecnica_segunda_pele: 1 }
+  # ----- caminho: Refinador -----
+  aprimoramento_avancado:
+    nome: "Aprimoramento avançado"
+    descricao: "Libera o aprimoramento acima de +5."
+    tipo: desbloqueio
+    caminho: refinador
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_aprimoramento_alto: 1 }
+  pedra_de_amolar:
+    nome: "Pedra de amolar"
+    descricao: "+3% de chance de aprimoramento."
+    tipo: passivo
+    caminho: refinador
+    proficiencia: 300
+    custo: 2
+    requer: [aprimoramento_avancado]
+    efeito: { chance_aprimoramento: 0.03 }
+  reparo_cuidadoso:
+    nome: "Reparo cuidadoso"
+    descricao: "Reparo 10% mais barato."
+    tipo: passivo
+    caminho: refinador
+    proficiencia: 350
+    custo: 2
+    requer: [aprimoramento_avancado]
+    efeito: { custo_reparo: -0.1 }
+  mao_leve:
+    nome: "Mão leve"
+    descricao: "Falha de aprimoramento perde menos materiais."
+    tipo: passivo
+    caminho: refinador
+    proficiencia: 450
+    custo: 2
+    requer: [aprimoramento_avancado]
+    efeito: { materiais_na_falha: -0.25 }
+  # ----- especialização: Afiador -----
+  fio_perfeito:
+    nome: "Fio perfeito"
+    descricao: "+5% de chance em Afiação e Precisão."
+    tipo: passivo
+    caminho: refinador
+    especializacao: afiador
+    proficiencia: 500
+    custo: 2
+    efeito: { chance_afiacao: 0.05 }
+  sem_recuo:
+    nome: "Sem recuo"
+    descricao: "A falha nunca baixa o atributo."
+    tipo: passivo
+    caminho: refinador
+    especializacao: afiador
+    proficiencia: 600
+    custo: 2
+    requer: [fio_perfeito]
+    efeito: { falha_sem_queda: 1 }
+  polimento:
+    nome: "Polimento"
+    descricao: "+1 tentativa de aprimoramento em qualquer arma."
+    tipo: passivo
+    caminho: refinador
+    especializacao: afiador
+    proficiencia: 750
+    custo: 3
+    requer: [fio_perfeito]
+    efeito: { tentativas_extras: 1 }
+  fio_lendario:
+    nome: "Fio Lendário"
+    descricao: "Uma vez por arma, um aprimoramento com sucesso garantido."
+    tipo: tecnica
+    caminho: refinador
+    especializacao: afiador
+    proficiencia: 1000
+    custo: 3
+    requer: [fio_perfeito]
+    efeito: { tecnica_fio_lendario: 1 }
+  # ----- especialização: Restaurador -----
+  reparo_de_raros:
+    nome: "Reparo de raros"
+    descricao: "Libera o reparo de itens épicos e lendários."
+    tipo: desbloqueio
+    caminho: refinador
+    especializacao: restaurador
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_reparo_epico: 1 }
+  como_novo:
+    nome: "Como novo"
+    descricao: "O reparo devolve 10% de durabilidade máxima perdida."
+    tipo: passivo
+    caminho: refinador
+    especializacao: restaurador
+    proficiencia: 600
+    custo: 2
+    requer: [reparo_de_raros]
+    efeito: { restaura_maximo: 0.1 }
+  economia_de_metal:
+    nome: "Economia de metal"
+    descricao: "Reparo usa 20% menos material."
+    tipo: passivo
+    caminho: refinador
+    especializacao: restaurador
+    proficiencia: 750
+    custo: 3
+    requer: [reparo_de_raros]
+    efeito: { material_reparo: -0.2 }
+  renascer_do_aco:
+    nome: "Renascer do Aço"
+    descricao: "Restaura um item quebrado de vez."
+    tipo: tecnica
+    caminho: refinador
+    especializacao: restaurador
+    proficiencia: 1000
+    custo: 3
+    requer: [reparo_de_raros]
+    efeito: { tecnica_renascer: 1 }

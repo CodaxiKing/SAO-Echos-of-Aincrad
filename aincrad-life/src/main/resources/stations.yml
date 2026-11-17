@@ -1,0 +1,89 @@
+# ============================================================
+#  Bancadas das profissões. /aincrad estacao criar <tipo> põe uma virada para você.
+#
+#  modelo:            id do modelo no resource pack (pasta resourcepack/ deste plugin). Os modelos
+#                     que vêm no plugin são PROVISÓRIOS (o próprio bloco do Minecraft): troque os
+#                     arquivos em assets/aincrad/models/station/ pelos seus, do Blockbench.
+#                     Se existir "<modelo>_active", ele é usado durante o trabalho.
+#  escala:            tamanho do modelo (1.0 = um bloco).
+#  clique:            [largura, altura] da área de clique, em blocos.
+#  bloco_provisorio:  bloco que aparece para quem está sem o pack (e no Bedrock), e que vira a
+#                     própria bancada quando os modelos estão desligados.
+#  ancoras:           posições em blocos a partir do centro da base, com a frente no +Z:
+#                       holograma — o painel de progresso
+#                       encaixes  — onde os materiais flutuam
+#                       batidas   — os pontos onde as marcas de batida aparecem
+#                     Mude aqui para ajustar ao modelo final, sem mexer em código (/aincrad reload).
+# ============================================================
+estacoes:
+  forge_anvil:
+    nome: "Bigorna de forja"
+    profissao: ferreiro
+    modelo: "aincrad:station/forge_anvil"
+    escala: 1.0
+    clique: [1.05, 1.05]
+    bloco_provisorio: ANVIL
+    ancoras:
+      holograma: [0, 2.3, 0]
+      encaixes: [[-0.9, 1.6, 0], [-0.45, 1.85, 0], [0, 1.95, 0], [0.45, 1.85, 0], [0.9, 1.6, 0]]
+      batidas: [[-0.3, 1.15, 0], [0, 1.15, 0], [0.3, 1.15, 0]]
+  forge_furnace:
+    nome: "Fornalha com fole"
+    profissao: ferreiro
+    modelo: "aincrad:station/forge_furnace"
+    escala: 1.0
+    clique: [1.05, 1.05]
+    bloco_provisorio: BLAST_FURNACE
+    ancoras:
+      holograma: [0, 1.7, 0]
+      batidas: [[0, 0.6, 0.6]]
+  quench_barrel:
+    nome: "Barril de têmpera"
+    profissao: ferreiro
+    modelo: "aincrad:station/quench_barrel"
+    escala: 1.0
+    clique: [1.05, 1.05]
+    bloco_provisorio: WATER_CAULDRON
+    ancoras:
+      holograma: [0, 1.6, 0]
+      batidas: [[0, 1.1, 0]]
+  kitchen:
+    nome: "Bancada de cozinha"
+    profissao: culinaria
+    modelo: "aincrad:station/kitchen"
+    escala: 1.0
+    clique: [1.05, 1.05]
+    bloco_provisorio: SMOKER
+    ancoras:
+      holograma: [0, 2.3, 0]
+      encaixes: [[-0.9, 1.6, 0], [-0.45, 1.85, 0], [0, 1.95, 0], [0.45, 1.85, 0], [0.9, 1.6, 0]]
+      batidas: [[-0.3, 1.15, 0], [0, 1.15, 0], [0.3, 1.15, 0]]
+  alchemy_table:
+    nome: "Mesa de alquimia"
+    profissao: alquimia
+    modelo: "aincrad:station/alchemy_table"
+    escala: 1.0
+    clique: [1.05, 1.05]
+    bloco_provisorio: BREWING_STAND
+    ancoras:
+      holograma: [0, 2.3, 0]
+      encaixes: [[-0.9, 1.6, 0], [-0.45, 1.85, 0], [0, 1.95, 0], [0.45, 1.85, 0], [0.9, 1.6, 0]]
+      batidas: [[-0.3, 1.15, 0], [0, 1.15, 0], [0.3, 1.15, 0]]
+  fish_stall:
+    nome: "Banca de peixe"
+    profissao: pesca
+    modelo: "aincrad:station/fish_stall"
+    escala: 1.0
+    clique: [1.05, 1.05]
+    bloco_provisorio: BARREL
+    ancoras:
+      holograma: [0, 1.7, 0]
+  order_board:
+    nome: "Quadro de encomendas"
+    profissao: ""
+    modelo: "aincrad:station/order_board"
+    escala: 1.0
+    clique: [1.05, 1.05]
+    bloco_provisorio: BOOKSHELF
+    ancoras:
+      holograma: [0, 1.7, 0]

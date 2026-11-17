@@ -1,0 +1,41 @@
+# ============================================================
+#  AincradLife — configuração
+#  Profissões: professions.yml · Árvores: trees/ · Bancadas: stations.yml · Estalagens: inns.yml
+# ============================================================
+
+# Cada módulo liga e desliga aqui (/aincrad reload aplica; os comandos de um módulo desligado somem).
+# Nesta versão têm código: a base das profissões (ligada se alguma das quatro estiver) e estalagens.
+modulos:
+  culinaria: true
+  pesca: true
+  ferreiro: true
+  alquimia: true
+  estalagens: true
+  familiares: true
+  casamento: true
+
+estacoes:
+  # Modelos 3D das bancadas (do resource pack). "auto" usa os modelos só quando o AincradEffects
+  # está no servidor; "sim" sempre; "nao" nunca (a bancada é o bloco provisório).
+  modelos: auto
+
+estalagens:
+  descanso:
+    # Segundos deitado na cama do quarto para ganhar o bônus "Descansado".
+    segundos: 10
+    # Quanto tempo o bônus dura.
+    minutos: 30
+    # +% de vida máxima e +% de XP (do AincradRPG) enquanto dura.
+    vida_pct: 10
+    xp_pct: 5
+  # Quem morre sem quarto alugado volta à chegada do andar 1 (precisa do AincradFloors).
+  sem_quarto_volta_ao_andar_1: true
+
+# Sem o AincradEconomy, os preços em Col viram itens: um item a cada "col_por_item" Col.
+sem_economia:
+  item: GOLD_INGOT
+  col_por_item: 100
+
+rede:
+  # Canal para trocar o jogador de servidor (quarto em outro servidor da rede).
+  canal: "BungeeCord"

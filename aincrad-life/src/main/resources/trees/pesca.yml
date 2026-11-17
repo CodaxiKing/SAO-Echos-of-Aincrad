@@ -1,0 +1,415 @@
+# ============================================================
+#  Árvore de especialização — pesca
+#  Gerada por tools/gerar_arvores.py (no projeto); pode ser editada à mão no servidor.
+#
+#  caminhos: escolhidos aos 250 de proficiência (um entre três, sem volta);
+#            cada um tem duas especializações, escolhidas aos 500 (uma, sem volta).
+#  nos:      tipo passivo | desbloqueio | tecnica; "requer" são nós que vêm antes;
+#            "efeito" são números somados para quem comprou o nó.
+#  Pontos de ofício: 1 a cada 50 de proficiência (20 no total).
+# ============================================================
+caminhos:
+  aguas_profundas:
+    nome: "Águas profundas"
+    exclusivo: "Zona funda e o Senhor do Lago"
+    especializacoes:
+      cacador_de_lendarios: "Caçador de lendários"
+      mergulhador: "Mergulhador"
+  mestre_de_iscas:
+    nome: "Mestre de iscas"
+    exclusivo: "Iscas próprias, frescor dobrado na banca"
+    especializacoes:
+      criador_de_iscas: "Criador de iscas"
+      peixeiro: "Peixeiro"
+  caca_tesouros:
+    nome: "Caça-tesouros"
+    exclusivo: "Pescar baús, minérios e reagentes"
+    especializacoes:
+      baus: "Baús"
+      materiais_raros: "Materiais raros"
+
+nos:
+  # ----- tronco comum -----
+  pulso_firme:
+    nome: "Pulso firme"
+    descricao: "Faixa verde da tensão 5% maior."
+    tipo: passivo
+    proficiencia: 0
+    custo: 1
+    efeito: { faixa_verde: 0.05 }
+  linha_encerada:
+    nome: "Linha encerada"
+    descricao: "Linha 10% mais resistente."
+    tipo: passivo
+    proficiencia: 50
+    custo: 1
+    efeito: { resistencia_linha: 0.1 }
+  paciencia:
+    nome: "Paciência"
+    descricao: "A janela da fisgada fica 10% maior."
+    tipo: passivo
+    proficiencia: 100
+    custo: 1
+    efeito: { janela_fisgada: 0.1 }
+  isca_bem_presa:
+    nome: "Isca bem presa"
+    descricao: "10% de chance de não gastar a isca."
+    tipo: passivo
+    proficiencia: 150
+    custo: 1
+    efeito: { isca_poupada: 0.1 }
+  olho_na_boia:
+    nome: "Olho na boia"
+    descricao: "+3% de chance de peixe incomum."
+    tipo: passivo
+    proficiencia: 200
+    custo: 1
+    efeito: { chance_incomum: 0.03 }
+  # ----- caminho: Águas profundas -----
+  lancamento_longo:
+    nome: "Lançamento longo"
+    descricao: "Libera a zona funda dos pontos de pesca."
+    tipo: desbloqueio
+    caminho: aguas_profundas
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_fundo: 1 }
+  chumbada_pesada:
+    nome: "Chumbada pesada"
+    descricao: "A barra de força enche 10% mais rápido."
+    tipo: passivo
+    caminho: aguas_profundas
+    proficiencia: 300
+    custo: 2
+    requer: [lancamento_longo]
+    efeito: { forca_lancamento: 0.1 }
+  linha_de_aco:
+    nome: "Linha de aço"
+    descricao: "Linha 15% mais resistente."
+    tipo: passivo
+    caminho: aguas_profundas
+    proficiencia: 350
+    custo: 2
+    requer: [lancamento_longo]
+    efeito: { resistencia_linha: 0.15 }
+  conhecer_o_fundo:
+    nome: "Conhecer o fundo"
+    descricao: "+5% de chance de peixe raro na zona funda."
+    tipo: passivo
+    caminho: aguas_profundas
+    proficiencia: 450
+    custo: 2
+    requer: [lancamento_longo]
+    efeito: { chance_raro: 0.05 }
+  # ----- especialização: Caçador de lendários -----
+  sinal_na_agua:
+    nome: "Sinal na água"
+    descricao: "Libera a chance do peixe lendário de cada andar."
+    tipo: desbloqueio
+    caminho: aguas_profundas
+    especializacao: cacador_de_lendarios
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_lendario: 1 }
+  contra_a_arrancada:
+    nome: "Contra a arrancada"
+    descricao: "Arrancadas sobem 25% menos a tensão."
+    tipo: passivo
+    caminho: aguas_profundas
+    especializacao: cacador_de_lendarios
+    proficiencia: 600
+    custo: 2
+    requer: [sinal_na_agua]
+    efeito: { arrancada: -0.25 }
+  isca_viva:
+    nome: "Isca viva"
+    descricao: "+50% de chance de lendário com a isca certa."
+    tipo: passivo
+    caminho: aguas_profundas
+    especializacao: cacador_de_lendarios
+    proficiencia: 750
+    custo: 3
+    requer: [sinal_na_agua]
+    efeito: { chance_lendario: 0.5 }
+  fisgada_do_senhor_do_lago:
+    nome: "Fisgada do Senhor do Lago"
+    descricao: "O Senhor do Lago sai da água com 20% menos vida."
+    tipo: tecnica
+    caminho: aguas_profundas
+    especializacao: cacador_de_lendarios
+    proficiencia: 1000
+    custo: 3
+    requer: [sinal_na_agua]
+    efeito: { tecnica_senhor_do_lago: 1 }
+  # ----- especialização: Mergulhador -----
+  folego:
+    nome: "Fôlego"
+    descricao: "Libera a pesca de mão em águas fundas."
+    tipo: desbloqueio
+    caminho: aguas_profundas
+    especializacao: mergulhador
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_mergulho: 1 }
+  olhos_abertos:
+    nome: "Olhos abertos"
+    descricao: "Vê o tipo do peixe antes de fisgar."
+    tipo: passivo
+    caminho: aguas_profundas
+    especializacao: mergulhador
+    proficiencia: 600
+    custo: 2
+    requer: [folego]
+    efeito: { ver_peixe: 1 }
+  bracada_forte:
+    nome: "Braçada forte"
+    descricao: "O peixe cansa 15% mais rápido."
+    tipo: passivo
+    caminho: aguas_profundas
+    especializacao: mergulhador
+    proficiencia: 750
+    custo: 3
+    requer: [folego]
+    efeito: { cansar_peixe: 0.15 }
+  arpao_certeiro:
+    nome: "Arpão Certeiro"
+    descricao: "Uma vez por pescaria, pega o peixe sem a fase de tensão."
+    tipo: tecnica
+    caminho: aguas_profundas
+    especializacao: mergulhador
+    proficiencia: 1000
+    custo: 3
+    requer: [folego]
+    efeito: { tecnica_arpao: 1 }
+  # ----- caminho: Mestre de iscas -----
+  fazer_iscas:
+    nome: "Fazer iscas"
+    descricao: "Libera a produção de iscas de rank B."
+    tipo: desbloqueio
+    caminho: mestre_de_iscas
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_iscas_b: 1 }
+  isca_bem_feita:
+    nome: "Isca bem feita"
+    descricao: "Iscas próprias dão +5% de chance de raro."
+    tipo: passivo
+    caminho: mestre_de_iscas
+    proficiencia: 300
+    custo: 2
+    requer: [fazer_iscas]
+    efeito: { chance_raro: 0.05 }
+  gelo_na_caixa:
+    nome: "Gelo na caixa"
+    descricao: "O peixe fica fresco 50% mais tempo."
+    tipo: passivo
+    caminho: mestre_de_iscas
+    proficiencia: 350
+    custo: 2
+    requer: [fazer_iscas]
+    efeito: { frescor: 0.5 }
+  mao_cheia:
+    nome: "Mão cheia"
+    descricao: "Cada produção rende 1 isca a mais."
+    tipo: passivo
+    caminho: mestre_de_iscas
+    proficiencia: 450
+    custo: 2
+    requer: [fazer_iscas]
+    efeito: { iscas_extras: 1 }
+  # ----- especialização: Criador de iscas -----
+  iscas_raras:
+    nome: "Iscas raras"
+    descricao: "Libera as iscas de rank A e a isca de lendário."
+    tipo: desbloqueio
+    caminho: mestre_de_iscas
+    especializacao: criador_de_iscas
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_iscas_a: 1 }
+  receita_secreta:
+    nome: "Receita secreta"
+    descricao: "20% de chance de não gastar a isca."
+    tipo: passivo
+    caminho: mestre_de_iscas
+    especializacao: criador_de_iscas
+    proficiencia: 600
+    custo: 2
+    requer: [iscas_raras]
+    efeito: { isca_poupada: 0.2 }
+  cheiro_forte:
+    nome: "Cheiro forte"
+    descricao: "O peixe morde 20% mais rápido."
+    tipo: passivo
+    caminho: mestre_de_iscas
+    especializacao: criador_de_iscas
+    proficiencia: 750
+    custo: 3
+    requer: [iscas_raras]
+    efeito: { tempo_mordida: -0.2 }
+  isca_dourada:
+    nome: "Isca Dourada"
+    descricao: "Uma isca que garante um peixe raro."
+    tipo: tecnica
+    caminho: mestre_de_iscas
+    especializacao: criador_de_iscas
+    proficiencia: 1000
+    custo: 3
+    requer: [iscas_raras]
+    efeito: { tecnica_isca_dourada: 1 }
+  # ----- especialização: Peixeiro -----
+  banca_maior:
+    nome: "Banca maior"
+    descricao: "A banca de peixe guarda o dobro."
+    tipo: desbloqueio
+    caminho: mestre_de_iscas
+    especializacao: peixeiro
+    proficiencia: 500
+    custo: 2
+    efeito: { banca_dobro: 1 }
+  sempre_fresco:
+    nome: "Sempre fresco"
+    descricao: "O frescor do peixe dura o dobro."
+    tipo: passivo
+    caminho: mestre_de_iscas
+    especializacao: peixeiro
+    proficiencia: 600
+    custo: 2
+    requer: [banca_maior]
+    efeito: { frescor: 1.0 }
+  bom_de_venda:
+    nome: "Bom de venda"
+    descricao: "Vende peixe às lojas por 10% a mais."
+    tipo: passivo
+    caminho: mestre_de_iscas
+    especializacao: peixeiro
+    proficiencia: 750
+    custo: 3
+    requer: [banca_maior]
+    efeito: { preco_venda: 0.1 }
+  pesca_do_dia:
+    nome: "Pesca do Dia"
+    descricao: "O primeiro peixe de cada dia vale o dobro."
+    tipo: tecnica
+    caminho: mestre_de_iscas
+    especializacao: peixeiro
+    proficiencia: 1000
+    custo: 3
+    requer: [banca_maior]
+    efeito: { tecnica_pesca_do_dia: 1 }
+  # ----- caminho: Caça-tesouros -----
+  anzol_de_garra:
+    nome: "Anzol de garra"
+    descricao: "Libera a pesca de baús e materiais."
+    tipo: desbloqueio
+    caminho: caca_tesouros
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_tesouros: 1 }
+  sorte_de_pescador:
+    nome: "Sorte de pescador"
+    descricao: "+3% de chance de tesouro."
+    tipo: passivo
+    caminho: caca_tesouros
+    proficiencia: 300
+    custo: 2
+    requer: [anzol_de_garra]
+    efeito: { chance_tesouro: 0.03 }
+  rede_fina:
+    nome: "Rede fina"
+    descricao: "+1 material por tesouro."
+    tipo: passivo
+    caminho: caca_tesouros
+    proficiencia: 350
+    custo: 2
+    requer: [anzol_de_garra]
+    efeito: { materiais_extras: 1 }
+  fundo_revirado:
+    nome: "Fundo revirado"
+    descricao: "Tesouros aparecem também na zona do meio."
+    tipo: passivo
+    caminho: caca_tesouros
+    proficiencia: 450
+    custo: 2
+    requer: [anzol_de_garra]
+    efeito: { tesouro_no_meio: 1 }
+  # ----- especialização: Baús -----
+  baus_afundados:
+    nome: "Baús afundados"
+    descricao: "Libera os baús de rank A."
+    tipo: desbloqueio
+    caminho: caca_tesouros
+    especializacao: baus
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_baus_a: 1 }
+  cadeado_fraco:
+    nome: "Cadeado fraco"
+    descricao: "Baús pescados têm 1 item a mais."
+    tipo: passivo
+    caminho: caca_tesouros
+    especializacao: baus
+    proficiencia: 600
+    custo: 2
+    requer: [baus_afundados]
+    efeito: { itens_bau: 1 }
+  mapa_molhado:
+    nome: "Mapa molhado"
+    descricao: "+5% de chance de tesouro."
+    tipo: passivo
+    caminho: caca_tesouros
+    especializacao: baus
+    proficiencia: 750
+    custo: 3
+    requer: [baus_afundados]
+    efeito: { chance_tesouro: 0.05 }
+  tesouro_do_naufragio:
+    nome: "Tesouro do Naufrágio"
+    descricao: "Uma vez por dia, um baú garantido."
+    tipo: tecnica
+    caminho: caca_tesouros
+    especializacao: baus
+    proficiencia: 1000
+    custo: 3
+    requer: [baus_afundados]
+    efeito: { tecnica_naufragio: 1 }
+  # ----- especialização: Materiais raros -----
+  minerio_do_fundo:
+    nome: "Minério do fundo"
+    descricao: "Libera a pesca de minérios e reagentes de rank A."
+    tipo: desbloqueio
+    caminho: caca_tesouros
+    especializacao: materiais_raros
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_materiais_a: 1 }
+  peneira:
+    nome: "Peneira"
+    descricao: "+1 material por pescaria de material."
+    tipo: passivo
+    caminho: caca_tesouros
+    especializacao: materiais_raros
+    proficiencia: 600
+    custo: 2
+    requer: [minerio_do_fundo]
+    efeito: { materiais_extras: 1 }
+  bom_faro:
+    nome: "Bom faro"
+    descricao: "Materiais pescados têm rank maior."
+    tipo: passivo
+    caminho: caca_tesouros
+    especializacao: materiais_raros
+    proficiencia: 750
+    custo: 3
+    requer: [minerio_do_fundo]
+    efeito: { rank_materiais: 1 }
+  veio_submerso:
+    nome: "Veio Submerso"
+    descricao: "Uma pescaria de material rende o triplo."
+    tipo: tecnica
+    caminho: caca_tesouros
+    especializacao: materiais_raros
+    proficiencia: 1000
+    custo: 3
+    requer: [minerio_do_fundo]
+    efeito: { tecnica_veio: 1 }

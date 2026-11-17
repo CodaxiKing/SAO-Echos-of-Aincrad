@@ -19,6 +19,7 @@ public final class AincradEconomyAPI {
 
     private static EconomyService eco;
     private static ShopService shops;
+    private static com.aincrad.economy.auction.AuctionService auction;
 
     private AincradEconomyAPI() {
     }
@@ -26,6 +27,11 @@ public final class AincradEconomyAPI {
     public static void init(EconomyService e, ShopService s) {
         eco = e;
         shops = s;
+    }
+
+    /** Chamado pelo plugin: a caixa de retirada fica no serviço de leilão. */
+    public static void mailbox(com.aincrad.economy.auction.AuctionService service) {
+        auction = service;
     }
 
     public static AincradEconomyAPI instance() {
@@ -63,6 +69,20 @@ public final class AincradEconomyAPI {
     /** Põe Col em quem estiver offline ou em outro servidor (recompensa de guilda, leilão). */
     public static boolean deposit(UUID player, long amount, String reason) {
         return eco != null && eco.deposit(player, amount, reason);
+    }
+
+    /**
+     * Manda um item para a caixa de retirada do jogador (/leilao retirar), online ou não, em
+     * qualquer servidor. {@code reason} aparece na caixa (ex.: "estalagem").
+     *
+     * @return false se a economia está desligada
+     */
+    public static boolean mail(UUID player, org.bukkit.inventory.ItemStack item, String reason) {
+        if (auction == null || item == null || item.getType().isAir()) {
+            return false;
+        }
+        auction.mail(player, item, reason);
+        return true;
     }
 
     /** "1.250 Col". */

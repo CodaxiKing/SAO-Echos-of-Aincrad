@@ -13,6 +13,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-floors/` | **AincradFloors** — andares, bloqueio de entrada, zona segura, anúncio, Teleport Gates | pronto (etapas 1–4) |
 | `aincrad-bosses/` | **AincradBosses** — chefes com fases e habilidades, sala, Last Attack, liberação do andar, labirinto | pronto (etapas 5–9, 18–19: proteção contra abuso, guia, raid, editor) |
 | `aincrad-items/` | **AincradItems** — cristais de cura, antídoto, teleporte, ressurreição e gravação | pronto (etapas 20–21) |
+| `aincrad-life/` | **AincradLife** — profissões (proficiência, aprender antes de fazer, árvore), bancadas 3D com painel e estalagens | base pronta (etapa 22); profissões, pedidos, familiares e casamento pendentes |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | pronto (etapas 10–13): motor geral e integração com andares e chefes |
 
 ## Plano

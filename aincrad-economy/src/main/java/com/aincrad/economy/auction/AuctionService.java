@@ -304,6 +304,12 @@ public final class AuctionService {
         db.update("INSERT INTO eco_mailbox (uuid, item, reason, created) VALUES (?, ?, ?, ?)", id.toString(), encode(item), reason, System.currentTimeMillis());
     }
 
+    /** Guarda o item na caixa de retirada, mesmo com o jogador online (ele retira quando quiser). */
+    public void mail(UUID id, ItemStack item, String reason) {
+        String why = reason == null ? "?" : reason.length() > 32 ? reason.substring(0, 32) : reason;
+        db.update("INSERT INTO eco_mailbox (uuid, item, reason, created) VALUES (?, ?, ?, ?)", id.toString(), encode(item), why, System.currentTimeMillis());
+    }
+
     /** Aviso de venda (chega em todos os servidores; só quem tem o vendedor online avisa). */
     public void onSold(MessageBus.Message m) {
         String[] parts = m.payload().split("\\|", 3);

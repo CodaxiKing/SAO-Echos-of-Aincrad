@@ -1,0 +1,415 @@
+# ============================================================
+#  Árvore de especialização — culinaria
+#  Gerada por tools/gerar_arvores.py (no projeto); pode ser editada à mão no servidor.
+#
+#  caminhos: escolhidos aos 250 de proficiência (um entre três, sem volta);
+#            cada um tem duas especializações, escolhidas aos 500 (uma, sem volta).
+#  nos:      tipo passivo | desbloqueio | tecnica; "requer" são nós que vêm antes;
+#            "efeito" são números somados para quem comprou o nó.
+#  Pontos de ofício: 1 a cada 50 de proficiência (20 no total).
+# ============================================================
+caminhos:
+  chef_de_banquete:
+    nome: "Chef de banquete"
+    exclusivo: "Pratos de panela com buff para a party inteira"
+    especializacoes:
+      festins: "Festins"
+      cozinha_de_campanha: "Cozinha de campanha"
+  gourmet:
+    nome: "Gourmet"
+    exclusivo: "Pratos individuais de rank A e S"
+    especializacoes:
+      carnes: "Carnes"
+      doces_e_bebidas: "Doces e bebidas"
+  provisionador:
+    nome: "Provisionador"
+    exclusivo: "Comida que não estraga e buffs longos"
+    especializacoes:
+      conservas: "Conservas"
+      racoes_de_viagem: "Rações de viagem"
+
+nos:
+  # ----- tronco comum -----
+  faca_afiada:
+    nome: "Faca afiada"
+    descricao: "Janela de acerto do corte 10% maior."
+    tipo: passivo
+    proficiencia: 0
+    custo: 1
+    efeito: { janela_corte: 0.1 }
+  fogo_baixo:
+    nome: "Fogo baixo"
+    descricao: "A faixa certa do fogo fica 10% maior."
+    tipo: passivo
+    proficiencia: 50
+    custo: 1
+    efeito: { faixa_fogo: 0.1 }
+  sem_desperdicio:
+    nome: "Sem desperdício"
+    descricao: "10% de chance de poupar um ingrediente."
+    tipo: passivo
+    proficiencia: 100
+    custo: 1
+    efeito: { ingrediente_poupado: 0.1 }
+  paladar:
+    nome: "Paladar"
+    descricao: "+3% de chance de prato excelente."
+    tipo: passivo
+    proficiencia: 150
+    custo: 1
+    efeito: { chance_excelente: 0.03 }
+  cozinha_limpa:
+    nome: "Cozinha limpa"
+    descricao: "Preparo 10% mais rápido."
+    tipo: passivo
+    proficiencia: 200
+    custo: 1
+    efeito: { tempo_preparo: -0.1 }
+  # ----- caminho: Chef de banquete -----
+  receitas_de_panela:
+    nome: "Receitas de panela"
+    descricao: "Libera os pratos de panela de rank B."
+    tipo: desbloqueio
+    caminho: chef_de_banquete
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_panela_b: 1 }
+  panela_grande:
+    nome: "Panela grande"
+    descricao: "+1 porção em pratos de panela."
+    tipo: passivo
+    caminho: chef_de_banquete
+    proficiencia: 300
+    custo: 2
+    requer: [receitas_de_panela]
+    efeito: { porcoes: 1 }
+  servir_quente:
+    nome: "Servir quente"
+    descricao: "Buffs de panela duram 10% mais."
+    tipo: passivo
+    caminho: chef_de_banquete
+    proficiencia: 350
+    custo: 2
+    requer: [receitas_de_panela]
+    efeito: { duracao_buff: 0.1 }
+  mesa_farta:
+    nome: "Mesa farta"
+    descricao: "O buff alcança aliados a mais 5 blocos."
+    tipo: passivo
+    caminho: chef_de_banquete
+    proficiencia: 450
+    custo: 2
+    requer: [receitas_de_panela]
+    efeito: { alcance_buff: 5 }
+  # ----- especialização: Festins -----
+  receitas_de_festim:
+    nome: "Receitas de festim"
+    descricao: "Libera os festins de rank A."
+    tipo: desbloqueio
+    caminho: chef_de_banquete
+    especializacao: festins
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_festim_a: 1 }
+  mais_um_prato:
+    nome: "Mais um prato"
+    descricao: "+2 porções em festins."
+    tipo: passivo
+    caminho: chef_de_banquete
+    especializacao: festins
+    proficiencia: 600
+    custo: 2
+    requer: [receitas_de_festim]
+    efeito: { porcoes: 2 }
+  brinde:
+    nome: "Brinde"
+    descricao: "Festins dão também um pouco de regeneração."
+    tipo: passivo
+    caminho: chef_de_banquete
+    especializacao: festins
+    proficiencia: 750
+    custo: 3
+    requer: [receitas_de_festim]
+    efeito: { festim_regeneracao: 1 }
+  banquete_real:
+    nome: "Banquete Real"
+    descricao: "Um festim dá dois buffs ao mesmo tempo."
+    tipo: tecnica
+    caminho: chef_de_banquete
+    especializacao: festins
+    proficiencia: 1000
+    custo: 3
+    requer: [receitas_de_festim]
+    efeito: { tecnica_banquete_real: 1 }
+  # ----- especialização: Cozinha de campanha -----
+  fogueira_improvisada:
+    nome: "Fogueira improvisada"
+    descricao: "Cozinha pratos de panela em qualquer fogueira."
+    tipo: desbloqueio
+    caminho: chef_de_banquete
+    especializacao: cozinha_de_campanha
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_fogueira: 1 }
+  panela_de_ferro:
+    nome: "Panela de ferro"
+    descricao: "Pratos de campanha nunca queimam na etapa do fogo."
+    tipo: passivo
+    caminho: chef_de_banquete
+    especializacao: cozinha_de_campanha
+    proficiencia: 600
+    custo: 2
+    requer: [fogueira_improvisada]
+    efeito: { nunca_queima: 1 }
+  marmita:
+    nome: "Marmita"
+    descricao: "Pratos de campanha duram 20% mais."
+    tipo: passivo
+    caminho: chef_de_banquete
+    especializacao: cozinha_de_campanha
+    proficiencia: 750
+    custo: 3
+    requer: [fogueira_improvisada]
+    efeito: { duracao_buff: 0.2 }
+  rancho_de_batalha:
+    nome: "Rancho de Batalha"
+    descricao: "O prato pode ser comido em combate, na hora."
+    tipo: tecnica
+    caminho: chef_de_banquete
+    especializacao: cozinha_de_campanha
+    proficiencia: 1000
+    custo: 3
+    requer: [fogueira_improvisada]
+    efeito: { tecnica_rancho: 1 }
+  # ----- caminho: Gourmet -----
+  alta_cozinha:
+    nome: "Alta cozinha"
+    descricao: "Libera os pratos individuais de rank B."
+    tipo: desbloqueio
+    caminho: gourmet
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_individual_b: 1 }
+  tempero_exato:
+    nome: "Tempero exato"
+    descricao: "Janela do tempero 15% maior."
+    tipo: passivo
+    caminho: gourmet
+    proficiencia: 300
+    custo: 2
+    requer: [alta_cozinha]
+    efeito: { janela_tempero: 0.15 }
+  apresentacao:
+    nome: "Apresentação"
+    descricao: "+5% de chance de excelente no empratar."
+    tipo: passivo
+    caminho: gourmet
+    proficiencia: 350
+    custo: 2
+    requer: [alta_cozinha]
+    efeito: { chance_excelente: 0.05 }
+  sabor_profundo:
+    nome: "Sabor profundo"
+    descricao: "Buffs individuais 5% mais fortes."
+    tipo: passivo
+    caminho: gourmet
+    proficiencia: 450
+    custo: 2
+    requer: [alta_cozinha]
+    efeito: { forca_buff: 0.05 }
+  # ----- especialização: Carnes -----
+  cortes_nobres:
+    nome: "Cortes nobres"
+    descricao: "Libera os pratos de carne de rank A e S."
+    tipo: desbloqueio
+    caminho: gourmet
+    especializacao: carnes
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_carnes_a: 1 }
+  ponto_certo:
+    nome: "Ponto certo"
+    descricao: "A etapa do fogo dá bônus de qualidade."
+    tipo: passivo
+    caminho: gourmet
+    especializacao: carnes
+    proficiencia: 600
+    custo: 2
+    requer: [cortes_nobres]
+    efeito: { bonus_fogo: 0.1 }
+  marinada:
+    nome: "Marinada"
+    descricao: "Buffs de força e vida 10% mais fortes."
+    tipo: passivo
+    caminho: gourmet
+    especializacao: carnes
+    proficiencia: 750
+    custo: 3
+    requer: [cortes_nobres]
+    efeito: { forca_buff_carne: 0.1 }
+  ragu_lendario:
+    nome: "Ragu Lendário"
+    descricao: "Um prato de carne excelente dá o buff por uma hora."
+    tipo: tecnica
+    caminho: gourmet
+    especializacao: carnes
+    proficiencia: 1000
+    custo: 3
+    requer: [cortes_nobres]
+    efeito: { tecnica_ragu: 1 }
+  # ----- especialização: Doces e bebidas -----
+  confeitaria:
+    nome: "Confeitaria"
+    descricao: "Libera doces e bebidas de rank A e S."
+    tipo: desbloqueio
+    caminho: gourmet
+    especializacao: doces_e_bebidas
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_doces_a: 1 }
+  calda_perfeita:
+    nome: "Calda perfeita"
+    descricao: "A etapa de mexer fica 20% mais fácil."
+    tipo: passivo
+    caminho: gourmet
+    especializacao: doces_e_bebidas
+    proficiencia: 600
+    custo: 2
+    requer: [confeitaria]
+    efeito: { janela_mexer: 0.2 }
+  doce_energia:
+    nome: "Doce energia"
+    descricao: "Buffs de velocidade e XP 10% mais fortes."
+    tipo: passivo
+    caminho: gourmet
+    especializacao: doces_e_bebidas
+    proficiencia: 750
+    custo: 3
+    requer: [confeitaria]
+    efeito: { forca_buff_doce: 0.1 }
+  nectar:
+    nome: "Néctar"
+    descricao: "Uma bebida excelente não ocupa o lugar do buff de comida."
+    tipo: tecnica
+    caminho: gourmet
+    especializacao: doces_e_bebidas
+    proficiencia: 1000
+    custo: 3
+    requer: [confeitaria]
+    efeito: { tecnica_nectar: 1 }
+  # ----- caminho: Provisionador -----
+  conservar:
+    nome: "Conservar"
+    descricao: "Libera as provisões de rank B."
+    tipo: desbloqueio
+    caminho: provisionador
+    proficiencia: 250
+    custo: 1
+    efeito: { desbloqueia_provisoes_b: 1 }
+  bem_embalado:
+    nome: "Bem embalado"
+    descricao: "Buffs de provisões duram 15% mais."
+    tipo: passivo
+    caminho: provisionador
+    proficiencia: 300
+    custo: 2
+    requer: [conservar]
+    efeito: { duracao_buff: 0.15 }
+  estoque:
+    nome: "Estoque"
+    descricao: "+1 porção em provisões."
+    tipo: passivo
+    caminho: provisionador
+    proficiencia: 350
+    custo: 2
+    requer: [conservar]
+    efeito: { porcoes: 1 }
+  compra_no_atacado:
+    nome: "Compra no atacado"
+    descricao: "Ingredientes de loja 10% mais baratos."
+    tipo: passivo
+    caminho: provisionador
+    proficiencia: 450
+    custo: 2
+    requer: [conservar]
+    efeito: { desconto_ingredientes: 0.1 }
+  # ----- especialização: Conservas -----
+  potes_e_vidros:
+    nome: "Potes e vidros"
+    descricao: "Libera as conservas de rank A."
+    tipo: desbloqueio
+    caminho: provisionador
+    especializacao: conservas
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_conservas_a: 1 }
+  lacre:
+    nome: "Lacre"
+    descricao: "Conservas nunca estragam na banca."
+    tipo: passivo
+    caminho: provisionador
+    especializacao: conservas
+    proficiencia: 600
+    custo: 2
+    requer: [potes_e_vidros]
+    efeito: { sem_validade: 1 }
+  receita_de_familia:
+    nome: "Receita de família"
+    descricao: "Conservas rendem o dobro de porções."
+    tipo: passivo
+    caminho: provisionador
+    especializacao: conservas
+    proficiencia: 750
+    custo: 3
+    requer: [potes_e_vidros]
+    efeito: { porcoes_dobro: 1 }
+  despensa_infinita:
+    nome: "Despensa Infinita"
+    descricao: "Uma conserva excelente pode ser comida duas vezes."
+    tipo: tecnica
+    caminho: provisionador
+    especializacao: conservas
+    proficiencia: 1000
+    custo: 3
+    requer: [potes_e_vidros]
+    efeito: { tecnica_despensa: 1 }
+  # ----- especialização: Rações de viagem -----
+  racao_seca:
+    nome: "Ração seca"
+    descricao: "Libera as rações de viagem de rank A."
+    tipo: desbloqueio
+    caminho: provisionador
+    especializacao: racoes_de_viagem
+    proficiencia: 500
+    custo: 2
+    efeito: { desbloqueia_racoes_a: 1 }
+  leve_na_mochila:
+    nome: "Leve na mochila"
+    descricao: "Rações empilham até 64."
+    tipo: passivo
+    caminho: provisionador
+    especializacao: racoes_de_viagem
+    proficiencia: 600
+    custo: 2
+    requer: [racao_seca]
+    efeito: { empilha: 1 }
+  folego_longo:
+    nome: "Fôlego longo"
+    descricao: "Buffs de ração duram 30% mais."
+    tipo: passivo
+    caminho: provisionador
+    especializacao: racoes_de_viagem
+    proficiencia: 750
+    custo: 3
+    requer: [racao_seca]
+    efeito: { duracao_buff: 0.3 }
+  pao_do_viajante:
+    nome: "Pão do Viajante"
+    descricao: "A ração tira a fome por um dia inteiro."
+    tipo: tecnica
+    caminho: provisionador
+    especializacao: racoes_de_viagem
+    proficiencia: 1000
+    custo: 3
+    requer: [racao_seca]
+    efeito: { tecnica_pao_do_viajante: 1 }

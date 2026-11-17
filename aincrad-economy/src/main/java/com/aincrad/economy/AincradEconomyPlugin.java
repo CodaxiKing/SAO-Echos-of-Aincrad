@@ -132,6 +132,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         core.commands().register(this, market.admin());
 
         AincradEconomyAPI.init(eco, shops);
+        AincradEconomyAPI.mailbox(auction);
         getServer().getServicesManager().register(AincradEconomyAPI.class, AincradEconomyAPI.instance(), this, ServicePriority.Normal);
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             try {
@@ -148,6 +149,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
             trade.shutdown();
         }
         AincradEconomyAPI.init(null, null);
+        AincradEconomyAPI.mailbox(null);
         getServer().getServicesManager().unregisterAll(this);
     }
 
