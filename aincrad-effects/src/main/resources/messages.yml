@@ -1,0 +1,22 @@
+# ============================================================
+#  AincradEffects — mensagens (formato MiniMessage)
+# ============================================================
+prefixo: "<dark_aqua>[<aqua>Efeitos</aqua>]</dark_aqua> "
+
+geral:
+  sem_permissao: "<red>Você não tem permissão para isso."
+  so_jogador: "<red>Use num jogador: /efeito tocar <efeito> <jogador>"
+
+uso: "<gray>Uso: <white>/efeito tocar <efeito> [jogador | @a | raio:<n>] [variavel=valor ...]</white>, <white>lista</white>, <white>parar [jogador]</white>, <white>pack</white>, <white>reload"
+efeito_nao_existe: "<red>Efeito não encontrado: <white><efeito>"
+jogador_nao_encontrado: "<red>Jogador não encontrado: <white><jogador>"
+raio_invalido: "<red>Raio inválido: <white><valor>"
+sem_local: "<red>O console precisa de um jogador ou de raio a partir de um bloco de comando."
+tocado: "<green>Efeito <white><efeito></white> tocado para <white><alvo></white>."
+lista: "<gray>Efeitos (<white><total></white>): <white><efeitos>"
+parado: "<yellow>Parados <white><total></white> efeitos."
+pack_enviado: "<green>Resource pack reenviado."
+pack_indisponivel: "<red>O resource pack ainda não está disponível (veja o console)."
+pack_recusado: "<yellow>Sem o resource pack você verá os efeitos em versão simples (só texto)."
+reload: "<green>Recarregado: <white><efeitos></white> efeitos, <white><imagens></white> imagens, <white><gatilhos></white> gatilhos."
+erros: "<red><total> erro(s) ao carregar — veja o console."

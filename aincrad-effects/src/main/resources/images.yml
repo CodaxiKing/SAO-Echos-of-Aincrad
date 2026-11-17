@@ -1,0 +1,77 @@
+# ============================================================
+#  AincradEffects — imagens do resource pack (fonte aincrad:effects)
+# ============================================================
+# Cada imagem vira um caractere usado nos passos "imagem", "menu" (fundo) e na tag <img:id>.
+#   arquivo:    relativo a resourcepack/assets/aincrad/textures/
+#   altura:     tamanho na tela, em pixels de fonte (o texto normal tem 8)
+#   subida:     desloca a imagem para cima (precisa ser <= altura)
+#   reserva:    texto (MiniMessage) mostrado a quem está sem o resource pack
+#   tamanho_px: tamanho recomendado para a arte final (só informativo)
+#
+# As imagens que vêm com o plugin são PROVISÓRIAS. Desenhe as finais com o mesmo nome
+# de arquivo e use /efeito reload.
+
+imagens:
+  # ----- motor geral -----
+  teste:
+    arquivo: effects/teste.png
+    altura: 48
+    subida: 30
+    reserva: "<gold><bold>AINCRAD"
+    tamanho_px: "512x256"
+  bem_vindo:
+    arquivo: effects/bem_vindo.png
+    altura: 40
+    subida: 26
+    reserva: "<aqua><bold>Bem-vindo a Aincrad"
+    tamanho_px: "1024x256"
+  fundo_menu:
+    arquivo: effects/fundo_menu.png
+    altura: 176
+    subida: 13
+    reserva: ""
+    tamanho_px: "512x512"
+
+  # ----- integração com o Aincrad (Floors / Bosses) -----
+  placa_chefe:
+    arquivo: effects/aincrad/placa_chefe.png
+    altura: 64
+    subida: 56
+    reserva: "<red><bold>BOSS"
+    tamanho_px: "512x256"
+  congratulations:
+    arquivo: effects/aincrad/congratulations.png
+    altura: 40
+    subida: 26
+    reserva: "<gold><bold>Congratulations!"
+    tamanho_px: "1024x256"
+  janela_resultado:
+    arquivo: effects/aincrad/janela_resultado.png
+    altura: 176
+    subida: 13
+    reserva: ""
+    tamanho_px: "512x512"
+  floor_cleared:
+    arquivo: effects/aincrad/floor_cleared.png
+    altura: 40
+    subida: 26
+    reserva: "<aqua><bold>Floor Cleared"
+    tamanho_px: "1024x256"
+  brasao_andar_1:
+    arquivo: effects/aincrad/brasao_andar_1.png
+    altura: 32
+    subida: 28
+    reserva: "<gray>[1]"
+    tamanho_px: "128x128"
+  brasao_andar_2:
+    arquivo: effects/aincrad/brasao_andar_2.png
+    altura: 32
+    subida: 28
+    reserva: "<gray>[2]"
+    tamanho_px: "128x128"
+  brasao_andar_3:
+    arquivo: effects/aincrad/brasao_andar_3.png
+    altura: 32
+    subida: 28
+    reserva: "<gray>[3]"
+    tamanho_px: "128x128"

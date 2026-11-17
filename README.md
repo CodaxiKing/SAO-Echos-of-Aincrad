@@ -5,10 +5,10 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 
 | Pasta | Plugin | Estado |
 |---|---|---|
-| `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD de vida, vida crítica, tela de morte | em desenvolvimento (etapas 14–17) |
+| `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD de vida, vida crítica, tela de morte | pronto (etapas 14–17), com imagens provisórias |
 | `aincrad-floors/` | AincradFloors — andares, bloqueio, Teleport Gates | planejado |
 | `aincrad-bosses/` | AincradBosses — chefes, salas, Last Attack | planejado |
-| `aincrad-effects/` | AincradEffects — motor de efeitos e resource pack único | planejado |
+| `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | motor geral pronto (etapa 10); integração com Floors/Bosses pendente (11–13) |
 
 ## Compilar
 

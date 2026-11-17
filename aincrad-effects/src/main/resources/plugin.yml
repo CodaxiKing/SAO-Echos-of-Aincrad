@@ -1,0 +1,24 @@
+name: AincradEffects
+version: '${version}'
+main: com.aincrad.effects.AincradEffectsPlugin
+api-version: '1.21'
+description: Motor de efeitos visuais e sonoros do servidor, com resource pack único.
+authors: [CodaxiKing]
+softdepend: [PlaceholderAPI, AincradFloors, AincradBosses]
+
+commands:
+  efeito:
+    description: Toca, lista e para efeitos; reenvia o resource pack.
+    usage: /efeito <tocar|lista|parar|pack|reload>
+    aliases: [efeitos, fx]
+
+permissions:
+  aincrad.effects.play:
+    description: Tocar, listar e parar efeitos.
+    default: op
+  aincrad.effects.pack:
+    description: Pedir o resource pack de novo.
+    default: true
+  aincrad.admin:
+    description: Comandos de administração do Aincrad.
+    default: op

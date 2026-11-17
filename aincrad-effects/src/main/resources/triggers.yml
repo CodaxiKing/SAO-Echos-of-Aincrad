@@ -1,0 +1,44 @@
+# ============================================================
+#  AincradEffects — gatilhos sem código
+# ============================================================
+# Cada gatilho toca um efeito quando algo acontece com um jogador.
+#
+# evento: entrar_servidor | entrar_regiao | sair_regiao | matar_mob | subir_nivel | pegar_item | morrer
+# efeito: id do efeito (effects/*.yml)
+# Opcionais:
+#   atraso: segundos antes de tocar
+#   permissao: só toca para quem tem esta permissão
+#   chance: 0.0 a 1.0
+#   publico: jogador | raio:<n> | mundo | servidor (troca o do efeito)
+#   esperar_pack: (entrar_servidor) espera o jogador carregar o pack, até 10 s (padrão true)
+#   mobs: [ZOMBIE, SKELETON]   (matar_mob)        → variável {mob}
+#   itens: [DIAMOND]           (pegar_item)       → variáveis {item} e {quantidade}
+#   nivel: 10                  (subir_nivel; só ao chegar neste nível) → variável {nivel}
+#   regiao: { mundo: world, canto1: [x, y, z], canto2: [x, y, z] }   → variável {regiao}
+
+gatilhos:
+  boas_vindas:
+    evento: entrar_servidor
+    efeito: boas_vindas
+    atraso: 1
+
+  subir_nivel:
+    evento: subir_nivel
+    efeito: subir_nivel
+
+  # Exemplos (tire o # para usar):
+  # zumbi_derrotado:
+  #   evento: matar_mob
+  #   mobs: [ZOMBIE]
+  #   efeito: teste
+  #   chance: 0.25
+  #
+  # diamante:
+  #   evento: pegar_item
+  #   itens: [DIAMOND]
+  #   efeito: subir_nivel
+  #
+  # praca_central:
+  #   evento: entrar_regiao
+  #   regiao: { mundo: world, canto1: [-10, 60, -10], canto2: [10, 90, 10] }
+  #   efeito: teste
