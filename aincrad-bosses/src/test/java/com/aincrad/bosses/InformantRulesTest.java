@@ -39,6 +39,17 @@ class InformantRulesTest {
     }
 
     @Test
+    void soOLiderConvocaAReuniaoNaCidadeAntesDaRaid() {
+        long now = 1_000_000;
+        var M = com.aincrad.bosses.raid.MeetingService.Block.class;
+        assertEquals(null, com.aincrad.bosses.raid.MeetingService.blocked(true, true, false, now + 1, now));
+        assertEquals(Enum.valueOf(M, "NAO_E_LIDER"), com.aincrad.bosses.raid.MeetingService.blocked(false, true, false, now + 1, now));
+        assertEquals(Enum.valueOf(M, "FORA_DA_CIDADE"), com.aincrad.bosses.raid.MeetingService.blocked(true, false, false, now + 1, now));
+        assertEquals(Enum.valueOf(M, "JA_TEM"), com.aincrad.bosses.raid.MeetingService.blocked(true, true, true, now + 1, now));
+        assertEquals(Enum.valueOf(M, "RAID_PASSOU"), com.aincrad.bosses.raid.MeetingService.blocked(true, true, false, now, now));
+    }
+
+    @Test
     void aFaseDigitadaComecaEm1() {
         assertEquals(0, InformantRules.phaseIndex("1", 3));
         assertEquals(2, InformantRules.phaseIndex(" 3 ", 3));

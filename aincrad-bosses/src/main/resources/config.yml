@@ -50,3 +50,12 @@ informantes:
   # /chefe pagina copia uma página sua num item (gasta 1 papel) para vender a outro jogador.
   # A cópia custa esta fração do preço da página.
   taxa_de_copia: 0.25
+
+# Reunião de estratégia: /raid reuniao <n>, pelo líder, antes da raid.
+reuniao:
+  # Só pode ser convocada em zona segura (cidade).
+  so_na_cidade: true
+  # Quanto tempo a reunião fica aberta.
+  minutos: 5
+  # Quem chega a esta distância do ponto da reunião é informado.
+  raio: 16

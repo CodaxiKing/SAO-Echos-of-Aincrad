@@ -108,6 +108,16 @@ O guia de estratégia (`/chefe guia <id>`) passa a ser **vendido em páginas**, 
   gera um item. Quem recebe usa com o botão direito e aprende a página; o item é gasto.
 - `informantes.ativo: false` devolve o guia aberto a todos.
 
+## Reunião de estratégia (etapa 49)
+
+Antes de um chefe, o líder da raid convoca os inscritos: `/raid reuniao <n>`, numa cidade.
+
+- Os inscritos online são avisados, com as coordenadas. A reunião fica aberta `reuniao.minutos`.
+- Quem chega a até `reuniao.raio` blocos do ponto **recebe a função**, **vê o guia do chefe com as
+  páginas que o líder tem** (uma vez, sem ficar com elas) e fica marcado como **informado**.
+- `/raid informados <n>` lista quem esteve na reunião; o líder recebe a lista quando ela acaba.
+- A marca de informado vale enquanto o servidor está ligado: não vai para o banco.
+
 ## Como montar a sala de um chefe
 
 1. Em um canto da sala: `/aincrad chefe sala illfang canto1`; no canto oposto: `canto2`

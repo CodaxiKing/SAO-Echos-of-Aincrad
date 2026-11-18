@@ -78,7 +78,7 @@ public final class GuideCommand implements TabExecutor {
     }
 
     /** Monta o livro: capa com os números e uma página por fase (as não vistas ficam como "???"). */
-    Book book(BossDef def, GuideData g, Player reader) {
+    public Book book(BossDef def, GuideData g, Player reader) {
         List<Component> pages = new ArrayList<>();
         var boss = Messages.vars("chefe", def.name(), "level", def.level(), "andar", def.floor(),
                 "tentativas", g.attempts(), "fase", g.attempts() == 0 ? 0 : g.bestPhase() + 1, "fases", def.phases().size(),

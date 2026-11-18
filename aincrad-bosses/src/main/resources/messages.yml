@@ -88,8 +88,20 @@ guia:
     salto: "Salta e causa dano ao cair"
     furia: "Fúria: mais dano por alguns segundos"
 
+reuniao:
+  convocada: "<green>Reunião da raid <white>#<n></white> convocada aqui por <white><minutos></white> min. <gray>Os inscritos online foram avisados."
+  convite: "<gold><white><lider></white> convocou a reunião de estratégia contra <white><chefe></white> <gray>(raid #<n>): <white><x>, <y>, <z></white>, por <minutos> min."
+  informado: "<green>Você está informado para a luta contra <white><chefe></white>. Sua função: <white><funcao></white>."
+  acabou: "<gray>A reunião da raid <white>#<n></white> acabou: <white><qtd>/<total></white> informados <dark_gray>(<nomes>)"
+  lista: "<gray>Raid <white>#<n></white>: <white><qtd>/<total></white> informados <dark_gray>(<nomes>)"
+  bloqueio:
+    nao_e_lider: "<red>Só o líder da raid convoca a reunião."
+    fora_da_cidade: "<red>A reunião só pode ser convocada numa cidade."
+    ja_tem: "<yellow>Já há uma reunião desta raid em andamento."
+    raid_passou: "<red>A hora dessa raid já passou."
+
 raid:
-  uso: "<gray>Uso: <white>/raid</white> (quadro), <white>/raid criar <chefe> <dd/MM> <HH:mm> [tanques] [danos] [suportes]</white>, <white>entrar <n> <tanque|dano|suporte></white>, <white>sair <n></white>, <white>cancelar <n>"
+  uso: "<gray>Uso: <white>/raid</white> (quadro), <white>/raid criar <chefe> <dd/MM> <HH:mm> [tanques] [danos] [suportes]</white>, <white>entrar <n> <tanque|dano|suporte></white>, <white>sair <n></white>, <white>cancelar <n></white>, <white>reuniao <n></white>, <white>informados <n>"
   titulo: "<dark_gray>Quadro de raid"
   vazio: "<gray>Nenhuma raid marcada. Use /raid criar."
   item: "<red>#<n> <white><chefe> <gray>— <yellow><data>"

@@ -88,8 +88,12 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(informants, this);
         getServer().getOnlinePlayers().forEach(pl -> informants.load(pl.getUniqueId()));
         AincradBossesAPI.informants(informants);
-        command("chefe", new GuideCommand(fights, guide, informants));
-        command("raid", new RaidCommand(fights, raids));
+        GuideCommand guideCommand = new GuideCommand(fights, guide, informants);
+        command("chefe", guideCommand);
+        com.aincrad.bosses.raid.MeetingService meetings = new com.aincrad.bosses.raid.MeetingService(msg, fights, raids, config,
+                (def, leader) -> guideCommand.book(def, guide.get(def.id()), leader));
+        getServer().getScheduler().runTaskTimer(this, meetings::tick, 40L, 40L);
+        command("raid", new RaidCommand(fights, raids, meetings));
         core.subscribe(RaidService.BUS, m -> {
             if (!core.server().equals(m.origin())) {
                 raids.reloadAsync();

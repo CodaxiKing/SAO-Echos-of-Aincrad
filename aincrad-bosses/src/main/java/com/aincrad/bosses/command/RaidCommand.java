@@ -26,10 +26,13 @@ public final class RaidCommand implements TabExecutor {
     private final RaidService raids;
     private final Messages msg;
 
-    public RaidCommand(FightManager fights, RaidService raids) {
+    private final com.aincrad.bosses.raid.MeetingService meetings;
+
+    public RaidCommand(FightManager fights, RaidService raids, com.aincrad.bosses.raid.MeetingService meetings) {
         this.fights = fights;
         this.raids = raids;
         this.msg = fights.messages();
+        this.meetings = meetings;
     }
 
     private static int count(String[] args, int i, int def) {
@@ -104,6 +107,18 @@ public final class RaidCommand implements TabExecutor {
                     raids.leave(p, r);
                 }
             }
+            case "reuniao", "informados" -> {
+                Raid r = args.length > 1 ? raid(p, args) : null;
+                if (args.length < 2) {
+                    msg.send(p, "raid.uso");
+                } else if (r != null && op.equals("reuniao")) {
+                    meetings.call(p, r);
+                } else if (r != null) {
+                    List<String> names = meetings.briefedNames(r);
+                    msg.send(p, "reuniao.lista", Messages.vars("n", r.id(), "qtd", names.size(), "total", r.members().size(),
+                            "nomes", names.isEmpty() ? "—" : String.join(", ", names)));
+                }
+            }
             case "cancelar" -> {
                 Raid r = args.length > 1 ? raid(p, args) : null;
                 if (args.length < 2) {
@@ -126,7 +141,7 @@ public final class RaidCommand implements TabExecutor {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> opts = new ArrayList<>();
         if (args.length == 1) {
-            opts.addAll(List.of("criar", "entrar", "sair", "cancelar"));
+            opts.addAll(List.of("criar", "entrar", "sair", "cancelar", "reuniao", "informados"));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("criar")) {
             fights.registry().all().forEach(d -> opts.add(d.id()));
         } else if (args.length == 2) {
