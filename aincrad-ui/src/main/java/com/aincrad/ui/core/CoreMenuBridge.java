@@ -60,7 +60,8 @@ public final class CoreMenuBridge implements MenuRenderer, UiService.Backend {
         plugin.flat().setCooldownProvider(p -> {
             List<FlatOverlay.Cooldown> out = new ArrayList<>();
             for (UiService.Bar b : core.ui().skillBars(p)) {
-                out.add(new FlatOverlay.Cooldown(b.label(), b.remaining()));
+                // O ícone vem da posição da skill entre as equipadas.
+                out.add(new FlatOverlay.Cooldown(b.label(), b.remaining(), out.size()));
             }
             return out;
         });

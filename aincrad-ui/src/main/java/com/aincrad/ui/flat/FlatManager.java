@@ -125,8 +125,9 @@ public final class FlatManager implements Listener, FlatApi {
     /** Peças fixas do motor: o cursor em todas as alturas e a HUD. Chamado antes de gerar o pack. */
     public void prepareBuiltins() {
         FlatHud.resetHooks();
-        prepareLayer(d -> FlatHud.paint(d, FlatHud.sample(plugin.settings().hudPartyMax), -plugin.settings().flatHudX));
-        prepareLayer(d -> FlatOverlay.paint(d, FlatOverlay.sample(), plugin.settings().flatHudX));
+        boolean art = plugin.settings().flatArt;
+        prepareLayer(d -> FlatHud.paint(d, FlatHud.sample(plugin.settings().hudPartyMax), -plugin.settings().flatHudX, art));
+        prepareLayer(d -> FlatOverlay.prepare(d, plugin.settings().flatHudX, art));
         FlatCanvas c = new FlatCanvas(atlas, true, 0, 0);
         for (int y = MIN_Y; y <= MAX_Y; y++) {
             c.icon(0, y, CURSOR_SIZE, CURSOR);

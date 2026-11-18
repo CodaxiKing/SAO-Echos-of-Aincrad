@@ -35,6 +35,10 @@ hud:
     # Distância (pixels de interface) do centro da tela até a borda esquerda da HUD.
     # 232 encosta no canto em 1080p com a interface em escala 4 (480 px de largura).
     deslocamento_x: 232
+    # Usa as artes do pack: a moldura de vida do anime com a barra em fatias, as barras pequenas
+    # na party e no alvo, placas claras nos avisos e os ícones de skill nas recargas.
+    # false desenha tudo com retângulos e letras.
+    artes: true
     # Troca a hotbar do Minecraft por bolinhas.
     hotbar_redonda: true
     # Esconde corações, fome, armadura e a barra de XP do Minecraft (a HUD já mostra).

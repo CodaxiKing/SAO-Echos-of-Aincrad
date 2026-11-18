@@ -70,6 +70,12 @@ public interface FlatDraw {
     void icon(int x, int y, int size, String texture);
 
     /**
+     * O mesmo ícone pintado numa cor (a arte branca vira a cor; as outras são multiplicadas por
+     * ela). {@code size} é a altura: uma textura mais larga que alta mantém a proporção.
+     */
+    void icon(int x, int y, int size, String texture, int rgb);
+
+    /**
      * Área clicável. Devolve true se o cursor está em cima (para pintar o destaque).
      * {@code onClick} roda na thread principal; a tela é redesenhada em seguida.
      */

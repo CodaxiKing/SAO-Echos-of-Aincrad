@@ -35,7 +35,50 @@ public final class FlatHud {
     private FlatHud() {
     }
 
-    /** Desenha a HUD com a borda esquerda em {@code x0} (negativo: à esquerda do centro). */
+    private static final int INK = 0x3C3C3C;
+
+    /**
+     * Desenha a HUD com a borda esquerda em {@code x0} (negativo: à esquerda do centro).
+     *
+     * @param art usa as artes do pack: a moldura do anime com a barra em fatias
+     */
+    public static void paint(FlatDraw d, Data v, int x0, boolean art) {
+        if (art) {
+            paintArt(d, v, x0);
+        } else {
+            paint(d, v, x0);
+        }
+    }
+
+    /**
+     * A HUD com as artes do pack: a moldura (ui/hud/frame, cortada em três porque um glifo não
+     * passa de 256 px), as 20 fatias da barra pintadas na cor da vida, e as barras pequenas da party.
+     */
+    private static void paintArt(FlatDraw d, Data v, int x0) {
+        for (int i = 0; i < 3; i++) {
+            d.icon(x0 + 62 * i, 2, 24, "aincrad:ui/hud/frame_" + i);
+        }
+        // Com vida, pelo menos uma fatia aparece.
+        double ratio = v.health() > 0 ? Math.max(0.05, clamp(v.ratio())) : 0;
+        FlatOverlay.slices(d, x0 + 59, 2, 24, 6, ratio, "aincrad:ui/hud/fill_", v.color());
+        d.text(x0 + 11, 9, Font.NEGRITO, d.fit(Font.NEGRITO, v.name(), 42), INK);
+        d.text(x0 + 100, 16, Font.PEQUENA, v.health() + "/" + v.max() + "  LV " + v.level(), INK);
+        // Energia (a pausa depois da skill; sem o AincradSkills, a fome) e XP.
+        double er = v.energyMax() <= 0 ? 0 : clamp(v.energy() / (double) v.energyMax());
+        d.rect(x0 + 8, 30, 82, 5, DARK, 70);
+        d.rect(x0 + 9, 31, (int) Math.round(80 * er), 3, BLUE, 100);
+        d.rect(x0 + 96, 28, 60, 9, DARK, 70);
+        d.textCenter(x0 + 126, 28, Font.PEQUENA, v.xpText(), SOFT);
+        int y = 41;
+        for (Member m : v.party()) {
+            d.icon(x0 + 8, y, 8, "aincrad:ui/hud/mini");
+            FlatOverlay.slices(d, x0 + 9, y, 8, 3, m.ratio(), "aincrad:ui/hud/mini_", m.color());
+            d.text(x0 + 74, y, Font.PEQUENA, d.fit(Font.PEQUENA, m.name(), 80), WHITE);
+            y += 11;
+        }
+    }
+
+    /** A HUD só com retângulos e letras. */
     public static void paint(FlatDraw d, Data v, int x0) {
         // Vida: fundo escuro, barra na cor do estado, nome e números por cima.
         d.rect(x0, 4, 152, 11, DARK, 70);

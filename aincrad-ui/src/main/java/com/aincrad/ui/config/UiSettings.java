@@ -79,6 +79,8 @@ public final class UiSettings {
     /** Convites e desafios abrem a janela de aceitar/recusar. */
     public final boolean promptsEnabled;
     public final int flatHudX;
+    /** A HUD em barras usa as artes do pack (moldura do anime, ícones de skill). */
+    public final boolean flatArt;
     public final boolean flatHotbar;
     public final boolean flatHideVanilla;
     public final boolean flatEnabled;
@@ -135,6 +137,7 @@ public final class UiSettings {
         packAssumeLoaded = c.getBoolean("pack.assumir_carregado", false);
         hudFlat = "barras".equalsIgnoreCase(c.getString("hud.estilo", "barras"));
         flatHudX = c.getInt("hud.barras.deslocamento_x", 232);
+        flatArt = c.getBoolean("hud.barras.artes", true);
         targetEnabled = c.getBoolean("hud.alvo.ativo", true);
         targetRange = Math.max(4, Math.min(48, c.getInt("hud.alvo.distancia", 20)));
         targetBossHealth = c.getDouble("hud.alvo.chefe_vida", 300);

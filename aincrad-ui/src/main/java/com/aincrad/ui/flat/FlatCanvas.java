@@ -168,6 +168,11 @@ public final class FlatCanvas implements FlatDraw {
 
     @Override
     public void icon(int ix, int iy, int size, String texture) {
+        icon(ix, iy, size, texture, 0xFFFFFF);
+    }
+
+    @Override
+    public void icon(int ix, int iy, int size, String texture, int rgb) {
         FlatAtlas.Piece p = atlas.icon(texture, size, iy, preparing);
         if (p == null) {
             missing++;
@@ -177,7 +182,7 @@ public final class FlatCanvas implements FlatDraw {
             return;
         }
         moveTo(ix);
-        style(FlatAtlas.FONT, 0xFFFFFF);
+        style(FlatAtlas.FONT, rgb);
         run.append(p.text());
         x += p.advance();
     }

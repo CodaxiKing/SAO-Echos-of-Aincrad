@@ -124,8 +124,8 @@ public final class HealthHud implements Listener {
             int dx = plugin.prefs().hudDx(p);
             FlatOverlay.Data extra = overlay(p, st);
             plugin.flat().hud(p, plugin.flat().paint(d -> {
-                FlatHud.paint(d, data, -st.flatHudX + dx);
-                FlatOverlay.paint(d, extra, st.flatHudX - dx);
+                FlatHud.paint(d, data, -st.flatHudX + dx, st.flatArt);
+                FlatOverlay.paint(d, extra, st.flatHudX - dx, st.flatArt);
             }));
             alert(p, state, st);
             updateTracker(p);

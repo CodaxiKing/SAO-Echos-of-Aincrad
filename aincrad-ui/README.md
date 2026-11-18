@@ -99,6 +99,19 @@ as posições no pixel; as prévias ficam em `build/preview/`.
 
 ## O que a HUD em barras mostra além da vida
 
+**Com as artes do pack** (`hud.barras.artes: true`, o padrão): a vida é a moldura do anime com a
+barra em 20 fatias pintadas de verde, amarelo ou vermelho; a party e o alvo usam a barra pequena
+do anime; os avisos são placas claras com o ícone do menu; e as recargas são os ícones de skill,
+apagados enquanto recarregam. `false` desenha tudo com retângulos e letras. A prévia
+[docs/previa/hud-com-artes.png](../docs/previa/hud-com-artes.png) é gerada pelos testes com o
+mesmo motor que monta a tela no jogo (`build/preview/hud_artes.png`).
+
+- Os textos da HUD usam a fonte das telas planas (Inter), não a fonte do SAO dos menus: a HUD
+  precisa saber a largura de cada letra para posicionar no pixel.
+- O ícone de cada recarga vem da posição da skill entre as equipadas (`skill_1` a `skill_7`), não
+  da skill em si: o pack não tem um ícone por skill.
+- A moldura é cortada em três peças (`hud/frame_0..2.png`) porque um glifo não passa de 256 px.
+
 Tudo aqui é da HUD em barras (`hud.estilo: barras`), para quem tem o pack, e cada peça liga e
 desliga no `ui.yml`. A prévia `build/preview/hud_completa.png`, gerada pelos testes, mostra tudo junto.
 
@@ -246,8 +259,9 @@ continua valendo por conta própria. `isDeathGame()` diz se está ligado.
 - Troca entre jogadores no formato do anime (dois lados flutuando): hoje a troca é o baú, com a
   janela branca do SAO de fundo quando os dois têm o pack. O cofre da guilda e o baú do casamento
   continuam com a cara do Minecraft (são inventários de vários donos e de 3 linhas).
-- Alvo, bússola, relógio, avisos e recargas na HUD do estilo `sao` (a moldura do anime): só a HUD
-  em barras tem.
+- Alvo, bússola, relógio, avisos e recargas na HUD do estilo `sao`: só a HUD em barras tem (com
+  `hud.barras.artes` ela já usa a moldura do anime, então o estilo `sao` deixou de ser necessário).
+- Arte própria para a bússola, o relógio e a placa do nome do alvo: o pack não tem.
 - Marcador da quest na bússola (ela mostra só os colegas de party) e a posição vertical da HUD
   por jogador (só a horizontal muda).
 - Menu desenhado na tela (2D) com shaders próprios, como alternativa ao menu no mundo.

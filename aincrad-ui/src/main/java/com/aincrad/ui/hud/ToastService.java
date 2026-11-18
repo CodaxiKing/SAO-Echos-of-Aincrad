@@ -34,7 +34,7 @@ import java.util.function.BiConsumer;
  */
 public final class ToastService implements Listener {
 
-    private record Entry(String title, String detail, long until) {
+    private record Entry(String title, String detail, String icon, long until) {
     }
 
     private final AincradUIPlugin plugin;
@@ -60,6 +60,11 @@ public final class ToastService implements Listener {
      * @return false se o jogador não vê avisos na tela (quem chamou decide o que fazer)
      */
     public boolean push(Player p, Component title, Component detail) {
+        return push(p, title, detail, "quests");
+    }
+
+    /** @param icon um dos ícones de {@link FlatOverlay#TOAST_ICONS} (items, skills, quests...) */
+    public boolean push(Player p, Component title, Component detail, String icon) {
         if (!onScreen(p)) {
             return false;
         }
@@ -68,13 +73,17 @@ public final class ToastService implements Listener {
         while (q.size() >= 6) {
             q.pollFirst();
         }
-        q.addLast(new Entry(plain(title), plain(detail), System.currentTimeMillis() + plugin.settings().toastSeconds * 1000L));
+        q.addLast(new Entry(plain(title), plain(detail), icon, System.currentTimeMillis() + plugin.settings().toastSeconds * 1000L));
         return true;
     }
 
     /** Aviso para quem tem a tela; os outros recebem no action bar. */
     public void show(Player p, Component title, Component detail) {
-        if (!push(p, title, detail)) {
+        show(p, title, detail, "quests");
+    }
+
+    public void show(Player p, Component title, Component detail, String icon) {
+        if (!push(p, title, detail, icon)) {
             p.sendActionBar(detail == null ? title : title.append(Component.text("  ")).append(detail));
         }
     }
@@ -95,7 +104,7 @@ public final class ToastService implements Listener {
         Iterator<Entry> it = q.descendingIterator();
         while (it.hasNext() && out.size() < FlatOverlay.MAX_TOASTS) {
             Entry e = it.next();
-            out.add(new FlatOverlay.Toast(e.title(), e.detail()));
+            out.add(new FlatOverlay.Toast(e.title(), e.detail(), e.icon()));
         }
         return out;
     }
@@ -120,7 +129,7 @@ public final class ToastService implements Listener {
         if (text.isEmpty() || text.equals(it.translationKey())) {
             text = pretty(it.getType().name());
         }
-        push(p, plugin.messages().get("avisos.item"), Component.text(text + (it.getAmount() > 1 ? " x" + it.getAmount() : "")));
+        push(p, plugin.messages().get("avisos.item"), Component.text(text + (it.getAmount() > 1 ? " x" + it.getAmount() : "")), "items");
     }
 
     private static String pretty(String material) {
@@ -131,11 +140,11 @@ public final class ToastService implements Listener {
     /** Liga os avisos aos eventos dos outros plugins Aincrad que estiverem instalados. */
     public void hookPlugins() {
         hook("AincradRPG", "com.aincrad.rpg.api.PlayerLevelUpEvent", (p, e) ->
-                show(p, plugin.messages().get("avisos.level"), Component.text(String.valueOf(call(e, "getNewLevel")))));
+                show(p, plugin.messages().get("avisos.level"), Component.text(String.valueOf(call(e, "getNewLevel"))), "skills"));
         hook("AincradQuests", "com.aincrad.quests.api.QuestCompleteEvent", (p, e) ->
                 show(p, plugin.messages().get("avisos.quest"), Component.text(String.valueOf(call(e, "getName")))));
         hook("AincradReputation", "com.aincrad.reputation.api.AchievementGrantEvent", (p, e) ->
-                show(p, plugin.messages().get("avisos.conquista"), Component.text(String.valueOf(call(e, "getName")))));
+                show(p, plugin.messages().get("avisos.conquista"), Component.text(String.valueOf(call(e, "getName"))), "guild"));
     }
 
     private static Object call(Object target, String method) {
