@@ -1,0 +1,252 @@
+# ============================================================
+#  Quests do ANDAR 3
+#  Pacote de conteúdo: copie para plugins/AincradQuests/quests/andar3.yml
+#  (junto com os dos andares 1 e 2; a história continua de onde o andar 2 parou).
+#
+#  Zumfut → Floresta da Névoa → Bosque Élfico → Acampamento → Posto Avançado → Labirinto → Nerius
+#
+#  NPCs que precisam existir (/aincrad npc criar <id> <nome>):
+#    guarda_zumfut, lenhador_zumfut, escrivao_zumfut    (Zumfut)
+#    kizmel, comandante_elfico         (acampamento dos elfos escuros)
+#    capitao_posto                     (posto avançado)
+#  Regiões usadas em "chegar": zumfut, acampamento_elfico, posto_avancado, labirinto_andar3
+# ============================================================
+
+# ---------------------------------------------------------------- história
+
+chegada_a_zumfut:
+  nome: "A cidade nas árvores"
+  descricao: "O terceiro andar abriu. Zumfut foi escavada dentro de três árvores gigantes."
+  tipo: historia
+  npc: guarda_zumfut
+  requisitos:
+    quest: o_rei_taurus
+    andar: 3
+  etapas:
+    - { tipo: chegar, regiao: zumfut, texto: "Chegue a Zumfut" }
+    - { tipo: falar, npc: guarda_zumfut, texto: "Apresente-se ao guarda da cidade" }
+  recompensas:
+    xp: 3600
+    col: 800
+
+a_floresta_que_anda:
+  nome: "A floresta que anda"
+  descricao: "As árvores novas da floresta saem do lugar quando ninguém olha. São brotos de Treant."
+  tipo: historia
+  npc: guarda_zumfut
+  requisitos:
+    quest: chegada_a_zumfut
+    level: 20
+  etapas:
+    - { tipo: matar, alvo: treant_broto, quantidade: 12, texto: "Derrote 12 Treant Saplings na Floresta da Névoa" }
+  recompensas:
+    xp: 3800
+    col: 1000
+
+a_cavaleira_na_nevoa:
+  nome: "A cavaleira na névoa"
+  descricao: "Dois elfos lutam no bosque. Os da floresta atacam quem passa; a cavaleira escura pede ajuda."
+  tipo: historia
+  npc: guarda_zumfut
+  requisitos:
+    quest: a_floresta_que_anda
+    level: 21
+  etapas:
+    - { tipo: matar, alvo: batedor_elfico, quantidade: 6, texto: "Derrote 6 Forest Elven Scouts no Bosque Élfico" }
+    - { tipo: chegar, regiao: acampamento_elfico, texto: "Siga a cavaleira até o acampamento" }
+    - { tipo: falar, npc: kizmel, texto: "Fale com Kizmel" }
+  recompensas:
+    xp: 4200
+    col: 1200
+
+a_chave_de_jade:
+  nome: "A chave de jade"
+  descricao: "Os elfos da floresta levaram a chave de jade e a partiram. Os arqueiros carregam os fragmentos."
+  tipo: historia
+  npc: kizmel
+  requisitos:
+    quest: a_cavaleira_na_nevoa
+    level: 23
+  etapas:
+    - { tipo: matar, alvo: arqueiro_elfico, quantidade: 10, texto: "Derrote 10 Forest Elven Archers" }
+    - { tipo: coletar, item: EMERALD, quantidade: 5, texto: "Junte 5 fragmentos de jade" }
+    - { tipo: falar, npc: comandante_elfico, texto: "Leve os fragmentos ao comandante" }
+  recompensas:
+    xp: 4800
+    col: 1500
+
+a_linha_de_frente:
+  nome: "A linha de frente"
+  descricao: "O comandante indica o caminho da torre. Os jogadores da linha de frente montaram um posto ao pé dela."
+  tipo: historia
+  npc: comandante_elfico
+  requisitos:
+    quest: a_chave_de_jade
+    level: 25
+  etapas:
+    - { tipo: chegar, regiao: posto_avancado, texto: "Chegue ao posto avançado" }
+    - { tipo: falar, npc: capitao_posto, texto: "Procure o capitão do posto" }
+  recompensas:
+    xp: 5200
+    col: 1800
+
+raizes_da_torre:
+  nome: "Raízes da torre"
+  descricao: "A torre deste andar é uma árvore oca. Os Treants antigos fecham os andares de baixo."
+  tipo: historia
+  party: true
+  npc: capitao_posto
+  requisitos:
+    quest: a_linha_de_frente
+    level: 26
+  etapas:
+    - { tipo: chegar, regiao: labirinto_andar3, texto: "Entre no labirinto" }
+    - { tipo: matar, alvo: treant_anciao, quantidade: 15, texto: "Derrote 15 Elder Treants" }
+    - { tipo: falar, npc: capitao_posto, texto: "Volte ao capitão" }
+  recompensas:
+    xp: 6000
+    col: 2200
+    itens: ["rpg:escudo_de_casca"]
+
+os_cavaleiros_da_floresta:
+  nome: "Os cavaleiros da floresta"
+  descricao: "No topo da torre, os cavaleiros dos elfos da floresta guardam a sala do Treant."
+  tipo: historia
+  party: true
+  npc: capitao_posto
+  requisitos:
+    quest: raizes_da_torre
+    level: 28
+  etapas:
+    - { tipo: matar, alvo: cavaleiro_elfico, quantidade: 12, texto: "Derrote 12 Forest Elven Knights" }
+    - { tipo: falar, npc: capitao_posto, texto: "Volte para a reunião no posto" }
+  recompensas:
+    xp: 7000
+    col: 2800
+
+o_treant_maligno:
+  nome: "O Treant maligno"
+  descricao: "Nerius não sai do lugar, mas os espinhos e o pólen dele alcançam a sala inteira."
+  tipo: historia
+  party: true
+  npc: capitao_posto
+  requisitos:
+    quest: os_cavaleiros_da_floresta
+  etapas:
+    - { tipo: chefe, alvo: nerius, texto: "Derrote Nerius the Evil Treant" }
+  recompensas:
+    xp: 9000
+    col: 5000
+    itens: ["GOLDEN_APPLE 6"]
+
+# ---------------------------------------------------------------- fora da história
+
+lenha_para_zumfut:
+  nome: "Lenha para Zumfut"
+  descricao: "Ninguém corta as árvores da cidade. O lenhador troca troncos de Treant por um machado dele."
+  tipo: historia
+  npc: lenhador_zumfut
+  requisitos:
+    quest: a_floresta_que_anda
+  etapas:
+    - { tipo: coletar, item: OAK_LOG, quantidade: 16, texto: "Consiga 16 troncos" }
+    - { tipo: entregar, item: OAK_LOG, quantidade: 16, texto: "Leve os 16 troncos ao lenhador" }
+  recompensas:
+    xp: 1800
+    col: 700
+    itens: ["rpg:machado_do_lenhador"]
+
+# O AincradSocial pede esta quest para fundar uma guilda (guilds.yml → fundar.quest).
+selo_da_guilda:
+  nome: "Selo da Guilda"
+  descricao: "O escrivão de Zumfut só registra uma guilda de quem provar que sabe guardar os seus."
+  tipo: historia
+  npc: escrivao_zumfut
+  requisitos:
+    quest: chegada_a_zumfut
+    level: 20
+  etapas:
+    - { tipo: falar, npc: escrivao_zumfut, texto: "Ouça o escrivão" }
+    - { tipo: matar, alvo: lobo_da_nevoa, quantidade: 15, texto: "Derrote 15 Lobos da Névoa" }
+    - { tipo: entregar, item: EMERALD, quantidade: 3, texto: "Leve 3 fragmentos de jade para o lacre" }
+  recompensas:
+    xp: 2500
+    col: 1000
+
+o_sabre_da_cavaleira:
+  nome: "O sabre da cavaleira"
+  descricao: "Kizmel treina quem a ajudou: limpe a entrada da caverna das Aranhas Tecelãs."
+  tipo: historia
+  npc: kizmel
+  requisitos:
+    quest: a_chave_de_jade
+    level: 24
+  etapas:
+    - { tipo: matar, alvo: aranha_tecela, quantidade: 20, texto: "Derrote 20 Aranhas Tecelãs" }
+    - { tipo: falar, npc: kizmel, texto: "Volte a Kizmel" }
+  recompensas:
+    xp: 3200
+    col: 1400
+    itens: ["rpg:sabre_da_cavaleira"]
+
+a_rainha_das_aranhas:
+  nome: "A rainha das aranhas"
+  descricao: "No fundo da caverna, a Nephila Regina guarda a ninhada. Os elfos não entram lá."
+  tipo: historia
+  party: true
+  npc: kizmel
+  requisitos:
+    quest: a_chave_de_jade
+    level: 24
+  etapas:
+    - { tipo: chefe, alvo: nephila_regina, texto: "Derrote a Nephila Regina na Caverna das Aranhas" }
+  recompensas:
+    xp: 3000
+    col: 1600
+
+# ---------------------------------------------------------------- diárias
+
+ronda_da_floresta:
+  nome: "Ronda da floresta"
+  descricao: "Mantenha as trilhas em volta de Zumfut abertas. Vale para a party inteira."
+  tipo: diaria
+  party: true
+  npc: guarda_zumfut
+  requisitos:
+    quest: chegada_a_zumfut
+  etapas:
+    - { tipo: matar, quantidade: 25, texto: "Derrote 25 monstros" }
+  recompensas:
+    xp: 700
+    col: 450
+
+seda_para_o_acampamento:
+  nome: "Seda para o acampamento"
+  descricao: "Os elfos escuros tecem as cordas dos arcos com seda de aranha."
+  tipo: diaria
+  npc: comandante_elfico
+  requisitos:
+    quest: a_chave_de_jade
+  etapas:
+    - { tipo: entregar, item: STRING, quantidade: 16, texto: "Leve 16 sedas de aranha ao comandante" }
+  recompensas:
+    xp: 600
+    col: 480
+
+# ---------------------------------------------------------------- semanal
+
+limpeza_do_labirinto_3:
+  nome: "Limpeza da torre oca"
+  descricao: "Quanto menos Treants na torre, mais gente chega viva à sala do Nerius."
+  tipo: semanal
+  party: true
+  npc: capitao_posto
+  requisitos:
+    quest: raizes_da_torre
+  etapas:
+    - { tipo: matar, alvo: treant_anciao, quantidade: 50, texto: "Derrote 50 Elder Treants" }
+    - { tipo: matar, alvo: cavaleiro_elfico, quantidade: 15, texto: "Derrote 15 Forest Elven Knights" }
+  recompensas:
+    xp: 7000
+    col: 4200
+    itens: ["IRON_INGOT 16"]

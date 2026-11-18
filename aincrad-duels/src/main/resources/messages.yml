@@ -5,7 +5,7 @@ prefixo: "<dark_aqua>[<aqua>Duelo</aqua>]</dark_aqua> "
 
 so_jogador: "<red>Este comando só pode ser usado por jogadores."
 jogador_nao_encontrado: "<red>Jogador não encontrado: <white><jogador>"
-uso: "<gray>Uso: <white>/duelo</white> (menu), <white>/duelo <jogador> [primeiro_golpe|metade|total] [aposta]</white>, <white>/duelo aceitar|recusar [jogador]</white>, <white>/duelo desistir</white>, <white>/duelo placar [jogador]</white>, <white>/duelo ranking"
+uso: "<gray>Uso: <white>/duelo</white> (menu), <white>/duelo <jogador> [primeiro_golpe|metade|total] [aposta em Col | item]</white>, <white>/duelo aceitar|recusar [jogador]</white>, <white>/duelo desistir</white>, <white>/duelo placar [jogador]</white>, <white>/duelo ranking"
 
 desligado: "<red>Os duelos estão desligados."
 total_desligado: "<red>O modo total está desligado neste servidor."
@@ -40,6 +40,13 @@ modo:
 
 aposta:
   linha: " <gold>Aposta: <valor> cada."
+  linha_item: " <gold>Aposta de item: <white><item></white> contra o item que você tiver na mão ao aceitar."
+  itens_desligada: "<red>A aposta de item está desligada neste servidor."
+  item_mao_vazia: "<red>Segure na mão o item que você quer apostar."
+  item_faltou: "<red>O duelo não começou: <white><jogador></white> não tinha um item na mão para apostar."
+  levou_itens: "<gold>O vencedor levou os dois itens apostados."
+  itens_devolvidos: "<gray>Os itens apostados voltaram aos donos."
+  itens_recebidos: "<green>Você recebeu <white><qtd></white> item(ns) de apostas de duelo."
   invalida: "<red>Aposta inválida. O máximo é <white><maximo></white>."
   sem_saldo: "<red>Você não tem <white><valor></white> para apostar."
   alguem_sem_saldo: "<red>O duelo não começou: <white><jogador></white> não tem <white><valor></white> para a aposta."
@@ -75,6 +82,10 @@ menu:
   voltar: "<gray>Voltar"
   sem_aposta: "<white>Sem aposta"
   aposta: "<gold>Apostar <valor>"
+  aposta_item: "<gold>Apostar este item"
+  aposta_item_lore:
+    - "<gray>O outro aposta o item que tiver na mão"
+    - "<gray>ao aceitar. O vencedor leva os dois."
   modo_lore:
     primeiro_golpe:
       - "<gray>Quem acerta o primeiro golpe vence."

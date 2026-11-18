@@ -87,6 +87,7 @@ guia:
     projetil: "Atira no alvo"
     salto: "Salta e causa dano ao cair"
     furia: "Fúria: mais dano por alguns segundos"
+    sopro: "Sopro em cone: dano e paralisia"
 
 masmorra:
   descricao: "Dungeons escondidas: criar, definir o baú, trancar, dar chave e mapa"

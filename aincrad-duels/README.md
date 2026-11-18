@@ -38,7 +38,16 @@ ao aceitar; se um dos dois não tem o Col, o duelo não começa.
 - Se o servidor cair no meio de um duelo, as apostas voltam aos donos quando ele ligar.
 - `aposta.maximo` limita o valor (0 desliga); `aposta.valores` são os botões do menu.
 
-A aposta é só em Col. Não há aposta de itens.
+**Aposta de item** (`aposta.itens`, não precisa do AincradEconomy): quem desafia aposta o item que
+tem na mão; quem aceita aposta o item que tiver na mão **na hora de aceitar**. Os dois itens saem do
+inventário quando o duelo começa.
+
+- O vencedor leva os dois. No empate, cada um recebe o seu.
+- Quem não está online na hora recebe ao entrar, em qualquer servidor da rede.
+- Se o servidor cair no meio do duelo, cada item volta ao dono quando ele entrar.
+- A aposta de item não se soma com a de Col: é uma ou outra.
+- O desafio mostra o item de quem desafiou, mas quem aceita não vê os atributos dele antes: vale a
+  palavra dos dois.
 
 ## Placar e ranking
 
@@ -50,7 +59,7 @@ core: valem para a rede inteira. `/duelo placar [jogador]` e `/duelo ranking`.
 | Comando | O que faz |
 |---|---|
 | `/duelo` | Menu: quem, modo e aposta; o seu placar e o ranking |
-| `/duelo <jogador> [primeiro_golpe\|metade\|total] [aposta]` | Desafia direto |
+| `/duelo <jogador> [primeiro_golpe\|metade\|total] [aposta em Col \| item]` | Desafia direto |
 | `/duelo aceitar\|recusar [jogador]` | Responde ao desafio (sem nome, o mais recente) |
 | `/duelo desistir` | Entrega o duelo em andamento |
 | `/duelo placar [jogador]` · `/duelo ranking` | Placar e os que mais venceram |

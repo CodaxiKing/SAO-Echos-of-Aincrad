@@ -92,7 +92,7 @@ vão da porta marcado. A sala fica fora das regiões do labirinto.
 |---|---|---|
 | 1 | 100% | Baran the General Taurus (um golem) e os Nato the Colonel Taurus; pisão em área |
 | 2 | 70% | O Rei desce do trono: investida, e mais Coronéis |
-| 3 | 40% | O sopro: projéteis, 15% mais dano |
+| 3 | 40% | O sopro: um cone à frente que fere e paralisa por 4 s (a Poção Antiparalisia barra); 15% mais dano |
 | 4 | 15% | Fúria: 30% mais dano e velocidade, salto; sem lacaios |
 
 - 1600 de vida, level 20, 20 minutos de tempo limite, cristais bloqueados.
@@ -122,4 +122,3 @@ Ronda do planalto e Carne para Marome, e a semanal Limpeza da torre dos Taurus.
 
 - Modelos 3D, falas dos NPCs, estalagem, bancadas e pontos de pesca: como no andar 1.
 - Receitas, projetos de forja e fórmulas próprios do andar.
-- O sopro paralisante do Asterius é um projétil de fogo: o motor de chefes não tem habilidade de paralisia.

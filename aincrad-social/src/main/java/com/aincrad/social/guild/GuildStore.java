@@ -94,6 +94,15 @@ public final class GuildStore {
                 }
                 Guild.Member m = new Guild.Member(GuildRank.parse(ms.getString(k + ".cargo"), GuildRank.RECRUTA), ms.getLong(k + ".entrou"));
                 m.lastSeen = ms.getLong(k + ".visto", m.joined);
+                String[] taken = ms.getString(k + ".retiradas", "").split(";");
+                if (taken.length == 2) {
+                    try {
+                        m.withdrawDay = Long.parseLong(taken[0]);
+                        m.withdrawCount = Integer.parseInt(taken[1]);
+                    } catch (NumberFormatException ignored) {
+                        // valor estragado: o limite recomeça
+                    }
+                }
                 g.members.put(p, m);
             }
         }
@@ -258,6 +267,9 @@ public final class GuildStore {
             c.set(b + "membros." + p + ".cargo", m.rank.name());
             c.set(b + "membros." + p + ".entrou", m.joined);
             c.set(b + "membros." + p + ".visto", m.lastSeen);
+            if (m.withdrawCount > 0) {
+                c.set(b + "membros." + p + ".retiradas", m.withdrawDay + ";" + m.withdrawCount);
+            }
         });
         g.perms.forEach((perm, r) -> c.set(b + "permissoes." + perm.key(), r.name()));
         c.set(b + "aliados", g.allies.stream().map(UUID::toString).toList());

@@ -55,6 +55,10 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
             core.database().migrate("duels", ScoreStore.MIGRATIONS);
             // Duelos que estavam valendo quando o servidor caiu: as apostas voltam aos donos.
             List<String> orphans = scores.orphanBets(core.server());
+            int items = scores.releaseOrphanItems(core.server());
+            if (items > 0) {
+                getLogger().info(items + " item(ns) apostado(s) em duelos interrompidos pelo reinício voltam aos donos quando entrarem.");
+            }
             if (!orphans.isEmpty()) {
                 getServer().getScheduler().runTask(this, () -> {
                     orphans.forEach(hooks::refund);
@@ -72,6 +76,7 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskTimer(this, duels::tick, 10L, 10L);
         for (Player p : getServer().getOnlinePlayers()) {
             scores.load(p.getUniqueId(), s -> { });
+            duels.claim(p);
         }
         Command cmd = new Command("duelo", "", "/duelo", List.of("duel", "duelar", "duelos")) {
             @Override
@@ -168,10 +173,15 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
                 }
                 DuelMode mode = null;
                 long stake = 0;
+                boolean itemBet = false;
                 for (int i = 1; i < args.length; i++) {
                     DuelMode m = DuelMode.parse(args[i]);
                     if (m != null && i == 1) {
                         mode = m;
+                        continue;
+                    }
+                    if (args[i].equalsIgnoreCase("item")) {
+                        itemBet = true;
                         continue;
                     }
                     try {
@@ -181,7 +191,7 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
                         return;
                     }
                 }
-                duels.challenge(p, target, mode, stake);
+                duels.challenge(p, target, mode, stake, itemBet);
             }
         }
     }
@@ -206,6 +216,7 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
             }
         } else if (args.length == 3) {
             config.yaml().getLongList("aposta.valores").forEach(v -> out.add(String.valueOf(v)));
+            out.add("item");
         }
         out.removeIf(s -> !s.toLowerCase(Locale.ROOT).startsWith(last));
         return out;
@@ -282,7 +293,8 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
                 values.add(v);
             }
         }
-        if (values.isEmpty()) {
+        boolean canBetItem = config.bool("aposta.itens", true) && !p.getInventory().getItemInMainHand().getType().isAir();
+        if (values.isEmpty() && !canBetItem) {
             send(p, target, mode, 0);
             return;
         }
@@ -291,6 +303,14 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
         for (long v : values) {
             menu.item(Menu.Button.of(icon(Material.GOLD_NUGGET), msg.get("menu.aposta", Messages.vars("valor", hooks.format(v))),
                     pl -> send(pl, target, mode, v)).closing());
+        }
+        if (canBetItem) {
+            menu.item(Menu.Button.of(p.getInventory().getItemInMainHand().clone(), msg.get("menu.aposta_item"), pl -> {
+                Player to = Bukkit.getPlayer(target);
+                if (to != null) {
+                    duels.challenge(pl, to, mode, 0, true);
+                }
+            }).lore(msg.list("menu.aposta_item_lore")).closing());
         }
         menu.button(Menu.Button.of(icon(Material.ARROW), msg.get("menu.voltar"), pl -> openModes(pl, target)));
         AincradCore.get().menus().open(p, menu);

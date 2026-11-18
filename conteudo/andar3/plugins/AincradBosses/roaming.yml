@@ -1,0 +1,23 @@
+# ============================================================
+#  Chefes de campo e de evento — ANDARES 1 a 3
+#  Pacote de conteúdo: copie para plugins/AincradBosses/roaming.yml.
+#
+#  São chefes de bosses/*.yml fora das salas: aparecem soltos numa região,
+#  quem chega perto entra na luta, e NENHUM libera andar.
+#  O Lobo Alfa está em bosses/campo_e_evento.yml, que o plugin já cria.
+# ============================================================
+campo:
+  # A matilha da Floresta de Horunka. Volta 6 horas depois de derrotado.
+  lobo_alfa:
+    regiao: floresta_horunka
+    intervalo_horas: 6
+  # O touro da Pradaria de Marome (bosses/andar2.yml). Volta 8 horas depois de derrotado.
+  bullbous_bow:
+    regiao: pradaria_marome
+    intervalo_horas: 8
+  # A rainha da Caverna das Aranhas (bosses/andar3.yml). Volta 8 horas depois de derrotada.
+  nephila_regina:
+    regiao: caverna_das_aranhas
+    intervalo_horas: 8
+
+evento: {}

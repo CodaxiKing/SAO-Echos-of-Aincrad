@@ -35,7 +35,9 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
         /** Pula no alvo e causa dano em volta ao cair. */
         SALTO,
         /** Mais dano por alguns segundos. */
-        FURIA;
+        FURIA,
+        /** Sopro num cone à frente: dano e paralisia (lentidão e fadiga) por alguns segundos. */
+        SOPRO;
 
         public static SkillType parse(String s) {
             try {
@@ -56,7 +58,7 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
      * @param mob        mob dos lacaios; "flecha" ou "bola_de_fogo" no projétil
      * @param count      quantos lacaios
      * @param level      level dos lacaios
-     * @param seconds    duração da fúria
+     * @param seconds    duração da fúria, ou da paralisia do sopro
      * @param multiplier multiplicador de dano da fúria
      * @param label      nome dos lacaios, ou a fala do chefe ao usar
      */
@@ -149,7 +151,7 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
                 }
                 SkillType type = SkillType.parse(String.valueOf(m.get("tipo")));
                 if (type == null) {
-                    errors.add(where + "habilidade \"" + m.get("tipo") + "\" não existe (investida, area, lacaios, projetil, salto, furia).");
+                    errors.add(where + "habilidade \"" + m.get("tipo") + "\" não existe (investida, area, lacaios, projetil, salto, furia, sopro).");
                     continue;
                 }
                 skills.add(new Skill(type, Math.max(1, num(m.get("recarga"), 15)), Math.max(0, num(m.get("dano"), 6)),

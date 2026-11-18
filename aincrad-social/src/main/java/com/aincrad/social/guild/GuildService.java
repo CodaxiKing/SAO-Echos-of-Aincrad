@@ -49,7 +49,6 @@ public final class GuildService {
     /** Reembolsos de guildas desfeitas cujo líder estava offline (pagos quando ele entrar). */
     private final Map<UUID, Long> pendingRefunds = new HashMap<>();
     /** jogador → {dia, retiradas no dia} (memória: zera ao reiniciar). */
-    private final Map<UUID, long[]> withdrawals = new HashMap<>();
     private final LongSupplier clock;
     private GuildRules rules;
 
@@ -726,9 +725,8 @@ public final class GuildService {
         if (g.rankOf(p).above(GuildRank.MEMBRO)) {
             return true;
         }
-        long[] w = withdrawals.get(p);
-        long day = now() / DAY;
-        return w == null || w[0] != day || w[1] < rules.memberWithdrawalsPerDay();
+        Guild.Member m = g.members.get(p);
+        return m == null || m.withdrawDay != now() / DAY || m.withdrawCount < rules.memberWithdrawalsPerDay();
     }
 
     public void recordVault(UUID p, String name, boolean withdrawal, String item, int amount) {
@@ -738,12 +736,14 @@ public final class GuildService {
         }
         if (withdrawal) {
             long day = now() / DAY;
-            long[] w = withdrawals.computeIfAbsent(p, k -> new long[]{day, 0});
-            if (w[0] != day) {
-                w[0] = day;
-                w[1] = 0;
+            Guild.Member m = g.members.get(p);
+            if (m != null) {
+                if (m.withdrawDay != day) {
+                    m.withdrawDay = day;
+                    m.withdrawCount = 0;
+                }
+                m.withdrawCount++;
             }
-            w[1]++;
         }
         log(g, p, name, withdrawal ? "cofre_saida" : "cofre_entrada", amount, item);
     }

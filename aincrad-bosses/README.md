@@ -14,7 +14,7 @@ Last Attack, liberação do próximo andar e o labirinto. Precisa do **AincradCo
   e velocidade, falar e mudar as habilidades. O Illfang troca o machado e o escudo por uma espada
   aos 25% e fica 40% mais rápido.
 - **Habilidades com recarga**: investida, ataque em área (círculo vermelho de aviso no chão),
-  lacaios, projétil, salto com impacto e fúria. Uma habilidade pronta é escolhida ao acaso, com
+  lacaios, projétil, salto com impacto, fúria e sopro (cone que fere e paralisa). Uma habilidade pronta é escolhida ao acaso, com
   um intervalo entre elas.
 - **Sala do chefe**: a luta começa quando alguém pisa na sala. Há uma contagem
   (`sala.espera_segundos`) para o grupo entrar; depois a porta fecha, o chefe aparece parado e

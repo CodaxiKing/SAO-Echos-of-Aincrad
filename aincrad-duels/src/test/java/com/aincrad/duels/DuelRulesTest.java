@@ -133,6 +133,25 @@ class DuelRulesTest {
         assertEquals(0, duels.begin(duels.pending(agil, klein), 0, 1_000).stake());
     }
 
+    @Test
+    void apostaDeItemNaoSeSomaComADeCol() {
+        assertEquals(Ask.SENT, duels.challenge(kirito, asuna, DuelMode.METADE, 30_000, 500, true));
+        Challenge c = duels.pending(asuna, kirito);
+        assertTrue(c.itemBet());
+        assertEquals(0, c.stake());
+        // Mesmo modo, mas agora em Col: é outro desafio.
+        assertEquals(Ask.SENT, duels.challenge(kirito, asuna, DuelMode.METADE, 30_000, 500, false));
+        assertFalse(duels.pending(asuna, kirito).itemBet());
+
+        duels.challenge(klein, agil, DuelMode.PRIMEIRO_GOLPE, 30_000, 0, true);
+        Duel d = duels.begin(duels.pending(agil, klein), 0, 1_000);
+        assertTrue(d.itemBet());
+        assertNull(d.itemA());
+        d.items(new byte[]{1}, new byte[]{2});
+        assertEquals(1, d.itemA()[0]);
+        assertEquals(2, d.itemB()[0]);
+    }
+
     // ------------------------------------------------------------------ placar
 
     @Test
@@ -164,7 +183,8 @@ class DuelRulesTest {
         YamlConfiguration msg = YamlConfiguration.loadConfiguration(new InputStreamReader(
                 DuelRulesTest.class.getResourceAsStream("/messages.yml"), StandardCharsets.UTF_8));
         for (String key : List.of("prefixo", "uso", "enviado", "recebido", "recebido_total", "aceito", "lutem", "contagem_sub",
-                "aposta.linha", "aposta.invalida", "aposta.sem_saldo", "aposta.alguem_sem_saldo", "aposta.levou", "aposta.devolvida",
+                "aposta.linha", "aposta.linha_item", "aposta.item_mao_vazia", "aposta.item_faltou", "aposta.levou_itens",
+                "aposta.itens_devolvidos", "aposta.itens_recebidos", "menu.aposta_item", "aposta.invalida", "aposta.sem_saldo", "aposta.alguem_sem_saldo", "aposta.levou", "aposta.devolvida",
                 "placar.linha", "placar.ranking_titulo", "placar.ranking_linha", "placar.ranking_vazio",
                 "menu.titulo", "menu.titulo_modo", "menu.titulo_aposta", "menu.sem_aposta", "menu.aposta")) {
             assertTrue(msg.isString(key), "falta a mensagem " + key);

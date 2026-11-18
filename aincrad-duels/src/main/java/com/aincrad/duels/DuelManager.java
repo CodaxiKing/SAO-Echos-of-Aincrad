@@ -29,6 +29,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
@@ -99,6 +100,19 @@ public final class DuelManager implements Listener {
      * @param stake quanto cada um aposta, em Col (0 = sem aposta)
      */
     public void challenge(Player from, Player to, DuelMode mode, long stake) {
+        challenge(from, to, mode, stake, false);
+    }
+
+    /** @param itemBet cada um aposta o item que tem na mão principal (o de quem aceita, na hora de aceitar) */
+    public void challenge(Player from, Player to, DuelMode mode, long stake, boolean itemBet) {
+        if (itemBet && !config.bool("aposta.itens", true)) {
+            msg.send(from, "aposta.itens_desligada");
+            return;
+        }
+        if (itemBet && from.getInventory().getItemInMainHand().getType().isAir()) {
+            msg.send(from, "aposta.item_mao_vazia");
+            return;
+        }
         if (!config.bool("ativo", true)) {
             msg.send(from, "desligado");
             return;
@@ -124,13 +138,14 @@ public final class DuelManager implements Listener {
             return;
         }
         long ttl = config.integer("convite_expira_segundos", 30, 5, 600);
-        switch (duels.challenge(from.getUniqueId(), to.getUniqueId(), m, ttl * 1000L, stake)) {
+        switch (duels.challenge(from.getUniqueId(), to.getUniqueId(), m, ttl * 1000L, stake, itemBet)) {
             case SELF -> msg.send(from, "si_mesmo");
             case BUSY -> msg.send(from, "voce_em_duelo");
             case TARGET_BUSY -> msg.send(from, "alvo_em_duelo", Messages.vars("jogador", to.getName()));
             case ALREADY -> msg.send(from, "ja_desafiou", Messages.vars("jogador", to.getName()));
             case SENT -> {
-                Component bet = stake > 0 ? msg.get("aposta.linha", Messages.vars("valor", hooks.format(stake))) : Component.empty();
+                Component bet = itemBet ? msg.get("aposta.linha_item", Messages.vars("item", itemName(from.getInventory().getItemInMainHand())))
+                        : stake > 0 ? msg.get("aposta.linha", Messages.vars("valor", hooks.format(stake))) : Component.empty();
                 msg.send(from, "enviado", Messages.vars("jogador", to.getName(), "modo", modeName(m), "aposta", bet));
                 msg.send(to, m.lethal() ? "recebido_total" : "recebido", Messages.vars("jogador", from.getName(),
                         "modo", modeName(m), "segundos", ttl, "aposta", bet));
@@ -155,6 +170,22 @@ public final class DuelManager implements Listener {
             duels.decline(me.getUniqueId(), c.from());
             msg.send(me, "desafiante_longe");
             return;
+        }
+        // Aposta de item: os dois precisam estar com um item na mão agora; eles saem do inventário.
+        byte[] itemA = null;
+        byte[] itemB = null;
+        if (c.itemBet()) {
+            ItemStack a = other.getInventory().getItemInMainHand();
+            ItemStack b = me.getInventory().getItemInMainHand();
+            if (a.getType().isAir() || b.getType().isAir()) {
+                duels.decline(me.getUniqueId(), c.from());
+                for (Player p : new Player[]{other, me}) {
+                    msg.send(p, "aposta.item_faltou", Messages.vars("jogador", (a.getType().isAir() ? other : me).getName()));
+                }
+                return;
+            }
+            itemA = a.serializeAsBytes();
+            itemB = b.serializeAsBytes();
         }
         // A aposta dos dois vai para a custódia antes de qualquer golpe.
         String holdA = null;
@@ -182,6 +213,14 @@ public final class DuelManager implements Listener {
             return;
         }
         d.holds(holdA, holdB);
+        if (itemA != null) {
+            String server = AincradCore.get().server();
+            other.getInventory().setItemInMainHand(null);
+            me.getInventory().setItemInMainHand(null);
+            d.items(itemA, itemB);
+            scores.itemHeld(d.a(), itemA, server);
+            scores.itemHeld(d.b(), itemB, server);
+        }
         if (holdA != null) {
             String server = AincradCore.get().server();
             scores.betOpened(holdA, server);
@@ -307,6 +346,12 @@ public final class DuelManager implements Listener {
             scores.betClosed(d.holdA());
             scores.betClosed(d.holdB());
         }
+        // Aposta de item: o vencedor leva os dois; no empate, cada um recebe o seu.
+        if (d.itemA() != null) {
+            deliver(winner == null ? d.a() : winner, d.itemA());
+            deliver(winner == null ? d.b() : winner, d.itemB());
+            scores.itemsSettled(d.a(), d.b(), AincradCore.get().server());
+        }
         Component line;
         if (winner == null) {
             line = msg.get("fim.empate", Messages.vars("a", nameA, "b", nameB));
@@ -319,6 +364,9 @@ public final class DuelManager implements Listener {
             scores.record(d.b(), nameB, aWon ? DuelScore::lost : DuelScore::won);
         }
         Component full = msg.prefix().append(line);
+        if (d.itemA() != null) {
+            full = full.append(Component.space()).append(msg.get(winner == null ? "aposta.itens_devolvidos" : "aposta.levou_itens"));
+        }
         if (d.stake() > 0) {
             full = full.append(Component.space()).append(msg.get(winner == null ? "aposta.devolvida" : "aposta.levou",
                     Messages.vars("valor", hooks.format(d.stake() * 2))));
@@ -362,6 +410,11 @@ public final class DuelManager implements Listener {
                 hooks.refund(d.holdB());
                 scores.betClosed(d.holdA());
                 scores.betClosed(d.holdB());
+                if (d.itemA() != null) {
+                    deliver(d.a(), d.itemA());
+                    deliver(d.b(), d.itemB());
+                    scores.itemsSettled(d.a(), d.b(), AincradCore.get().server());
+                }
             }
         }
         centers.clear();
@@ -430,6 +483,43 @@ public final class DuelManager implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         scores.load(event.getPlayer().getUniqueId(), s -> { });
+        claim(event.getPlayer());
+    }
+
+    // ------------------------------------------------------------------ aposta de item
+
+    static Component itemName(ItemStack it) {
+        Component name = it.hasItemMeta() && it.getItemMeta().hasDisplayName() ? it.getItemMeta().displayName() : Component.translatable(it.translationKey());
+        return it.getAmount() > 1 ? name.append(Component.text(" x" + it.getAmount())) : name;
+    }
+
+    /** Entrega um item apostado: na hora a quem está online; a quem não está, ao entrar (em qualquer servidor). */
+    private void deliver(UUID to, byte[] item) {
+        Player p = Bukkit.getPlayer(to);
+        if (p == null) {
+            scores.itemOwed(to, item, AincradCore.get().server());
+            return;
+        }
+        give(p, ItemStack.deserializeBytes(item));
+    }
+
+    private static void give(Player p, ItemStack it) {
+        p.getInventory().addItem(it).values().forEach(rest -> p.getWorld().dropItemNaturally(p.getLocation(), rest));
+    }
+
+    /** Itens de apostas que esperavam o jogador (ganhos enquanto ele estava fora, ou de um duelo interrompido). */
+    public void claim(Player p) {
+        scores.claimItems(p.getUniqueId(), items -> {
+            if (items.isEmpty() || !p.isOnline()) {
+                // Saiu antes de receber: os itens voltam para a fila.
+                items.forEach(i -> scores.itemOwed(p.getUniqueId(), i, AincradCore.get().server()));
+                return;
+            }
+            for (byte[] i : items) {
+                give(p, ItemStack.deserializeBytes(i));
+            }
+            msg.send(p, "aposta.itens_recebidos", Messages.vars("qtd", items.size()));
+        });
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

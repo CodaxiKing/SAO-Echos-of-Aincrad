@@ -20,6 +20,9 @@ public final class Guild {
         GuildRank rank;
         final long joined;
         long lastSeen;
+        /** Retiradas do cofre: o dia (dias desde 1970) e quantas ele já fez nesse dia. Vai com a guilda, então vale na rede. */
+        long withdrawDay;
+        int withdrawCount;
 
         Member(GuildRank rank, long joined) {
             this.rank = rank;

@@ -191,7 +191,7 @@ as travas sabem de quem é a vez.
 - **Convites de guilda**: vão junto com a guilda. Quem está em outro servidor é avisado lá e aceita lá.
 - **Amigos**: quem entra na rede por outro servidor é anunciado aos amigos (trocar de servidor não conta).
 
-**Continua por servidor**, mesmo com o banco: o limite diário de retiradas do cofre de cada membro. As outras mudanças feitas ao mesmo
+- **Limite de retiradas do cofre**: é contado na guilda, então vale somando todos os servidores. As outras mudanças feitas ao mesmo
 tempo na mesma guilda (cargos, opções) continuam valendo a primeira gravação.
 
 **Em arquivo**: gravado 5 s depois de cada mudança (fora da thread principal) e ao desligar, com

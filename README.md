@@ -8,7 +8,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-core/` | **AincradCore** — config, mensagens, /aincrad, banco, regiões, menus, perfil, MessageBus | pronto (etapa 0) |
 | `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD em barras, telas planas com cursor (loja), vida crítica, tela de morte | pronto (etapas 14–17), com as artes do SAO-UI/sao-assets |
 | `aincrad-social/` | **AincradSocial** — amigos, party (XP e drops divididos, em rede), guilda (como no anime) e mensagens | código pronto (etapas 31–32), sem teste em servidor; dados no banco do core ou em arquivos |
-| `aincrad-duels/` | **AincradDuels** — duelos (primeiro golpe, metade da vida, total), aposta em Col, placar e ranking | código pronto (etapa 33), sem teste em servidor |
+| `aincrad-duels/` | **AincradDuels** — duelos (primeiro golpe, metade da vida, total), aposta em Col ou de item, placar e ranking | código pronto (etapa 33), sem teste em servidor |
 | `aincrad-rpg/` | **AincradRPG** — level, XP, atributos, level dos mobs, mobs por região (Minecraft e MythicMobs), itens com raridade | pronto (etapas A1–A2); os mobs por região, os mobs raros (etapa 45) e os itens únicos (etapa 51) têm código, sem teste em servidor |
 | `aincrad-economy/` | **AincradEconomy** — Col, Vault, lojas de NPC, /pagar, troca segura, leilão, casas e custódia | pronto (etapas A3–A4, mais a custódia das encomendas); casas por leilão (etapa 50) com código, sem teste em servidor |
 | `aincrad-floors/` | **AincradFloors** — andares, bloqueio de entrada, zona segura, anúncio, Teleport Gates, o dia do anúncio e o fim de jogo | pronto (etapas 1–4); etapas 40, 43 e 54 (mapa por exploração) com código, sem teste em servidor |
@@ -30,8 +30,10 @@ Os plugins dão os sistemas; o conteúdo de cada andar vem em pacotes de arquivo
   com o guia para montar o mapa.
 - [conteudo/andar2](conteudo/andar2/README.md) — o andar 2 (Urbus, os Taurus, Asterius), **somado ao
   andar 1**: quem instala este não precisa do outro.
+- [conteudo/andar3](conteudo/andar3/README.md) — o andar 3 (Zumfut, os Treants, os elfos, Nerius e a
+  quest Selo da Guilda), **somado aos andares 1 e 2**.
 
-Os dois carregam sem erro nos testes; nenhum foi jogado.
+Os três carregam sem erro nos testes; nenhum foi jogado.
 
 ## Plano
 

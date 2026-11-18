@@ -1,0 +1,540 @@
+# ============================================================
+#  Mobs por região — ANDARES 1 a 3
+#  Pacote de conteúdo: copie para plugins/AincradRPG/spawns.yml.
+#  As regiões precisam existir (veja conteudo/andar3/README.md).
+#
+#  mob:    ZOMBIE, WOLF, PIG...  ou  mythic:NomeDoMob (MythicMobs)
+#  id:     nome curto da linha. As quests usam (alvo: kobold_soldado) no lugar do tipo.
+#  nome:   nome mostrado sobre o mob (MiniMessage). O level entra na frente.
+#  equipamento: mao, mao_secundaria, cabeca, peito, pernas, pes. Não cai quando o mob morre.
+#  drops:  o que o mob solta quando um jogador o mata. Com "drops", os drops normais do
+#          Minecraft saem. item: MATERIAL, rpg:<id> ou life:<ingrediente>;
+#          chance de 0 a 1 (padrão 1); quantidade: 2 ou "1-3".
+#  agressivo: true faz um lobo atacar sem ser provocado.
+#  peso, level, clima, periodo, modelo: como no spawns.yml do plugin.
+#
+#  Para trocar um mob por um do MythicMobs, mude só o "mob:" da linha
+#  (o nome e o equipamento passam a vir do MythicMobs; os drops daqui continuam).
+# ============================================================
+intervalo: 5
+
+regioes:
+
+  # ---------------------------------------------------------- Campos do Oeste (level 1 a 3)
+  # Logo fora do portão da Cidade do Início. É onde o jogador aprende a lutar.
+  campos_oeste:
+    maximo: 16
+    por_vez: 2
+    raio: 40
+    distancia_minima: 10
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: PIG
+        id: javali_frenetico
+        nome: "<white>Frenzy Boar"
+        peso: 6
+        level: "1-2"
+        drops:
+          - { item: PORKCHOP, chance: 0.8, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.25 }
+      - mob: WOLF
+        id: lobo_jovem
+        nome: "<white>Lobo Jovem"
+        agressivo: true
+        peso: 1
+        level: 2
+        periodo: dia
+        drops:
+          - { item: BONE, chance: 0.5 }
+          - { item: LEATHER, chance: 0.3 }
+      - mob: WOLF
+        id: lobo_terrivel
+        nome: "<white>Dire Wolf"
+        agressivo: true
+        peso: 3
+        level: "2-3"
+        periodo: noite
+        drops:
+          - { item: BONE, chance: 0.6, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.4 }
+
+  # ---------------------------------------------------------- Floresta de Horunka (level 3 a 5)
+  # Em volta da vila de Horunka. Os Little Nepents guardam o óvulo da quest da Anneal Blade.
+  floresta_horunka:
+    maximo: 14
+    por_vez: 2
+    raio: 36
+    distancia_minima: 10
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: ZOMBIE
+        id: little_nepent
+        nome: "<green>Little Nepent"
+        equipamento: { cabeca: AZALEA_LEAVES }
+        peso: 5
+        level: "3-4"
+        drops:
+          - { item: VINE, chance: 0.5, quantidade: "1-2" }
+          # O Óvulo de Little Nepent (quest "O remédio secreto da floresta").
+          - { item: SPORE_BLOSSOM, chance: 0.04 }
+      - mob: WOLF
+        id: lobo_terrivel
+        nome: "<white>Dire Wolf"
+        agressivo: true
+        peso: 3
+        level: "3-5"
+        drops:
+          - { item: BONE, chance: 0.6, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.4 }
+      - mob: RABBIT
+        id: coelho_da_floresta
+        nome: "<white>Coelho da Floresta"
+        peso: 1
+        level: 3
+        drops:
+          - { item: RABBIT, chance: 0.8 }
+          - { item: RABBIT_HIDE, chance: 0.5 }
+      - mob: SPIDER
+        id: aranha_da_mata
+        nome: "<white>Aranha da Mata"
+        peso: 3
+        level: "4-5"
+        periodo: noite
+        drops:
+          - { item: STRING, chance: 0.7, quantidade: "1-2" }
+          - { item: SPIDER_EYE, chance: 0.2 }
+
+  # ---------------------------------------------------------- Planície de Tolbana (level 4 a 6)
+  # A estrada da floresta até Tolbana, a cidade ao pé do labirinto.
+  planicie_tolbana:
+    maximo: 14
+    por_vez: 2
+    raio: 40
+    distancia_minima: 12
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: HOGLIN
+        id: javali_furioso
+        nome: "<yellow>Rampage Boar"
+        peso: 3
+        level: "4-5"
+        drops:
+          - { item: PORKCHOP, quantidade: "1-3" }
+          - { item: LEATHER, chance: 0.5 }
+      - mob: WOLF
+        id: lobo_terrivel
+        nome: "<white>Dire Wolf"
+        agressivo: true
+        peso: 3
+        level: "5-6"
+        drops:
+          - { item: BONE, chance: 0.6, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.5 }
+      - mob: ZOMBIE
+        id: kobold_batedor
+        nome: "<white>Kobold Scout"
+        equipamento: { mao: STONE_SWORD, cabeca: LEATHER_HELMET }
+        peso: 2
+        level: "5-6"
+        drops:
+          - { item: IRON_NUGGET, chance: 0.6, quantidade: "1-3" }
+          - { item: RAW_IRON, chance: 0.15 }
+      - mob: SKELETON
+        id: esqueleto_errante
+        nome: "<white>Esqueleto Errante"
+        peso: 3
+        level: 6
+        periodo: noite
+        drops:
+          - { item: BONE, chance: 0.8, quantidade: "1-2" }
+          - { item: ARROW, chance: 0.5, quantidade: "1-4" }
+
+  # ---------------------------------------------------------- Labirinto, andares de baixo (level 6 a 8)
+  labirinto_andar1:
+    maximo: 18
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: ZOMBIE
+        id: kobold_soldado
+        nome: "<white>Ruin Kobold Trooper"
+        equipamento: { mao: IRON_SWORD, cabeca: CHAINMAIL_HELMET, peito: LEATHER_CHESTPLATE }
+        peso: 5
+        level: "6-8"
+        drops:
+          - { item: IRON_NUGGET, chance: 0.7, quantidade: "2-4" }
+          - { item: COAL, chance: 0.3 }
+          - { item: IRON_INGOT, chance: 0.15 }
+      - mob: SKELETON
+        id: kobold_arqueiro
+        nome: "<white>Ruin Kobold Archer"
+        equipamento: { cabeca: LEATHER_HELMET }
+        peso: 2
+        level: "7-8"
+        drops:
+          - { item: ARROW, chance: 0.8, quantidade: "2-5" }
+          - { item: FLINT, chance: 0.3 }
+
+  # ---------------------------------------------------------- Labirinto, andares de cima (level 8 a 9)
+  # O caminho até a porta do chefe. Os Sentinelas são os mesmos que lutam ao lado do Illfang.
+  labirinto_andar1_topo:
+    maximo: 14
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: ZOMBIE
+        id: kobold_sentinela
+        nome: "<yellow>Ruin Kobold Sentinel"
+        equipamento: { mao: IRON_AXE, cabeca: IRON_HELMET, peito: CHAINMAIL_CHESTPLATE }
+        peso: 4
+        level: "8-9"
+        drops:
+          - { item: IRON_INGOT, chance: 0.35, quantidade: "1-2" }
+          - { item: "rpg:machado_kobold", chance: 0.02 }
+      - mob: ZOMBIE
+        id: kobold_soldado
+        nome: "<white>Ruin Kobold Trooper"
+        equipamento: { mao: IRON_SWORD, cabeca: CHAINMAIL_HELMET, peito: LEATHER_CHESTPLATE }
+        peso: 3
+        level: "8-9"
+        drops:
+          - { item: IRON_NUGGET, chance: 0.7, quantidade: "2-4" }
+          - { item: IRON_INGOT, chance: 0.2 }
+
+  # ============================================================ ANDAR 2
+
+  # ---------------------------------------------------------- Planalto de Urbus (level 10 a 12)
+  # As mesas de pedra em volta de Urbus. Bois por toda parte; à noite, as vespas do vento.
+  planalto_urbus:
+    maximo: 16
+    por_vez: 2
+    raio: 40
+    distancia_minima: 10
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: COW
+        id: boi_tremulo
+        nome: "<white>Trembling Ox"
+        peso: 5
+        level: "10-11"
+        drops:
+          - { item: BEEF, chance: 0.9, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.5 }
+      - mob: SILVERFISH
+        id: verme_dentado
+        nome: "<white>Jagged Worm"
+        peso: 3
+        level: "11-12"
+        drops:
+          - { item: STRING, chance: 0.5 }
+          - { item: FLINT, chance: 0.3 }
+      - mob: PHANTOM
+        id: vespa_do_vento
+        nome: "<yellow>Windwasp"
+        peso: 3
+        level: "11-12"
+        periodo: noite
+        drops:
+          - { item: PHANTOM_MEMBRANE, chance: 0.6 }
+          - { item: FEATHER, chance: 0.4, quantidade: "1-2" }
+
+  # ---------------------------------------------------------- Pradaria de Marome (level 12 a 14)
+  # Entre Urbus e a vila de Marome. O Bullbous Bow, chefe de campo, pasta aqui.
+  pradaria_marome:
+    maximo: 14
+    por_vez: 2
+    raio: 40
+    distancia_minima: 12
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: COW
+        id: vaca_tremula
+        nome: "<white>Trembling Cow"
+        peso: 4
+        level: "12-13"
+        drops:
+          - { item: BEEF, quantidade: "1-3" }
+          - { item: LEATHER, chance: 0.6 }
+      - mob: WOLF
+        id: lobo_da_pradaria
+        nome: "<white>Lobo da Pradaria"
+        agressivo: true
+        peso: 3
+        level: "12-14"
+        drops:
+          - { item: BONE, chance: 0.7, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.5 }
+      - mob: SKELETON
+        id: arqueiro_errante
+        nome: "<white>Arqueiro Errante"
+        peso: 3
+        level: "13-14"
+        periodo: noite
+        drops:
+          - { item: ARROW, chance: 0.8, quantidade: "2-5" }
+          - { item: BONE, chance: 0.6 }
+
+  # ---------------------------------------------------------- Desfiladeiro de Taran (level 14 a 16)
+  # O caminho de pedra até Taran, a vila ao pé do labirinto. Os primeiros Taurus aparecem aqui.
+  desfiladeiro_taran:
+    maximo: 14
+    por_vez: 2
+    raio: 36
+    distancia_minima: 12
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: PIGLIN_BRUTE
+        id: taurus_batedor
+        nome: "<white>Taurus Scout"
+        equipamento: { mao: STONE_AXE }
+        peso: 4
+        level: "14-16"
+        drops:
+          - { item: LEATHER, chance: 0.6, quantidade: "1-2" }
+          - { item: IRON_NUGGET, chance: 0.6, quantidade: "2-4" }
+      - mob: HUSK
+        id: andarilho_do_desfiladeiro
+        nome: "<white>Andarilho do Desfiladeiro"
+        peso: 3
+        level: "14-15"
+        drops:
+          - { item: SAND, chance: 0.4 }
+          - { item: IRON_NUGGET, chance: 0.5, quantidade: "1-3" }
+      - mob: SPIDER
+        id: aranha_das_pedras
+        nome: "<white>Aranha das Pedras"
+        peso: 3
+        level: "15-16"
+        periodo: noite
+        drops:
+          - { item: STRING, chance: 0.8, quantidade: "1-3" }
+          - { item: SPIDER_EYE, chance: 0.3 }
+
+  # ---------------------------------------------------------- Labirinto do andar 2, andares de baixo (level 16 a 18)
+  labirinto_andar2:
+    maximo: 18
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: PIGLIN_BRUTE
+        id: taurus_golpeador
+        nome: "<white>Lesser Taurus Striker"
+        equipamento: { mao: IRON_AXE }
+        peso: 5
+        level: "16-18"
+        drops:
+          - { item: IRON_INGOT, chance: 0.4, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.6, quantidade: "1-2" }
+          - { item: GOLD_NUGGET, chance: 0.4, quantidade: "1-3" }
+      - mob: PIGLIN_BRUTE
+        id: taurus_guarda_de_ferro
+        nome: "<yellow>Taurus Ironguard"
+        equipamento: { mao: IRON_SWORD, mao_secundaria: SHIELD, cabeca: IRON_HELMET }
+        peso: 2
+        level: "17-18"
+        drops:
+          - { item: IRON_INGOT, chance: 0.6, quantidade: "1-3" }
+          - { item: "rpg:machado_taurino", chance: 0.02 }
+
+  # ---------------------------------------------------------- Labirinto do andar 2, andares de cima (level 18 a 19)
+  labirinto_andar2_topo:
+    maximo: 14
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: PIGLIN_BRUTE
+        id: taurus_guarda_de_ferro
+        nome: "<yellow>Taurus Ironguard"
+        equipamento: { mao: IRON_SWORD, mao_secundaria: SHIELD, cabeca: IRON_HELMET }
+        peso: 4
+        level: "18-19"
+        drops:
+          - { item: IRON_INGOT, chance: 0.6, quantidade: "1-3" }
+          - { item: "rpg:machado_taurino", chance: 0.03 }
+      - mob: HOGLIN
+        id: taurus_pisoteador
+        nome: "<yellow>Taurus Trampler"
+        peso: 3
+        level: "18-19"
+        drops:
+          - { item: LEATHER, quantidade: "1-3" }
+          - { item: GOLD_INGOT, chance: 0.15 }
+
+  # ============================================================ ANDAR 3
+
+  # ---------------------------------------------------------- Floresta da Névoa (level 20 a 22)
+  # A floresta de árvores gigantes em volta de Zumfut. Os brotos de Treant só andam quando
+  # ninguém olha para eles (são creakings do Minecraft).
+  floresta_da_nevoa:
+    maximo: 16
+    por_vez: 2
+    raio: 40
+    distancia_minima: 10
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: CREAKING
+        id: treant_broto
+        nome: "<white>Treant Sapling"
+        peso: 5
+        level: "20-21"
+        drops:
+          - { item: OAK_LOG, chance: 0.8, quantidade: "1-2" }
+          - { item: STICK, chance: 0.6, quantidade: "1-3" }
+          - { item: APPLE, chance: 0.15 }
+      - mob: WOLF
+        id: lobo_da_nevoa
+        nome: "<white>Lobo da Névoa"
+        agressivo: true
+        peso: 3
+        level: "20-22"
+        drops:
+          - { item: BONE, chance: 0.7, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.5 }
+      - mob: CAVE_SPIDER
+        id: aranha_do_matagal
+        nome: "<white>Thicket Spider"
+        peso: 3
+        level: "21-22"
+        periodo: noite
+        drops:
+          - { item: STRING, chance: 0.8, quantidade: "1-2" }
+          - { item: SPIDER_EYE, chance: 0.3 }
+
+  # ---------------------------------------------------------- Bosque Élfico (level 22 a 24)
+  # A terra disputada pelos elfos. Os da floresta atacam qualquer jogador; os elfos escuros
+  # recebem quem chega em paz no acampamento.
+  bosque_elfico:
+    maximo: 14
+    por_vez: 2
+    raio: 40
+    distancia_minima: 12
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: VINDICATOR
+        id: batedor_elfico
+        nome: "<white>Forest Elven Scout"
+        equipamento: { mao: IRON_SWORD }
+        peso: 4
+        level: "22-23"
+        drops:
+          - { item: EMERALD, chance: 0.25 }
+          - { item: IRON_NUGGET, chance: 0.6, quantidade: "2-4" }
+      - mob: PILLAGER
+        id: arqueiro_elfico
+        nome: "<white>Forest Elven Archer"
+        peso: 3
+        level: "23-24"
+        drops:
+          - { item: ARROW, chance: 0.8, quantidade: "2-5" }
+          - { item: EMERALD, chance: 0.3 }
+      - mob: STRAY
+        id: espectro_da_nevoa
+        nome: "<yellow>Espectro da Névoa"
+        peso: 3
+        level: "23-24"
+        periodo: noite
+        drops:
+          - { item: BONE, chance: 0.6, quantidade: "1-2" }
+          - { item: ARROW, chance: 0.6, quantidade: "1-4" }
+
+  # ---------------------------------------------------------- Caverna das Aranhas (level 24 a 26)
+  # A caverna da rainha Nephila Regina, chefe de campo. Só aqui cai o manto de seda.
+  caverna_das_aranhas:
+    maximo: 16
+    por_vez: 2
+    raio: 28
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: CAVE_SPIDER
+        id: aranha_do_matagal
+        nome: "<white>Thicket Spider"
+        peso: 4
+        level: "24-25"
+        drops:
+          - { item: STRING, chance: 0.8, quantidade: "1-2" }
+          - { item: SPIDER_EYE, chance: 0.3 }
+      - mob: SPIDER
+        id: aranha_tecela
+        nome: "<yellow>Aranha Tecelã"
+        peso: 4
+        level: "25-26"
+        drops:
+          - { item: STRING, quantidade: "1-3" }
+          - { item: COBWEB, chance: 0.3 }
+          - { item: "rpg:manto_de_seda_de_aranha", chance: 0.015 }
+
+  # ---------------------------------------------------------- Labirinto do andar 3, andares de baixo (level 26 a 28)
+  labirinto_andar3:
+    maximo: 18
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: CREAKING
+        id: treant_anciao
+        nome: "<white>Elder Treant"
+        peso: 5
+        level: "26-28"
+        drops:
+          - { item: OAK_LOG, quantidade: "1-3" }
+          - { item: RESIN_CLUMP, chance: 0.4, quantidade: "1-2" }
+          - { item: GOLD_NUGGET, chance: 0.4, quantidade: "2-4" }
+      - mob: BOGGED
+        id: semente_maligna
+        nome: "<yellow>Evil Treant Seedling"
+        peso: 3
+        level: "27-28"
+        drops:
+          - { item: ARROW, chance: 0.7, quantidade: "2-4" }
+          - { item: MOSS_BLOCK, chance: 0.4 }
+
+  # ---------------------------------------------------------- Labirinto do andar 3, andares de cima (level 28 a 29)
+  labirinto_andar3_topo:
+    maximo: 14
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: VINDICATOR
+        id: cavaleiro_elfico
+        nome: "<yellow>Forest Elven Knight"
+        equipamento: { mao: IRON_SWORD, cabeca: CHAINMAIL_HELMET }
+        peso: 4
+        level: "28-29"
+        drops:
+          - { item: IRON_INGOT, chance: 0.6, quantidade: "1-3" }
+          - { item: EMERALD, chance: 0.4, quantidade: "1-2" }
+      - mob: BOGGED
+        id: semente_maligna
+        nome: "<yellow>Evil Treant Seedling"
+        peso: 3
+        level: "28-29"
+        drops:
+          - { item: ARROW, chance: 0.7, quantidade: "2-4" }
+          - { item: MOSS_BLOCK, chance: 0.4 }

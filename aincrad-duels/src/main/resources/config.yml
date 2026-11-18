@@ -27,6 +27,9 @@ modo_padrao: primeiro_golpe
 aposta:
   # O máximo que cada um pode apostar. 0 desliga as apostas.
   maximo: 100000
+  # Aposta de item: cada um aposta o item que tem na mão (o de quem aceita, na hora de aceitar).
+  # O vencedor leva os dois. Não precisa do AincradEconomy.
+  itens: true
   # Os valores que aparecem no menu (só os que cabem no saldo de quem desafia).
   valores: [100, 500, 1000, 5000, 10000]
 

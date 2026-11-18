@@ -18,7 +18,7 @@ public final class DuelService {
     public enum Ask { SENT, SELF, BUSY, TARGET_BUSY, ALREADY }
 
     /** Um desafio ainda sem resposta. {@code stake}: quanto cada um aposta, em Col (0 = sem aposta). */
-    public record Challenge(UUID from, UUID to, DuelMode mode, long expires, long stake) {
+    public record Challenge(UUID from, UUID to, DuelMode mode, long expires, long stake, boolean itemBet) {
     }
 
     /** Um duelo aceito: em contagem até {@code startAt}, depois valendo até {@code endAt}. */
@@ -32,9 +32,14 @@ public final class DuelService {
         /** As custódias do AincradEconomy com a aposta de cada um (null sem aposta). */
         private String holdA;
         private String holdB;
+        /** Aposta de item: cada um aposta o item que tinha na mão (guardados em bytes; null sem essa aposta). */
+        private final boolean itemBet;
+        private byte[] itemA;
+        private byte[] itemB;
 
-        Duel(UUID a, UUID b, DuelMode mode, long startAt, long endAt, long stake) {
+        Duel(UUID a, UUID b, DuelMode mode, long startAt, long endAt, long stake, boolean itemBet) {
             this.stake = stake;
+            this.itemBet = itemBet;
             this.a = a;
             this.b = b;
             this.mode = mode;
@@ -72,6 +77,23 @@ public final class DuelService {
         public void holds(String a, String b) {
             this.holdA = a;
             this.holdB = b;
+        }
+
+        public boolean itemBet() {
+            return itemBet;
+        }
+
+        public void items(byte[] a, byte[] b) {
+            this.itemA = a;
+            this.itemB = b;
+        }
+
+        public byte[] itemA() {
+            return itemA;
+        }
+
+        public byte[] itemB() {
+            return itemB;
         }
 
         public String holdA() {
@@ -114,6 +136,11 @@ public final class DuelService {
     }
 
     public Ask challenge(UUID from, UUID to, DuelMode mode, long ttlMillis, long stake) {
+        return challenge(from, to, mode, ttlMillis, stake, false);
+    }
+
+    /** @param itemBet cada um aposta o item da mão (não se soma com a aposta em Col) */
+    public Ask challenge(UUID from, UUID to, DuelMode mode, long ttlMillis, long stake, boolean itemBet) {
         if (from.equals(to)) {
             return Ask.SELF;
         }
@@ -126,11 +153,11 @@ public final class DuelService {
         long now = clock.getAsLong();
         Map<UUID, Challenge> mine = challenges.computeIfAbsent(to, k -> new LinkedHashMap<>());
         Challenge old = mine.get(from);
-        if (old != null && old.expires() > now && old.mode() == mode && old.stake() == stake) {
+        if (old != null && old.expires() > now && old.mode() == mode && old.stake() == stake && old.itemBet() == itemBet) {
             return Ask.ALREADY;
         }
         mine.remove(from); // um desafio novo (ou com outro modo) vai para o fim da fila
-        mine.put(from, new Challenge(from, to, mode, now + ttlMillis, Math.max(0, stake)));
+        mine.put(from, new Challenge(from, to, mode, now + ttlMillis, itemBet ? 0 : Math.max(0, stake), itemBet));
         return Ask.SENT;
     }
 
@@ -182,7 +209,7 @@ public final class DuelService {
             return null;
         }
         long start = clock.getAsLong() + countdownMillis;
-        Duel d = new Duel(c.from(), c.to(), c.mode(), start, start + limitMillis, c.stake());
+        Duel d = new Duel(c.from(), c.to(), c.mode(), start, start + limitMillis, c.stake(), c.itemBet());
         active.put(c.from(), d);
         active.put(c.to(), d);
         forget(c.from());

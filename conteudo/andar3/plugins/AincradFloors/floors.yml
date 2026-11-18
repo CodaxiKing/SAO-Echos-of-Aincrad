@@ -1,0 +1,47 @@
+# ============================================================
+#  Andares — ANDARES 1 a 3 prontos, o 4 como reserva
+#  Pacote de conteúdo: copie para plugins/AincradFloors/floors.yml.
+#
+#  nome:     nome mostrado nos menus e no anúncio
+#  servidor: nome do servidor da rede onde o andar fica. Vazio = este servidor.
+#  tipo:     mundo  → o andar é um mundo inteiro (campo "mundo")
+#            regiao → o andar é uma região do AincradCore (campo "regiao")
+#  chegada:  onde o jogador aparece. Fique no lugar e use /aincrad andar setspawn <n>.
+#  cidade:   região que é a cidade principal (zona segura).
+#  vilas:    outras regiões do andar que também são zona segura.
+#
+#  O andar 1 está como um mundo inteiro chamado "world". Se o seu mapa tem os andares
+#  empilhados num mundo só, troque para  tipo: regiao  e  regiao: andar1.
+# ============================================================
+andares:
+  1:
+    nome: "Andar 1 — Cidade do Início"
+    servidor: ""
+    tipo: mundo
+    mundo: world
+    chegada: ""
+    cidade: cidade_inicio
+    vilas: [horunka, tolbana]
+  2:
+    nome: "Andar 2 — Urbus"
+    servidor: ""
+    tipo: regiao
+    regiao: andar2
+    chegada: ""
+    cidade: urbus
+    vilas: [marome, taran]
+  3:
+    nome: "Andar 3 — Zumfut"
+    servidor: ""
+    tipo: regiao
+    regiao: andar3
+    chegada: ""
+    cidade: zumfut
+    vilas: [acampamento_elfico, posto_avancado]
+  4:
+    nome: "Andar 4 — Rovia"
+    servidor: ""
+    tipo: regiao
+    regiao: andar4
+    chegada: ""
+    cidade: rovia

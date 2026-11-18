@@ -56,7 +56,7 @@ public final class BossEditor implements Listener {
     }
 
     private static final int LAST_ATTACK_SLOT = 49;
-    private static final List<String> SKILL_TYPES = List.of("investida", "area", "lacaios", "projetil", "salto", "furia");
+    private static final List<String> SKILL_TYPES = List.of("investida", "area", "lacaios", "projetil", "salto", "furia", "sopro");
 
     private final Plugin plugin;
     private final FightManager fights;

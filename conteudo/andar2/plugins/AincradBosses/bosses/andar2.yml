@@ -40,7 +40,7 @@ asterius:
       mensagem: "<dark_red><chefe> enche o peito: o sopro dele paralisa!"
       dano_x: 1.15
       habilidades:
-        - { tipo: projetil, recarga: 7, dano: 12, mob: bola_de_fogo }
+        - { tipo: sopro, recarga: 9, dano: 12, raio: 8, aviso_ticks: 30, segundos: 4 }
         - { tipo: investida, recarga: 10, dano: 16, raio: 3.5 }
         - { tipo: area, recarga: 9, dano: 15, raio: 5, aviso_ticks: 25 }
     - vida: 15

@@ -12,6 +12,7 @@
 #    projetil   — dano, mob: flecha | bola_de_fogo
 #    salto      — dano, raio
 #    furia      — segundos, multiplicador
+#    sopro      — dano, raio (alcance do cone), aviso_ticks, segundos (de paralisia)
 #    "nome" nas outras habilidades é a fala do chefe ao usar (MiniMessage).
 #  recompensas: itens são materiais ou "rpg:<id>[:raridade]" (items.yml do AincradRPG).
 # ============================================================

@@ -78,6 +78,7 @@ final class Skills {
             case PROJETIL -> projectile(f, s, target);
             case SALTO -> leap(f, s, target);
             case FURIA -> fury(f, s);
+            case SOPRO -> breath(f, s, target);
         }
     }
 
@@ -111,6 +112,64 @@ final class Skills {
             double a = 2 * Math.PI * i / points;
             center.getWorld().spawnParticle(Particle.DUST, center.getX() + Math.cos(a) * radius, center.getY() + 0.15,
                     center.getZ() + Math.sin(a) * radius, 1, 0, 0, 0, 0, dust);
+        }
+    }
+
+    /**
+     * Sopro: um cone à frente do chefe, na direção do alvo. Depois do aviso, quem ficou no cone
+     * leva o dano e fica paralisado (lentidão e fadiga) por {@code segundos}. A Poção
+     * Antiparalisia do AincradLife barra a paralisia, não o dano.
+     */
+    private void breath(BossFight f, BossDef.Skill s, Player target) {
+        LivingEntity boss = f.entity;
+        Vector aim = target.getLocation().toVector().subtract(boss.getLocation().toVector()).setY(0);
+        if (aim.lengthSquared() < 0.01) {
+            aim = boss.getLocation().getDirection().setY(0);
+        }
+        Vector dir = aim.normalize();
+        Location from = boss.getLocation().add(0, 1.2, 0);
+        double reach = Math.max(3, s.radius());
+        int warn = Math.max(5, s.warnTicks());
+        boss.getWorld().playSound(from, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 1.4f);
+        for (int t = 0; t < warn; t += 5) {
+            later(f, t, () -> cone(from, dir, reach, Particle.SMOKE));
+        }
+        later(f, warn, () -> {
+            cone(from, dir, reach, Particle.SOUL_FIRE_FLAME);
+            boss.getWorld().playSound(from, Sound.ENTITY_BLAZE_SHOOT, 1f, 0.6f);
+            double amount = s.damage() * f.damageTimes(fights.now());
+            int ticks = (int) Math.round(s.seconds() * 20);
+            for (Player p : fights.fighters(f)) {
+                if (inCone(from, dir, reach, p.getLocation())) {
+                    p.damage(amount, boss);
+                    p.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SLOWNESS, ticks, 3));
+                    p.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.MINING_FATIGUE, ticks, 1));
+                }
+            }
+        });
+    }
+
+    /** O lugar está no cone de 60° que sai de {@code from} na direção {@code dir}? */
+    static boolean inCone(Location from, Vector dir, double reach, Location where) {
+        if (!from.getWorld().equals(where.getWorld())) {
+            return false;
+        }
+        Vector to = where.toVector().subtract(from.toVector()).setY(0);
+        double distance = to.length();
+        if (distance > reach) {
+            return false;
+        }
+        return distance < 1.2 || to.normalize().dot(dir) >= 0.5; // cos 60°
+    }
+
+    private static void cone(Location from, Vector dir, double reach, Particle particle) {
+        for (double d = 1; d <= reach; d += 0.8) {
+            double half = d * 0.55;
+            Vector side = new Vector(-dir.getZ(), 0, dir.getX());
+            for (double o = -half; o <= half; o += 0.7) {
+                Location at = from.clone().add(dir.clone().multiply(d)).add(side.clone().multiply(o));
+                from.getWorld().spawnParticle(particle, at, 1, 0.1, 0.2, 0.1, 0.01);
+            }
         }
     }
 
