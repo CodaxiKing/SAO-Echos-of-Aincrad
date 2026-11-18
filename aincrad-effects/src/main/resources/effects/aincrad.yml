@@ -160,3 +160,100 @@ aincrad_congratulations:
       quantidade: 3
       espalhar: 3
       deslocamento: [0, 4, 0]
+
+# Uma Sword Skill foi usada (AincradSkills): o brilho na arma, visto por quem está perto.
+# {skill} {arma} {jogador}. Para um efeito próprio de uma skill, crie aincrad_skill_<id>
+# (ex.: aincrad_skill_corte_inclinado); para um tipo de arma, aincrad_skill_<arma>.
+aincrad_skill:
+  publico: raio:24
+  passos:
+    - em: 0
+      tipo: particulas
+      particula: DUST
+      cor: "#5BC8FF"
+      tamanho: 1.2
+      forma: circulo
+      raio: 0.8
+      quantidade: 16
+      deslocamento: [0, 1, 0]
+    - em: 0
+      tipo: som
+      som: minecraft:block.amethyst_block.resonate
+      volume: 0.6
+      tom: 1.6
+    - em: 0
+      tipo: texto_mundo
+      texto: "<aqua>{skill}"
+      deslocamento: [0, 2.3, 0]
+      escala: 0.7
+      subir: 0.4
+      duracao: 0.9
+      fade_saida: 0.3
+
+# O dia do anúncio (AincradFloors, /aincrad anuncio iniciar): toca em cada jogador junto com as
+# falas do deathgame.yml.
+aincrad_anuncio:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: som
+      som: minecraft:block.bell.resonate
+      no_jogador: true
+      tom: 0.6
+    - em: 0
+      tipo: bossbar
+      texto: "<red>Aviso do sistema"
+      cor: RED
+      estilo: PROGRESS
+      progresso_inicial: 1
+      progresso_final: 0
+      duracao: 28
+    - em: 0.5
+      tipo: particulas
+      particula: DUST
+      cor: "#B01010"
+      tamanho: 2
+      forma: coluna
+      raio: 6
+      altura: 12
+      quantidade: 120
+      deslocamento: [0, 6, 0]
+    - em: 24
+      tipo: som
+      som: minecraft:entity.wither.spawn
+      no_jogador: true
+      volume: 0.7
+
+# Para quem entra no servidor depois do anúncio.
+aincrad_anuncio_curto:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: som
+      som: minecraft:block.bell.resonate
+      no_jogador: true
+      tom: 0.6
+
+# O chefe do andar final caiu: todos os jogadores veem.
+aincrad_vitoria:
+  publico: jogador
+  passos:
+    - em: 0
+      tipo: som
+      som: minecraft:ui.toast.challenge_complete
+      no_jogador: true
+    - em: 0.5
+      tipo: fogos
+      forma_fogo: STAR
+      cores: ["#FFD24A", "#FFFFFF"]
+      cores_fade: ["#5BC8FF"]
+      quantidade: 4
+      espalhar: 4
+      deslocamento: [0, 5, 0]
+    - em: 2.5
+      tipo: fogos
+      forma_fogo: BALL_LARGE
+      cores: ["#5BC8FF", "#FFFFFF"]
+      quantidade: 4
+      espalhar: 5
+      deslocamento: [0, 6, 0]

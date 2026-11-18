@@ -72,3 +72,11 @@ passivas:
     material: IRON_NUGGET
     dano: 4
     recarga: 1
+
+# Com o AincradEffects no servidor, cada skill toca um efeito dele ao ser usada. O plugin
+# procura aincrad_skill_<id da skill>, depois aincrad_skill_<arma> e, por fim, aincrad_skill
+# (que já vem em effects/aincrad.yml). As partículas e o som de cada golpe continuam.
+efeitos:
+  aincrad_effects: true
+  # Quem está a até esta distância vê o efeito.
+  raio: 24

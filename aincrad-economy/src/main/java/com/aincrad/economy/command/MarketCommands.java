@@ -32,6 +32,11 @@ public final class MarketCommands implements TabExecutor {
     }
 
     private com.aincrad.economy.house.HouseUpkeep upkeep;
+    private com.aincrad.economy.house.HouseTravel travel;
+
+    public void travel(com.aincrad.economy.house.HouseTravel service) {
+        this.travel = service;
+    }
 
     public void upkeep(com.aincrad.economy.house.HouseUpkeep service) {
         upkeep = service;
@@ -151,6 +156,10 @@ public final class MarketCommands implements TabExecutor {
                 }
             }
             case "ir" -> {
+                if (travel != null) {
+                    travel.go(p, h);
+                    return;
+                }
                 Location l = HouseService.spawnLocation(h.spawn());
                 if (l == null) {
                     msg.send(p, "casa.sem_spawn");

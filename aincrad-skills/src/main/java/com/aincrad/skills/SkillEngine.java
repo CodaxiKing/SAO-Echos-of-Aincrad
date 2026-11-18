@@ -79,6 +79,8 @@ public final class SkillEngine implements Listener {
     private double profBonus;
     private boolean swapActivation;
     private boolean blockSafeZone;
+    /** Raio em que o efeito do AincradEffects é visto; 0 = não usar. */
+    private double effectsRadius;
 
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
     private final Map<UUID, Long> frozen = new HashMap<>();
@@ -101,6 +103,7 @@ public final class SkillEngine implements Listener {
         profBonus = config.decimal("proficiencia.bonus_de_dano_por_ponto", 0.0005, 0, 1);
         swapActivation = config.bool("ativacao.troca_de_mao", true);
         blockSafeZone = config.bool("bloquear_em_zona_segura", true);
+        effectsRadius = config.bool("efeitos.aincrad_effects", true) ? config.decimal("efeitos.raio", 24, 1, 64) : 0;
 
         Map<WeaponType, WeaponType.Match> w = new EnumMap<>(WeaponType.class);
         ConfigurationSection sec = config.yaml().getConfigurationSection("armas");
@@ -243,6 +246,10 @@ public final class SkillEngine implements Listener {
         }
         cooldowns.computeIfAbsent(id, k -> new HashMap<>()).put(def.id(), System.currentTimeMillis() + def.cooldownMs());
         casting.add(id);
+        if (effectsRadius > 0) {
+            // O brilho da skill, pelo motor de efeitos do servidor (as partículas dos golpes continuam).
+            hooks.skillEffect(p, def.id(), def.name(), def.weapon().key(), effectsRadius);
+        }
         if (def.dash() > 0) {
             Vector dir = p.getLocation().getDirection().setY(0);
             if (dir.lengthSquared() > 1e-6) {

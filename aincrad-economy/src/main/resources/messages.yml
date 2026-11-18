@@ -192,6 +192,7 @@ casa:
   spawn_definido: "<green>Ponto de chegada da casa definido."
   sem_spawn: "<red>A casa não tem ponto de chegada neste servidor."
   teleportado: "<aqua>Bem-vindo à casa <white><casa></white>."
+  indo: "<gray>A casa <white><casa></white> fica em outro servidor. Levando você..."
   protegida: "<red>Casa de <white><dono></white> — sem acesso."
   criada: "<green>Casa <white><casa></white> criada por <yellow><col></yellow> (chegada = onde você está)."
   nome_invalido: "<red>Nome inválido (letras minúsculas, números, _ - .)."

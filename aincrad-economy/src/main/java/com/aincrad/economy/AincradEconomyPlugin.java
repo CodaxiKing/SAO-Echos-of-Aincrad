@@ -140,6 +140,9 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskTimer(this, houseAuctions::tick, 200L, 600L);
         getServer().getScheduler().runTaskTimer(this, houseAuctions::refresh, 1200L, 1200L);
         MarketCommands market = new MarketCommands(eco, auction, houses);
+        com.aincrad.economy.house.HouseTravel travel = new com.aincrad.economy.house.HouseTravel(this, msg, houses, config.string("rede.canal", "BungeeCord"));
+        getServer().getPluginManager().registerEvents(travel, this);
+        market.travel(travel);
         market.houseAuctions(houseAuctions);
         upkeep = new com.aincrad.economy.house.HouseUpkeep(this, eco, houses, houseAuctions, core.database());
         try {

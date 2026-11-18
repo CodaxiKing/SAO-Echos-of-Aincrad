@@ -5,7 +5,7 @@ api-version: '1.21'
 description: Col (moeda da rede), lojas de NPC, /pagar, troca segura, leilão e casas do Aincrad.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [Vault, AincradRPG, AincradUI]
+softdepend: [Vault, AincradRPG, AincradUI, AincradFloors]
 # Liga antes dos plugins que procuram a economia ao ligar.
 loadbefore: [AincradSocial]
 

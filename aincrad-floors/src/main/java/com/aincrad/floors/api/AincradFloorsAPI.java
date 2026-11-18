@@ -127,6 +127,12 @@ public final class AincradFloorsAPI {
         com.aincrad.floors.listener.SafeZoneListener.exempt(a, b, until);
     }
 
+    /** O servidor da rede onde o andar fica; "" se é este servidor ou se o andar não existe. */
+    public static String getServer(int floor) {
+        Floor f = floors == null ? null : floors.floor(floor);
+        return f == null || f.isOn(floors.server()) ? "" : f.server();
+    }
+
     /** O lugar é uma cidade (zona segura)? */
     public static boolean isSafeZone(Location location) {
         return floors != null && floors.isSafeZone(location);

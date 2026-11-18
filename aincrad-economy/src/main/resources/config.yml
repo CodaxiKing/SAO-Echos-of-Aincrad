@@ -63,3 +63,7 @@ casas:
 moeda:
   singular: "Col"
   plural: "Col"
+
+rede:
+  # Canal para trocar o jogador de servidor (/casa ir numa casa de outro servidor da rede).
+  canal: "BungeeCord"
