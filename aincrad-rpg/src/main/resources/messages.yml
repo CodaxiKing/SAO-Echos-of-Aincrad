@@ -59,6 +59,16 @@ item:
 encantamento:
   bloqueado: "<red>Não existem encantamentos em Aincrad."
 
+unico:
+  menu: "<dark_gray>Itens únicos"
+  nenhum: "<gray>Este servidor não tem itens únicos."
+  item: "<gold><nome>"
+  item_oculto: "<gray>???"
+  nao_encontrado: "<dark_gray>Ainda não foi encontrado."
+  dono: "<gray>Está com <white><jogador></white>."
+  sem_dono: "<gray>Já foi encontrado, mas ninguém foi visto com ele."
+  desfez: "<red>O item único que você guardava se desfez: há outro exemplar no mundo."
+
 raro:
   pegou: "<gold>Você pegou um mob raro: <white><mob></white>!"
 

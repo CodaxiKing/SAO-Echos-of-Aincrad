@@ -59,6 +59,8 @@ public final class ItemService {
     private final NamespacedKey keyRarity;
     private final NamespacedKey keyLevel;
     private Map<String, Template> templates = Map.of();
+    private Set<String> unique = Set.of();
+    private UniqueItemService uniques;
     private RpgSettings settings;
 
     public ItemService(Plugin plugin, Messages msg, ConfigFile file, RpgSettings settings) {
@@ -91,6 +93,13 @@ public final class ItemService {
             }
         }
         templates = Collections.unmodifiableMap(out);
+        Set<String> only = new java.util.LinkedHashSet<>();
+        for (String id : out.keySet()) {
+            if (root.getBoolean(id + ".unico", false)) {
+                only.add(id);
+            }
+        }
+        unique = Collections.unmodifiableSet(only);
         plugin.getLogger().info(templates.size() + " modelo(s) de item carregado(s).");
     }
 
@@ -138,11 +147,35 @@ public final class ItemService {
         return ItemRoll.rarity(settings.weights(), rnd);
     }
 
-    /** Cria o item; {@code rarity} null = sorteada pelos pesos. Modelo desconhecido: null. */
+    /** Os modelos com {@code unico: true}: existem uma vez só na rede. */
+    public Set<String> uniqueIds() {
+        return unique;
+    }
+
+    public void uniques(UniqueItemService service) {
+        uniques = service;
+    }
+
+    /** O id do modelo de um item do RPG, ou null. */
+    public String id(ItemStack it) {
+        return it == null || !it.hasItemMeta() ? null : it.getItemMeta().getPersistentDataContainer().get(keyId, PersistentDataType.STRING);
+    }
+
+    /**
+     * Cria o item; {@code rarity} null = sorteada pelos pesos. Modelo desconhecido: null.
+     * Um item único que já existe na rede também devolve null: não há um segundo.
+     */
     public ItemStack create(String id, Rarity rarity) {
         Template t = template(id);
         if (t == null) {
             return null;
+        }
+        String serial = null;
+        if (unique.contains(t.id())) {
+            serial = uniques == null ? null : uniques.reserve(t.id());
+            if (serial == null) {
+                return null;
+            }
         }
         Random rnd = ThreadLocalRandom.current();
         Rarity r = rarity == null ? rollRarity(rnd) : rarity;
@@ -178,6 +211,9 @@ public final class ItemService {
         pdc.set(keyRarity, PersistentDataType.STRING, r.key());
         pdc.set(keyLevel, PersistentDataType.INTEGER, t.minLevel());
         item.setItemMeta(meta);
+        if (serial != null) {
+            uniques.tag(item, serial);
+        }
         return item;
     }
 

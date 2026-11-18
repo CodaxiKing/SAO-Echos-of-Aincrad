@@ -103,6 +103,22 @@ O coelho do ragu solta a carne que o Ensopado de Coelho do AincradLife pede como
 rank S. `periodo:` e `clima:` valem aqui também. Para testar sem esperar a chance:
 `/aincrad rpg raro <id>`. O arquivo vem vazio.
 
+## Itens únicos (`items.yml → unico: true`)
+
+Um modelo marcado com `unico: true` existe **uma vez só na rede inteira** — a Elucidator, a Dark
+Repulser.
+
+- Cada exemplar leva um número de série, gravado no banco (`rpg_unique`). **Criar o segundo é
+  recusado** em qualquer servidor: o drop não cai, e `/aincrad rpg item` e a API devolvem nada.
+- No chão, o item **não é destruído** (lava, fogo, explosão), **não some** com o tempo, brilha, e se
+  cair no vazio volta ao ponto de chegada do mundo.
+- A cada minuto o plugin anota com quem o item está (inventário e baú do fim). Se o dono não é
+  visto com ele por `unicos.dono_some_dias` (30), o item **volta a poder cair**; a cópia antiga se
+  desfaz quando reaparecer.
+- `/unicos` lista os itens únicos: os já encontrados, com o dono, e os que ainda ninguém achou
+  (sem dizer o nome).
+- Um item guardado num baú comum não é visto: para o plugin, o dono sumiu.
+
 ## Banco
 
 Tabela `rpg_players` (uuid, level, xp, points, forca, agilidade, vitalidade, updated), criada pela

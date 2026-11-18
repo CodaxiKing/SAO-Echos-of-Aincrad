@@ -158,6 +158,7 @@ public final class MobService implements Listener {
         List<ItemService.Template> drops = items.drops(lv);
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
         for (ItemService.Template t : drops) {
+            // O item único só "cai" de verdade se ainda não existe: create() devolve null se já há um.
             if (rnd.nextDouble() < t.dropChance()) {
                 ItemStack it = items.create(t.id(), null);
                 if (it != null) {

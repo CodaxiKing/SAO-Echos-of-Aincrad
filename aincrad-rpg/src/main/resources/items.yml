@@ -4,6 +4,8 @@
 #  Bônus: dano, vida, armadura, resistencia, velocidade_ataque (%), velocidade (%)
 #  slot: MAINHAND, OFFHAND, HEAD, CHEST, LEGS, FEET
 #  drop (opcional): chance por abate de mob com level na faixa.
+#  unico: true -> o item existe uma vez só na rede inteira (veja /unicos). Criar o segundo é
+#           recusado; no chão ele não é destruído nem some. Ex.: a Elucidator.
 # ============================================================
 itens:
   espada_pequena:

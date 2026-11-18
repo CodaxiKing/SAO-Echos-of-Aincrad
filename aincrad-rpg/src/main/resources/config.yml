@@ -48,3 +48,9 @@ penalidade_arma: 0.25
 
 # Salva os jogadores com mudanças a cada N segundos (além de ao sair).
 salvar_a_cada: 60
+
+# Itens únicos (items.yml -> unico: true): existem uma vez só na rede inteira.
+unicos:
+  # Se o dono não é visto com o item por tantos dias, o item volta a poder ser criado
+  # (e a cópia antiga se desfaz quando reaparecer). 0 = nunca.
+  dono_some_dias: 30

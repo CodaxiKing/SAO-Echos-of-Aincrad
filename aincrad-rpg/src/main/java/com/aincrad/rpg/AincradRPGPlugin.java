@@ -31,6 +31,7 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
     private ConfigFile spawnFile;
     private SpawnService spawns;
     private ConfigFile rareFile;
+    private com.aincrad.rpg.item.UniqueItemService uniques;
     private com.aincrad.rpg.mob.RareMobService rares;
     private Messages msg;
     private PlayerStore store;
@@ -48,6 +49,7 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
 
         try {
             core.database().migrate("rpg", PlayerStore.MIGRATIONS);
+            core.database().migrate("rpg_unique", com.aincrad.rpg.item.UniqueItemService.MIGRATIONS);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradRPG não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -56,6 +58,27 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         store = new PlayerStore(core.database(), getLogger(), core::runSync, id -> getServer().getPlayer(id) != null);
         rpg = new RpgService(this, store, msg, settings);
         items = new ItemService(this, msg, core.config(this, "items.yml"), settings);
+        uniques = new com.aincrad.rpg.item.UniqueItemService(this, core.database(), msg, items);
+        uniques.reload(config);
+        try {
+            uniques.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler os itens únicos: " + e.getMessage());
+        }
+        items.uniques(uniques);
+        getServer().getPluginManager().registerEvents(uniques, this);
+        getServer().getScheduler().runTaskTimer(this, uniques::tick, 200L, 1200L);
+        getServer().getScheduler().runTaskTimer(this, uniques::tickGround, 20L, 20L);
+        org.bukkit.command.Command list = new org.bukkit.command.Command("unicos", "", "/unicos", java.util.List.of("itensunicos")) {
+            @Override
+            public boolean execute(org.bukkit.command.CommandSender sender, String label, String[] args) {
+                if (sender instanceof Player p) {
+                    uniques.list(p);
+                }
+                return true;
+            }
+        };
+        getServer().getCommandMap().register("aincradrpg", list);
         MobService mobService = new MobService(this, rpg, items);
         PlayerListener players = new PlayerListener(this, rpg, items);
         StatusCommand status = new StatusCommand(rpg);
@@ -129,6 +152,8 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         RpgSettings s = new RpgSettings(config, levels, mobs);
         rpg.settings(s);
         items.reload(s);
+        uniques.reload(config);
+        uniques.refresh();
         spawnFile.reload();
         spawns.reload(spawnFile);
         rareFile.reload();
