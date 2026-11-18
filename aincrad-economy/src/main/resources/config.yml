@@ -37,6 +37,23 @@ casas:
   max_por_jogador: 1
   max_convidados: 10
   reembolso: 0.5          # fração do preço devolvida no /casa vender
+  # Quando o dono vende, é despejado ou some, a casa volta a ser como era ao ser criada
+  # (blocos, baús e molduras). O modelo é guardado no /aincrad casa criar; para guardar de novo
+  # depois de reformar a casa: /aincrad casa modelo <nome>.
+  restaurar_ao_devolver: true
+  # A casa de quem não entra há tantos dias volta ao mercado, sem reembolso. 0 = nunca.
+  inatividade_dias: 0
+  # Imposto: é o que faz casas voltarem ao mercado. A cada período o dono paga uma fração do
+  # preço da casa. É cobrado sozinho quando ele está online; dá para adiantar com
+  # /casa imposto pagar <períodos>. Passada a tolerância sem pagar, a casa é retomada.
+  imposto:
+    fracao: 0.02          # 2% do preço por período. 0 = sem imposto
+    a_cada_dias: 7
+    tolerancia_dias: 7
+    max_adiantado: 8      # até quantos períodos à frente dá para deixar pago
+  # O corretor (/casas): visita às casas à venda. 0 segundos = sem visita, só a lista.
+  visita:
+    segundos: 30
   # Casas com vista: vendidas por leilão (/aincrad casa leilao <nome> <lance mínimo> <horas>).
   leilao:
     incremento: 0.05      # cada lance precisa superar o anterior em 5%

@@ -31,6 +31,8 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
     private EconomyService eco;
     private ShopService shops;
     private TradeService trade;
+    private com.aincrad.economy.house.HouseUpkeep upkeep;
+    private com.aincrad.economy.house.HouseRealty realty;
 
     @Override
     public void onEnable() {
@@ -44,6 +46,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
             core.database().migrate("economy_houses", HouseService.MIGRATIONS);
             core.database().migrate("economy_house_auctions", com.aincrad.economy.house.HouseAuctionService.MIGRATIONS);
             core.database().migrate("economy_holds", HoldService.MIGRATIONS);
+            core.database().migrate("economy_house_upkeep", com.aincrad.economy.house.HouseUpkeep.MIGRATIONS);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradEconomy não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -138,6 +141,31 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskTimer(this, houseAuctions::refresh, 1200L, 1200L);
         MarketCommands market = new MarketCommands(eco, auction, houses);
         market.houseAuctions(houseAuctions);
+        upkeep = new com.aincrad.economy.house.HouseUpkeep(this, eco, houses, houseAuctions, core.database());
+        try {
+            upkeep.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler as placas das casas: " + e.getMessage());
+        }
+        houses.upkeep(upkeep);
+        market.upkeep(upkeep);
+        getServer().getPluginManager().registerEvents(upkeep, this);
+        getServer().getScheduler().runTaskTimer(this, upkeep::tickSigns, 100L, 100L);
+        getServer().getScheduler().runTaskTimer(this, upkeep::tickResets, 600L, 1200L);
+        getServer().getScheduler().runTaskTimer(this, upkeep::tickInactive, 1200L, 12000L);
+        getServer().getScheduler().runTaskTimer(this, upkeep::tickTax, 400L, 12000L);
+        realty = new com.aincrad.economy.house.HouseRealty(this, eco, houses, houseAuctions);
+        getServer().getPluginManager().registerEvents(realty, this);
+        getServer().getScheduler().runTaskTimer(this, realty::tick, 20L, 20L);
+        PluginCommand list = getCommand("casas");
+        if (list != null) {
+            list.setExecutor((sender, command, label, args) -> {
+                if (sender instanceof Player p) {
+                    realty.open(p);
+                }
+                return true;
+            });
+        }
         for (String name : new String[]{"leilao", "casa"}) {
             PluginCommand c = getCommand(name);
             if (c != null) {
@@ -163,6 +191,12 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         if (trade != null) {
             trade.shutdown();
+        }
+        if (upkeep != null) {
+            upkeep.shutdown();
+        }
+        if (realty != null) {
+            realty.shutdown();
         }
         AincradEconomyAPI.init(null, null);
         AincradEconomyAPI.mailbox(null);

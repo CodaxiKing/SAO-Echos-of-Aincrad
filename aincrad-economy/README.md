@@ -37,6 +37,37 @@ A moeda **Col** e o que se compra com ela (etapas A3–A4 do plano). Precisa do 
   (`/casa convidar <jogador>`) e admins quebram, colocam, abrem portas, baús, botões, molduras e
   suportes de armadura. Casa sem dono: só admin mexe. `/casa vender` devolve `reembolso` do preço.
 
+## Casas: placa, restauração e inatividade
+
+Três coisas trazidas do plugin Crown-Housing, sem o aluguel (em Aincrad a casa é comprada):
+
+- **Placa na frente da casa** — `/aincrad casa placa <nome>` põe um texto flutuante onde o admin
+  está (`placa <nome> tirar` remove). Ele mostra "à venda" com o preço, "em leilão" com o lance
+  atual, ou "casa de Fulano", e se atualiza sozinho.
+- **A casa volta a ser como era** — ao criar a casa, o plugin guarda um modelo dela
+  (`plugins/AincradEconomy/casas/<nome>.nbt`). Quando o dono vende, é despejado ou some, os
+  blocos, baús, molduras e suportes de armadura voltam ao modelo, e **o que o dono deixou dentro
+  se perde** (o `/casa vender` avisa). Depois de reformar a casa, guarde de novo com `/aincrad casa
+  modelo <nome>`. Desliga em `casas.restaurar_ao_devolver`. Numa rede, a restauração acontece no
+  servidor onde a casa fica, em até um minuto.
+- **Dono que sumiu** — com `casas.inatividade_dias` maior que 0, a casa de quem não entra há
+  tantos dias volta ao mercado, sem reembolso. Vem desligado (0). A contagem começa quando a regra
+  vê o dono pela primeira vez, não na data da compra.
+
+## O corretor (`/casas`) e o imposto
+
+- **`/casas`** (ou `/corretor`) abre a lista de **casas por andar**: quantas estão à venda em cada
+  andar e, dentro do andar, cada casa com o preço, o lance do leilão ou o dono. Clicar numa casa à
+  venda leva o jogador até ela por `casas.visita.segundos` (30) e o traz de volta ao fim do tempo,
+  quando ele sai da casa ou quando desconecta. A visita só vale para andares em que o jogador já
+  pode entrar (`AincradFloorsAPI.canEnter`); a lista dos outros andares ele vê, sem visitar.
+- **NPC corretor**: um NPC do AincradQuests com `comando: casas` abre a mesma lista.
+- **Imposto** (`casas.imposto`): a cada `a_cada_dias` (7) o dono paga `fracao` (2%) do preço da
+  casa. É cobrado sozinho quando ele está online; `/casa imposto` mostra o vencimento e `/casa
+  imposto pagar <períodos>` adianta até `max_adiantado` (8) períodos, para quem vai ficar fora.
+  Vencido e sem pagar por `tolerancia_dias` (7), **a casa é retomada** e volta ao mercado (ou a
+  leilão). É o que impede as casas de acabarem. `fracao: 0` desliga.
+
 ## Casas com vista: venda por leilão (etapa 50)
 
 Casas raras — a cabana do andar 22 — não têm preço fixo: vão a **leilão**.
@@ -65,8 +96,9 @@ Casas raras — a cabana do andar 22 — não têm preço fixo: vão a **leilão
 | `/pagar <jogador> <qtd>` | Paga Col (`1500`, `1.500`, `1,5k`, `2m`) | `aincrad.economy.use` |
 | `/trocar <jogador>` · `aceitar` · `recusar` | Troca segura | `aincrad.economy.use` |
 | `/leilao` · `/leilao vender <preço> [horas]` · `/leilao retirar` | Leilão | `aincrad.economy.use` |
-| `/casa [info]` · `comprar` · `ir` · `convidar <j>` · `remover <j>` · `definirspawn` · `vender` | Casa | `aincrad.economy.use` |
-| `/aincrad casa criar <nome> <preço> [andar]` · `remover <nome>` · `despejar <nome>` · `listar` | Admin de casas | `aincrad.economy.admin` |
+| `/casa [info]` · `comprar` · `ir` · `convidar <j>` · `remover <j>` · `definirspawn` · `imposto [pagar <n>]` · `vender` | Casa | `aincrad.economy.use` |
+| `/casas` | Corretor: casas por andar, com visita | `aincrad.economy.use` |
+| `/aincrad casa criar <nome> <preço> [andar]` · `remover <nome>` · `despejar <nome>` · `placa <nome> [tirar]` · `modelo <nome>` · `listar` | Admin de casas | `aincrad.economy.admin` |
 | `/aincrad col dar\|tirar\|definir <jogador> <qtd>` · `ver <jogador>` | Admin do saldo | `aincrad.economy.admin` |
 | `/aincrad loja criar <id>` / `npc <id>` | Liga a loja ao bloco / entidade que você olha | `aincrad.economy.admin` |
 | `/aincrad loja remover` · `listar` · `abrir <id> [jogador]` | Remove ligação, lista, abre | `aincrad.economy.admin` |

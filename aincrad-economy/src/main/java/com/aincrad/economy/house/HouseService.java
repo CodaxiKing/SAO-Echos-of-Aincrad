@@ -79,6 +79,13 @@ public final class HouseService implements Listener {
         auctions = service;
     }
 
+    private HouseUpkeep upkeep;
+
+    /** Placas, modelo de restauração e retomada por inatividade. */
+    public void upkeep(HouseUpkeep service) {
+        upkeep = service;
+    }
+
     public HouseService(Plugin plugin, EconomyService eco, Database db) {
         this.plugin = plugin;
         this.eco = eco;
@@ -214,8 +221,12 @@ public final class HouseService implements Listener {
         if (h == null) {
             return false;
         }
+        boolean hadOwner = !h.forSale();
         h.owner(null, null);
         save(h);
+        if (hadOwner && upkeep != null) {
+            upkeep.vacated(h.name());
+        }
         if (auctions != null) {
             auctions.reopen(h.name());
         }
@@ -275,6 +286,9 @@ public final class HouseService implements Listener {
         long back = (long) Math.floor(h.price() * rate);
         h.owner(null, null);
         save(h);
+        if (upkeep != null) {
+            upkeep.vacated(h.name());
+        }
         if (auctions != null) {
             auctions.reopen(h.name());
         }

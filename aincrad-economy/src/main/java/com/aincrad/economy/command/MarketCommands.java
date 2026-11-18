@@ -31,6 +31,12 @@ public final class MarketCommands implements TabExecutor {
         houseAuctions = service;
     }
 
+    private com.aincrad.economy.house.HouseUpkeep upkeep;
+
+    public void upkeep(com.aincrad.economy.house.HouseUpkeep service) {
+        upkeep = service;
+    }
+
     public MarketCommands(EconomyService eco, AuctionService auction, HouseService houses) {
         this.eco = eco;
         this.auction = auction;
@@ -129,6 +135,21 @@ public final class MarketCommands implements TabExecutor {
         House here = houses.at(p.getLocation());
         House h = here != null && mine.contains(here) ? here : mine.get(0);
         switch (op) {
+            case "imposto" -> {
+                if (upkeep == null) {
+                    msg.send(p, "imposto.desligado");
+                } else if (args.length > 1 && args[1].equalsIgnoreCase("pagar")) {
+                    int n = 1;
+                    try {
+                        n = args.length > 2 ? Integer.parseInt(args[2]) : 1;
+                    } catch (NumberFormatException e) {
+                        n = 1;
+                    }
+                    upkeep.pay(p, h, n);
+                } else {
+                    upkeep.taxInfo(p, h);
+                }
+            }
             case "ir" -> {
                 Location l = HouseService.spawnLocation(h.spawn());
                 if (l == null) {
@@ -187,7 +208,7 @@ public final class MarketCommands implements TabExecutor {
         if (args.length == 1) {
             List<String> opts = command.getName().equalsIgnoreCase("leilao")
                     ? List.of("vender", "retirar")
-                    : List.of("info", "comprar", "lance", "leilao", "ir", "convidar", "remover", "definirspawn", "vender");
+                    : List.of("info", "comprar", "lance", "leilao", "ir", "convidar", "remover", "definirspawn", "imposto", "vender");
             return filter(opts, args[0]);
         }
         if (args.length == 2 && command.getName().equalsIgnoreCase("casa")
@@ -240,6 +261,27 @@ public final class MarketCommands implements TabExecutor {
                             }
                         }
                         houses.create(p, args[1], price, floor);
+                        House made = houses.byName(args[1]);
+                        if (made != null && upkeep != null && eco.config().bool("casas.restaurar_ao_devolver", true)) {
+                            msg.send(sender, upkeep.capture(made) ? "placa.modelo_guardado" : "placa.modelo_falhou", Messages.vars("casa", made.name()));
+                        }
+                    }
+                    case "placa", "modelo" -> {
+                        // /aincrad casa placa <nome> [tirar]  |  /aincrad casa modelo <nome>
+                        House h = args.length > 1 ? houses.byName(args[1]) : null;
+                        if (h == null || upkeep == null) {
+                            msg.send(sender, args.length > 1 ? "casa.desconhecida" : "admin.uso_casa", Messages.vars("casa", args.length > 1 ? args[1] : ""));
+                            return;
+                        }
+                        if (op.equals("modelo")) {
+                            msg.send(sender, upkeep.capture(h) ? "placa.modelo_guardado" : "placa.modelo_falhou", Messages.vars("casa", h.name()));
+                        } else if (args.length > 2 && args[2].equalsIgnoreCase("tirar")) {
+                            msg.send(sender, upkeep.removeSign(h.name()) ? "admin.casa_feito" : "placa.sem_placa", Messages.vars("casa", h.name()));
+                        } else if (sender instanceof Player p) {
+                            upkeep.setSign(p, h);
+                        } else {
+                            msg.send(sender, "geral.so_jogador");
+                        }
                     }
                     case "leilao" -> {
                         // /aincrad casa leilao <nome> <lance mínimo> <horas>  |  /aincrad casa leilao <nome> tirar
@@ -287,9 +329,10 @@ public final class MarketCommands implements TabExecutor {
             @Override
             public List<String> complete(CommandSender sender, String[] args) {
                 if (args.length == 1) {
-                    return filter(List.of("criar", "remover", "despejar", "leilao", "listar"), args[0]);
+                    return filter(List.of("criar", "remover", "despejar", "leilao", "placa", "modelo", "listar"), args[0]);
                 }
-                if (args.length == 2 && (args[0].equalsIgnoreCase("remover") || args[0].equalsIgnoreCase("despejar") || args[0].equalsIgnoreCase("leilao"))) {
+                if (args.length == 2 && (args[0].equalsIgnoreCase("remover") || args[0].equalsIgnoreCase("despejar") || args[0].equalsIgnoreCase("leilao")
+                        || args[0].equalsIgnoreCase("placa") || args[0].equalsIgnoreCase("modelo"))) {
                     List<String> names = new ArrayList<>();
                     houses.all().forEach(h -> names.add(h.name()));
                     return filter(names, args[1]);

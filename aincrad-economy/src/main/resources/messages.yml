@@ -106,6 +106,48 @@ leilao:
   voltar: "<gray>Voltar"
   fechar: "<gray>Fechar"
 
+# A placa flutuante na frente da casa (/aincrad casa placa <nome>) e o modelo de restauração.
+placa:
+  venda: "<gold><bold><casa></bold><newline><green>À venda <gray>· andar <white><andar><newline><yellow><col><newline><gray>Entre e use <white>/casa comprar"
+  leilao: "<gold><bold><casa></bold><newline><light_purple>Em leilão <gray>· andar <white><andar><newline><yellow><col><newline><gray>Entre e use <white>/casa lance <valor>"
+  dono: "<gold><bold><casa></bold><newline><gray>Casa de <white><dono>"
+  posta: "<green>Placa da casa <white><casa></white> posta onde você está."
+  sem_placa: "<red>A casa <white><casa></white> não tem placa."
+  modelo_guardado: "<green>Modelo da casa <white><casa></white> guardado: é assim que ela volta quando o dono sair."
+  modelo_falhou: "<red>Não foi possível guardar o modelo da casa <white><casa></white> (o mundo dela está neste servidor?)."
+
+imposto:
+  info: "<gold>Imposto da casa <white><casa></white>: <yellow><col></yellow> a cada <white><dias></white> dias <dark_gray>· <gray>vence em <white><faltam></white> dia(s). <gray>Adiantar: <white>/casa imposto pagar <períodos>"
+  vencido: "<red>O imposto da casa <white><casa></white> (<yellow><col></yellow>) venceu. <gray>Você tem <white><faltam></white> dia(s) para pagar com <white>/casa imposto pagar</white>, ou perde a casa."
+  pago: "<green>Imposto da casa <white><casa></white> pago: <yellow><col></yellow>. <gray>Próximo vencimento em <white><faltam></white> dia(s)."
+  sem_saldo: "<red>Saldo insuficiente para o imposto: <white><col></white>."
+  limite: "<gray>Você já deixou pago o máximo de períodos permitido."
+  perdeu: "<red>A casa <white><casa></white> foi retomada por imposto atrasado."
+  desligado: "<gray>As casas não pagam imposto."
+  sem_data: "<gray>O imposto desta casa ainda não foi lançado. Tente de novo em alguns minutos."
+
+# O corretor: /casas (ou um NPC do AincradQuests com comando: casas).
+corretor:
+  titulo: "<dark_gray>Corretor — andares"
+  titulo_andar: "<dark_gray>Corretor — andar <andar>"
+  vazio: "<gray>Ainda não há casas em Aincrad."
+  andar: "<gold>Andar <white><andar>"
+  andar_lore: "<gray>À venda: <green><livres></green> de <white><total>"
+  andar_abrir: "<yellow>Clique para ver as casas"
+  andar_fechado: "<red>Você ainda não pode ir a este andar <gray>(dá para ver a lista)"
+  casa: "<gold>Casa <white><casa>"
+  venda: "<green>À venda <gray>por <yellow><col>"
+  leilao: "<light_purple>Em leilão <gray>· lance atual <yellow><col>"
+  ocupada: "<red>Ocupada <gray>· casa de <white><dono>"
+  visitar: "<yellow>Clique para visitar por <white><segundos></white> s"
+  voltar: "<gray>Voltar aos andares"
+  indisponivel: "<red>Essa casa não está mais à venda."
+  ja_visitando: "<red>Você já está numa visita."
+  andar_bloqueado: "<red>Você ainda não pode ir ao andar <white><andar></white>."
+  visitando: "<aqua>Visitando a casa <white><casa></white> por <white><segundos></white> s. <gray>Gostou? <white>/casa comprar</white>. Sair da casa encerra a visita."
+  tempo: "<gray>Visita: <white><segundos></white> s"
+  fim: "<gray>Visita encerrada. Você voltou para onde estava."
+
 leilao_casa:
   so_por_lance: "<yellow>Esta casa é vendida por leilão. Use <white>/casa leilao</white> para ver e <white>/casa lance <valor></white> para dar um lance."
   sem_leilao: "<gray>Esta casa não está em leilão."
@@ -129,7 +171,7 @@ leilao_casa:
     limite_de_casas: "<red>Você já tem o máximo de casas."
 
 casa:
-  uso: "<gray>Uso: <white>/casa [info|comprar|lance <valor>|leilao|ir|convidar <j>|remover <j>|definirspawn|vender]"
+  uso: "<gray>Uso: <white>/casa [info|comprar|lance <valor>|leilao|ir|convidar <j>|remover <j>|definirspawn|imposto [pagar <n>]|vender]</white> <gray>· lista: <white>/casas"
   info: "<gold>Casa <white><casa></white> <gray>(andar <white><andar></white>) — dono <white><dono></white>; convidados: <white><convidados>"
   info_venda: "<gold>Casa <white><casa></white> <gray>(andar <white><andar></white>) <green>à venda por <yellow><col></yellow> — <white><click:run_command:'/casa comprar'>/casa comprar</click>"
   nenhuma: "<gray>Você não tem casa. Entre numa casa à venda e use <white>/casa comprar</white>."
@@ -140,7 +182,7 @@ casa:
   perdeu: "<red>Alguém comprou essa casa antes de você. Seu Col voltou."
   comprou: "<green>A casa <white><casa></white> é sua! <gray>(<col>) — <white>/casa convidar <jogador></white> para dar acesso."
   vendeu: "<yellow>Você devolveu a casa <white><casa></white> e recebeu <yellow><col></yellow>."
-  confirmar_venda: "<gray>Devolver a casa <white><casa></white> por <yellow><col></yellow>?"
+  confirmar_venda: "<gray>Devolver a casa <white><casa></white> por <yellow><col></yellow>? <red>O que ficar dentro se perde."
   convidou: "<green><jogador></green> <gray>agora pode usar sua casa."
   foi_convidado: "<aqua><jogador></aqua> <gray>te deu acesso à casa <white><casa></white>."
   removeu: "<yellow><jogador></yellow> <gray>não tem mais acesso."
@@ -158,7 +200,7 @@ casa:
 
 admin:
   descricao_casa: "Casas: criar na seleção, remover, despejar, listar"
-  uso_casa: "<gray>Uso: <white>/aincrad casa criar <nome> <preço> [andar]</white>, <white>remover <nome></white>, <white>despejar <nome></white>, <white>leilao <nome> <lance mínimo> [horas]</white>, <white>leilao <nome> tirar</white>, <white>listar"
+  uso_casa: "<gray>Uso: <white>/aincrad casa criar <nome> <preço> [andar]</white>, <white>remover <nome></white>, <white>despejar <nome></white>, <white>leilao <nome> <lance mínimo> [horas]</white>, <white>leilao <nome> tirar</white>, <white>placa <nome> [tirar]</white>, <white>modelo <nome></white>, <white>listar"
   casa_feito: "<green>Feito: <white><casa></white>."
   casa_lista: "<gray>Casas: <white><casas>"
   descricao_col: "Admin do Col: dar, tirar, definir, ver"

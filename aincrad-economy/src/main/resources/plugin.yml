@@ -32,8 +32,13 @@ commands:
     permission: aincrad.economy.use
   casa:
     description: Sua casa — comprar, ir, convidar, remover, definir chegada, vender.
-    usage: /casa [info|comprar|ir|convidar|remover|definirspawn|vender] [jogador]
-    aliases: [casas, home]
+    usage: /casa [info|comprar|ir|convidar|remover|definirspawn|imposto|vender] [jogador]
+    aliases: [home]
+    permission: aincrad.economy.use
+  casas:
+    description: O corretor — casas de cada andar, com visita às que estão à venda.
+    usage: /casas
+    aliases: [corretor, imobiliaria]
     permission: aincrad.economy.use
 
 permissions:
