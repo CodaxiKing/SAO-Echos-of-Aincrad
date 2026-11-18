@@ -54,3 +54,19 @@ unicos:
   # Se o dono não é visto com o item por tantos dias, o item volta a poder ser criado
   # (e a cópia antiga se desfaz quando reaparecer). 0 = nunca.
   dono_some_dias: 30
+
+# Bônus de combate dos itens (items.yml -> bonus: critico, dano_critico, roubo_vida, esquiva, aparar).
+combate_itens:
+  ativo: true
+  # Multiplicador do golpe crítico antes do "dano crítico" dos itens (1.5 = +50%).
+  critico_base: 1.5
+  # Fração do dano que um golpe aparado tira (0.5 = metade). Aparar pede uma arma na mão.
+  aparar_reducao: 0.5
+  # O máximo que a soma dos itens vale, em %.
+  limites:
+    critico: 60
+    esquiva: 40
+    aparar: 50
+    roubo_vida: 20
+  # Avisa na barra de ação: crítico, esquiva e golpe aparado.
+  avisar: true

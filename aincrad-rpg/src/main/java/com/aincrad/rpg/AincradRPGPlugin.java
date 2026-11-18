@@ -86,6 +86,7 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(players, this);
         getServer().getPluginManager().registerEvents(mobService, this);
+        getServer().getPluginManager().registerEvents(new com.aincrad.rpg.item.ItemCombatListener(rpg, items, config), this);
         command("status", status);
         command("level", new LevelCommand(rpg));
         spawnFile = core.config(this, "spawns.yml");

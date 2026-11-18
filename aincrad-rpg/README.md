@@ -17,6 +17,14 @@ Precisa do **AincradCore** (banco, mensagens, menus, regiões, `/aincrad`).
 - **Itens com raridade** — modelos em `items.yml` (material, nome, level mínimo, slot, faixas de bônus,
   chance de drop). Raridades comum → lendário multiplicam os bônus (`config.yml → raridades`).
   Arma acima do level bate com `penalidade_arma`; armadura acima do level volta para o inventário.
+- **Bônus de combate nos itens** — além dos atributos do Minecraft, um modelo pode ter `critico`,
+  `dano_critico`, `roubo_vida`, `esquiva` e `aparar` (todos em %). A soma dos itens usados vale até
+  os limites de `config.yml → combate_itens`. Esquiva cancela o golpe; aparar corta o dano
+  (`aparar_reducao`) e pede uma arma na mão; o crítico multiplica o dano (`critico_base` mais o
+  dano crítico). Um item só conta no seu slot e não conta se pede level acima do jogador. Os
+  golpes das Sword Skills também podem sair críticos.
+- **Modelo 3D por item** — `modelo: "aincrad:arma/elucidator"` (modelo de item do resource pack)
+  ou `modelo: 10005` (custom model data, para packs antigos ou do ItemsAdder).
 - **Mobs por região** — `spawns.yml` diz quais mobs nascem em cada região, do Minecraft ou do
   **MythicMobs** (veja abaixo).
 - **Encantamento** — mesa de encantamento bloqueada por padrão (`encantamento: bloquear`).
@@ -150,7 +158,8 @@ Eventos: `XpGainEvent` (cancelável, dá para mudar a quantidade — bônus de p
 
 Compila junto com o `../aincrad-core` (build composto). O jar sai em `build/libs/AincradRPG-<versão>.jar`.
 Os testes cobrem curva de XP, subir vários levels, level máximo, morte, tirar XP, pontos, XP de mob
-com redução, sorteio de level e de raridade (`RpgLogicTest`) e a leitura do `spawns.yml`, o sorteio
+com redução, sorteio de level e de raridade (`RpgLogicTest`), as contas de crítico, esquiva, aparar
+e roubo de vida (`ItemCombatTest`) e a leitura do `spawns.yml`, o sorteio
 por peso e as contas dos mobs por região (`SpawnRulesTest`).
 
 ## Ainda falta

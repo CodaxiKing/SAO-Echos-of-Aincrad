@@ -3,6 +3,8 @@ package com.aincrad.rpg.item;
 import com.aincrad.core.config.ConfigFile;
 import com.aincrad.core.message.Messages;
 import com.aincrad.rpg.RpgSettings;
+import com.aincrad.rpg.model.ItemCombat;
+import io.papermc.paper.persistence.PersistentDataContainerView;
 import com.google.common.collect.Multimap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -11,16 +13,19 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,10 +39,10 @@ public final class ItemService {
 
     /** Um modelo de items.yml. */
     public record Template(String id, Material material, String name, int minLevel, EquipmentSlot slot,
-                           Map<String, ItemRoll.Range> bonus, double dropChance, int dropMin, int dropMax) {
+                           Map<String, ItemRoll.Range> bonus, double dropChance, int dropMin, int dropMax, String model) {
     }
 
-    /** Bônus aceitos, com o atributo, a operação e se o valor é em %. */
+    /** Bônus aceitos, com o atributo, a operação e se o valor é em %. Sem atributo: bônus de combate, guardado no item. */
     private record BonusType(Attribute attribute, AttributeModifier.Operation op, boolean percent) {
     }
 
@@ -50,6 +55,9 @@ public final class ItemService {
         BONUS.put("resistencia", new BonusType(Attribute.ARMOR_TOUGHNESS, AttributeModifier.Operation.ADD_NUMBER, false));
         BONUS.put("velocidade_ataque", new BonusType(Attribute.ATTACK_SPEED, AttributeModifier.Operation.ADD_SCALAR, true));
         BONUS.put("velocidade", new BonusType(Attribute.MOVEMENT_SPEED, AttributeModifier.Operation.ADD_SCALAR, true));
+        for (String stat : ItemCombat.STATS) {
+            BONUS.put(stat, new BonusType(null, null, true));
+        }
     }
 
     private final Plugin plugin;
@@ -58,6 +66,8 @@ public final class ItemService {
     private final NamespacedKey keyId;
     private final NamespacedKey keyRarity;
     private final NamespacedKey keyLevel;
+    private final NamespacedKey keySlot;
+    private final Map<String, NamespacedKey> keyCombat = new LinkedHashMap<>();
     private Map<String, Template> templates = Map.of();
     private Set<String> unique = Set.of();
     private UniqueItemService uniques;
@@ -71,6 +81,10 @@ public final class ItemService {
         keyId = new NamespacedKey(plugin, "item");
         keyRarity = new NamespacedKey(plugin, "raridade");
         keyLevel = new NamespacedKey(plugin, "level_minimo");
+        keySlot = new NamespacedKey(plugin, "slot");
+        for (String stat : ItemCombat.STATS) {
+            keyCombat.put(stat, new NamespacedKey(plugin, "c_" + stat));
+        }
         load();
     }
 
@@ -132,7 +146,8 @@ public final class ItemService {
         }
         List<Integer> lv = s.getIntegerList("drop.level_mob");
         return new Template(id, m, s.getString("nome", id), Math.max(1, s.getInt("level_minimo", 1)), slot, bonus,
-                s.getDouble("drop.chance", 0), lv.isEmpty() ? 1 : lv.get(0), lv.size() < 2 ? Integer.MAX_VALUE : lv.get(1));
+                s.getDouble("drop.chance", 0), lv.isEmpty() ? 1 : lv.get(0), lv.size() < 2 ? Integer.MAX_VALUE : lv.get(1),
+                s.getString("modelo", "").trim());
     }
 
     public Set<String> ids() {
@@ -184,6 +199,7 @@ public final class ItemService {
 
         ItemStack item = new ItemStack(t.material());
         ItemMeta meta = item.getItemMeta();
+        applyModel(meta, t);
         meta.displayName(Messages.parse(info.color() + "<name>", Messages.vars("name", t.name())));
         List<Component> lore = new ArrayList<>();
         lore.add(msg.get("item.lore_raridade", Placeholder.component("raridade",
@@ -199,6 +215,12 @@ public final class ItemService {
                 return;
             }
             BonusType bt = BONUS.get(stat);
+            if (bt.attribute() == null) {
+                meta.getPersistentDataContainer().set(keyCombat.get(stat), PersistentDataType.DOUBLE, value);
+                lore.add(msg.get("item.lore_bonus", Messages.vars("valor", fmt(value), "unidade", "%"),
+                        Placeholder.component("nome", msg.get("item.bonus_" + stat))));
+                return;
+            }
             double amount = bt.percent() ? value / 100.0 : value;
             NamespacedKey key = new NamespacedKey(plugin, "item_" + stat + "_" + t.slot().name().toLowerCase(Locale.ROOT));
             meta.addAttributeModifier(bt.attribute(), new AttributeModifier(key, amount, bt.op(), group));
@@ -210,12 +232,73 @@ public final class ItemService {
         pdc.set(keyId, PersistentDataType.STRING, t.id());
         pdc.set(keyRarity, PersistentDataType.STRING, r.key());
         pdc.set(keyLevel, PersistentDataType.INTEGER, t.minLevel());
+        pdc.set(keySlot, PersistentDataType.STRING, t.slot().name());
         item.setItemMeta(meta);
         if (serial != null) {
             uniques.tag(item, serial);
         }
         return item;
     }
+
+    /**
+     * O visual do item no resource pack. {@code modelo: "aincrad:arma/elucidator"} aponta um
+     * modelo de item (assets/aincrad/items/arma/elucidator.json); {@code modelo: 10005} é o
+     * custom model data, para packs antigos ou do ItemsAdder.
+     */
+    private void applyModel(ItemMeta meta, Template t) {
+        String model = t.model();
+        if (model == null || model.isEmpty()) {
+            return;
+        }
+        if (model.contains(":")) {
+            NamespacedKey key = NamespacedKey.fromString(model.toLowerCase(Locale.ROOT));
+            if (key == null) {
+                plugin.getLogger().warning("items.yml: modelo inválido em " + t.id() + ": " + model);
+            } else {
+                meta.setItemModel(key);
+            }
+            return;
+        }
+        try {
+            CustomModelDataComponent data = meta.getCustomModelDataComponent();
+            data.setFloats(List.of((float) Integer.parseInt(model)));
+            meta.setCustomModelDataComponent(data);
+        } catch (NumberFormatException e) {
+            plugin.getLogger().warning("items.yml: modelo inválido em " + t.id() + ": " + model);
+        }
+    }
+
+    /**
+     * A soma dos bônus de combate (crítico, esquiva...) dos itens que o jogador está usando. Um
+     * item só conta no slot para o qual foi feito, e não conta se pede um level acima do dele.
+     */
+    public Map<String, Double> combat(Player p, int level) {
+        Map<String, Double> total = new HashMap<>();
+        for (EquipmentSlot slot : COMBAT_SLOTS) {
+            ItemStack it = p.getInventory().getItem(slot);
+            if (it == null || it.isEmpty()) {
+                continue;
+            }
+            PersistentDataContainerView pdc = it.getPersistentDataContainer();
+            if (!slot.name().equals(pdc.get(keySlot, PersistentDataType.STRING))) {
+                continue;
+            }
+            Integer need = pdc.get(keyLevel, PersistentDataType.INTEGER);
+            if (need != null && need > level) {
+                continue;
+            }
+            keyCombat.forEach((stat, key) -> {
+                Double v = pdc.get(key, PersistentDataType.DOUBLE);
+                if (v != null) {
+                    total.merge(stat, v, Double::sum);
+                }
+            });
+        }
+        return total;
+    }
+
+    private static final EquipmentSlot[] COMBAT_SLOTS = {EquipmentSlot.HAND, EquipmentSlot.OFF_HAND,
+            EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
     private static String fmt(double v) {
         return v == Math.rint(v) ? String.valueOf((long) v) : String.valueOf(v);

@@ -2,6 +2,10 @@
 #  Modelos de item. Cada bônus tem uma faixa [mín, máx]; o valor sorteado
 #  é multiplicado pela raridade (config.yml → raridades).
 #  Bônus: dano, vida, armadura, resistencia, velocidade_ataque (%), velocidade (%)
+#  Bônus de combate (todos em %): critico, dano_critico, roubo_vida, esquiva, aparar
+#    (limites e valores em config.yml -> combate_itens; aparar só vale com arma na mão)
+#  modelo (opcional): o visual no resource pack. "aincrad:arma/anneal_blade" aponta um modelo
+#    de item; um número (10005) é o custom model data, para packs antigos ou do ItemsAdder.
 #  slot: MAINHAND, OFFHAND, HEAD, CHEST, LEGS, FEET
 #  drop (opcional): chance por abate de mob com level na faixa.
 #  unico: true -> o item existe uma vez só na rede inteira (veja /unicos). Criar o segundo é
@@ -24,6 +28,8 @@ itens:
     bonus:
       dano: [3, 5]
       velocidade_ataque: [0, 6]
+      critico: [2, 5]
+      aparar: [0, 4]
     drop: { chance: 0.005, level_mob: [4, 10] }
   casaco_couro:
     material: LEATHER_CHESTPLATE
@@ -33,4 +39,5 @@ itens:
     bonus:
       vida: [2, 4]
       armadura: [0, 1]
+      esquiva: [1, 3]
     drop: { chance: 0.01, level_mob: [2, 8] }
