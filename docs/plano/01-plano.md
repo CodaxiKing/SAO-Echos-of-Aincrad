@@ -432,7 +432,7 @@ O AincradQuests traz as missões de NPC de cada andar, definidas em `quests/*.ym
 1. **Objetivos**: matar mobs, coletar ou entregar itens, falar com NPC, chegar a um lugar, derrotar um chefe, pescar, cozinhar. Uma quest pode ter várias etapas em sequência.
 2. **Recompensas**: XP, Col, itens, título ou skill, pelas APIs dos outros plugins.
 3. **Tipos**: história do andar (uma vez), diárias e semanais (renovam), e quest de party (progresso compartilhado).
-4. **NPCs**: ícone sobre a cabeça de quem tem quest disponível ou pronta para entregar; diálogo em janela com opções.
+4. **NPCs**: ícone sobre a cabeça de quem tem quest disponível ou pronta para entregar; diálogo em janela com opções. *(Feito até aqui: uma fala por NPC e a janela de quests. A conversa com opções é a entrega 2 da sexta leva.)*
 5. **Diário**: lista de quests ativas e concluídas no menu do AincradUI, com rastreio da quest escolhida no HUD.
 6. **Requisitos**: level mínimo, andar liberado ou quest anterior.
 
@@ -538,7 +538,7 @@ Terceira leva. Começa depois da etapa 30.
 
 ## O que ainda falta
 
-Estado em 18/11/2026. **Todas as etapas numeradas do plano (0 a 59) têm código.** Os duelos saíram do AincradSocial e viraram o AincradDuels. Os dezesseis projetos compilam sem avisos e os 347 testes de regras passam. **Nada, da etapa 22 em diante, foi testado num servidor de verdade** — nem com um banco MySQL, nem com o MythicMobs, o ModelEngine ou um webhook do Discord de verdade. É o que falta fazer antes de abrir o servidor.
+Estado em 18/11/2026. **Todas as etapas de 0 a 59 têm código.** As etapas 60 a 66 (a sexta leva: AincradPlaceholders, falas dos NPCs e mais conquistas) estão planejadas e ainda não têm código. Os duelos saíram do AincradSocial e viraram o AincradDuels. Os dezesseis projetos compilam sem avisos e os 347 testes de regras passam. **Nada, da etapa 22 em diante, foi testado num servidor de verdade** — nem com um banco MySQL, nem com o MythicMobs, o ModelEngine ou um webhook do Discord de verdade. É o que falta fazer antes de abrir o servidor.
 
 O que entrou por último, por plugin:
 
@@ -657,6 +657,95 @@ Dezesseis ideias para o mundo deixar de ser cenário. Nenhuma é necessária par
 | 59 | aincrad-world | Clima por andar | O andar com névoa na config reduz a visão e troca a tabela de mobs enquanto a névoa dura |
 
 **Dependências entre as etapas**: a 49 precisa dos informantes (42); a 53 precisa das dungeons (52); a 56 precisa do AincradSkills (34 a 36); o Nicholas da etapa 41 passa a usar o calendário quando a 57 existir, e até lá usa uma data fixa na config. As etapas 57 a 59 mexem no equilíbrio de mobs, drops e economia: só depois do andar 1 (A1) pronto e jogado.
+
+### Sexta leva — a abertura do servidor
+
+Três entregas pensadas para o dia em que o servidor abre: o que os outros plugins mostram do Aincrad, a conversa com os NPCs e o que dá objetivo a quem já passou do conteúdo do andar. Decididas em 18/11/2026. **Nenhuma tem código ainda.**
+
+**1. AincradPlaceholders (pasta aincrad-placeholders) — plugin novo, pequeno**
+
+Hoje só o AincradFloors fala com o PlaceholderAPI (`%aincrad_frontline%`, `%aincrad_floor_atual%`, `%aincrad_floor_nome%`). Tab, scoreboard, chat e hologramas de outros plugins não conseguem mostrar mais nada do Aincrad. O AincradPlaceholders registra a expansão `aincrad` inteira e lê tudo pelas APIs públicas dos outros plugins, sem tocar no banco de nenhum.
+
+1. **Um plugin só, com tudo opcional**: precisa do AincradCore e do PlaceholderAPI; todos os outros plugins Aincrad são `softdepend`. Placeholder de plugin que não está instalado devolve o texto de `vazio` da config (padrão: nada), nunca um erro.
+2. **A expansão é uma só**: com o AincradPlaceholders instalado, o AincradFloors deixa de registrar a dele, e os três placeholders antigos continuam valendo com o mesmo nome.
+3. **Nada de consulta ao banco na hora**: o PlaceholderAPI chama na thread principal, várias vezes por segundo. Os valores vêm do que os plugins já têm em memória; os rankings são recarregados em segundo plano a cada `ranking.atualizar_segundos` (padrão 60).
+4. **Formatos**: os números saem crus (`%aincrad_col%` → 12500) e com a variante `_fmt` no formato do plugin dono (`%aincrad_col_fmt%` → 12.500 Col). As cores saem em MiniMessage ou no formato antigo (`&a`), escolhido em `config.yml`, porque a maioria dos plugins de tab e scoreboard ainda usa o antigo.
+5. **Outro jogador**: `%aincrad_<nome>_de_<jogador>%` não entra nesta leva; os placeholders são sempre de quem está vendo. Os rankings cobrem o caso mais pedido.
+
+| Placeholder | O que mostra | De onde vem |
+| --- | --- | --- |
+| `%aincrad_level%`, `%aincrad_xp%`, `%aincrad_xp_falta%`, `%aincrad_xp_pct%` | Level e progresso | AincradRPG |
+| `%aincrad_col%`, `%aincrad_col_fmt%` | Saldo | AincradEconomy |
+| `%aincrad_frontline%`, `%aincrad_floor_atual%`, `%aincrad_floor_nome%` | Linha de frente e andar do jogador | AincradFloors |
+| `%aincrad_guilda%`, `%aincrad_guilda_tag%`, `%aincrad_guilda_cargo%`, `%aincrad_guilda_nivel%` | Guilda do jogador | AincradSocial |
+| `%aincrad_party%`, `%aincrad_party_tamanho%` | Líder e tamanho da party | AincradSocial |
+| `%aincrad_cursor%`, `%aincrad_cursor_cor%` | Verde, laranja ou vermelho, e o código da cor | AincradReputation |
+| `%aincrad_titulo%`, `%aincrad_conquistas%` | Título em uso e quantas conquistas | AincradReputation |
+| `%aincrad_duelo_vitorias%`, `%aincrad_duelo_derrotas%`, `%aincrad_duelo_sequencia%`, `%aincrad_duelo_melhor%` | Placar de duelos | AincradDuels |
+| `%aincrad_profissao_<culinaria\|pesca\|ferreiro\|alquimia>%` | Nível da profissão | AincradLife |
+| `%aincrad_quest%`, `%aincrad_quest_progresso%` | A quest acompanhada e a linha do objetivo | AincradQuests |
+| `%aincrad_estacao%`, `%aincrad_data%` | Estação e data do calendário de Aincrad | AincradWorld |
+| `%aincrad_top_<level\|col\|duelo\|guilda>_<1..10>_nome%` e `..._valor%` | Rankings | RPG, Economy, Duels, Social |
+
+O que os plugins ainda não expõem pela API (por exemplo, o ranking de level e o de Col) entra como método novo na API de cada um, na mesma etapa. Comando: `/aincrad placeholders` lista todos com o valor atual de quem digitou, para o dono conferir sem montar um scoreboard. O README traz um exemplo pronto de tab e de scoreboard.
+
+**2. Falas dos NPCs (AincradQuests) — não é plugin novo**
+
+O plano pedia "diálogo em janela com opções" (item 4 do AincradQuests), mas o que existe é uma fala só por NPC (`/aincrad npc fala`), dita no chat antes da janela de quests. Falta a conversa.
+
+1. **Arquivos**: `dialogos/*.yml`, um arquivo por andar, como as quests. Cada NPC tem nós; cada nó tem o que o NPC diz (uma ou mais linhas) e as opções do jogador. Um NPC sem diálogo continua como hoje.
+2. **Tudo por menu, sem digitar**: a fala aparece na janela (flutuante com o AincradUI, baú sem ele, formulário no Bedrock) e cada opção é um botão. Nada de responder no chat.
+3. **O que uma opção faz**: ir para outro nó, abrir as quests do NPC, aceitar ou entregar uma quest direto, abrir uma loja (AincradEconomy), rodar um comando, ou encerrar.
+4. **Condições**: um nó ou uma opção pode pedir quest concluída, quest em andamento, quest não aceita, level mínimo, andar liberado, item no inventário, cor do cursor, guilda ou título. Quem não cumpre não vê a opção; com `mostrar_bloqueada: true` ela aparece cinza com o motivo.
+5. **O NPC lembra**: o primeiro nó cuja condição vale é o de abertura, então o mesmo NPC fala diferente antes, durante e depois de uma quest. Um nó pode ser marcado `uma_vez: true` (a apresentação) — o que o jogador já ouviu fica no perfil do core e vale na rede.
+6. **Objetivo "falar"**: continua contando ao clicar no NPC. Uma etapa pode pedir um nó específico (`tipo: falar, npc: kizmel, no: a_chave`), para a quest só andar quando o jogador chega àquela parte da conversa.
+7. **Escolhas que ficam**: uma opção pode gravar uma marca (`marca: lado_dos_elfos_escuros`), que outras condições leem. É o que permite, mais tarde, a escolha de lado na guerra dos elfos do andar 3.
+8. **Variáveis nas falas**: `<jogador>`, `<level>`, `<guilda>`, `<andar>` e os placeholders do PlaceholderAPI, se instalado.
+9. **Editor**: `/aincrad npc dialogo <id>` abre o menu dos nós para testar a conversa como jogador e ver qual condição barrou cada opção. Escrever as falas continua sendo no arquivo: texto longo não cabe em menu.
+10. **Conteúdo**: os pacotes dos andares 1 a 4 ganham o `dialogos/andarN.yml` com as falas dos NPCs que eles já pedem (hoje a lista de "o que este pacote não tem" de cada um cita as falas), e os `AndarNPackTest` passam a conferir que todo NPC, quest, loja e nó citado existe.
+
+**3. Mais conquistas e títulos (AincradReputation) — não é plugin novo**
+
+As conquistas e os títulos já existem (etapas 26 e 27): `achievements.yml`, `/conquistas`, `/titulos`, o título antes do nome. O que falta é o que dá objetivo depois do conteúdo do andar: conquistas de **contagem**, de **feito** e os plugins que ainda não avisam o Reputation de nada (duelos, quests, guilda, RPG, economia).
+
+1. **Contagem** (`quantidade: 100`): hoje toda conquista sai no primeiro acontecimento. Com `quantidade`, o progresso fica no perfil do core, vale na rede e aparece em `/conquistas` como barra ("37/100").
+2. **Níveis** (`niveis: [10, 50, 100]`): a mesma conquista em bronze, prata e ouro, cada nível com o seu título.
+3. **Tipos novos**, cada um ligado a um evento que o plugin dono já dispara:
+
+| Tipo | Quando conta | Plugin |
+| --- | --- | --- |
+| `duelo_vencido`, `duelo_sequencia` | Vitória em duelo; sequência de vitórias (por modo, se pedido) | AincradDuels |
+| `chefe_sem_cair` | Venceu o chefe de andar sem morrer na luta | AincradBosses |
+| `chefe_no_tempo` | Venceu o chefe em menos de N segundos | AincradBosses |
+| `andar_sem_cair` | Do primeiro passo no andar até o chefe derrotado, sem morrer | Floors + Bosses |
+| `quest_concluida`, `historia_do_andar` | N quests; a última quest da história de um andar | AincradQuests |
+| `mob_abatido` | N mobs (de um id do `spawns.yml`, se pedido) | AincradRPG |
+| `mob_raro` | Alcançou um mob raro | AincradRPG |
+| `level` | Chegou ao level N | AincradRPG |
+| `guilda_fundada`, `guilda_nivel` | Fundou uma guilda; a guilda chegou ao nível N | AincradSocial |
+| `col_acumulado` | Juntou N Col no total (ganho, não saldo) | AincradEconomy |
+| `skill_proficiencia` | Proficiência N numa arma | AincradSkills |
+| `item_lendario` | Conseguiu um item lendário | AincradRPG |
+
+4. **Conquistas secretas** (`secreta: true`): não aparecem em `/conquistas` até alguém conseguir; depois aparecem para todos com o nome de quem foi o primeiro.
+5. **Recompensa** além do título: Col, XP ou item, entregue pelo correio do AincradEconomy quando há item.
+6. **Raridade**: `/conquistas` mostra quantos por cento dos jogadores têm cada uma; as de menos de 1% saem com o nome em dourado.
+7. **Título na rede**: o título escolhido já aparece no chat, na tab e sobre a cabeça. Passa também para o `%aincrad_titulo%` (AincradPlaceholders) e para o cartão do jogador no menu do AincradUI.
+8. **Conteúdo**: o `achievements.yml` padrão ganha as conquistas dos tipos novos (entre elas "primeiro Last Attack" que já existe como Beater, "100 duelos vencidos" e "andar limpo sem cair"), e cada pacote de andar passa a trazer as do seu andar.
+
+O "sem cair" precisa de uma decisão que fica registrada aqui: como o servidor não tem morte permanente, **cair** é morrer uma vez; quem morre no andar perde a `andar_sem_cair` daquele andar para sempre, e a `chefe_sem_cair` pode ser tentada de novo na próxima luta.
+
+| # | Pasta | Entrega | Pronto quando |
+| --- | --- | --- | --- |
+| 60 | aincrad-placeholders | Projeto, expansão `aincrad`, placeholders do jogador (level, Col, andar, guilda, party, cursor, título, duelos, profissões, quest) | Um scoreboard de outro plugin mostra level, Col e guilda certos; sem o AincradEconomy, `%aincrad_col%` sai vazio e nada quebra |
+| 61 | aincrad-placeholders, e as APIs de RPG, Economy, Duels e Social | Rankings em memória, formatos, `/aincrad placeholders`, README com exemplo de tab e scoreboard | `%aincrad_top_duelo_1_nome%` mostra o primeiro do ranking e muda em até um minuto depois de um duelo |
+| 62 | aincrad-quests | Diálogos: arquivos, nós, opções, condições, janela por menu | Um NPC de exemplo fala uma coisa antes da quest e outra depois, e a opção de loja abre a loja |
+| 63 | aincrad-quests | "Uma vez", marcas, objetivo "falar" num nó, `/aincrad npc dialogo` | A apresentação só aparece na primeira conversa, em qualquer servidor da rede; a quest só anda no nó pedido |
+| 64 | conteúdo | `dialogos/andarN.yml` dos andares 1 a 4 e os testes dos pacotes | Todo NPC dos quatro guias tem fala, e o teste falha se um nó cita quest, loja ou NPC que não existe |
+| 65 | aincrad-reputation | Contagem, níveis, progresso em `/conquistas`, secretas, recompensa, raridade | Uma conquista de 3 abates mostra 2/3 depois de dois e sai no terceiro; o progresso continua em outro servidor |
+| 66 | aincrad-reputation, e os eventos de Duels, Quests, RPG, Social, Economy, Skills e Bosses | Os tipos novos e o `achievements.yml` ampliado | Vencer o terceiro duelo seguido dá a conquista de sequência; morrer na luta do chefe não dá a `chefe_sem_cair` |
+
+**Dependências entre as etapas**: a 61 pede métodos novos nas APIs de quatro plugins; a 63 usa o perfil do core; a 64 só faz sentido depois da 62 e da 63; a 66 depende da 65. O `%aincrad_titulo%` da 60 funciona com o Reputation de hoje. As três entregas não dependem uma da outra e podem ser feitas em qualquer ordem; a sugerida é a da numeração, do que custa menos para o que mexe em mais plugins.
 
 ## Testes e entrega
 
