@@ -42,6 +42,16 @@ public final class AincradSocialAPIImpl implements AincradSocialAPI {
     }
 
     @Override
+    public boolean isDueling(UUID player) {
+        return plugin.duels().service().duelOf(player) != null;
+    }
+
+    @Override
+    public boolean inDuel(UUID a, UUID b) {
+        return plugin.duels().service().inDuel(a, b);
+    }
+
+    @Override
     public void addGuildXp(UUID player, long amount, String reason) {
         Guild g = plugin.guilds().guildOf(player);
         if (g != null) {

@@ -119,6 +119,14 @@ public final class AincradFloorsAPI {
         return floors != null && floors.canEnter(player, floor);
     }
 
+    /**
+     * Um combate combinado (duelo): até a hora dada (milissegundos; 0 encerra), os dois podem se
+     * ferir mesmo dentro de zona segura. O AincradSocial chama isto ao começar e ao acabar um duelo.
+     */
+    public static void exemptPvp(UUID a, UUID b, long until) {
+        com.aincrad.floors.listener.SafeZoneListener.exempt(a, b, until);
+    }
+
     /** O lugar é uma cidade (zona segura)? */
     public static boolean isSafeZone(Location location) {
         return floors != null && floors.isSafeZone(location);

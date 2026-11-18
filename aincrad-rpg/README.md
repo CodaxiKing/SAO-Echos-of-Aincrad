@@ -164,5 +164,4 @@ por peso e as contas dos mobs por região (`SpawnRulesTest`).
 
 ## Ainda falta
 
-- Dividir o XP de mob com a party do AincradSocial (dá para fazer ouvindo o `XpGainEvent`).
 - Botão "Status" no menu do AincradUI chamando `AincradRPGAPI.openStatus`.

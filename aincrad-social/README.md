@@ -1,6 +1,6 @@
 # AincradSocial
 
-Amigos, party, guilda e mensagens no estilo SAO, para Paper 1.21.11. Funciona sozinho pelos comandos e
+Amigos, party, guilda, duelos e mensagens no estilo SAO, para Paper 1.21.11. Funciona sozinho pelos comandos e
 pelo chat; com o **AincradUI** instalado, tudo aparece no menu SAO e os membros da party ganham
 barras de vida embaixo da barra do jogador, como no anime.
 
@@ -35,6 +35,8 @@ próxima linha que o jogador digitar no chat é usada (só ele vê). `cancelar` 
 | `/party expulsar\|lider <jogador>` | Só o líder |
 | `/party sair`, `/party desfazer` | Sair; desfazer (só o líder) |
 | `/party chat <mensagem>` ou `@mensagem` no chat | Chat só da party |
+| `/duelo <jogador> [primeiro_golpe\|metade\|total]` | Desafia para um duelo |
+| `/duelo aceitar\|recusar [jogador]`, `/duelo desistir` | Responde ao desafio; desiste do duelo em andamento |
 | `/mensagem <jogador> [texto]` | Manda para a caixa de entrada (sem texto, pede no chat) |
 | `/caixa`, `/caixa ler <n>`, `/caixa apagar <n>` | Caixa de entrada (com o AincradUI, `/caixa` abre no menu) |
 
@@ -106,7 +108,7 @@ Sair/Desfazer.
 
 ### API
 
-`AincradSocialAPI` no ServicesManager: `getParty`, `getGuild` (nome, tag, emblema, nível, cargo,
+`AincradSocialAPI` no ServicesManager: `isDueling`, `inDuel`, `getParty`, `getGuild` (nome, tag, emblema, nível, cargo,
 vermelha), `areAllies` (party, guilda ou aliança), `addGuildXp`, `recordBossKill(participantes, andar,
 lastAttacker)` para o AincradBosses, `questCompleted` para o AincradQuests e `taxIncome` para a
 economia. Eventos em `com.aincrad.social.api.event`: `GuildCreateEvent`, `GuildJoinEvent`,
@@ -120,9 +122,37 @@ economia. Eventos em `com.aincrad.social.api.event`: `GuildCreateEvent`, `GuildJ
   aceita. Se o líder sai, o próximo vira líder; com 1 membro, a party acaba. Sem fogo amigo
   (`party.fogo_amigo`), inclusive flechas. Sair do servidor tira o jogador da party. Parties não são
   guardadas: somem quando o servidor reinicia.
+  - **XP dividido** (`party.xp`): o XP de um mob do AincradRPG é dividido por igual entre os membros a
+    até `raio` blocos (32). A cada membro a mais o total cresce `bonus_por_membro` (10%) antes de
+    dividir: dois jogadores recebem 55% cada, três recebem 40% cada. Sem o AincradRPG, nada muda.
+  - **Drops** (`party.drops`): `livre` (quem pegar primeiro, o padrão), `por_vez` (rodízio entre os
+    membros próximos) ou `lider`. O item cai no chão como sempre, mas só o dono consegue pegar.
+    Vale para o que os mobs soltam, não para as recompensas dos chefes.
 - **Mensagens**: só para amigos (`mensagens.so_amigos`), ficam na caixa mesmo com o destinatário
   offline; ao entrar, o jogador é avisado das não lidas. Até `mensagens.caixa_maxima` por jogador
   (as mais antigas saem). Texto puro, até 256 letras.
+
+## Duelos
+
+`/duelo <jogador> [modo]` desafia alguém a até `duelo.distancia_desafio` blocos (16). O desafio chega
+no chat com os botões Aceitar e Recusar e expira em 30 s. Aceito, há uma contagem de 5 s e os golpes
+passam a valer.
+
+| Modo | Como acaba |
+|---|---|
+| `primeiro_golpe` (padrão) | Quem acerta o primeiro golpe vence. O golpe não tira vida. |
+| `metade` | Vence quem deixar o outro com metade da vida ou menos. Ninguém morre. |
+| `total` | Até a morte, **de verdade** — o aviso aparece no convite. `duelo.modo_total: false` desliga. |
+
+- **Dentro de zona segura**: com o AincradFloors, os dois podem se ferir na cidade enquanto o duelo dura.
+- **Cor do cursor**: com o AincradReputation, nenhum golpe do duelo muda a cor de ninguém, nem a morte no modo total.
+- **Sword Skills**: com o AincradSkills, quem está em duelo usa skills dentro da cidade.
+- Colegas de party, de guilda e aliados se acertam durante o duelo.
+- Ninguém de fora acerta um duelista, e um duelista só acerta o oponente.
+- Perde quem sai do servidor, quem desiste (`/duelo desistir`) e quem se afasta mais de `duelo.raio`
+  blocos (30) do lugar onde o duelo começou.
+- Passado o `tempo_limite_segundos` (180), vence quem tem a maior fração de vida; igual, empata.
+- O resultado aparece no chat de quem está a até `raio_aviso` blocos.
 
 ## Dados
 
@@ -136,7 +166,13 @@ mudança (fora da thread principal) e ao desligar, com troca atômica do arquivo
 - Chat da guilda entre servidores da rede (precisa do `MessageBus` do aincrad-core).
 - Emblema como imagem do pack (hoje é um símbolo de texto) e banner da guilda (nível 5).
 - Casa da guilda comprada com o tesouro (precisa das casas do AincradEconomy).
-- Experiência e itens divididos na party.
+- Os dados no banco do core (hoje ficam em YAML, um por servidor): numa rede, amigos, caixas de
+  mensagem e guildas não são os mesmos em todos os servidores.
+- Teleporte até um amigo dentro de zona segura.
+- Duelos: sem aposta de Col nem de itens, sem placar de vitórias, e o desafio é só por comando
+  (ainda não há botão "Duelar" no menu SAO).
+- O dono do drop (`por_vez`, `lider`) nunca perde a posse: se ele não pegar, o item some no tempo
+  normal do Minecraft sem ficar livre para os outros.
 
 ## Desenvolvimento
 

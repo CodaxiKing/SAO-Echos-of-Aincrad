@@ -126,8 +126,7 @@ cada skill única), no banco do core.
 
 - O efeito visual e o som das skills são partículas e sons do Minecraft, definidos em cada skill;
   não passam pelo AincradEffects.
-- "Bloqueadas em zona segura, fora de duelo": as skills são bloqueadas em zona segura sempre. A
-  exceção do duelo do AincradSocial fica para a ligação com ele.
+- Em zona segura as skills são bloqueadas, menos para quem está num duelo do AincradSocial.
 - A Cura em Batalha cura sempre, não só fora de combate.
 
 ## Compilar

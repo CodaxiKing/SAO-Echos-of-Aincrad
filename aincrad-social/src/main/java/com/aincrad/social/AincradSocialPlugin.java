@@ -6,6 +6,9 @@ import com.aincrad.social.config.Settings;
 import com.aincrad.social.data.YamlSocialStore;
 import com.aincrad.social.api.AincradSocialAPI;
 import com.aincrad.social.api.AincradSocialAPIImpl;
+import com.aincrad.social.duel.DuelCommand;
+import com.aincrad.social.duel.DuelManager;
+import com.aincrad.social.party.PartyRewards;
 import com.aincrad.social.guild.GuildCommands;
 import com.aincrad.social.guild.GuildConfig;
 import com.aincrad.social.guild.GuildListener;
@@ -51,6 +54,8 @@ public final class AincradSocialPlugin extends JavaPlugin {
     private GuildVault guildVault;
     private Hooks hooks;
     private boolean guildSaveScheduled;
+    private DuelManager duels;
+    private PartyRewards partyRewards;
 
     @Override
     public void onEnable() {
@@ -72,12 +77,16 @@ public final class AincradSocialPlugin extends JavaPlugin {
         guildManager = new GuildManager(this);
         guildVault = new GuildVault(this);
         hooks = new Hooks(getLogger());
+        duels = new DuelManager(this);
+        partyRewards = new PartyRewards(this);
 
         var pm = getServer().getPluginManager();
         pm.registerEvents(chatInput, this);
         pm.registerEvents(new SocialListener(this), this);
         pm.registerEvents(new GuildListener(this), this);
         pm.registerEvents(guildVault, this);
+        pm.registerEvents(duels, this);
+        pm.registerEvents(partyRewards, this);
 
         SocialCommands commands = new SocialCommands(this);
         for (String name : new String[]{"amigo", "party", "mensagem", "caixa"}) {
@@ -95,10 +104,20 @@ public final class AincradSocialPlugin extends JavaPlugin {
                 cmd.setTabCompleter(guildCommands);
             }
         }
+        PluginCommand duelCmd = getCommand("duelo");
+        if (duelCmd != null) {
+            DuelCommand dc = new DuelCommand(this);
+            duelCmd.setExecutor(dc);
+            duelCmd.setTabCompleter(dc);
+        }
+        Bukkit.getScheduler().runTaskTimer(this, duels::tick, 10L, 10L);
         getServer().getServicesManager().register(AincradSocialAPI.class, new AincradSocialAPIImpl(this), this, ServicePriority.Normal);
         // Economia, andares, quests e reputação: procurados depois que todos os plugins ligaram.
         Bukkit.getScheduler().runTask(this, () -> {
             hooks.detect();
+            if (partyRewards.hookXp()) {
+                getLogger().info("Party: XP dos mobs do AincradRPG dividido entre os membros próximos.");
+            }
             guildManager.maintenance();
             Bukkit.getOnlinePlayers().forEach(guildManager::refreshName);
         });
@@ -118,6 +137,9 @@ public final class AincradSocialPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         menu.shutdown();
+        if (duels != null) {
+            duels.shutdown();
+        }
         if (store != null && store.dirty()) {
             store.save();
         }
@@ -221,6 +243,10 @@ public final class AincradSocialPlugin extends JavaPlugin {
 
     public GuildVault guildVault() {
         return guildVault;
+    }
+
+    public DuelManager duels() {
+        return duels;
     }
 
     public Hooks hooks() {

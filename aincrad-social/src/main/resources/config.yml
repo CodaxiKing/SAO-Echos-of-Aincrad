@@ -15,6 +15,33 @@ party:
   fogo_amigo: false
   # Mensagens no chat que começam com este prefixo vão só para a party. Vazio desliga.
   chat_prefixo: "@"
+  xp:
+    # Divide o XP dos mobs (AincradRPG) entre os membros que estão por perto.
+    dividir: true
+    # Distância, em blocos, para contar como "por perto" (vale também para os drops).
+    raio: 32
+    # A cada membro a mais, o XP total cresce isto (0.1 = +10%), antes de dividir.
+    bonus_por_membro: 0.1
+  # De quem são os itens que os mobs soltam: livre (quem pegar), por_vez (rodízio) ou lider.
+  drops: livre
+
+duelo:
+  ativo: true
+  convite_expira_segundos: 30
+  # Contagem antes de os golpes valerem.
+  contagem_segundos: 5
+  # Passado o tempo, vence quem tem mais vida (em fração); igual, empata.
+  tempo_limite_segundos: 180
+  # Distância máxima entre os dois para desafiar e aceitar.
+  distancia_desafio: 16
+  # Quem se afasta mais que isto do lugar onde o duelo começou perde.
+  raio: 30
+  # Quem está a até este raio vê o resultado no chat.
+  raio_aviso: 32
+  # O modo "total" mata de verdade. false deixa só "primeiro_golpe" e "metade".
+  modo_total: true
+  # Modo usado quando o jogador não escolhe: primeiro_golpe, metade ou total.
+  modo_padrao: primeiro_golpe
 
 mensagens:
   # Só dá para mandar mensagem para amigos (como no anime).

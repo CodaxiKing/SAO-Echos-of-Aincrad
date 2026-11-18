@@ -7,7 +7,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 |---|---|---|
 | `aincrad-core/` | **AincradCore** — config, mensagens, /aincrad, banco, regiões, menus, perfil, MessageBus | pronto (etapa 0) |
 | `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD em barras, telas planas com cursor (loja), vida crítica, tela de morte | pronto (etapas 14–17), com as artes do SAO-UI/sao-assets |
-| `aincrad-social/` | **AincradSocial** — amigos, party, guilda (como no anime) e mensagens | pronto (dados em YAML até o aincrad-core) |
+| `aincrad-social/` | **AincradSocial** — amigos, party (XP e drops divididos), guilda (como no anime), duelos e mensagens | código pronto (etapas 31–33), sem teste em servidor; os dados ainda ficam em YAML, um por servidor |
 | `aincrad-rpg/` | **AincradRPG** — level, XP, atributos, level dos mobs, mobs por região (Minecraft e MythicMobs), itens com raridade | pronto (etapas A1–A2); os mobs por região, os mobs raros (etapa 45) e os itens únicos (etapa 51) têm código, sem teste em servidor |
 | `aincrad-economy/` | **AincradEconomy** — Col, Vault, lojas de NPC, /pagar, troca segura, leilão, casas e custódia | pronto (etapas A3–A4, mais a custódia das encomendas); casas por leilão (etapa 50) com código, sem teste em servidor |
 | `aincrad-floors/` | **AincradFloors** — andares, bloqueio de entrada, zona segura, anúncio, Teleport Gates, o dia do anúncio e o fim de jogo | pronto (etapas 1–4); etapas 40, 43 e 54 (mapa por exploração) com código, sem teste em servidor |

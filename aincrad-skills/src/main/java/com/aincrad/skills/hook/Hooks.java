@@ -26,6 +26,24 @@ public final class Hooks {
         }
     }
 
+    /** O jogador está num duelo do AincradSocial? Sem o plugin: false. */
+    public boolean dueling(Player p) {
+        if (!has("AincradSocial")) {
+            return false;
+        }
+        try {
+            for (Class<?> c : Bukkit.getServicesManager().getKnownServices()) {
+                if (c.getName().equals("com.aincrad.social.api.AincradSocialAPI")) {
+                    Object api = Bukkit.getServicesManager().load(c);
+                    return api != null && Boolean.TRUE.equals(c.getMethod("isDueling", java.util.UUID.class).invoke(api, p.getUniqueId()));
+                }
+            }
+        } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+            return false;
+        }
+        return false;
+    }
+
     /** O level do jogador no AincradRPG. Sem o plugin, todos os espaços ficam liberados. */
     public int level(Player p) {
         if (!has("AincradRPG")) {

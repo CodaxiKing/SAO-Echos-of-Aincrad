@@ -77,6 +77,7 @@ public final class SocialListener implements Listener {
             attacker = p;
         }
         if (attacker != null && !attacker.equals(victim)
+                && !plugin.duels().service().inDuel(attacker.getUniqueId(), victim.getUniqueId())
                 && plugin.parties().sameParty(attacker.getUniqueId(), victim.getUniqueId())) {
             event.setCancelled(true);
         }

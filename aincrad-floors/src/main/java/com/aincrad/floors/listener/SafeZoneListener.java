@@ -28,7 +28,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Zona segura (a região "cidade" de cada andar): nenhum dano de nenhuma fonte, sem PvP, sem
+ * Zona segura (a região "cidade" de cada andar): nenhum dano de nenhuma fonte, sem PvP (menos
+ * entre dois jogadores em duelo, pelo AincradSocial), sem
  * fome, mobs hostis não nascem nem ficam, blocos não quebram. Quem tem aincrad.floors.bypass
  * constrói e ataca normalmente (para montar a cidade).
  */
@@ -39,7 +40,44 @@ public final class SafeZoneListener implements Listener {
             CreatureSpawnEvent.SpawnReason.CUSTOM, CreatureSpawnEvent.SpawnReason.COMMAND,
             CreatureSpawnEvent.SpawnReason.SPAWNER_EGG);
 
+    /** Pares em duelo ("menor:maior" → até quando): podem se ferir dentro da cidade. */
+    private static final java.util.Map<String, Long> EXEMPT = new java.util.concurrent.ConcurrentHashMap<>();
+
     private final FloorService floors;
+
+    private static String pair(java.util.UUID a, java.util.UUID b) {
+        return a.compareTo(b) < 0 ? a + ":" + b : b + ":" + a;
+    }
+
+    /** Libera (ou, com {@code until} no passado, volta a proteger) os golpes entre os dois. */
+    public static void exempt(java.util.UUID a, java.util.UUID b, long until) {
+        if (until <= System.currentTimeMillis()) {
+            EXEMPT.remove(pair(a, b));
+        } else {
+            EXEMPT.put(pair(a, b), until);
+        }
+    }
+
+    /** O golpe é de um duelista no oponente dele? */
+    private static boolean duel(EntityDamageEvent event) {
+        if (EXEMPT.isEmpty() || !(event instanceof EntityDamageByEntityEvent e) || !(e.getEntity() instanceof Player victim)) {
+            return false;
+        }
+        Player by = attacker(e.getDamager());
+        if (by == null || by.equals(victim)) {
+            return false;
+        }
+        String key = pair(by.getUniqueId(), victim.getUniqueId());
+        Long until = EXEMPT.get(key);
+        if (until == null) {
+            return false;
+        }
+        if (until < System.currentTimeMillis()) {
+            EXEMPT.remove(key);
+            return false;
+        }
+        return true;
+    }
 
     public SafeZoneListener(FloorService floors) {
         this.floors = floors;
@@ -54,7 +92,7 @@ public final class SafeZoneListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onDamage(EntityDamageEvent event) {
-        if (!floors.isSafeZone(event.getEntity().getLocation())) {
+        if (!floors.isSafeZone(event.getEntity().getLocation()) || duel(event)) {
             return;
         }
         if (event.getEntity() instanceof Player) {
@@ -72,7 +110,7 @@ public final class SafeZoneListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onAttackFromInside(EntityDamageByEntityEvent event) {
         Player by = attacker(event.getDamager());
-        if (by != null && event.getEntity() instanceof Player && floors.isSafeZone(by.getLocation())) {
+        if (by != null && event.getEntity() instanceof Player && floors.isSafeZone(by.getLocation()) && !duel(event)) {
             event.setCancelled(true);
         }
     }

@@ -101,8 +101,9 @@ public final class GuildListener implements Listener {
         } else if (event.getDamager() instanceof Projectile proj && proj.getShooter() instanceof Player p) {
             attacker = p;
         }
-        if (attacker == null || attacker.equals(victim)) {
-            return;
+        if (attacker == null || attacker.equals(victim)
+                || plugin.duels().service().inDuel(attacker.getUniqueId(), victim.getUniqueId())) {
+            return; // num duelo, colegas de guilda se acertam
         }
         if (svc().sameGuild(attacker.getUniqueId(), victim.getUniqueId()) || svc().areAllies(attacker.getUniqueId(), victim.getUniqueId())) {
             event.setCancelled(true);

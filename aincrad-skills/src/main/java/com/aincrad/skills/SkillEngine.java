@@ -230,7 +230,7 @@ public final class SkillEngine implements Listener {
         if (prof < def.minProf()) {
             return Fail.PROFICIENCIA;
         }
-        if (blockSafeZone && hooks.safeZone(p.getLocation())) {
+        if (blockSafeZone && hooks.safeZone(p.getLocation()) && !hooks.dueling(p)) {
             return Fail.ZONA_SEGURA;
         }
         if (cooldown(p, def.id()) > 0) {

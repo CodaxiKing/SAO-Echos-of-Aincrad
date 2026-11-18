@@ -181,6 +181,21 @@ public final class Hooks {
         return r != null && String.valueOf(r).equalsIgnoreCase("RED");
     }
 
+    /** Dá XP do AincradRPG (passa pelo XpGainEvent dele, com o motivo dado). Sem o RPG, nada. */
+    public void addXp(Player p, long amount, String reason) {
+        call(rpg, "addXp", new Class<?>[]{Player.class, long.class, String.class}, p, amount, reason);
+    }
+
+    /**
+     * Duelo: até a hora dada (milissegundos; 0 encerra), os dois podem se ferir dentro de zona
+     * segura (AincradFloors) e sem mudar a cor do cursor (AincradReputation).
+     */
+    public void exemptPvp(java.util.UUID a, java.util.UUID b, long until) {
+        Class<?>[] sig = {java.util.UUID.class, java.util.UUID.class, long.class};
+        call(floors, "exemptPvp", sig, a, b, until);
+        call(reputation, "exemptPvp", sig, a, b, until);
+    }
+
     public boolean hasFloors() {
         return floors != null;
     }

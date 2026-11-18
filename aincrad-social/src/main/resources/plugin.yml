@@ -2,7 +2,7 @@ name: AincradSocial
 version: '${version}'
 main: com.aincrad.social.AincradSocialPlugin
 api-version: '1.21'
-description: Amigos, party, guilda e mensagens no estilo SAO (integra com o menu do AincradUI).
+description: Amigos, party, guilda, duelos e mensagens no estilo SAO (integra com o menu do AincradUI).
 authors: [CodaxiKing]
 softdepend: [AincradUI, Vault, AincradEconomy, AincradFloors, AincradQuests, AincradRPG, AincradReputation]
 
@@ -34,6 +34,11 @@ commands:
   ga:
     description: Chat das guildas aliadas.
     usage: /ga <mensagem>
+    permission: aincrad.social.use
+  duelo:
+    description: Duelo — desafiar, aceitar, recusar, desistir.
+    usage: /duelo <jogador> [primeiro_golpe|metade|total] | aceitar [jogador] | recusar [jogador] | desistir
+    aliases: [duel, duelar]
     permission: aincrad.social.use
   caixa:
     description: Mostra sua caixa de entrada.
