@@ -538,14 +538,110 @@ Terceira leva. Começa depois da etapa 30.
 
 ## O que ainda falta
 
-Estado em 17/11/2026. Estes quatro plugins ainda não têm código; a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
+Estado em 18/11/2026. Destes três plugins, só o AincradAdmin tem código, e só a etapa 28 (o registro e o `/aincrad log`, na pasta `aincrad-admin/`); a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
 
 | Etapas | Plugin | O que é |
 | --- | --- | --- |
-| 26–27 | AincradReputation | Conquistas, títulos, cor do cursor (verde, laranja, vermelho), bloqueio nas cidades, prisão, PvP por andar |
 | 28–30 | AincradAdmin | Registro das ações de admin, Discord por webhook, ranking em site, backup e restauração, `/aincrad status` |
 | 34–36 | AincradSkills | Proficiência por arma, Sword Skills ativas e passivas, atalhos, skill única |
 | 37–38 | AincradQuests | Motor de quests, NPCs com diálogo, diárias, quest de party, diário no menu |
+
+O AincradReputation (etapas 26–27) já tem código, na pasta `aincrad-reputation/`; como o AincradLife, ainda não foi testado num servidor de verdade.
+
+Fora das etapas, o AincradRPG ganhou os **mobs por região** (`spawns.yml`): cada região do core pode ter a sua lista de mobs, do Minecraft ou do MythicMobs, com level e peso. É a base dos mobs de cada pacote de andar (A1, A2…).
+
+**O que cada um dos três traz**
+
+- **AincradSkills**: é o que mais faz falta no combate. Sem ele, lutar é o combate normal do Minecraft com números maiores. Inclui a pausa depois do golpe, a proficiência por arma e a Dual Blades.
+- **AincradQuests**: NPCs com missão, diárias e a quest "Selo da Guilda" do andar 3, que o AincradSocial exige para criar uma guilda.
+- **AincradAdmin**: não muda a experiência do jogador, mas o dono precisa do backup e do registro das ações.
+
+### Quarta leva — o mundo de Aincrad
+
+Os plugins dão os sistemas; para o servidor parecer o Aincrad do anime ainda faltam o conteúdo de cada andar e algumas regras do jogo da morte. Esta leva começa depois da etapa 38, porque usa as Sword Skills e as quests.
+
+**Conteúdo de cada andar**
+
+Hoje os arquivos trazem só exemplos. Cada andar novo é um pacote de conteúdo, sem código, com quatro partes:
+
+1. **Chefe**: existe o Illfang, do andar 1. Cada andar precisa do seu em `bosses/andarN.yml`, com fases e habilidades.
+2. **Mobs**: hoje são mobs do Minecraft com level e nome (um Kobold é um zumbi renomeado), porque o plano deixou os modelos 3D de fora. Cada andar define os seus em `mob-levels.yml` e nas zonas do labirinto: tipo, level, equipamento e drops. Modelos próprios continuam fora do escopo; se entrarem, vão pelo pack único do AincradEffects.
+3. **Itens**: armas, armaduras, drops e receitas próprias do andar, em `items.yml` (RPG), `forge.yml` e `ingots.yml` (ferreiro), `recipes.yml` (culinária), `formulas.yml` (alquimia) e `fishing.yml` (pesca).
+4. **Quests**: a história do andar e as diárias, em `quests/andarN.yml`. Depende do AincradQuests.
+
+O mapa de cada andar (terreno, cidade, labirinto, sala do chefe) é construído pelo dono do servidor; os plugins só delimitam as regiões.
+
+**Regras e eventos do jogo da morte**
+
+1. **Monumento da Vida** (AincradReputation): um mural, no Palácio de Ferro Negro, com o nome de todos os jogadores que já entraram. O nome é riscado quando o jogador morre, com a data e a causa (mob, chefe, jogador, queda). `/monumento` mostra a mesma lista em menu, com busca. Vale para a rede inteira.
+2. **O dia do anúncio** (AincradEffects, com o AincradFloors): um evento que o dono dispara uma vez, com `/aincrad anuncio iniciar`. Todos os jogadores online são levados à praça da Cidade do Início, o céu fica vermelho e o discurso passa em sequência, em efeitos de YAML. No fim, o `modo_death_game` do AincradUI é ligado e o botão de logout some. Quem entrar depois vê uma versão curta.
+3. **Fim de jogo** (AincradFloors, com o AincradBosses): hoje o plano não diz o que acontece quando o último chefe cai. A config ganha `andar_final` (75, como no anime, ou 100) e `ao_vencer`: anúncio para a rede, créditos com os nomes de quem sobreviveu e de quem participou da última luta, e o que fazer com o mundo (continuar aberto, reiniciar a temporada ou fechar a entrada). A escolha entre esses três fica para o dono.
+4. **Chefes de campo e de evento** (AincradBosses): chefes fora das salas de andar. O de campo fica numa região do mapa e volta de tempos em tempos; o de evento aparece numa data marcada e some depois. Nenhum dos dois libera andar. O primeiro de evento é o Nicholas, o Renegado, na noite de Natal, que dá o Cristal de Ressurreição do AincradItems — o cristal já existe, o chefe não.
+5. **Informantes** (AincradBosses, com o AincradEconomy): o guia de estratégia dos chefes já cobre parte do papel da Argo. Falta o comércio de informação: o guia deixa de ser aberto a todos e passa a ser vendido. Um NPC informante em cada cidade vende, em Col, as páginas que o servidor já descobriu; e um jogador que viu uma fase ou habilidade primeiro pode vender a página dele a outro, como item.
+
+| # | Pasta | Entrega | Pronto quando |
+| --- | --- | --- | --- |
+| 39 | aincrad-reputation | Monumento da Vida: registro de entradas e mortes, mural e `/monumento` | Um jogador que morre aparece riscado, com a causa, no mural e no menu, também para quem está em outro servidor |
+| 40 | aincrad-effects, aincrad-floors | O dia do anúncio: teleporte à praça, sequência do discurso, logout escondido | `/aincrad anuncio iniciar` leva todos à praça, toca a sequência inteira e, no fim, o menu não mostra mais o logout |
+| 41 | aincrad-bosses | Chefes de campo (região e intervalo) e de evento (data marcada) | O chefe de campo volta no intervalo da config sem liberar andar; o Nicholas aparece na data marcada e dá o Cristal de Ressurreição a quem der o Last Attack |
+| 42 | aincrad-bosses, aincrad-economy | Informantes: páginas do guia vendidas por NPC e entre jogadores | Sem comprar, o guia de um chefe aparece em branco; comprar a página no informante desconta o Col e mostra a fase |
+| 43 | aincrad-floors, aincrad-bosses | Fim de jogo: `andar_final`, anúncio, créditos e o que fazer com o mundo | Derrotar o chefe do andar final anuncia a vitória para a rede e aplica a opção escolhida em `ao_vencer` |
+| A1, A2… | conteúdo | Um pacote por andar (A1 é o andar 1): chefe, mobs, itens e quests | No andar novo, o chefe luta com as fases do YAML, os mobs têm os levels e drops definidos, os itens podem ser forjados ou dropados e a história do andar pode ser concluída |
+
+Os pacotes de andar não entram na numeração das etapas: são feitos um a um, ao longo de todo o resto. O andar 1 é o primeiro (A1): a Cidade do Início, os campos, o labirinto, o Illfang com os Sentinelas e a quest do primeiro dia.
+
+### Quinta leva — o mundo vivo
+
+Dezesseis ideias para o mundo deixar de ser cenário. Nenhuma é necessária para jogar; a ordem das etapas vai do que custa menos e usa o que já existe para o que mexe no equilíbrio de tudo. Calendário, clima, dia e noite e o jornal são de um plugin novo, o **AincradWorld** (pasta `aincrad-world`, `softdepend` em todos os outros); o resto são extras dos plugins que já existem.
+
+**O mundo reage aos jogadores (AincradWorld)**
+
+1. **Notícias do castelo**: um jornal semanal montado sozinho com o que aconteceu — andar liberado, quem deu o Last Attack, o torneio de pesca, casamentos, quem foi preso, conquistas anunciadas. O plugin só ouve os eventos que os outros já disparam e guarda no banco. Sai como um livro, vendido por NPC nas cidades e lido em `/jornal`; as edições antigas ficam guardadas.
+2. **Calendário de Aincrad**: datas e estações próprias do servidor, em `calendar.yml` (quantos dias reais dura uma estação, e as datas marcadas). Dá chão para os eventos: o Nicholas no Natal, festivais nas cidades, peixes e ervas de estação. Os outros plugins perguntam pela API `getSeason()` e `isDate(id)`, e ouvem `SeasonChangeEvent` e `CalendarDateEvent`.
+3. **Clima por andar**: cada andar com o seu tema, como no anime — o 4 coberto de água, o 22 de floresta calma, o 35 com a Floresta da Perdição. `weather.yml` define, por andar e por estação, a chance de chuva, neve e névoa. O clima muda a visibilidade (névoa com os efeitos do AincradEffects) e quais mobs aparecem (o RPG e o labirinto do Bosses consultam o clima).
+4. **Dia e noite que importam**: mobs mais fortes e com drops melhores à noite, e as cidades como abrigo de verdade. Multiplicadores de level, XP, Col e chance de drop por período, em `world.yml`. Aviso na tela ao anoitecer fora de zona segura.
+
+**Lugares com história**
+
+5. **Dungeons escondidas** (AincradBosses): como a do andar 27, onde os Gatos Negros caíram na armadilha. Uma região fora do caminho do labirinto, com mobs acima do level do andar, área anti-cristal e um baú-armadilha: abrir fecha a porta e dispara o alarme, que chama mobs até todos morrerem ou o tempo acabar. Definidas em `dungeons/*.yml`.
+6. **Zonas fora do mapa** (AincradFloors, com o AincradUI): áreas sem marcação, onde o mapa do jogador fica em branco até ele explorar a pé. O andar é dividido em setores; cada setor visitado fica gravado por jogador. O mapa do menu mostra só os setores vistos, e os dados podem ser vendidos como item ("dados de mapa"), como no anime.
+7. **Túmulos e memoriais** (AincradReputation): quando um jogador morre, fica uma lápide no lugar, com o nome e a data. Combina com o Monumento da Vida. As lápides não podem ser quebradas, somem depois de um prazo configurável (ou nunca) e têm um limite por pedaço de mapa. Outro jogador pode deixar uma flor.
+8. **Casas com vista** (AincradEconomy): a cabana do andar 22. Casas raras, uma por andar, marcadas com `leilao: true`. Não têm preço fixo: vão a leilão com lance mínimo e prazo, e o maior lance leva. Quando o dono vende ou abandona, a casa volta a leilão.
+
+**Coisas que os jogadores fazem entre si**
+
+9. **Reunião de estratégia** (AincradBosses, com os informantes da etapa 42): antes de um chefe, o líder da raid convoca a reunião numa região da cidade, como a do Diabel em Tolbana. Os inscritos são avisados; quem está presente recebe a função, vê as páginas do guia que o líder comprou e fica marcado como "informado" na lista da raid.
+10. **Contratos de escolta** (AincradLife, nas encomendas): um jogador paga outro para atravessar um labirinto ou chegar a um lugar. O Col fica em custódia e é pago quando o contratante chega vivo ao destino (uma região), com o escolta por perto. Se o contratante morre, o Col volta e o escolta perde reputação.
+11. **Recompensa por cabeça** (AincradReputation, com o AincradEconomy): a vítima de um jogador vermelho, ou qualquer um, põe Col pela prisão dele. O valor fica em custódia e vai para quem o derrotar e mandar para a prisão. `/recompensas` lista as cabeças a prêmio. Se o vermelho voltar a verde sem ser preso, o Col volta a quem pôs.
+12. **Guildas de crime** (AincradSocial, com o AincradReputation): o plano já tem a guilda vermelha. Falta o que a Laughing Coffin fazia: uma base escondida (uma casa que não aparece em lista nenhuma e só entra no mapa de quem a encontrou a pé) e emboscadas (dentro de uma região marcada pela guilda, as vítimas não usam cristal de teleporte por alguns segundos depois do primeiro golpe). Derrotar o líder na base dele rende a recompensa de todos os membros.
+
+**Itens e segredos**
+
+13. **Mobs raros de andar** (AincradRPG, com o AincradLife): mobs com chance baixa de aparecer num andar, que fogem do jogador e dão um drop raro. O primeiro é o coelho do ragu: a receita do Ensopado de Coelho já espera a carne dele como ingrediente de rank S, que hoje só existe por comando. Definidos em `rare-mobs.yml` (mob, andar, chance, clima ou período, drop).
+14. **Itens únicos do servidor** (AincradRPG): a Elucidator e a Dark Repulser existem uma vez só. Um item marcado como `unico: true` só é criado se ainda não existe na rede; fica registrado quem o tem; não pode ser destruído (lava, vazio, despawn) e, se o dono some por um prazo configurável, volta a poder cair. `/unicos` lista os que já foram encontrados.
+15. **Skills únicas** (AincradSkills, ampliando a etapa 36): além da Dual Blades, o anime cita dez. Cada uma com um critério secreto em `unique-skills.yml` (o tempo de reação mais rápido, mais golpes aparados, mais chefes sem morrer…), dada ao primeiro jogador que o cumprir. O critério não aparece em lugar nenhum; o servidor só anuncia que a skill encontrou um dono.
+16. **Chaves e mapas** (AincradItems, com o AincradBosses): drops que abrem uma dungeon escondida para um grupo, uma vez. A chave abre a porta para a party de quem a usa e é gasta. O mapa mostra a entrada no mapa do menu e some depois de usado.
+
+| # | Pasta | Entrega | Pronto quando |
+| --- | --- | --- | --- |
+| 44 | aincrad-world | Projeto, registro dos acontecimentos e o jornal semanal | Liberar um andar e prender um jogador aparecem na edição da semana; `/jornal` abre a edição atual e as antigas |
+| 45 | aincrad-rpg, aincrad-life | Mobs raros de andar; o coelho do ragu | Com chance 100% em teste, o coelho aparece no andar dele, foge do jogador e solta a carne que a receita de rank S aceita |
+| 46 | aincrad-reputation, aincrad-economy | Recompensa por cabeça | O Col posto na cabeça de um vermelho vai para quem o prender; se ele volta a verde antes, o Col volta a quem pôs |
+| 47 | aincrad-reputation | Túmulos e memoriais | Morrer deixa uma lápide com nome e data que não quebra e some no prazo da config |
+| 48 | aincrad-life | Contratos de escolta | O escolta recebe quando o contratante entra vivo na região de destino; se o contratante morre, o Col volta |
+| 49 | aincrad-bosses | Reunião de estratégia | O líder convoca, os inscritos são avisados e quem está na região vê as páginas do guia do líder |
+| 50 | aincrad-economy | Casas com vista: venda por leilão | A casa marcada vai para o maior lance no fim do prazo e volta a leilão quando o dono a vende |
+| 51 | aincrad-rpg | Itens únicos do servidor | O segundo pedido de criar um item único é recusado em qualquer servidor da rede; jogá-lo na lava não o destrói |
+| 52 | aincrad-bosses | Dungeons escondidas e baú-armadilha | Abrir o baú fecha a porta, bloqueia os cristais e chama mobs até o grupo vencer ou o tempo acabar |
+| 53 | aincrad-items, aincrad-bosses | Chaves e mapas | A chave abre a dungeon para a party de quem usou e é gasta; sem chave, a porta não abre |
+| 54 | aincrad-floors, aincrad-ui | Zonas fora do mapa | Um setor nunca visitado aparece em branco no mapa do menu e é revelado ao entrar nele a pé |
+| 55 | aincrad-social, aincrad-reputation | Guildas de crime: base escondida e emboscada | A base não aparece em lista nenhuma até ser encontrada; na região de emboscada, o cristal de teleporte da vítima falha pelo tempo da config |
+| 56 | aincrad-skills | Skills únicas com critério secreto | Com um critério de teste, a skill vai para o primeiro que o cumpre e não pode ser dada a um segundo |
+| 57 | aincrad-world | Calendário: estações, datas marcadas, API e eventos | Mudar a estação dispara o evento; um plugin de teste pergunta se hoje é a data "natal" e recebe a resposta certa |
+| 58 | aincrad-world | Dia e noite que importam | À noite, fora de zona segura, um mob do mesmo tipo nasce com level maior e dá o drop multiplicado da config |
+| 59 | aincrad-world | Clima por andar | O andar com névoa na config reduz a visão e troca a tabela de mobs enquanto a névoa dura |
+
+**Dependências entre as etapas**: a 49 precisa dos informantes (42); a 53 precisa das dungeons (52); a 56 precisa do AincradSkills (34 a 36); o Nicholas da etapa 41 passa a usar o calendário quando a 57 existir, e até lá usa uma data fixa na config. As etapas 57 a 59 mexem no equilíbrio de mobs, drops e economia: só depois do andar 1 (A1) pronto e jogado.
 
 ## Testes e entrega
 
