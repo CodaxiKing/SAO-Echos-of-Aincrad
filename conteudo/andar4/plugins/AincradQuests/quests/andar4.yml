@@ -1,0 +1,235 @@
+# ============================================================
+#  Quests do ANDAR 4
+#  Pacote de conteúdo: copie para plugins/AincradQuests/quests/andar4.yml
+#  (junto com os dos andares 1 a 3; a história continua de onde o andar 3 parou).
+#
+#  Rovia → Canais → Floresta dos Ursos → Usco → Lago da Caldeira → Castelo de Yofel → Labirinto → Wythege
+#
+#  NPCs que precisam existir (/aincrad npc criar <id> <nome>):
+#    guarda_rovia, construtor_rovia    (Rovia)
+#    anciao_usco                       (vila de Usco)
+#    visconde_yofel                    (Castelo de Yofel)
+#  Regiões usadas em "chegar": rovia, vila_usco, castelo_yofel, labirinto_andar4
+# ============================================================
+
+# ---------------------------------------------------------------- história
+
+chegada_a_rovia:
+  nome: "A cidade dos canais"
+  descricao: "O quarto andar abriu. Em Rovia não há ruas: só canais, pontes e gôndolas."
+  tipo: historia
+  npc: guarda_rovia
+  requisitos:
+    quest: o_treant_maligno
+    andar: 4
+  etapas:
+    - { tipo: chegar, regiao: rovia, texto: "Chegue a Rovia" }
+    - { tipo: falar, npc: guarda_rovia, texto: "Apresente-se ao guarda do cais" }
+  recompensas:
+    xp: 9200
+    col: 1500
+
+canais_infestados:
+  nome: "Canais infestados"
+  descricao: "Os Water Wights sobem dos canais e viram as gôndolas de quem sai da cidade."
+  tipo: historia
+  npc: guarda_rovia
+  requisitos:
+    quest: chegada_a_rovia
+    level: 30
+  etapas:
+    - { tipo: matar, alvo: afogado_dos_canais, quantidade: 12, texto: "Derrote 12 Water Wights nos Canais de Rovia" }
+  recompensas:
+    xp: 9600
+    col: 1800
+
+a_gondola:
+  nome: "A gôndola"
+  descricao: "O velho construtor faz um barco para quem trouxer peles de urso para calafetar o casco."
+  tipo: historia
+  npc: construtor_rovia
+  requisitos:
+    quest: canais_infestados
+    level: 32
+  etapas:
+    - { tipo: falar, npc: construtor_rovia, texto: "Ouça o construtor de barcos" }
+    - { tipo: matar, alvo: urso_da_floresta, quantidade: 10, texto: "Derrote 10 Ursos da Floresta" }
+    - { tipo: entregar, item: LEATHER, quantidade: 8, texto: "Leve 8 peles ao construtor" }
+  recompensas:
+    xp: 10200
+    col: 2200
+    itens: ["OAK_BOAT 1"]
+
+caminho_para_usco:
+  nome: "Rio abaixo"
+  descricao: "Com um barco, dá para descer o canal até a vila de Usco, na beira do lago."
+  tipo: historia
+  npc: construtor_rovia
+  requisitos:
+    quest: a_gondola
+    level: 34
+  etapas:
+    - { tipo: chegar, regiao: vila_usco, texto: "Desça o canal até Usco" }
+    - { tipo: falar, npc: anciao_usco, texto: "Fale com o ancião da vila" }
+  recompensas:
+    xp: 10800
+    col: 2600
+
+o_castelo_de_yofel:
+  nome: "O castelo no lago"
+  descricao: "Do outro lado do lago fica Yofel, o castelo dos elfos escuros. Os lanceiros afogados cercam a travessia."
+  tipo: historia
+  npc: anciao_usco
+  requisitos:
+    quest: caminho_para_usco
+    level: 35
+  etapas:
+    - { tipo: matar, alvo: lanceiro_afogado, quantidade: 10, texto: "Derrote 10 Lanceiros Afogados no Lago da Caldeira" }
+    - { tipo: chegar, regiao: castelo_yofel, texto: "Atravesse o lago até o Castelo de Yofel" }
+    - { tipo: falar, npc: visconde_yofel, texto: "Peça audiência ao visconde" }
+  recompensas:
+    xp: 11600
+    col: 3000
+
+a_torre_submersa:
+  nome: "A torre submersa"
+  descricao: "Os Elfos Caídos entraram na torre antes de todos. O visconde quer saber o que procuram."
+  tipo: historia
+  party: true
+  npc: visconde_yofel
+  requisitos:
+    quest: o_castelo_de_yofel
+    level: 36
+  etapas:
+    - { tipo: chegar, regiao: labirinto_andar4, texto: "Entre no labirinto" }
+    - { tipo: matar, alvo: guerreiro_caido, quantidade: 15, texto: "Derrote 15 Fallen Elven Warriors" }
+    - { tipo: falar, npc: visconde_yofel, texto: "Volte ao visconde" }
+  recompensas:
+    xp: 12800
+    col: 3600
+    itens: ["rpg:escudo_de_casco"]
+
+os_cavaleiros_caidos:
+  nome: "Os cavaleiros caídos"
+  descricao: "No topo da torre, os cavaleiros dos Elfos Caídos guardam a porta do Hipocampo."
+  tipo: historia
+  party: true
+  npc: visconde_yofel
+  requisitos:
+    quest: a_torre_submersa
+    level: 38
+  etapas:
+    - { tipo: matar, alvo: cavaleiro_caido, quantidade: 12, texto: "Derrote 12 Fallen Elven Knights" }
+    - { tipo: falar, npc: visconde_yofel, texto: "Volte para o conselho em Yofel" }
+  recompensas:
+    xp: 14000
+    col: 4400
+
+o_hipocampo:
+  nome: "O Hipocampo"
+  descricao: "Dizem que a sala do Wythege enche de água enquanto a luta dura. Ninguém quer ficar para conferir."
+  tipo: historia
+  party: true
+  npc: visconde_yofel
+  requisitos:
+    quest: os_cavaleiros_caidos
+  etapas:
+    - { tipo: chefe, alvo: wythege, texto: "Derrote Wythege the Hippocampus" }
+  recompensas:
+    xp: 18000
+    col: 8000
+    itens: ["GOLDEN_APPLE 8"]
+
+# ---------------------------------------------------------------- fora da história
+
+a_capa_do_barqueiro:
+  nome: "A capa do barqueiro"
+  descricao: "O construtor costura capas com as escamas que os caranguejos e os afogados soltam."
+  tipo: historia
+  npc: construtor_rovia
+  requisitos:
+    quest: canais_infestados
+  etapas:
+    - { tipo: coletar, item: PRISMARINE_SHARD, quantidade: 16, texto: "Consiga 16 escamas" }
+    - { tipo: entregar, item: PRISMARINE_SHARD, quantidade: 16, texto: "Leve as 16 escamas ao construtor" }
+  recompensas:
+    xp: 3000
+    col: 1200
+    itens: ["rpg:capa_do_barqueiro"]
+
+a_garra_do_urso:
+  nome: "A garra do urso"
+  descricao: "O ancião de Usco já foi lenhador. Quem limpar a floresta dos ursos leva o machado dele."
+  tipo: historia
+  npc: anciao_usco
+  requisitos:
+    quest: caminho_para_usco
+  etapas:
+    - { tipo: matar, alvo: urso_da_floresta, quantidade: 25, texto: "Derrote 25 Ursos da Floresta" }
+    - { tipo: falar, npc: anciao_usco, texto: "Volte ao ancião" }
+  recompensas:
+    xp: 5000
+    col: 2000
+    itens: ["rpg:machado_de_garra_de_urso"]
+
+a_tartaruga_de_duas_cabecas:
+  nome: "A tartaruga de duas cabeças"
+  descricao: "O Biceps Archelon afunda os barcos dos pescadores de Usco."
+  tipo: historia
+  party: true
+  npc: anciao_usco
+  requisitos:
+    quest: caminho_para_usco
+    level: 34
+  etapas:
+    - { tipo: chefe, alvo: biceps_archelon, texto: "Derrote o Biceps Archelon no Lago da Caldeira" }
+  recompensas:
+    xp: 4800
+    col: 2400
+
+# ---------------------------------------------------------------- diárias
+
+ronda_dos_canais:
+  nome: "Ronda dos canais"
+  descricao: "Mantenha os canais em volta de Rovia navegáveis. Vale para a party inteira."
+  tipo: diaria
+  party: true
+  npc: guarda_rovia
+  requisitos:
+    quest: chegada_a_rovia
+  etapas:
+    - { tipo: matar, quantidade: 30, texto: "Derrote 30 monstros" }
+  recompensas:
+    xp: 1200
+    col: 750
+
+peixe_para_usco:
+  nome: "Peixe para Usco"
+  descricao: "Com a tartaruga no lago, ninguém pesca. A vila aceita o peixe que os ursos largam."
+  tipo: diaria
+  npc: anciao_usco
+  requisitos:
+    quest: caminho_para_usco
+  etapas:
+    - { tipo: entregar, item: COD, quantidade: 12, texto: "Leve 12 peixes ao ancião" }
+  recompensas:
+    xp: 1000
+    col: 800
+
+# ---------------------------------------------------------------- semanal
+
+limpeza_do_labirinto_4:
+  nome: "Limpeza da torre submersa"
+  descricao: "Quanto menos Elfos Caídos na torre, mais gente chega viva à sala do Hipocampo."
+  tipo: semanal
+  party: true
+  npc: visconde_yofel
+  requisitos:
+    quest: a_torre_submersa
+  etapas:
+    - { tipo: matar, alvo: guerreiro_caido, quantidade: 50, texto: "Derrote 50 Fallen Elven Warriors" }
+    - { tipo: matar, alvo: cavaleiro_caido, quantidade: 15, texto: "Derrote 15 Fallen Elven Knights" }
+  recompensas:
+    xp: 12000
+    col: 7000
+    itens: ["IRON_INGOT 20"]

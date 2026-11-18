@@ -32,8 +32,10 @@ Os plugins dão os sistemas; o conteúdo de cada andar vem em pacotes de arquivo
   andar 1**: quem instala este não precisa do outro.
 - [conteudo/andar3](conteudo/andar3/README.md) — o andar 3 (Zumfut, os Treants, os elfos, Nerius e a
   quest Selo da Guilda), **somado aos andares 1 e 2**.
+- [conteudo/andar4](conteudo/andar4/README.md) — o andar 4 (Rovia e os canais, os Elfos Caídos,
+  Wythege), **somado aos andares 1 a 3**.
 
-Os três carregam sem erro nos testes; nenhum foi jogado.
+Os quatro carregam sem erro nos testes; nenhum foi jogado.
 
 ## Plano
 

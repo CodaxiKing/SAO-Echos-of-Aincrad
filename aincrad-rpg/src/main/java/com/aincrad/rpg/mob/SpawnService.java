@@ -372,6 +372,20 @@ public final class SpawnService implements Listener {
         }
         if (e.extra().hostile() && le instanceof org.bukkit.entity.Wolf w) {
             w.setAngry(true);
+        } else if (e.extra().hostile() && le instanceof org.bukkit.entity.Mob mob) {
+            // Os outros mobs neutros (urso, golem...) partem para cima do jogador mais próximo ao nascer.
+            org.bukkit.entity.Player near = null;
+            for (org.bukkit.entity.Player p : le.getWorld().getNearbyPlayers(le.getLocation(), 24)) {
+                if (p.getGameMode() != org.bukkit.GameMode.SURVIVAL && p.getGameMode() != org.bukkit.GameMode.ADVENTURE) {
+                    continue;
+                }
+                if (near == null || p.getLocation().distanceSquared(le.getLocation()) < near.getLocation().distanceSquared(le.getLocation())) {
+                    near = p;
+                }
+            }
+            if (near != null) {
+                mob.setTarget(near);
+            }
         }
         org.bukkit.inventory.EntityEquipment eq = le.getEquipment();
         if (eq == null || e.mob().kind() == Kind.MYTHIC) {

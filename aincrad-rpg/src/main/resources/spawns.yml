@@ -26,7 +26,8 @@
 #  drops:  o que ele solta quando um jogador o mata; com "drops", os drops normais do
 #          Minecraft saem.  - { item: IRON_NUGGET, chance: 0.6, quantidade: "1-3" }
 #          item: MATERIAL, rpg:<id> ou life:<ingrediente>
-#  agressivo: true faz um lobo atacar sem ser provocado.
+#  agressivo: true faz um lobo atacar sem ser provocado; os outros mobs neutros (urso...)
+#  partem para cima do jogador mais próximo (até 24 blocos) ao nascer.
 #  Zumbis e esqueletos daqui nascem adultos e não queimam no sol.
 #  Um exemplo completo: conteudo/andar1 no repositório.
 #

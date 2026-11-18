@@ -1,0 +1,220 @@
+# ============================================================
+#  Quests do ANDAR 2
+#  Pacote de conteúdo: copie para plugins/AincradQuests/quests/andar2.yml
+#  (junto com o quests/andar1.yml; a história continua de onde o andar 1 parou).
+#
+#  Urbus → Planalto → Marome → Desfiladeiro → Taran → Labirinto → Asterius
+#
+#  NPCs que precisam existir (/aincrad npc criar <id> <nome>):
+#    guarda_urbus, curtidor_urbus      (Urbus)
+#    cozinheira_marome, eremita        (Marome)
+#    capitao_taran                     (Taran)
+#  Regiões usadas em "chegar": urbus, marome, taran, labirinto_andar2
+# ============================================================
+
+# ---------------------------------------------------------------- história
+
+chegada_a_urbus:
+  nome: "A cidade na mesa de pedra"
+  descricao: "O segundo andar abriu. Urbus fica no alto de uma mesa de pedra, logo depois do portal."
+  tipo: historia
+  npc: guarda_urbus
+  requisitos:
+    quest: o_senhor_dos_kobolds
+    andar: 2
+  etapas:
+    - { tipo: chegar, regiao: urbus, texto: "Chegue a Urbus" }
+    - { tipo: falar, npc: guarda_urbus, texto: "Apresente-se ao guarda do portão" }
+  recompensas:
+    xp: 1000
+    col: 300
+
+bois_do_planalto:
+  nome: "Os bois do planalto"
+  descricao: "Os Trembling Oxen derrubam as cercas e pisam a plantação."
+  tipo: historia
+  npc: guarda_urbus
+  requisitos:
+    quest: chegada_a_urbus
+    level: 10
+  etapas:
+    - { tipo: matar, alvo: boi_tremulo, quantidade: 10, texto: "Derrote 10 Trembling Oxen no Planalto de Urbus" }
+  recompensas:
+    xp: 1200
+    col: 450
+
+couro_para_urbus:
+  nome: "Couro para Urbus"
+  descricao: "O curtidor de Urbus faz uma couraça para quem trouxer couro de boi suficiente."
+  tipo: historia
+  npc: curtidor_urbus
+  requisitos:
+    quest: bois_do_planalto
+  etapas:
+    - { tipo: coletar, item: LEATHER, quantidade: 12, texto: "Consiga 12 couros" }
+    - { tipo: entregar, item: LEATHER, quantidade: 12, texto: "Leve os 12 couros ao curtidor" }
+  recompensas:
+    xp: 800
+    col: 300
+    itens: ["rpg:couraca_de_couro_de_boi"]
+
+caminho_para_marome:
+  nome: "O caminho para Marome"
+  descricao: "A vila de Marome fica do outro lado da pradaria. Dizem que um eremita mora lá perto."
+  tipo: historia
+  npc: guarda_urbus
+  requisitos:
+    quest: bois_do_planalto
+    level: 12
+  etapas:
+    - { tipo: chegar, regiao: marome, texto: "Atravesse a pradaria até Marome" }
+    - { tipo: falar, npc: cozinheira_marome, texto: "Fale com a cozinheira da vila" }
+  recompensas:
+    xp: 1400
+    col: 500
+
+# A quest do eremita: no anime ele manda quebrar uma rocha com as mãos. Aqui, vermes de pedra.
+a_rocha_do_eremita:
+  nome: "A rocha do eremita"
+  descricao: "O eremita só ensina quem provar que não desiste: limpe a pedreira dos Jagged Worms."
+  tipo: historia
+  npc: eremita
+  requisitos:
+    quest: caminho_para_marome
+  etapas:
+    - { tipo: falar, npc: eremita, texto: "Ouça o eremita" }
+    - { tipo: matar, alvo: verme_dentado, quantidade: 25, texto: "Derrote 25 Jagged Worms" }
+    - { tipo: falar, npc: eremita, texto: "Volte ao eremita" }
+  recompensas:
+    xp: 1800
+    col: 600
+    itens: ["rpg:lamina_do_eremita"]
+
+estrada_para_taran:
+  nome: "O desfiladeiro"
+  descricao: "A torre do labirinto fica além do desfiladeiro, perto de Taran. Os Taurus guardam a passagem."
+  tipo: historia
+  npc: cozinheira_marome
+  requisitos:
+    quest: caminho_para_marome
+    level: 14
+  etapas:
+    - { tipo: matar, alvo: taurus_batedor, quantidade: 8, texto: "Derrote 8 Taurus Scouts no desfiladeiro" }
+    - { tipo: chegar, regiao: taran, texto: "Chegue a Taran" }
+    - { tipo: falar, npc: capitao_taran, texto: "Procure o capitão da linha de frente" }
+  recompensas:
+    xp: 1700
+    col: 700
+
+golpeadores_do_labirinto:
+  nome: "Os golpeadores"
+  descricao: "O capitão quer os andares de baixo da torre limpos antes da reunião."
+  tipo: historia
+  party: true
+  npc: capitao_taran
+  requisitos:
+    quest: estrada_para_taran
+    level: 16
+  etapas:
+    - { tipo: chegar, regiao: labirinto_andar2, texto: "Entre no labirinto" }
+    - { tipo: matar, alvo: taurus_golpeador, quantidade: 15, texto: "Derrote 15 Lesser Taurus Strikers" }
+    - { tipo: falar, npc: capitao_taran, texto: "Volte ao capitão" }
+  recompensas:
+    xp: 2200
+    col: 1000
+    itens: ["rpg:escudo_de_aco"]
+
+a_guarda_do_rei:
+  nome: "A guarda do Rei"
+  descricao: "No topo da torre, os Ironguards fecham o caminho até a sala do trono."
+  tipo: historia
+  party: true
+  npc: capitao_taran
+  requisitos:
+    quest: golpeadores_do_labirinto
+    level: 18
+  etapas:
+    - { tipo: matar, alvo: taurus_guarda_de_ferro, quantidade: 12, texto: "Derrote 12 Taurus Ironguards" }
+    - { tipo: falar, npc: capitao_taran, texto: "Volte para a reunião em Taran" }
+  recompensas:
+    xp: 2800
+    col: 1300
+
+o_rei_taurus:
+  nome: "O Rei Taurus"
+  descricao: "O General e o Coronel esperam na sala. O Rei, dizem, só desce do trono depois."
+  tipo: historia
+  party: true
+  npc: capitao_taran
+  requisitos:
+    quest: a_guarda_do_rei
+  etapas:
+    - { tipo: chefe, alvo: asterius, texto: "Derrote Asterius the Taurus King" }
+  recompensas:
+    xp: 3500
+    col: 2500
+    itens: ["GOLDEN_APPLE 4"]
+
+# ---------------------------------------------------------------- fora da história
+
+o_touro_da_pradaria:
+  nome: "O touro da pradaria"
+  descricao: "O Bullbous Bow afugenta o gado e quem tenta atravessar a pradaria."
+  tipo: historia
+  party: true
+  npc: cozinheira_marome
+  requisitos:
+    quest: caminho_para_marome
+    level: 13
+  etapas:
+    - { tipo: chefe, alvo: bullbous_bow, texto: "Derrote o Bullbous Bow na Pradaria de Marome" }
+  recompensas:
+    xp: 1500
+    col: 800
+
+# ---------------------------------------------------------------- diárias
+
+ronda_do_planalto:
+  nome: "Ronda do planalto"
+  descricao: "Mantenha o planalto limpo. Vale para a party inteira."
+  tipo: diaria
+  party: true
+  npc: guarda_urbus
+  requisitos:
+    quest: chegada_a_urbus
+  etapas:
+    - { tipo: matar, quantidade: 20, texto: "Derrote 20 monstros" }
+  recompensas:
+    xp: 400
+    col: 250
+
+carne_para_marome:
+  nome: "Carne para Marome"
+  descricao: "A cozinheira precisa de carne de boi para o cozido da vila."
+  tipo: diaria
+  npc: cozinheira_marome
+  requisitos:
+    quest: caminho_para_marome
+  etapas:
+    - { tipo: entregar, item: BEEF, quantidade: 10, texto: "Leve 10 carnes de boi à cozinheira" }
+  recompensas:
+    xp: 350
+    col: 280
+
+# ---------------------------------------------------------------- semanal
+
+limpeza_do_labirinto_2:
+  nome: "Limpeza da torre dos Taurus"
+  descricao: "Quanto menos Taurus na torre, mais gente chega viva à sala do trono."
+  tipo: semanal
+  party: true
+  npc: capitao_taran
+  requisitos:
+    quest: golpeadores_do_labirinto
+  etapas:
+    - { tipo: matar, alvo: taurus_golpeador, quantidade: 50, texto: "Derrote 50 Lesser Taurus Strikers" }
+    - { tipo: matar, alvo: taurus_guarda_de_ferro, quantidade: 15, texto: "Derrote 15 Taurus Ironguards" }
+  recompensas:
+    xp: 4000
+    col: 2500
+    itens: ["IRON_INGOT 12"]

@@ -1,0 +1,59 @@
+# ============================================================
+#  Mobs raros — ANDARES 1 a 4
+#  Pacote de conteúdo: copie para plugins/AincradRPG/rare-mobs.yml.
+#
+#  Aparecem com chance baixa perto de um jogador que está na região, fogem dele e,
+#  se forem pegos, soltam um drop raro. Só existe um de cada por vez.
+#  Testar sem esperar a chance:  /aincrad rpg raro <id>
+# ============================================================
+intervalo: 30
+
+mobs:
+  # O coelho do ragu. A carne dele é o ingrediente de rank S do Ensopado de Coelho
+  # (recipes.yml do AincradLife). Sem o AincradLife, ele não solta nada.
+  coelho_do_ragu:
+    mob: RABBIT
+    nome: "<gold>Ragout Rabbit"
+    regiao: floresta_horunka
+    chance: 0.004
+    level: 3
+    foge: true
+    drop: "life:carne_coelho_raro"
+    drop_quantidade: 1
+    some_em_segundos: 120
+
+  # O Boi Dourado do planalto de Urbus: foge, e solta ouro a quem o alcançar.
+  boi_dourado:
+    mob: COW
+    nome: "<gold>Golden Ox"
+    regiao: planalto_urbus
+    chance: 0.003
+    level: 11
+    foge: true
+    drop: GOLD_INGOT
+    drop_quantidade: 3
+    some_em_segundos: 120
+
+  # A Raposa de Jade da Floresta da Névoa: foge, e solta esmeraldas a quem a alcançar.
+  raposa_de_jade:
+    mob: FOX
+    nome: "<green>Jade Fox"
+    regiao: floresta_da_nevoa
+    chance: 0.003
+    level: 21
+    foge: true
+    drop: EMERALD
+    drop_quantidade: 4
+    some_em_segundos: 120
+
+  # A Tartaruga de Nácar do Lago da Caldeira: foge, e solta conchas a quem a alcançar.
+  tartaruga_de_nacar:
+    mob: TURTLE
+    nome: "<aqua>Pearl Turtle"
+    regiao: lago_da_caldeira
+    chance: 0.003
+    level: 35
+    foge: true
+    drop: NAUTILUS_SHELL
+    drop_quantidade: 3
+    some_em_segundos: 120

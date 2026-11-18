@@ -152,7 +152,7 @@ Para os campos terem os mobs deles — o javali e o lobo do andar 1, por exemplo
 
 **Mobs do andar sem MythicMobs.** Uma linha de mob do Minecraft pode ter `id` (o nome que as
 quests usam em `alvo:`), `nome`, `equipamento`, `drops` (trocam os drops normais; aceitam
-materiais, `rpg:<id>` e `life:<ingrediente>`) e `agressivo: true` para lobos. Zumbis e esqueletos
+materiais, `rpg:<id>` e `life:<ingrediente>`) e `agressivo: true` (o lobo ataca sem ser provocado; outros mobs neutros, como o urso, partem para cima do jogador mais próximo ao nascer). Zumbis e esqueletos
 do `spawns.yml` nascem adultos e não queimam no sol; hoglins não viram zoglins. O pacote
 [conteudo/andar1](../conteudo/andar1/README.md) usa tudo isso.
 

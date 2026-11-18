@@ -1,0 +1,103 @@
+# ============================================================
+#  Chefes do ANDAR 4
+#  Pacote de conteúdo: copie para plugins/AincradBosses/bosses/andar4.yml.
+#
+#  Wythege the Hippocampus, o chefe do andar, e o Biceps Archelon, a tartaruga de duas cabeças
+#  do Lago da Caldeira. O Wythege é rápido: investe, salta e chama afogados.
+#  Pensado para um grupo de 8 a 12 jogadores de level 38 a 40.
+# ============================================================
+wythege:
+  andar: 4
+  nome: "Wythege the Hippocampus"
+  level: 40
+  mob: RAVAGER
+  vida: 3400
+  dano: 19
+  armadura: 13
+  velocidade: 0.3
+  resistencia_empurrao: 0.9
+  escala: 1.4
+  intro_segundos: 6
+  tempo_limite_segundos: 1200
+  anti_cristal: true
+  reaparece_horas: 8
+  fases:
+    - vida: 100
+      nome: "Maré baixa"
+      habilidades:
+        - { tipo: investida, recarga: 10, dano: 20, raio: 3.5 }
+        - { tipo: area, recarga: 12, dano: 18, raio: 5, aviso_ticks: 30 }
+    - vida: 75
+      nome: "Os afogados"
+      mensagem: "<red>A água sobe na sala e os afogados saem dela!"
+      habilidades:
+        - { tipo: lacaios, recarga: 40, mob: DROWNED, quantidade: 4, level: 37, nome: "Water Wight" }
+        - { tipo: investida, recarga: 9, dano: 21, raio: 3.5 }
+        - { tipo: area, recarga: 11, dano: 19, raio: 5.5, aviso_ticks: 28 }
+    - vida: 45
+      nome: "Jato d'água"
+      mensagem: "<dark_red><chefe> empina: o jato dele derruba e prende quem estiver na frente!"
+      dano_x: 1.15
+      habilidades:
+        - { tipo: sopro, recarga: 9, dano: 16, raio: 10, aviso_ticks: 28, segundos: 4 }
+        - { tipo: salto, recarga: 11, dano: 21, raio: 5 }
+        - { tipo: lacaios, recarga: 45, mob: DROWNED, quantidade: 4, level: 38, nome: "Water Wight" }
+    - vida: 15
+      nome: "Maré cheia"
+      mensagem: "<dark_red><chefe> relincha e a maré vira!"
+      dano_x: 1.3
+      velocidade_x: 1.3
+      habilidades:
+        - { tipo: investida, recarga: 6, dano: 23, raio: 4 }
+        - { tipo: salto, recarga: 9, dano: 22, raio: 5.5 }
+        - { tipo: sopro, recarga: 12, dano: 17, raio: 10, aviso_ticks: 24, segundos: 4 }
+        - { tipo: furia, recarga: 25, segundos: 8, multiplicador: 1.5, nome: "<dark_red>As escamas de <chefe> brilham em azul!" }
+  recompensas:
+    dano_minimo_pct: 4
+    xp: 5000
+    col: 3000
+    # Só para quem deu o golpe final: a lança do Hipocampo.
+    last_attack: "rpg:lanca_do_hipocampo:lendario"
+    itens:
+      - { item: IRON_INGOT, quantidade: 40 }
+      - { item: NAUTILUS_SHELL, quantidade: 6 }
+      - { item: GOLDEN_APPLE, quantidade: 10 }
+      - { item: "rpg:montante_do_caido:raro", quantidade: 1 }
+      - { item: "rpg:peitoral_de_escamas:raro", quantidade: 1 }
+      - { item: "rpg:espada_de_aco_azul:epico", quantidade: 1 }
+
+# Chefe de campo: vive no Lago da Caldeira e volta 8 horas depois de derrotado (roaming.yml).
+biceps_archelon:
+  andar: 4
+  nome: "Biceps Archelon"
+  level: 35
+  mob: IRON_GOLEM
+  vida: 1300
+  dano: 15
+  armadura: 13
+  velocidade: 0.2
+  resistencia_empurrao: 1.0
+  escala: 1.3
+  intro_segundos: 2
+  anti_cristal: false
+  fases:
+    - vida: 100
+      nome: "Duas cabeças"
+      habilidades:
+        - { tipo: area, recarga: 10, dano: 15, raio: 4.5, aviso_ticks: 28 }
+        - { tipo: projetil, recarga: 7, dano: 12, mob: flecha }
+    - vida: 45
+      nome: "Dentro do casco"
+      mensagem: "<red><chefe> recolhe as cabeças e gira!"
+      velocidade_x: 1.6
+      habilidades:
+        - { tipo: investida, recarga: 8, dano: 18, raio: 3.5 }
+        - { tipo: area, recarga: 9, dano: 16, raio: 5, aviso_ticks: 22 }
+  recompensas:
+    dano_minimo_pct: 5
+    xp: 1700
+    col: 950
+    itens:
+      - { item: PRISMARINE_SHARD, quantidade: 24 }
+      - { item: NAUTILUS_SHELL, quantidade: 2 }
+      - { item: "rpg:escudo_de_casco:raro", quantidade: 1 }
