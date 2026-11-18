@@ -44,6 +44,35 @@ public final class AincradBossesAPI {
         fights = manager;
     }
 
+    private static com.aincrad.bosses.raid.RaidService raidService;
+
+    /** Chamado pelo plugin: o quadro de raid. */
+    public static void raids(com.aincrad.bosses.raid.RaidService service) {
+        raidService = service;
+    }
+
+    /**
+     * Uma raid marcada no quadro.
+     *
+     * @param at      quando começa (milissegundos)
+     * @param members os inscritos (o líder entra na lista mesmo que não tenha se inscrito)
+     */
+    public record RaidInfo(long id, String boss, java.util.UUID leader, String leaderName, long at, List<java.util.UUID> members) {
+    }
+
+    /** A raid com esse número, ou null se não existe (ou já passou). */
+    public static RaidInfo getRaid(long id) {
+        com.aincrad.bosses.model.Raid r = raidService == null ? null : raidService.all().get(id);
+        if (r == null) {
+            return null;
+        }
+        List<java.util.UUID> members = new java.util.ArrayList<>(r.members().keySet());
+        if (!members.contains(r.leader())) {
+            members.add(0, r.leader());
+        }
+        return new RaidInfo(r.id(), r.boss(), r.leader(), r.leaderName(), r.at(), List.copyOf(members));
+    }
+
     public static AincradBossesAPI instance() {
         return INSTANCE;
     }

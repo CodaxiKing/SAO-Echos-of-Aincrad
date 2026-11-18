@@ -97,6 +97,9 @@ Eventos: `BossFightStartEvent` (jogadores, segundos de introdução), `BossDamag
 dano, crítico), `BossPhaseChangeEvent`, `BossDefeatEvent` (Last Attack e o item dele, participantes, dano, itens,
 XP e Col de cada um, primeira vitória) e `BossFightEndEvent` (derrota, tempo ou reset).
 
+`AincradBossesAPI.getRaid(long id)` devolve uma raid marcada no quadro (chefe, líder, hora e
+inscritos), ou null. O AincradLife usa para o banquete de raid.
+
 ## Arquivos
 
 - `config.yml`, `messages.yml`, `bosses/*.yml` — você edita.

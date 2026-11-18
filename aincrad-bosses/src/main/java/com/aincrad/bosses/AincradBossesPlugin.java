@@ -68,6 +68,7 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         }
         fights.guide(guide);
         fights.raids(raids);
+        AincradBossesAPI.raids(raids);
         // Se o servidor caiu no meio de uma luta, a porta ficou fechada: abre tudo ao ligar.
         fights.openAllDoors();
 
