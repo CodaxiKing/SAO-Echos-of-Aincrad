@@ -103,6 +103,10 @@ public final class SafeZoneListener implements Listener {
         Player by = event instanceof EntityDamageByEntityEvent e ? attacker(e.getDamager()) : null;
         if (by == null || !by.hasPermission(FloorService.BYPASS)) {
             event.setCancelled(true);
+            // Como no anime: bater em alguém na cidade mostra "Immortal Object".
+            if (by != null && event.getEntity() instanceof Player) {
+                com.aincrad.core.AincradCore.get().ui().banner(by, "immortal");
+            }
         }
     }
 

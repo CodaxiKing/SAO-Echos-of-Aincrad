@@ -118,6 +118,11 @@ public final class AincradUIAPIImpl implements AincradUIAPI {
     }
 
     @Override
+    public boolean banner(Player player, String faixa) {
+        return plugin.banners().show(player, faixa, plugin.settings().bannerSeconds * 1000L);
+    }
+
+    @Override
     public void toast(Player player, Component titulo, Component detalhe) {
         plugin.toasts().show(player, titulo, detalhe);
     }

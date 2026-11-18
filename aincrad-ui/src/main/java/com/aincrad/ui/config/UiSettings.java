@@ -78,6 +78,9 @@ public final class UiSettings {
     public final int toastSeconds;
     /** Convites e desafios abrem a janela de aceitar/recusar. */
     public final boolean promptsEnabled;
+    /** Faixas do anime no meio da tela (WARNING, Immortal Object, duelo). */
+    public final boolean bannersEnabled;
+    public final int bannerSeconds;
     public final int flatHudX;
     /** A HUD em barras usa as artes do pack (moldura do anime, ícones de skill). */
     public final boolean flatArt;
@@ -149,6 +152,8 @@ public final class UiSettings {
         toastItems = c.getBoolean("hud.avisos.itens", true);
         toastSeconds = Math.max(1, Math.min(15, c.getInt("hud.avisos.segundos", 4)));
         promptsEnabled = c.getBoolean("menu.janela_de_convite", true);
+        bannersEnabled = c.getBoolean("hud.faixas.ativo", true);
+        bannerSeconds = Math.max(1, Math.min(10, c.getInt("hud.faixas.segundos", 2)));
         flatHotbar = c.getBoolean("hud.barras.hotbar_redonda", true);
         flatHideVanilla = c.getBoolean("hud.barras.esconder_vanilla", true);
         flatEnabled = c.getBoolean("tela_plana.ativo", true);

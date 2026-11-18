@@ -65,6 +65,11 @@ hud:
     ativo: true
     itens: true
     segundos: 4
+  # Faixas do anime no meio da tela, por um instante: "WARNING" quando a vida fica crítica,
+  # "Immortal Object" quando o golpe é barrado numa zona segura, o losango do duelo no começo dele.
+  faixas:
+    ativo: true
+    segundos: 2
   # De quantos em quantos ticks a barra é atualizada (20 ticks = 1 s).
   intervalo_ticks: 4
   # Segmentos da barra para quem está SEM o pack (com o pack, são as 20 fatias da arte).

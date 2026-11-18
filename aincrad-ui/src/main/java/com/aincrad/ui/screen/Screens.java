@@ -1,5 +1,6 @@
 package com.aincrad.ui.screen;
 
+import com.aincrad.ui.glyph.Glyph;
 import com.aincrad.ui.AincradUIPlugin;
 import com.aincrad.ui.api.MenuAction;
 import com.aincrad.ui.api.UiList;
@@ -48,6 +49,9 @@ public final class Screens {
 
     private static final String WINDOW = "window";
     private static final String WINDOW_CHEST = "window_bau";
+    private static final String ALERT = "window_alert";
+    /** Altura da arte da janela de alerta, em pixels (largura 512, como a janela branca). */
+    private static final double ALERT_PX = 366.0;
     private static final String PANEL = "profile_panel";
 
     // Coluna principal
@@ -454,6 +458,10 @@ public final class Screens {
     }
 
     public Screen confirm(Component question, ElementAction yes, ElementAction no) {
+        Glyph alert = plugin.glyphs().get(ALERT);
+        if (alert != null && alert.present()) {
+            return alert(question, yes, no);
+        }
         double sc = sc();
         Screen s = window("confirmar", msg().get("confirmar.titulo")).info(13, Material.PAPER);
         body(s, List.of(question), 0.5 * sc);
@@ -508,6 +516,42 @@ public final class Screens {
                 .slot(31)
                 .fallback(Material.LIME_WOOL)
                 .action(confirm));
+        return s;
+    }
+
+    /**
+     * A confirmação na janela de alerta do anime (ui/window_alert, 512x366): o título na faixa de
+     * cima, a pergunta no corpo cinza e os botões de aceitar e recusar embaixo.
+     */
+    private Screen alert(Component question, ElementAction yes, ElementAction no) {
+        double sc = sc();
+        // A mesma largura da janela branca; a altura segue a proporção da arte.
+        double ah = WINDOW_HEIGHT * sc * (ALERT_PX / 600.0);
+        Component title = msg().get("confirmar.titulo");
+        Screen s = new Screen("confirmar")
+                .title(title)
+                .background(ALERT, 0, 0, ah)
+                .chestBackground(WINDOW_CHEST)
+                .rows(6)
+                .info(13, Material.PAPER);
+        // Na arte: título até 92 px, corpo cinza de 92 a 226 px, botões centrados em 298 px.
+        s.label("titulo", List.of(title), 0, ah / 2.0 - ah * (66.0 / ALERT_PX), 0.55 * sc, true, false);
+        s.text(List.of(question), 0, ah / 2.0 - ah * (190.0 / ALERT_PX), 0.5 * sc);
+        double by = ah / 2.0 - ah * (298.0 / ALERT_PX);
+        s.add(new ScreenElement("sim")
+                .glyph("buttons/yes", onOf("buttons/yes"))
+                .label(msg().get("confirmar.sim"))
+                .at(-0.25 * sc, by, 0.22 * sc)
+                .slot(29)
+                .fallback(Material.LIME_WOOL)
+                .action(yes));
+        s.add(new ScreenElement("nao")
+                .glyph("buttons/no", onOf("buttons/no"))
+                .label(msg().get("confirmar.nao"))
+                .at(0.25 * sc, by, 0.22 * sc)
+                .slot(33)
+                .fallback(Material.RED_WOOL)
+                .action(no));
         return s;
     }
 

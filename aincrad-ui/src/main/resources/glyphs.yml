@@ -67,6 +67,9 @@ avulsos:
   hud_mini:      { textura: ui/hud/mini.png,             altura: 8,   subida: 7 }
   # Janela branca (perfil, detalhes, confirmação, opções, ajuda) no modo cursor.
   window:        { textura: ui/window_blank.png,         altura: 128, subida: 124 }
+  # Janela de alerta do anime (confirmações): título em cima, corpo cinza e os botões embaixo.
+  # A textura tem 512x366; a altura segue a proporção da janela branca (128 para 600 px).
+  window_alert:  { textura: ui/window_alert.png,         altura: 78,  subida: 76 }
   # Mesma janela como fundo do menu de baú (título do inventário).
   window_bau:    { textura: ui/window_blank.png,         altura: 206, subida: 13 }
   # Painel de perfil com a silhueta e os pontos de equipamento.

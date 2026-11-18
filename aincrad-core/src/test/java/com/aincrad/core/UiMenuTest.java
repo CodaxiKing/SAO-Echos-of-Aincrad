@@ -39,6 +39,11 @@ class UiMenuTest {
         }
 
         @Override
+        public boolean banner(Player player, String id) {
+            return "duel".equals(id);
+        }
+
+        @Override
         public Component chestTitle(Player player, Component title, int rows) {
             return Component.text("fundo").append(title);
         }
@@ -68,12 +73,14 @@ class UiMenuTest {
         Component title = Component.text("Troca");
         assertSame(title, ui.chestTitle(null, title, 6));
         assertFalse(ui.prompt(null, title, p -> { }, p -> { }));
+        assertFalse(ui.banner(null, "duel"));
         assertNull(ui.energy((Player) null));
         assertTrue(ui.skillBars((Player) null).isEmpty());
 
         ui.attach(new Fake());
         assertEquals(Component.text("fundo").append(title), ui.chestTitle(null, title, 6));
         assertTrue(ui.prompt(null, title, p -> { }, p -> { }));
+        assertTrue(ui.banner(null, "duel"));
         ui.detach();
         assertSame(title, ui.chestTitle(null, title, 6));
     }

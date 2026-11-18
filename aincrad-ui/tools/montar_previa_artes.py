@@ -216,16 +216,29 @@ salvar(tela, "ui-combate.png")
 # ---------------------------------------------------------------- 3. as janelas
 tela = fundo()
 hud(tela, 24, 22, "Kirito", 20, 20)
-alt = janela(tela, 250, 170, "Confirmar", [("Asuna desafiou você", 24, ESCURO), ("para um duelo.", 24, ESCURO), ("", 10, ESCURO),
-                                           ("Modo: primeiro golpe", 20, CINZA), ("Expira em 30 s", 20, CINZA)], largura=440)
-botao(tela, 250 + 140, 170 + alt - 96, "yes", 100, "Sim", foco=True)
-botao(tela, 250 + 300, 170 + alt - 96, "no", 100, "Não")
-tela.alpha_composite(arte("extra/cursor", 34), (250 + 150, 170 + alt - 84))
+# a confirmação usa a janela de alerta do anime (ui/window_alert, 512x366)
+aw = 480
+ah = round(366 * aw / 512)
+ax, ay = 230, 250
+tela.alpha_composite(arte("window_alert", aw), (ax, ay))
+d = ImageDraw.Draw(tela)
+f = fonte(34)
+d.text((ax + aw / 2 - d.textlength("Confirmar", font=f) / 2, ay + round(ah * 0.07)), "Confirmar", font=f, fill=ESCURO)
+for i, texto in enumerate(["Asuna desafiou você para um duelo.", "Modo: primeiro golpe"]):
+    f = fonte(22 if i == 0 else 18)
+    d.text((ax + aw / 2 - d.textlength(texto, font=f) / 2, ay + round(ah * 0.36) + i * 34), texto, font=f, fill=ESCURO if i == 0 else CINZA)
+botao(tela, ax + round(aw * 0.26), ay + round(ah * 0.815), "yes", 84, foco=True)
+botao(tela, ax + round(aw * 0.74), ay + round(ah * 0.815), "no", 84)
+tela.alpha_composite(arte("extra/cursor", 34), (ax + round(aw * 0.26) + 8, ay + round(ah * 0.815) + 6))
 alt = janela(tela, 890, 170, "Quantas vezes?", [("", 30, ESCURO), ("12", 76, (40, 150, 200)), ("de 1 a 256", 20, CINZA)], largura=440)
 passos = [("minus", "-100"), ("minus", "-10"), ("minus", "-1"), ("plus", "+1"), ("plus", "+10"), ("plus", "+100")]
 xs = [40, 94, 148, 292, 346, 400]
 for (nome, legenda), x in zip(passos, xs):
     botao(tela, 890 + x, 170 + alt - 96, nome, 50, legenda)
 botao(tela, 890 + 220, 170 + alt - 96, "yes", 72, "Confirmar")
-rodape(tela, "3. Janelas — confirmação (convite, duelo, compra) e quantidade (montagem com as artes do pack)")
+# as faixas do anime, em tamanho reduzido
+for i, nome in enumerate(["warning", "immortal", "duel"]):
+    for metade in (0, 1):
+        tela.alpha_composite(arte("banner/%s_%d" % (nome, metade), 110), (300 + i * 360 + metade * 110, 720))
+rodape(tela, "3. Janelas — a confirmação na janela de alerta do anime, a quantidade e as faixas (montagem com as artes do pack)")
 salvar(tela, "ui-janelas.png")

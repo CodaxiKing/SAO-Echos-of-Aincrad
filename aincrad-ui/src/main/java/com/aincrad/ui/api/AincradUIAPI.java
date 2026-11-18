@@ -70,6 +70,14 @@ public interface AincradUIAPI {
      */
     void toast(Player player, Component titulo, Component detalhe);
 
+    /**
+     * Uma faixa do anime no meio da tela, por um instante: warning, system, immortal,
+     * congratulations ou duel.
+     *
+     * @return false se o jogador não vê a HUD em barras, ou a faixa não existe
+     */
+    boolean banner(Player player, String faixa);
+
     /** Volta uma tela (fecha o menu se for a primeira). */
     void back(Player player);
 

@@ -42,6 +42,7 @@ public final class AincradUIPlugin extends JavaPlugin {
     private HealthHud hud;
     private com.aincrad.ui.hud.TargetTracker targets;
     private com.aincrad.ui.hud.ToastService toasts;
+    private com.aincrad.ui.hud.BannerService banners;
     private FlatManager flat;
     private DeathEffects deathEffects;
 
@@ -56,6 +57,7 @@ public final class AincradUIPlugin extends JavaPlugin {
         hud = new HealthHud(this);
         targets = new com.aincrad.ui.hud.TargetTracker();
         toasts = new com.aincrad.ui.hud.ToastService(this);
+        banners = new com.aincrad.ui.hud.BannerService(this);
         flat = new FlatManager(this);
         deathEffects = new DeathEffects(this);
 
@@ -68,6 +70,7 @@ public final class AincradUIPlugin extends JavaPlugin {
         pm.registerEvents(hud, this);
         pm.registerEvents(targets, this);
         pm.registerEvents(toasts, this);
+        pm.registerEvents(banners, this);
         pm.registerEvents(flat, this);
         pm.registerEvents(deathEffects, this);
 
@@ -218,6 +221,10 @@ public final class AincradUIPlugin extends JavaPlugin {
 
     public com.aincrad.ui.hud.TargetTracker targets() {
         return targets;
+    }
+
+    public com.aincrad.ui.hud.BannerService banners() {
+        return banners;
     }
 
     public com.aincrad.ui.hud.ToastService toasts() {

@@ -288,6 +288,8 @@ public final class DuelManager implements Listener {
             }
             if (shown.remove(d) != null) {
                 title(a, b, msg.get("lutem"), Component.empty());
+                AincradCore.get().ui().banner(a, "duel");
+                AincradCore.get().ui().banner(b, "duel");
                 sound(a, b, Sound.BLOCK_NOTE_BLOCK_PLING, 2f);
             }
             Location c = centers.get(d);

@@ -3,6 +3,8 @@
 ## Artes e fonte da interface
 - **darkblackswords** (DeviantArt): Sword Art Online Vector Graphics All-in-one e a fonte SAO UI. Ícones do menu, ícones do submenu, botões, skills, painel de perfil, silhueta, barra de vida e "You are dead".
 - Reunidas pelo projeto **SAO-UI/sao-assets** ([github.com/SAO-UI/sao-assets](https://github.com/SAO-UI/sao-assets)) e importadas por tools/importar_sao_assets.py, que redimensiona e recorta as imagens.
+- Do mesmo conjunto: a janela de alerta (SAO UI-Window), as faixas "Warning", "System Announcement" e "Immortal Object" (SAO HEX), "Congratulations!!" e o losango do duelo (SAO Duel). As imagens foram reduzidas e cortadas para caber em glifos de 256 px; na janela de alerta, os dois botões do desenho foram apagados.
+- O repositório sao-assets não traz arquivo de licença: são artes de fã, distribuídas pelo autor no DeviantArt. Se você for o autor e quiser que algo saia daqui, abra uma issue.
 - Janela em branco, setas, cursor, cadeado, fundos das linhas do submenu e moldura da barra de vida foram desenhados para o AincradUI, no mesmo estilo.
 
 ## Modelo 3D (futuro)

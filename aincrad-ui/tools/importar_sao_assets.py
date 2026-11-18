@@ -292,6 +292,48 @@ def import_font(root):
     shutil.copyfile(src, dst)
 
 
+def import_alert(sao):
+    """A janela de alerta (SAO_UI-Window, 1920x1371): título em cima, corpo cinza, botões embaixo.
+
+    Os dois botões do desenho são apagados: o plugin põe os dele por cima, com o destaque do cursor.
+    """
+    src = load(os.path.join(sao, "SAO_UI-Window_v0.110", "SAO_UI-Window_opened_blank.png"))
+    ImageDraw.Draw(src).rectangle((300, 960, 1620, 1270), fill=src.getpixel((960, 900)))
+    w = 512
+    save(src.resize((w, round(src.height * w / src.width)), Image.LANCZOS), "window_alert.png")
+
+
+# Faixas mostradas no meio da tela (nome do arquivo de saída, origem, recorte ou None).
+BANNERS = [
+    ("warning", ("SAO_HEX", "Warning.png"), None),
+    ("system", ("SAO_HEX", "Warning_System-Annnouncement.png"), None),
+    ("immortal", ("SAO_HEX", "Immortal-Object.png"), None),
+    ("congratulations", ("SAO_Congratulations!!.png",), None),
+    ("duel", ("SAO_Duel_v1.000", "2-Duel_starting", "Duel_starting_center.png"), "bbox"),
+]
+
+
+def import_banners(sao):
+    """Cada faixa cabe em 512x216 e é cortada em duas metades: um glifo não passa de 256 px."""
+    for name, parts, crop in BANNERS:
+        src = load(os.path.join(sao, *parts))
+        if crop == "bbox":
+            src = src.crop(src.getbbox())
+        f = min(512 / src.width, 216 / src.height)
+        small = src.resize((max(1, round(src.width * f)), max(1, round(src.height * f))), Image.LANCZOS)
+        canvas = Image.new("RGBA", (512, 216), (0, 0, 0, 0))
+        canvas.alpha_composite(small, ((512 - small.width) // 2, (216 - small.height) // 2))
+        save(canvas.crop((0, 0, 256, 216)), "banner", name + "_0.png")
+        save(canvas.crop((256, 0, 512, 216)), "banner", name + "_1.png")
+
+
+def split_frame():
+    """A moldura da barra de vida (744x96) em três peças de 248 px, para a HUD em barras."""
+    frame = load(os.path.join(TEX, "hud", "frame.png"))
+    for i in range(3):
+        save(frame.crop((248 * i, 0, 248 * (i + 1), 96)), "hud", "frame_%d.png" % i)
+
+
 def main():
     if len(sys.argv) != 2:
         print(__doc__)
@@ -312,6 +354,9 @@ def main():
     draw_small_extras()
     import_hud(sao)
     import_hud_mini(sao)
+    split_frame()
+    import_alert(sao)
+    import_banners(sao)
     import_font(root)
     print("Artes importadas para", os.path.normpath(PACK))
     return 0

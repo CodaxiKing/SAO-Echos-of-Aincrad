@@ -41,6 +41,9 @@ public final class UiService {
         /** Janela de sim/não aberta sem o jogador pedir. @return false se não dá para abrir agora */
         boolean prompt(Player player, Component question, Consumer<Player> yes, Consumer<Player> no);
 
+        /** Uma faixa no meio da tela. @return false se o jogador não a vê */
+        boolean banner(Player player, String id);
+
         /** O título de um baú de {@code rows} linhas com o fundo da interface; o próprio título se não der. */
         Component chestTitle(Player player, Component title, int rows);
     }
@@ -78,6 +81,16 @@ public final class UiService {
      */
     public boolean prompt(Player player, Component question, Consumer<Player> yes, Consumer<Player> no) {
         return backend != null && backend.prompt(player, question, yes, no);
+    }
+
+    /**
+     * Uma faixa do anime no meio da tela, por um instante: warning, system, immortal,
+     * congratulations ou duel. Sem a interface, não faz nada.
+     *
+     * @return false se o jogador não viu a faixa (quem chama pode avisar de outro jeito)
+     */
+    public boolean banner(Player player, String id) {
+        return backend != null && backend.banner(player, id);
     }
 
     /** O título de um baú com o fundo da interface, para as telas de pôr e tirar item. */

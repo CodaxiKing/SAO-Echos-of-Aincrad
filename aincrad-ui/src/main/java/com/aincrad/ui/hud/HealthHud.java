@@ -123,9 +123,13 @@ public final class HealthHud implements Listener {
             // Cada jogador acerta a posição nas Opções: as duas bordas andam juntas, para dentro ou para fora.
             int dx = plugin.prefs().hudDx(p);
             FlatOverlay.Data extra = overlay(p, st);
+            String banner = plugin.banners().active(p);
             plugin.flat().hud(p, plugin.flat().paint(d -> {
                 FlatHud.paint(d, data, -st.flatHudX + dx, st.flatArt);
                 FlatOverlay.paint(d, extra, st.flatHudX - dx, st.flatArt);
+                if (banner != null) {
+                    FlatOverlay.banner(d, banner);
+                }
             }));
             alert(p, state, st);
             updateTracker(p);
@@ -210,9 +214,16 @@ public final class HealthHud implements Listener {
         }
     }
 
+    private final java.util.Set<UUID> critical = new java.util.HashSet<>();
+
     private void alert(Player p, HealthState state, UiSettings st) {
         if (state != HealthState.CRITICAL) {
+            critical.remove(p.getUniqueId());
             return;
+        }
+        // A faixa "WARNING" aparece uma vez, quando a vida entra no vermelho.
+        if (critical.add(p.getUniqueId())) {
+            plugin.banners().show(p, "warning", st.bannerSeconds * 1000L);
         }
         long now = System.currentTimeMillis();
         Long last = lastAlert.get(p.getUniqueId());

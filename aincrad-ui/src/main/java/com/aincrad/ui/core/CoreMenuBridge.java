@@ -234,6 +234,11 @@ public final class CoreMenuBridge implements MenuRenderer, UiService.Backend {
     }
 
     @Override
+    public boolean banner(Player player, String id) {
+        return ui.banner(player, id);
+    }
+
+    @Override
     public Component chestTitle(Player player, Component title, int rows) {
         return rows == 6 && plugin.packStatus().hasPack(player) ? ChestRenderer.skinned(plugin, title) : title;
     }

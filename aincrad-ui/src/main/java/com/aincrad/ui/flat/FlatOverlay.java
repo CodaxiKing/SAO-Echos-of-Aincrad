@@ -189,6 +189,21 @@ public final class FlatOverlay {
         }
     }
 
+    /** As faixas do pack (ui/banner): aviso, anúncio do sistema, objeto imortal, parabéns e duelo. */
+    public static final List<String> BANNERS = List.of("warning", "system", "immortal", "congratulations", "duel");
+    private static final int BANNER_Y = 108;
+    /** Cada metade da faixa tem 256x216 px; nesta altura fica com 96 px de largura, sem emenda. */
+    private static final int BANNER_SIZE = 81;
+
+    /** Uma faixa no meio da tela, em duas metades (um glifo não passa de 256 px). */
+    public static void banner(FlatDraw d, String id) {
+        if (!BANNERS.contains(id)) {
+            return;
+        }
+        d.icon(-96, BANNER_Y, BANNER_SIZE, "aincrad:ui/banner/" + id + "_0");
+        d.icon(0, BANNER_Y, BANNER_SIZE, "aincrad:ui/banner/" + id + "_1");
+    }
+
     /** Tudo desenhado uma vez, em todas as variações, para as peças entrarem no pack. */
     public static void prepare(FlatDraw d, int xr, boolean art) {
         List<Cooldown> cds = new ArrayList<>();
@@ -203,6 +218,9 @@ public final class FlatOverlay {
                 toasts.add(new Toast("Aviso", "detalhe", TOAST_ICONS.get((first + i) % TOAST_ICONS.size())));
             }
             paint(d, new Data(target, toasts, cds, "00:00", "data", 0f, List.of(new Marker(0, WHITE))), xr, art);
+        }
+        for (String id : BANNERS) {
+            banner(d, id);
         }
         if (art) {
             // Todos os ícones de skill.

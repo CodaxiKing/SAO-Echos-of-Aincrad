@@ -28,6 +28,9 @@ de darkblackswords; ver `CREDITOS.md`) e já estão no plugin:
 | `person.png` | SAO Man | silhueta sozinha |
 | `hud/frame.png`, `hud/fill_00..19.png` | SAO Life Gauge | moldura e fatias da barra de vida |
 | `effects/you_are_dead.png` | SAO HEX | tela de morte |
+| `window_alert.png` | SAO UI-Window v0.110 | a janela de alerta das confirmações (os dois botões do desenho foram apagados; o plugin põe os dele) |
+| `banner/*_0.png`, `*_1.png` | SAO HEX, SAO Duel, Congratulations | faixas no meio da tela: WARNING, System Announcement, Immortal Object, Congratulations e o losango do duelo |
+| `hud/frame_0..2.png` | a moldura da barra de vida em três peças | HUD em barras com artes |
 | `window_blank.png`, `extra/*` | desenhados no mesmo estilo | janelas, setas, cursor, cadeado, fundo das linhas |
 | `font/sao_ui.ttf` | SAO UI (fonte) | textos do menu e nome na HUD |
 
@@ -137,8 +140,14 @@ desliga no `ui.yml`. A prévia `build/preview/hud_completa.png`, gerada pelos te
 
 ## Janelas
 
-- **Confirmação**: a janela com a pergunta e os botões redondos de aceitar e recusar. Toda
-  confirmação dos plugins Aincrad passa por ela.
+- **Confirmação**: a janela de alerta do anime (`window_alert.png`) — o título na faixa de cima,
+  a pergunta no corpo cinza e os botões redondos de aceitar e recusar embaixo. Toda confirmação
+  dos plugins Aincrad passa por ela. Sem a arte, cai na janela branca.
+- **Faixas** (`hud.faixas`): artes do anime que aparecem no meio da tela por um instante, na HUD
+  em barras. "WARNING" quando a vida entra no vermelho; "Immortal Object" quando o golpe num
+  jogador é barrado pela zona segura (AincradFloors); o losango "VS" quando um duelo começa
+  (AincradDuels). "System Announcement" e "Congratulations" estão no pack e na API
+  (`banner(jogador, "system")`), mas nenhum plugin os chama ainda.
 - **Convites** (`menu.janela_de_convite`): convite de party e desafio de duelo abrem a mesma
   janela na frente do jogador, se ele não está com um menu aberto. O aviso no chat continua.
 - **Quantidade**: para escolher um número sem digitar — o valor no meio, −100, −10, −1 à esquerda,

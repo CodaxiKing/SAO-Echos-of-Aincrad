@@ -42,7 +42,7 @@ class FlatEngineTest {
             }
         }
         // As artes que a HUD usa: a moldura, as fatias, os ícones de skill e os do menu.
-        for (String dir : new String[]{"hud", "skills", "under_icons"}) {
+        for (String dir : new String[]{"hud", "skills", "under_icons", "banner"}) {
             Path to = pack.toPath().resolve("assets/aincrad/textures/ui/" + dir);
             Files.createDirectories(to);
             try (Stream<Path> files = Files.list(Path.of("src/main/resources/resourcepack/assets/aincrad/textures/ui/" + dir))) {
@@ -185,6 +185,19 @@ class FlatEngineTest {
             });
             ImageIO.write(preview.render(tudo, 480, 270, 3, 0x40506A), "png", new File("build/preview/" + (art ? "hud_artes.png" : "hud_completa.png")));
         }
+    }
+
+    /** As faixas do anime (WARNING, Immortal Object, duelo...) desenham sem emenda e sem peça faltando. */
+    @Test
+    void faixasNoMeioDaTela() throws IOException {
+        FlatPreview preview = new FlatPreview(pack, atlas);
+        for (String id : FlatOverlay.BANNERS) {
+            Component line = paint(d -> FlatOverlay.banner(d, id));
+            assertEquals(0, preview.advance(line));
+            ImageIO.write(preview.render(line, 480, 270, 3, 0x40506A), "png", new File("build/preview/faixa_" + id + ".png"));
+        }
+        // Faixa desconhecida não desenha nada (e não marca peça faltando).
+        paint(d -> FlatOverlay.banner(d, "nao_existe"));
     }
 
     @Test
