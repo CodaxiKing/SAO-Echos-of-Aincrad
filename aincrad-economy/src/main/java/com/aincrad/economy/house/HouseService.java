@@ -284,6 +284,23 @@ public final class HouseService implements Listener {
         }
     }
 
+    /**
+     * Abre (ou fecha) todas as casas de um dono para outro jogador, sem passar pelo limite de
+     * convidados nem pelas mensagens do /casa. Usado pelo casamento do AincradLife.
+     *
+     * @return quantas casas mudaram
+     */
+    public int access(UUID owner, UUID member, boolean allow) {
+        int changed = 0;
+        for (House h : ownedBy(owner)) {
+            if (allow ? h.members().add(member) : h.members().remove(member)) {
+                save(h);
+                changed++;
+            }
+        }
+        return changed;
+    }
+
     public void uninvite(Player owner, House h, OfflinePlayer t) {
         if (!h.members().remove(t.getUniqueId())) {
             msg.send(owner, "casa.nao_convidado");

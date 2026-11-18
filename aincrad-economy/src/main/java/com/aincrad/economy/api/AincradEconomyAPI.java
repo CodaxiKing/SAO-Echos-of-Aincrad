@@ -1,6 +1,7 @@
 package com.aincrad.economy.api;
 
 import com.aincrad.economy.EconomyService;
+import com.aincrad.economy.HoldService;
 import com.aincrad.economy.shop.ShopService;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -20,6 +21,8 @@ public final class AincradEconomyAPI {
     private static EconomyService eco;
     private static ShopService shops;
     private static com.aincrad.economy.auction.AuctionService auction;
+    private static HoldService holds;
+    private static com.aincrad.economy.house.HouseService houses;
 
     private AincradEconomyAPI() {
     }
@@ -32,6 +35,31 @@ public final class AincradEconomyAPI {
     /** Chamado pelo plugin: a caixa de retirada fica no serviço de leilão. */
     public static void mailbox(com.aincrad.economy.auction.AuctionService service) {
         auction = service;
+    }
+
+    /** Chamado pelo plugin: as casas. */
+    public static void houses(com.aincrad.economy.house.HouseService service) {
+        houses = service;
+    }
+
+    /** O dono da casa onde está o lugar. Null se não há casa ali, ou se ela está à venda. */
+    public static UUID getHouseOwner(org.bukkit.Location location) {
+        com.aincrad.economy.house.House h = houses == null || location == null ? null : houses.at(location);
+        return h == null ? null : h.owner();
+    }
+
+    /**
+     * Abre (ou fecha) as casas de {@code owner} deste servidor para {@code member}: portas, baús e blocos.
+     *
+     * @return quantas casas mudaram
+     */
+    public static int setHouseAccess(UUID owner, UUID member, boolean allow) {
+        return houses == null ? 0 : houses.access(owner, member, allow);
+    }
+
+    /** Chamado pelo plugin: o serviço de custódia. */
+    public static void holds(HoldService service) {
+        holds = service;
     }
 
     public static AincradEconomyAPI instance() {
@@ -93,5 +121,45 @@ public final class AincradEconomyAPI {
     /** Abre uma loja de shops.yml (para NPCs de outros plugins, como o Citizens). @return false se não existe */
     public static boolean openShop(Player p, String shopId) {
         return shops != null && shops.open(p, shopId);
+    }
+
+    // ------------------------------------------------------------------ custódia
+
+    /**
+     * Põe Col do jogador em custódia: sai do saldo dele e fica guardado até {@link #release} ou
+     * {@link #refund}. Enquanto está lá, não pode ser gasto.
+     *
+     * @return o id da custódia, ou null se ele não tinha saldo
+     */
+    public static String hold(Player p, long amount, String reason) {
+        return holds == null ? null : holds.hold(p.getUniqueId(), amount, reason);
+    }
+
+    /** Quanto ainda está guardado (0 se a custódia não existe ou já foi usada). O resultado chega na thread principal. */
+    public static CompletableFuture<Long> held(String holdId) {
+        return holds == null ? CompletableFuture.completedFuture(0L) : holds.held(holdId);
+    }
+
+    /**
+     * Libera parte (ou tudo) da custódia para alguém, online ou não, em qualquer servidor. Nunca
+     * libera mais do que há: duas liberações ao mesmo tempo, só uma passa.
+     */
+    public static CompletableFuture<Boolean> release(String holdId, UUID to, long amount, String reason) {
+        return holds == null ? CompletableFuture.completedFuture(false) : holds.release(holdId, to, amount, reason);
+    }
+
+    /** Devolve ao dono tudo o que resta na custódia. @return o valor exato devolvido */
+    public static CompletableFuture<Long> refund(String holdId, String reason) {
+        return holds == null ? CompletableFuture.completedFuture(0L) : holds.refund(holdId, reason);
+    }
+
+    /** Tira de circulação parte da custódia (a taxa de uma entrega). @return false se a custódia não tem esse valor */
+    public static CompletableFuture<Boolean> burn(String holdId, long amount) {
+        return holds == null ? CompletableFuture.completedFuture(false) : holds.burn(holdId, amount);
+    }
+
+    /** Tira de circulação o que resta na custódia (a taxa de um contrato). @return o valor retirado */
+    public static CompletableFuture<Long> burn(String holdId) {
+        return holds == null ? CompletableFuture.completedFuture(0L) : holds.burn(holdId);
     }
 }

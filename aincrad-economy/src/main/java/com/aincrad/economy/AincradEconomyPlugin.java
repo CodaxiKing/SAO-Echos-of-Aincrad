@@ -42,6 +42,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
             core.database().migrate("economy_shops", ShopService.MIGRATIONS);
             core.database().migrate("economy_auctions", AuctionService.MIGRATIONS);
             core.database().migrate("economy_houses", HouseService.MIGRATIONS);
+            core.database().migrate("economy_holds", HoldService.MIGRATIONS);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradEconomy não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -50,6 +51,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         Accounts accounts = new Accounts(core.database(), getLogger(), core.server(),
                 config.integer("saldo_inicial", 100, 0, Integer.MAX_VALUE), id -> getServer().getPlayer(id) != null);
         eco = new EconomyService(this, accounts, msg, config);
+        AincradEconomyAPI.holds(new HoldService(eco, core.database(), getLogger()));
         shops = new ShopService(this, eco, core.config(this, "shops.yml"), core.database());
         try {
             shops.loadLinksBlocking();
@@ -66,6 +68,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         }
         AuctionService auction = new AuctionService(this, eco, core.database());
         HouseService houses = new HouseService(this, eco, core.database());
+        AincradEconomyAPI.houses(houses);
         try {
             houses.loadBlocking();
         } catch (SQLException e) {

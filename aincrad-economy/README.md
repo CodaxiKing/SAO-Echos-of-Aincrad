@@ -63,7 +63,20 @@ long    getBalance(Player)                         CompletableFuture<Long> getBa
 boolean withdraw(Player, long qtd, String motivo)  boolean deposit(Player, long qtd, String motivo)
 boolean deposit(UUID, long qtd, String motivo)     boolean has(Player, long)
 String  format(long)                               boolean openShop(Player, String loja)
+boolean mail(UUID, ItemStack, String motivo)        UUID getHouseOwner(Location)   // dono da casa onde está o lugar
+int     setHouseAccess(UUID dono, UUID outro, boolean abrir)   // abre as casas do dono para outro jogador
+
+// Custódia: o Col sai do saldo e fica guardado até ser liberado ou devolvido.
+String                     hold(Player, long qtd, String motivo)       // id da custódia, ou null sem saldo
+CompletableFuture<Boolean> release(String id, UUID para, long qtd, String motivo)
+CompletableFuture<Long>    refund(String id, String motivo)            // devolve o resto ao dono
+CompletableFuture<Long>    held(String id)                             CompletableFuture<Long> burn(String id)
+CompletableFuture<Boolean> burn(String id, long qtd)                   // tira de circulação só uma parte
 ```
+
+Col em custódia não pode ser gasto (já não está no saldo). `release` nunca libera mais do que
+há, mesmo com dois servidores pedindo ao mesmo tempo; `refund` devolve o valor exato que restava;
+`burn` tira de circulação o resto (a taxa de um contrato). As encomendas do AincradLife usam isto.
 
 `TransactionEvent` (cancelável) sai antes de cada mudança feita neste servidor, com o valor
 (positivo = entrada) e o motivo. O AincradSocial já usa `getBalance`/`withdraw`/`deposit` para o
@@ -73,7 +86,7 @@ tesouro da guilda.
 
 `eco_accounts` (uuid, name, balance, updated), `eco_transactions` (registro), `eco_shop_links`
 (bloco/entidade → loja), `eco_auctions` (anúncios, item serializado), `eco_mailbox` (caixa de
-retirada) e `eco_houses` (casas, dono, convidados, chegada). Criadas pelas migrações do core.
+retirada), `eco_houses` (casas, dono, convidados, chegada) e `eco_holds` (custódia). Criadas pelas migrações do core.
 
 ## Compilar
 
