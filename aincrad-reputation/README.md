@@ -89,6 +89,30 @@ nome do mob, do chefe ou do jogador). Fica no banco do core, então vale para a 
   permanente, o monumento vira a lista de quem já morreu alguma vez.
 - Numa luta de chefe, morrer para um lacaio ou para o fogo dele conta como "chefe".
 
+## Recompensa por cabeça (etapa 46)
+
+Qualquer jogador põe Col pela prisão de um **vermelho**: `/recompensa <jogador> <valor>`. Precisa do
+AincradEconomy.
+
+- O valor sai do saldo e fica em **custódia** até ser pago ou devolvido.
+- Vai para **quem derrotar o vermelho e o mandar para a prisão**; o servidor é avisado.
+- Se o vermelho voltar a verde sem ser preso, o Col **volta a quem pôs**.
+- `/recompensas` lista as cabeças a prêmio, da maior para a menor.
+- O alvo pode estar offline ou em outro servidor da rede. `recompensa.so_vermelhos: false` deixa
+  pôr recompensa por laranja também; `recompensa.minimo` é o valor mínimo.
+
+## Túmulos (etapa 47)
+
+Quando um jogador morre, fica uma **lápide** no lugar, com o nome e a data.
+
+- É feita de entidades de enfeite, não de blocos: **não dá para quebrar** e não mexe no mapa. Não é
+  salva com o mapa — o plugin a põe de volta quando o pedaço carrega.
+- Some depois de `tumulos.dias` (30; 0 = nunca). Num pedaço de mapa cabem
+  `tumulos.maximo_por_pedaco` lápides: a mais velha dá lugar à nova.
+- Clicar mostra quem caiu ali. Clicar com uma **flor** na mão deixa a flor (ela é gasta e a
+  contagem aparece na lápide).
+- Quem cai no vazio não deixa lápide.
+
 ## Comandos
 
 | Comando | O que faz | Permissão |
@@ -97,6 +121,7 @@ nome do mob, do chefe ou do jogador). Fica no banco do core, então vale para a 
 | `/conquistas` | Lista as conquistas | todos |
 | `/reputacao [jogador]` | Cor do cursor, tempo, mortes, título | todos |
 | `/monumento [busca]` | O Monumento da Vida em menu | todos |
+| `/recompensa <jogador> <valor>` · `/recompensas` | Põe Col pela prisão de um vermelho · lista as cabeças a prêmio | todos |
 | `/aincrad monumento definir` | Põe o mural onde você está | `aincrad.admin` |
 | `/aincrad prisao definir` | Define a prisão com a seleção da varinha | `aincrad.admin` |
 | `/aincrad reputacao limpar <jogador>` | Cursor verde, sem mortes, fora da prisão | `aincrad.admin` |
@@ -118,7 +143,7 @@ ferirem sem mudar de cor. **Enquanto ele não chamar, um duelo deixa o atacante 
 
 ## Banco
 
-`rep_monument` (o Monumento da Vida), `rep_players` (título em uso, laranja até, vermelho até, mortes, preso até), `rep_achievements`
+`rep_monument` (o Monumento da Vida), `rep_bounties` (as recompensas por cabeça), `rep_graves` (os túmulos), `rep_players` (título em uso, laranja até, vermelho até, mortes, preso até), `rep_achievements`
 (conquistas e os títulos que liberaram) e `rep_firsts` (quem foi o primeiro em cada coisa). Tudo no
 banco do core, então vale para a rede.
 

@@ -94,7 +94,7 @@ recompensa:
     nao_e_criminoso: "<red><white><jogador></white> não é um criminoso procurado."
 
 tumulo:
-  texto: "<gray>Aqui caiu\n<white><jogador>\n<dark_gray><data>"
+  texto: "<gray>Aqui caiu<newline><white><jogador><newline><dark_gray><data>"
   flores: "<light_purple>✿ <flores>"
   aqui_jaz: "<gray>Aqui caiu <white><jogador></white>, em <white><data></white>. <dark_gray>Flores: <flores>. Clique com uma flor na mão para deixar uma."
   flor: "<light_purple>Você deixou uma flor para <white><jogador></white>."
