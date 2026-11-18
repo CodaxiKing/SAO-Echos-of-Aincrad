@@ -142,6 +142,7 @@ public final class AincradQuestsPlugin extends JavaPlugin implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("diario.titulo")).rows(6);
+        menu.floating();
         String tracked = quests.tracked(p);
         List<QuestDef> done = new ArrayList<>();
         for (QuestDef def : quests.quests().values()) {

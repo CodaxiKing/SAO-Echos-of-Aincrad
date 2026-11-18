@@ -24,8 +24,22 @@ public final class UiList {
      *
      * @param detail texto menor depois do nome (ex.: "online", "x32"); pode ser null
      * @param action clique na linha; null deixa a linha só de leitura
+     * @param lore   descrição inteira, mostrada ao lado quando o cursor está na linha; pode ser vazia
      */
-    public record Row(String icon, ItemStack item, Component label, Component detail, MenuAction action) {
+    public record Row(String icon, ItemStack item, Component label, Component detail, MenuAction action, List<Component> lore) {
+
+        public Row {
+            lore = lore == null ? List.of() : List.copyOf(lore);
+        }
+
+        public Row(String icon, ItemStack item, Component label, Component detail, MenuAction action) {
+            this(icon, item, label, detail, action, List.of());
+        }
+
+        /** A mesma linha com a descrição inteira (várias linhas), para quem aponta o cursor nela. */
+        public Row lore(List<Component> lines) {
+            return new Row(icon, item, label, detail, action, lines);
+        }
 
         public static Row icon(String icon, Component label, Component detail, MenuAction action) {
             return new Row(icon, null, label, detail, action);

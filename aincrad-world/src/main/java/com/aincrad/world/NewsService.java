@@ -155,6 +155,7 @@ public final class NewsService {
                         return;
                     }
                     Menu menu = Menu.of(msg.get("jornal.menu")).rows(3);
+                    menu.floating();
                     count.forEach((ed, n) -> menu.item(Menu.Button.of(new ItemStack(Material.WRITTEN_BOOK),
                             msg.get("jornal.titulo", Messages.vars("edicao", ed)), pl -> read(pl, ed)).closing()
                             .lore(List.of(msg.get("jornal.menu_noticias", Messages.vars("noticias", n))))));

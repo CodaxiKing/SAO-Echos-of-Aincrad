@@ -128,6 +128,7 @@ public final class ProfessionMenus {
         String spec = TreeDef.specOf(owned);
         Menu menu = Menu.of(msg.get("arvore.titulo", Messages.vars("profissao", service.name(prof),
                 "livres", service.freePoints(p, prof)))).rows(6);
+        menu.floating();
         Consumer<Player> here = pl -> tree(pl, prof);
 
         tree.level(null, null).forEach(n -> menu.item(node(p, prof, n, here)));

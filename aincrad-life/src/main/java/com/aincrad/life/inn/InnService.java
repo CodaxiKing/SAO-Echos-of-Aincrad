@@ -251,6 +251,7 @@ public final class InnService implements Listener {
     public void openCounter(Player p, Inn inn) {
         Inn.Rental mine = of(p.getUniqueId());
         Menu menu = Menu.of(msg.get("estalagem.titulo", Messages.vars("estalagem", inn.name()))).rows(4);
+        menu.floating();
         long now = System.currentTimeMillis();
         if (mine != null) {
             Inn at = inns.get(mine.inn);
@@ -284,6 +285,7 @@ public final class InnService implements Listener {
 
     private void chooseDays(Player p, Inn inn, String room) {
         Menu menu = Menu.of(msg.get("estalagem.dias_titulo", Messages.vars("quarto", room))).rows(3);
+        menu.floating();
         for (int d = 1; d <= Inn.MAX_DAYS; d++) {
             int days = d;
             menu.item(Menu.Button.of(ItemBuilder.of(Material.CLOCK).amount(days).build(),

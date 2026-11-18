@@ -255,6 +255,7 @@ public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("menu.titulo", Messages.vars("ativas", activeAllowed(p), "passivas", passiveAllowed(p)))).rows(6);
+        menu.floating();
         for (WeaponType t : WeaponType.values()) {
             if (t == WeaponType.DUAS_ESPADAS && !unique.has(p, UniqueService.DUAL)) {
                 continue;
@@ -371,6 +372,7 @@ public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("atalho.menu")).rows(1);
+        menu.floating();
         for (int i = 0; i < SkillRules.ACTIVE_SLOTS; i++) {
             SkillDef def = engine.skill(d.active(i));
             if (def != null) {

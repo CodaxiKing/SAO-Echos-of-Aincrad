@@ -460,6 +460,7 @@ public final class ReputationService implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("titulo.menu")).rows(6);
+        menu.floating();
         for (String t : mine) {
             boolean using = t.equals(r.title);
             menu.item(Menu.Button.of(new ItemStack(using ? Material.ENCHANTED_BOOK : Material.NAME_TAG), msg.get("titulo.item", Messages.vars("titulo", t)), pl -> {
@@ -478,6 +479,7 @@ public final class ReputationService implements Listener {
     public void achievementsMenu(Player p) {
         Rep r = rep(p);
         Menu menu = Menu.of(msg.get("conquista.menu", Messages.vars("tem", r.achievements.size()))).rows(6);
+        menu.floating();
         for (Def d : achievements.all().values()) {
             // Uma conquista por andar aparece uma vez para cada andar em que o jogador a conseguiu.
             List<String> keys = new ArrayList<>();

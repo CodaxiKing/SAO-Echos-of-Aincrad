@@ -506,6 +506,7 @@ public final class OrderService {
                 return;
             }
             Menu menu = Menu.of(msg.get("encomenda.quadro_titulo")).rows(6);
+            menu.floating();
             for (Order o : list) {
                 List<Component> lore = lore(o);
                 boolean mine = p.getUniqueId().equals(o.client());
@@ -540,6 +541,7 @@ public final class OrderService {
                 return;
             }
             Menu menu = Menu.of(msg.get("encomenda.minhas_titulo")).rows(6);
+            menu.floating();
             for (Order o : list) {
                 boolean client = p.getUniqueId().equals(o.client());
                 List<Component> lore = lore(o);
@@ -660,6 +662,7 @@ public final class OrderService {
                 return;
             }
             Menu menu = Menu.of(msg.get("encomenda.propostas_titulo", Messages.vars("id", id))).rows(4);
+            menu.floating();
             for (Bid b : bids) {
                 Stats s = stats.get(b.artisan());
                 List<Component> lore = new ArrayList<>();
@@ -1152,6 +1155,7 @@ public final class OrderService {
             return;
         }
         Menu menu = Menu.of(msg.get("encomenda.menu_titulo")).rows(3);
+        menu.floating();
         menu.item(Menu.Button.of(new ItemStack(Material.BOOKSHELF), msg.get("encomenda.menu_quadro"), this::board).closing()
                 .lore(msg.list("encomenda.menu_quadro_lore")));
         menu.item(Menu.Button.of(new ItemStack(Material.WRITABLE_BOOK), msg.get("encomenda.menu_abrir"),
@@ -1429,6 +1433,7 @@ public final class OrderService {
             }
             boolean mine = p.getUniqueId().equals(list.get(0).artisan());
             Menu menu = Menu.of(msg.get("encomenda.catalogo_titulo", Messages.vars("artesao", list.get(0).artisanName()))).rows(6);
+            menu.floating();
             for (Entry e : list) {
                 String name = productName(e.profession(), e.product());
                 if (name == null) {

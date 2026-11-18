@@ -243,6 +243,7 @@ public final class BountyService implements Listener {
                 return;
             }
             Menu menu = Menu.of(msg.get("recompensa.menu")).rows(6);
+            menu.floating();
             for (Object[] r : rows) {
                 menu.item(Menu.Button.of(new ItemStack(Material.SKELETON_SKULL), msg.get("recompensa.item", Messages.vars("jogador", String.valueOf(r[0]))),
                         pl -> { }).lore(List.of(msg.get("recompensa.item_valor", Messages.vars("valor", r[1], "qtd", r[2])))));

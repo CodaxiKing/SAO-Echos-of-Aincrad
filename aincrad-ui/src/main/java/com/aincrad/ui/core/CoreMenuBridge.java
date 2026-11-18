@@ -59,7 +59,7 @@ public final class CoreMenuBridge implements MenuRenderer {
     public void open(Player player, Menu menu) {
         UiList list = UiList.of(menu.title());
         for (Menu.Button b : menu.items()) {
-            list.row(UiList.Row.item(b.icon(), b.name(), detail(b.lore()), pl -> click(pl, b)));
+            list.row(UiList.Row.item(b.icon(), b.name(), detail(b.lore()), pl -> click(pl, b)).lore(b.lore()));
         }
         for (Menu.Button b : menu.buttons()) {
             list.button(new UiList.Button("buttons/list", b.name(), pl -> click(pl, b)));
@@ -81,7 +81,10 @@ public final class CoreMenuBridge implements MenuRenderer {
         }
     }
 
-    /** A lista mostra uma linha de detalhe: as duas primeiras da descrição, juntas. */
+    /**
+     * A linha mostra um detalhe curto: as duas primeiras linhas da descrição, juntas. A descrição
+     * inteira aparece ao lado quando o cursor está na linha.
+     */
     private static Component detail(List<Component> lore) {
         if (lore == null || lore.isEmpty()) {
             return null;

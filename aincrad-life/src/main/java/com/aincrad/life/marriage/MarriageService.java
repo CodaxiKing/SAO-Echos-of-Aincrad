@@ -656,6 +656,7 @@ public final class MarriageService implements Listener {
         lore.add(fresh ? msg.get("casamento.menu_estado", Messages.vars("vida", Math.round(other.health()), "maximo", Math.round(other.max()),
                 "level", other.level(), "andar", other.floor(), "servidor", other.server())) : msg.get("casamento.menu_offline"));
         Menu menu = Menu.of(msg.get("casamento.menu_titulo", Messages.vars("jogador", m.spouseName(p.getUniqueId())))).rows(3);
+        menu.floating();
         menu.item(Menu.Button.of(new ItemStack(Material.PLAYER_HEAD), Messages.parse("<light_purple><nome>", Messages.vars("nome", m.spouseName(p.getUniqueId()))),
                 pl -> { }).lore(lore));
         menu.item(Menu.Button.of(new ItemStack(Material.CHEST), msg.get("casamento.menu_bau"), this::openChest).closing());

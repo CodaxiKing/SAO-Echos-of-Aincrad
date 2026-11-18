@@ -367,6 +367,7 @@ public final class SmithService implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("forja.menu_titulo")).rows(3);
+        menu.floating();
         menu.item(Menu.Button.of(new ItemStack(Material.ANVIL), msg.get("forja.menu_forjar"), pl -> projectMenu(pl, st)).closing()
                 .lore(msg.list("forja.menu_forjar_lore")));
         menu.item(Menu.Button.of(new ItemStack(Material.IRON_INGOT), msg.get("forja.menu_reparar"), this::repair).closing()
@@ -379,6 +380,7 @@ public final class SmithService implements Listener {
     /** A lista de projetos: os que o ferreiro conhece e, como "???", os que ainda não aprendeu. */
     private void projectMenu(Player p, StationService.Placed st) {
         Menu menu = Menu.of(msg.get("forja.projetos_titulo")).rows(6);
+        menu.floating();
         for (Blueprint b : registry.blueprints().values()) {
             Learnable l = professions.learnable(KIND, b.id());
             if (l == null) {
@@ -706,6 +708,7 @@ public final class SmithService implements Listener {
         int limit = upgradeLimit(p);
         int tries = forged.tries(it);
         Menu menu = Menu.of(msg.get("forja.up_titulo", Messages.vars("tentativas", tries < 0 ? settings().triesBase() : tries))).rows(3);
+        menu.floating();
         for (Upgrade u : Upgrade.values()) {
             int level = forged.level(it, u);
             String refusal = upgradeRefusal(p, it, u);

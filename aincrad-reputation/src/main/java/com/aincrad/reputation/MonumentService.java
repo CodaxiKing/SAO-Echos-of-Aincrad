@@ -182,6 +182,7 @@ public final class MonumentService implements Listener {
         }
         int[] n = MonumentRules.count(entries);
         Menu menu = Menu.of(msg.get("monumento.menu", Messages.vars("vivos", n[0], "mortos", n[1]))).rows(6);
+        menu.floating();
         for (Entry e : list) {
             List<Component> lore = new ArrayList<>();
             lore.add(msg.get("monumento.entrou", Messages.vars("data", DATE.format(Instant.ofEpochMilli(e.joinedAt())))));

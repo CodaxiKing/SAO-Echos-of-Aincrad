@@ -86,6 +86,7 @@ public final class GateService implements Listener {
     public void open(Player p, boolean teleport) {
         Menu menu = Menu.of(teleport ? msg.get("gate.titulo")
                 : msg.get("andares.titulo", Messages.vars("linha", floors.frontline()))).rows(6);
+        menu.floating();
         SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
         int here = floors.currentFloor(p);
         for (Floor f : floors.registry().all()) {

@@ -167,6 +167,7 @@ public final class MaterialService {
             return out;
         }, list -> {
             Menu menu = Menu.of(msg.get("material.quadro_titulo")).rows(6);
+            menu.floating();
             int shown = 0;
             for (Object[] row : list) {
                 Request r = (Request) row[0];

@@ -232,6 +232,7 @@ public final class UniqueItemService implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("unico.menu")).rows(3);
+        menu.floating();
         for (String id : ids) {
             ItemService.Template t = items.template(id);
             Entry e = entries.get(id);

@@ -392,6 +392,7 @@ public final class AlchemyService {
     /** O livro do alquimista: só as fórmulas aprendidas, com os reagentes, a ordem e as cores. */
     public void book(Player p) {
         Menu menu = Menu.of(msg.get("alquimia.livro_titulo")).rows(6);
+        menu.floating();
         int known = 0;
         for (Formula f : registry.formulas().values()) {
             Learnable l = learnable(f);

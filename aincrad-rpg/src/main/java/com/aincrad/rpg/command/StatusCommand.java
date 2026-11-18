@@ -114,6 +114,7 @@ public final class StatusCommand implements TabExecutor {
         String vida = hp == null ? "?" : String.valueOf(Math.round(hp.getValue() * 10) / 10.0);
 
         Menu menu = Menu.of(msg.get("status.titulo", Messages.vars("level", pr.level()))).rows(3);
+        menu.floating();
         menu.item(Menu.Button.of(ItemBuilder.of(Material.EXPERIENCE_BOTTLE).build(),
                 msg.get("status.info_nome", Messages.vars("level", pr.level())), null)
                 .lore(msg.list("status.info_lore", Messages.vars("atual", pr.xp(), "proximo", s.curve.toNext(pr.level()),

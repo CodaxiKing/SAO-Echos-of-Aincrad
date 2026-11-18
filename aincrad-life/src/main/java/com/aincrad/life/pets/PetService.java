@@ -773,6 +773,7 @@ public final class PetService implements Listener {
             lore.add(msg.get("familiar.painel_morto", Messages.vars("tempo", TimeFormat.duration(Math.max(0, left), 2))));
         }
         Menu menu = Menu.of(msg.get("familiar.painel_titulo", Messages.vars("nome", pet.name))).rows(3);
+        menu.floating();
         menu.item(Menu.Button.of(new ItemStack(Material.NAME_TAG), Messages.parse("<white><nome>", Messages.vars("nome", pet.name)),
                 pl -> msg.send(pl, "familiar.como_renomear")).lore(lore));
         menu.item(Menu.Button.of(new ItemStack(Material.LEAD), msg.get("familiar.botao_seguir"), pl -> act(pl, Mode.SEGUIR)).closing());

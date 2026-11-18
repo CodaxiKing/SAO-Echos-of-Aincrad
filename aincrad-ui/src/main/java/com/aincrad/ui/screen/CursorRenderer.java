@@ -52,6 +52,8 @@ public final class CursorRenderer implements Renderer {
     private static final double CURSOR_DEPTH = -0.04;
     private static final double CURSOR_SIZE = 0.05;
     private static final double LABEL_SCALE = 0.42;
+    /** Largura do quadro de descrição de uma linha, em pixels de fonte. */
+    private static final int ROW_LORE_WIDTH_PX = 170;
 
     /** Linha do submenu: posições dentro do fundo row_bg (pixels de fonte). */
     private static final int ROW_ICON_X = 5;
@@ -385,7 +387,11 @@ public final class CursorRenderer implements Renderer {
             draw(next, true);
         }
         if (next.kind() == ScreenElement.Kind.ROW) {
-            hideLabel();
+            if (next.lore().isEmpty()) {
+                hideLabel();
+            } else {
+                showRowLore(next);
+            }
         } else {
             showLabel(next);
         }
@@ -404,6 +410,31 @@ public final class CursorRenderer implements Renderer {
         } else {
             label.teleport(loc);
         }
+        label.setLineWidth(200);
+        label.setAlignment(TextDisplay.TextAlignment.CENTER);
+        label.text(text);
+        label.setTransformation(scaled(LABEL_SCALE));
+    }
+
+    /**
+     * A descrição inteira da linha em que o cursor está, num quadro à direita dela. A linha só tem
+     * espaço para um detalhe curto; preço, prazo e o resto ficam aqui.
+     */
+    private void showRowLore(ScreenElement e) {
+        Component text = Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), e.lore());
+        double half = ROW_LORE_WIDTH_PX * BLOCKS_PER_PX * LABEL_SCALE / 2.0;
+        double height = e.lore().size() * ROW_LINE_PX * BLOCKS_PER_PX * LABEL_SCALE;
+        // A Text Display é ancorada embaixo, no centro: o quadro fica centrado na altura da linha.
+        Location loc = frame.toWorld(e.x() + hitWidth(e) + half + 0.06, e.y() - height / 2.0, -0.03).toLocation(world);
+        if (label == null || !label.isValid()) {
+            label = spawn(loc);
+            label.setShadowed(true);
+            label.setBackgroundColor(Color.fromARGB(0x90, 0x20, 0x20, 0x20));
+        } else {
+            label.teleport(loc);
+        }
+        label.setLineWidth(ROW_LORE_WIDTH_PX);
+        label.setAlignment(TextDisplay.TextAlignment.LEFT);
         label.text(text);
         label.setTransformation(scaled(LABEL_SCALE));
     }

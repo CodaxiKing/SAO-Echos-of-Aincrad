@@ -315,6 +315,7 @@ public final class StallService implements Listener {
             }
             long now = System.currentTimeMillis();
             Menu menu = Menu.of(msg.get("barraca.titulo", Messages.vars("dono", s.ownerName()))).rows(6);
+            menu.floating();
             for (Line l : lines) {
                 if (l.item() == null) {
                     continue;

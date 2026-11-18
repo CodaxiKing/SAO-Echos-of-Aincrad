@@ -244,6 +244,7 @@ public final class CrystalService implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("teleporte.titulo")).rows(6);
+        menu.floating();
         int here = FloorsBridge.current(p);
         FloorsBridge.destinations(p).forEach((n, name) -> {
             if (n == here) {

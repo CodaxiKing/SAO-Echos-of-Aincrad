@@ -202,6 +202,7 @@ public final class InformantService implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("informante.menu")).rows(6);
+        menu.floating();
         for (BossDef def : fights.registry().all()) {
             GuideData g = guide.get(def.id());
             for (int i = 0; i < def.phases().size(); i++) {

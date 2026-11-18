@@ -163,6 +163,7 @@ public final class AuctionService {
 
     private void showMarket(Player p, List<Listing> list) {
         Menu menu = Menu.of(msg.get("leilao.titulo")).rows(6);
+        menu.floating();
         long now = System.currentTimeMillis();
         for (Listing l : list) {
             ItemStack it = decode(l.item());
@@ -256,6 +257,7 @@ public final class AuctionService {
                         return;
                     }
                     Menu menu = Menu.of(msg.get("leilao.retirar_titulo")).rows(6);
+                    menu.floating();
                     for (Mail m : list) {
                         ItemStack it = decode(m.item());
                         if (it == null) {

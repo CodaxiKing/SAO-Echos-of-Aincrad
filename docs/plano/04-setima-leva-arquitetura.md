@@ -51,6 +51,9 @@ Regras que valem para todos, as mesmas do resto do projeto:
   servidor (mobs vivos, tabelas de ameaça, portais abertos) fica em memória.
 - Tudo o que o jogador faz é por menu. Só se digita onde o texto é o próprio conteúdo (o cristal
   de mensagem).
+- Todo menu de jogador é um `Menu` do core com `Menu.floating()`: abre na interface flutuante do
+  AincradUI, e como baú para quem está sem o resource pack. Só ficam como baú os editores de
+  admin e as telas em que se põe e tira item (o armazém, os baús de labirinto).
 - Cada sistema liga e desliga na config do plugin dono, e as regras puras ficam em classes sem
   Bukkit, com teste JUnit.
 

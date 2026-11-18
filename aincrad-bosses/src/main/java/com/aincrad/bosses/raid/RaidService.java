@@ -265,6 +265,7 @@ public final class RaidService {
     /** O quadro: uma raid por item; clicar abre a inscrição. */
     public void openBoard(Player p) {
         Menu menu = Menu.of(msg.get("raid.titulo")).rows(6);
+        menu.floating();
         for (Raid r : raids.values()) {
             List<Component> lore = new ArrayList<>(msg.list("raid.item_lore", vars(r)));
             if (r.members().containsKey(p.getUniqueId())) {
@@ -286,6 +287,7 @@ public final class RaidService {
             return;
         }
         Menu menu = Menu.of(msg.get("raid.item", vars(r))).rows(4);
+        menu.floating();
         Material[] icons = {Material.SHIELD, Material.IRON_SWORD, Material.GOLDEN_APPLE};
         for (Raid.Role role : Raid.Role.values()) {
             List<Component> lore = new ArrayList<>();

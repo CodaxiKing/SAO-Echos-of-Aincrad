@@ -220,7 +220,10 @@ menu tem imagem no pack.
 ## Ligações com os outros plugins
 
 - **Menus do AincradCore**: um menu marcado com `Menu.floating()` abre como lista SAO para quem tem
-  o resource pack (os outros veem o baú). O AincradLife marca os menus de profissões e a árvore.
+  o resource pack (os outros veem o baú). A linha mostra as duas primeiras linhas da descrição do botão; a
+  descrição inteira (preço, prazo, requisitos) aparece num quadro ao lado da linha em que o cursor
+  está. Todos os menus de jogador dos plugins Aincrad são flutuantes; os editores de admin e as
+  telas de pôr e tirar item (troca, cofre da guilda, baú do casamento) continuam como baú.
 - **Linha de rastreio**: `setTrackerProvider` põe uma linha de texto embaixo da barra de vida; o
   AincradQuests mostra ali a quest rastreada.
 - **Entradas do menu**: Quests (AincradQuests), Status (AincradRPG), party, amigos e guilda

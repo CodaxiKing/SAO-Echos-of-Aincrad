@@ -71,6 +71,7 @@ public final class HouseRealty implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("corretor.titulo")).rows(Math.min(6, 2 + (floors.size() + 8) / 9));
+        menu.floating();
         floors.forEach((floor, list) -> {
             int free = HouseRules.free(list.stream().map(House::forSale).toList());
             boolean can = canEnter(p, floor);
@@ -89,6 +90,7 @@ public final class HouseRealty implements Listener {
         // À venda primeiro, as mais baratas na frente.
         list.sort(Comparator.comparing((House h) -> !h.forSale()).thenComparingLong(House::price).thenComparing(House::name));
         Menu menu = Menu.of(msg.get("corretor.titulo_andar", Messages.vars("andar", floor)));
+        menu.floating();
         int seconds = seconds();
         for (House h : list) {
             HouseRules.Sign kind = HouseRules.sign(h.forSale(), auctions != null && auctions.auctioned(h.name()));

@@ -231,6 +231,7 @@ public final class ShopService implements Listener {
             return true;
         }
         Menu menu = Menu.of(Messages.parse(shop.title())).rows(6);
+        menu.floating();
         for (Offer o : shop.offers()) {
             ItemStack icon = create(o, 1);
             if (icon == null) {
@@ -258,6 +259,7 @@ public final class ShopService implements Listener {
             return;
         }
         Menu menu = Menu.of(msg.get("loja.detalhe_titulo")).rows(3);
+        menu.floating();
         menu.item(Menu.Button.of(icon, name(icon), null));
         if (o.buy() >= 0) {
             menu.item(Menu.Button.of(ItemBuilder.of(Material.LIME_DYE).build(),

@@ -381,6 +381,7 @@ public final class QuestService implements Listener {
         }
 
         Menu menu = Menu.of(npcName).rows(3);
+        menu.floating();
         long now = System.currentTimeMillis();
         for (QuestDef def : quests.values()) {
             if (!def.npc().equals(npc)) {

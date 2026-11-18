@@ -567,6 +567,7 @@ public final class Screens {
                     .glyph(r.icon() != null ? r.icon() : "under_icons/items", null)
                     .label(r.label())
                     .detail(r.detail())
+                    .lore(r.lore())
                     .at(-rowW / 2.0, top - n * rsp, rh)
                     .slot(n < LIST_CHEST_SLOTS.length ? LIST_CHEST_SLOTS[n] : -1)
                     .fallback(Material.PAPER);
