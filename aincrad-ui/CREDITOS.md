@@ -7,6 +7,10 @@
 - O repositório sao-assets não traz arquivo de licença: são artes de fã, distribuídas pelo autor no DeviantArt. Se você for o autor e quiser que algo saia daqui, abra uma issue.
 - Janela em branco, setas, cursor, cadeado, fundos das linhas do submenu e moldura da barra de vida foram desenhados para o AincradUI, no mesmo estilo.
 
+## Mod SAO MC UI
+- **A-G Projects**, autor do mod SAO MC UI: os sons da interface (abrir, mover, confirmar, voltar, fechar, vida crítica e morte), a tela "You are dead", a silhueta com os pontos de equipamento e a janela de alerta. Usados com autorização do autor e importados por tools/importar_saomcui.py, que só redimensiona e recorta as imagens.
+- Os ícones, botões e skills do mod são os mesmos desenhos de darkblackswords listados acima.
+
 ## Modelo 3D (futuro)
 - health_bar.glb, por **Sockona**, licença CC BY 4.0 ([creativecommons.org/licenses/by/4.0](https://creativecommons.org/licenses/by/4.0/)). Ainda não usado: precisa ser convertido para modelo do Minecraft.
 

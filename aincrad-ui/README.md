@@ -15,8 +15,14 @@ Requisitos: Paper 1.21.11, Java 21+. Opcional: **AincradEffects** (pack único d
 
 ## Artes
 
-As artes vêm do projeto [SAO-UI/sao-assets](https://github.com/SAO-UI/sao-assets) (vetores e fonte
-de darkblackswords; ver `CREDITOS.md`) e já estão no plugin:
+As artes e os sons vêm de duas fontes e já estão no plugin (ver `CREDITOS.md`):
+
+- o mod **SAO MC UI** (A-G Projects), com autorização do autor: ícones, botões, skills, a janela
+  de alerta, "You are dead", a silhueta e os **sete sons** da interface;
+- o projeto [SAO-UI/sao-assets](https://github.com/SAO-UI/sao-assets) (vetores e fonte de
+  darkblackswords): o que o mod não traz — painel de perfil, barra de vida, faixas e a fonte.
+
+Os ícones, botões e skills são os mesmos desenhos nas duas fontes.
 
 | Arquivo (em `textures/ui/`) | Origem | Uso |
 |---|---|---|
@@ -25,9 +31,9 @@ de darkblackswords; ver `CREDITOS.md`) e já estão no plugin:
 | `buttons/*.png` e `*_on.png` | SAO Icons, Buttons | sim, não, mais, menos, lista, detalhes, iniciar, cancelar |
 | `skills/skill_1..7.png` | SAO Icons, Skills | skills |
 | `profile_panel.png` | SAO UI v1.100 | painel de perfil com silhueta e pontos de equipamento |
-| `person.png` | SAO Man | silhueta sozinha |
+| `person.png` | SAO MC UI | silhueta com os pontos de equipamento |
 | `hud/frame.png`, `hud/fill_00..19.png` | SAO Life Gauge | moldura e fatias da barra de vida |
-| `effects/you_are_dead.png` | SAO HEX | tela de morte |
+| `effects/you_are_dead.png` | SAO MC UI | tela de morte |
 | `window_alert.png` | SAO UI-Window v0.110 | a janela de alerta das confirmações (os dois botões do desenho foram apagados; o plugin põe os dele) |
 | `banner/*_0.png`, `*_1.png` | SAO HEX, SAO Duel, Congratulations | faixas no meio da tela: WARNING, System Announcement, Immortal Object, Congratulations e o losango do duelo |
 | `hud/frame_0..2.png` | a moldura da barra de vida em três peças | HUD em barras com artes |
@@ -44,9 +50,16 @@ git clone --depth 1 https://github.com/SAO-UI/sao-assets.git ../../sao-assets
 python tools/importar_sao_assets.py ../../sao-assets
 ```
 
-Sons: coloque os `.ogg` em `plugins/AincradUI/resourcepack/assets/aincrad/sounds/ui/` com os nomes
-de `ui.yml → sons → arquivo` (`open`, `move`, `confirm`, `back`, `close`, `critical`, `death`) e use
-`/aincrad ui reload`. Enquanto o `.ogg` não existe, o pack aponta para um som vanilla de reserva.
+Para trocar pelas artes e sons do mod SAO MC UI (a pasta `assets/saomcui` dele):
+
+```bash
+python tools/importar_saomcui.py C:/caminho/para/saomcui
+```
+
+Sons: os sete `.ogg` do mod já vêm no plugin, em `sounds/ui/` (`open`, `move`, `confirm`, `back`,
+`close`, `critical`, `death`; os nomes são os de `ui.yml → sons → arquivo`). Para usar outros,
+troque os arquivos em `plugins/AincradUI/resourcepack/assets/aincrad/sounds/ui/` e use
+`/aincrad ui reload`. Se um `.ogg` faltar, o pack aponta para um som vanilla de reserva.
 
 O plugin nunca sobrescreve arquivos que você trocou, com uma exceção: quando uma versão nova traz
 artes novas (`.versao_artes` diferente), a pasta `resourcepack/` antiga é guardada em

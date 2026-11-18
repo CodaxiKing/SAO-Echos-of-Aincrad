@@ -63,7 +63,7 @@ public final class PackBuilder {
      * Versão das artes que vêm no .jar. Quando muda, a pasta resourcepack/ antiga é guardada em
      * resourcepack_antigo_&lt;versão&gt;/ e as artes novas são copiadas por cima.
      */
-    public static final String ART_VERSION = "sao-assets-1";
+    public static final String ART_VERSION = "saomcui-1";
     private static final String ART_MARKER = ".versao_artes";
 
     /** Copia do .jar os arquivos que ainda não existem na pasta (ou todos, se as artes mudaram). */
