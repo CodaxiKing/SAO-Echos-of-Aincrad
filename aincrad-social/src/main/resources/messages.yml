@@ -28,6 +28,7 @@ uso:
   guilda_admin: "<gray>Uso: <white>/aincrad guilda renomear <tag> <nome></white>, <white>desfazer <tag></white>, <white>dar-xp <tag> <valor>"
 
 amigo:
+  entrou_outro_servidor: "<green><white><jogador></white> entrou em outro servidor da rede."
   nao_e_amigo: "<red><white><jogador></white> não é seu amigo."
   ir_offline: "<red><white><jogador></white> não está neste servidor."
   ir_fora_da_cidade: "<red>Só dá para ir até um amigo quando vocês dois estão numa cidade."

@@ -41,6 +41,15 @@ final class CoreLink {
             }
 
             @Override
+            public void guildInvited(UUID player, UUID guild) {
+                Player p = Bukkit.getPlayer(player);
+                Guild g = plugin.guilds().get(guild);
+                if (p != null && g != null) {
+                    plugin.guildManager().showInvite(p, g, null);
+                }
+            }
+
+            @Override
             public void inboxGrew(UUID player, int unread) {
                 Player p = Bukkit.getPlayer(player);
                 if (p != null) {

@@ -47,7 +47,7 @@ class AlchemyRulesTest {
     void osArquivosDoPluginCarregamSemErro() {
         AlchemyRegistry r = bundled();
         assertTrue(r.reagents().size() >= 20);
-        assertEquals(15, r.formulas().size());
+        assertEquals(17, r.formulas().size());
         assertEquals(3, r.gathers().size());
         // Os caminhos e especializações citados existem na árvore da alquimia.
         YamlConfiguration tree = resource("trees/alquimia.yml");

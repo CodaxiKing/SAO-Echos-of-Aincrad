@@ -63,6 +63,34 @@ formulas:
       - {reagente: secundario, cor: vermelho}
     produto: {tipo: buff, efeito: speed, nivel: 1, minutos: 8}
     cor: "#33EBFF"
+  # Resistências: não são efeitos do Minecraft. "resistencia_paralisia" barra lentidão e fadiga
+  # (venenos, frascos, golpes de chefe); "resistencia_frio" barra o congelamento.
+  pocao_antiparalisia:
+    nome: "Poção Antiparalisia"
+    base: agua
+    principal: erva_lunar
+    secundario: farinha_de_osso
+    proficiencia_estudo: 200
+    proficiencia_minima: 250
+    dificuldade: 320
+    infusao:
+      - {reagente: principal, cor: roxo}
+      - {reagente: secundario, cor: verde}
+    produto: {tipo: buff, efeito: resistencia_paralisia, nivel: 1, minutos: 5}
+    cor: "#B48CFF"
+  pocao_do_degelo:
+    nome: "Poção do Degelo"
+    base: agua
+    principal: po_de_blaze
+    secundario: argila
+    proficiencia_estudo: 200
+    proficiencia_minima: 250
+    dificuldade: 320
+    infusao:
+      - {reagente: principal, cor: vermelho}
+      - {reagente: secundario, cor: laranja}
+    produto: {tipo: buff, efeito: resistencia_frio, nivel: 1, minutos: 10}
+    cor: "#FFB347"
   pocao_de_visao:
     nome: "Poção de Visão"
     base: agua

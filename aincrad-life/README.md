@@ -595,8 +595,9 @@ velocidade" virou um pequeno bônus de velocidade, já que armadura nenhuma redu
 devolve durabilidade máxima perdida" virou +10% de durabilidade máxima; e "uma vez por pescaria"
 (Arpão) virou uma recarga de 5 minutos.
 
-**Fora das árvores, ainda não existem** na alquimia: a venda de fórmulas (a transcrição de
-pergaminhos já existe) e as resistências a paralisia e frio.
+**Resistências.** A Poção Antiparalisia barra lentidão e fadiga por 5 minutos (venenos, frascos e
+golpes de chefe), e a Poção do Degelo barra o congelamento por 10. As fórmulas se vendem como
+qualquer item: o alquimista transcreve o pergaminho e o põe na botica (`/barraca`).
 
 ## Escolhas diferentes do plano
 

@@ -889,8 +889,8 @@ public final class GuildService {
     }
 
     /**
-     * Põe a versão de uma guilda que veio do banco no lugar da que está na memória. Os convites
-     * e os itens do cofre, que não vão no documento da guilda, continuam os de antes.
+     * Põe a versão de uma guilda que veio do banco no lugar da que está na memória. Os itens do
+     * cofre, que não vão no documento da guilda, continuam os de antes.
      */
     void replace(Guild g) {
         Guild old = guilds.get(g.id);
@@ -898,7 +898,6 @@ public final class GuildService {
             for (UUID m : old.members.keySet()) {
                 byMember.remove(m, old.id);
             }
-            g.invites.putAll(old.invites);
             if (g.vaultData.isEmpty()) {
                 g.vaultData = old.vaultData;
             }

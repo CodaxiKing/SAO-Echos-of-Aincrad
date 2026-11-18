@@ -103,6 +103,9 @@ public final class CoreStorage implements Storage {
         /** A guilda acabou em outro servidor: fechar o cofre de quem o tem aberto aqui. */
         void guildRemoved(UUID guild);
 
+        /** O jogador foi convidado para a guilda, em outro servidor. */
+        void guildInvited(UUID player, UUID guild);
+
         /** Chegou mensagem nova na caixa do jogador. */
         void inboxGrew(UUID player, int unread);
 
@@ -622,9 +625,15 @@ public final class CoreStorage implements Storage {
                 } else {
                     try {
                         Guild g = GuildStore.decode(id, rows.get(0)[0]);
+                        Set<UUID> invitedBefore = old == null ? Set.of() : GuildStore.invited(old);
                         GuildStore.replace(guilds, g);
                         savedGuilds.put(id, GuildStore.encode(g, false));
                         versions.put(id, Long.parseLong(rows.get(0)[1]));
+                        for (UUID invited : GuildStore.invited(g)) {
+                            if (!invitedBefore.contains(invited)) {
+                                host.guildInvited(invited, id);
+                            }
+                        }
                         confirmedTreasury.put(id, g.treasury());
                         affected.addAll(g.members().keySet());
                         if (pending != 0) {

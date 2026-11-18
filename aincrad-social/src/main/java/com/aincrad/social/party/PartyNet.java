@@ -36,6 +36,8 @@ public final class PartyNet {
     private Map<UUID, String> known = new HashMap<>();
     /** Jogadores vistos em outros servidores (id → quando). */
     private final Map<UUID, Long> elsewhere = new ConcurrentHashMap<>();
+    /** Quem saiu de algum servidor há pouco (id → quando): trocar de servidor não é "entrou". */
+    private final Map<UUID, Long> leftRecently = new ConcurrentHashMap<>();
 
     public PartyNet(AincradSocialPlugin plugin) {
         this.plugin = plugin;
@@ -58,10 +60,16 @@ public final class PartyNet {
             String[] p = payload.split("\\|");
             UUID id = uuid(p[0]);
             if (id != null) {
+                long now = System.currentTimeMillis();
                 if (p.length > 1 && p[1].equals("1")) {
-                    elsewhere.put(id, System.currentTimeMillis());
+                    Long left = leftRecently.remove(id);
+                    boolean news = elsewhere.put(id, now) == null && (left == null || now - left > 15_000L);
+                    if (news) {
+                        friendArrived(id);
+                    }
                 } else {
                     elsewhere.remove(id);
+                    leftRecently.put(id, now);
                 }
             }
         });
@@ -81,8 +89,23 @@ public final class PartyNet {
         return seen != null && System.currentTimeMillis() - seen < PRESENCE_MILLIS;
     }
 
+    /** Um amigo entrou na rede por outro servidor: avisa os amigos dele que estão aqui. */
+    private void friendArrived(UUID id) {
+        if (!plugin.settings().announceFriends || Bukkit.getPlayer(id) != null) {
+            return;
+        }
+        String name = plugin.names().name(id);
+        for (UUID friend : plugin.friends().friends(id)) {
+            Player f = Bukkit.getPlayer(friend);
+            if (f != null) {
+                plugin.messages().send(f, "amigo.entrou_outro_servidor", net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.unparsed("jogador", name));
+            }
+        }
+    }
+
     public void joined(Player p) {
         elsewhere.remove(p.getUniqueId());
+        leftRecently.remove(p.getUniqueId());
         plugin.storage().publish(CH_ONLINE, p.getUniqueId() + "|1");
     }
 
@@ -93,6 +116,7 @@ public final class PartyNet {
     public void quit(Player p) {
         UUID id = p.getUniqueId();
         String name = p.getName();
+        leftRecently.put(id, System.currentTimeMillis());
         plugin.storage().publish(CH_ONLINE, id + "|0");
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (Bukkit.getPlayer(id) == null && !onlineElsewhere(id)) {

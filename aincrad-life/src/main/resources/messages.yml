@@ -493,6 +493,7 @@ forja:
   item_dado: "<green><qtd>x <white><nome></white> para <white><jogador></white>."
 
 alquimia:
+  bebeu_resistencia: "<aqua><nome>: <white><efeito></white> por <white><minutos> min"
   bebeu_elixir: "<gold>Elixir — <nome>: <white>+<vida></white> de vida na hora"
   cristal_poupado: "<green>O cristal bruto não foi gasto."
   cristal_puro_lore: "<gold>Cristal puro: <gray>metade da recarga"
@@ -539,6 +540,8 @@ alquimia:
   # Nomes dos efeitos nas descrições (os que faltarem aparecem com o nome do Minecraft).
   efeito:
     strength: "Força"
+    resistencia_paralisia: "Resistência à paralisia"
+    resistencia_frio: "Resistência ao frio"
     resistance: "Defesa"
     speed: "Velocidade"
     night_vision: "Visão"

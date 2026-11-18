@@ -55,6 +55,7 @@ class CoreStorageTest {
         final CoreStorage storage;
         final List<UUID> removed = new CopyOnWriteArrayList<>();
         final List<UUID> newMail = new CopyOnWriteArrayList<>();
+        final List<UUID> invited = new CopyOnWriteArrayList<>();
         final List<String> chat = new CopyOnWriteArrayList<>();
 
         Server(String name) throws Exception {
@@ -112,6 +113,11 @@ class CoreStorageTest {
         @Override
         public void guildRemoved(UUID guild) {
             removed.add(guild);
+        }
+
+        @Override
+        public void guildInvited(UUID player, UUID guild) {
+            invited.add(player);
         }
 
         @Override
@@ -231,6 +237,32 @@ class CoreStorageTest {
 
         Server novo = new Server("andar2").load();
         assertTrue(novo.guilds.all().isEmpty());
+    }
+
+    @Test
+    void conviteDeGuildaChegaAQuemEstaEmOutroServidor() throws Exception {
+        Server lobby = new Server("lobby").load();
+        Server andar = new Server("andar1").load();
+        lobby.guilds.create(asuna, "Cavaleiros do Juramento", "KoB", null, 5000);
+        UUID id = lobby.guilds.guildOf(asuna).id();
+        lobby.storage.saveGuildsSoon();
+        settle();
+        assertTrue(andar.invited.isEmpty());
+
+        // A Asuna convida o Kirito no lobby; ele está no andar 1.
+        lobby.guilds.invite(asuna, kirito);
+        lobby.storage.saveGuildsSoon();
+        settle();
+        assertEquals(List.of(kirito), andar.invited);
+        assertEquals(1, andar.guilds.invitesFor(kirito).size());
+
+        // Ele aceita lá, e o lobby fica sabendo. O convite some dos dois lados.
+        andar.guilds.acceptInvite(kirito, id);
+        andar.storage.saveGuildsSoon();
+        settle();
+        assertEquals(id, lobby.guilds.guildOf(kirito).id());
+        assertTrue(lobby.guilds.invitesFor(kirito).isEmpty());
+        assertEquals(List.of(kirito), andar.invited); // nenhum aviso repetido
     }
 
     @Test

@@ -308,6 +308,13 @@ public final class PotionService implements Listener {
                 msg.actionBar(p, "alquimia.bebeu_antidoto", vars);
             }
             case BUFF -> {
+                if (effect.startsWith("resistencia_")) {
+                    // Resistências (paralisia, frio): não são efeitos do Minecraft; valem pelo tempo gravado no perfil.
+                    AincradCore.get().profile(p).set(plugin, effect, System.currentTimeMillis() + Math.round(seconds * 1000));
+                    msg.actionBar(p, "alquimia.bebeu_resistencia", Messages.vars("nome", name, "efeito", effectName(effect),
+                            "minutos", Math.max(1, Math.round(seconds / 60))));
+                    break;
+                }
                 PotionEffectType t = effect(effect);
                 if (t == null) {
                     return;
@@ -430,6 +437,35 @@ public final class PotionService implements Listener {
             } finally {
                 busy = false;
             }
+        }
+    }
+
+    // ------------------------------------------------------------------ resistências
+
+    /** O jogador está sob uma poção de resistência? {@code what}: "paralisia" ou "frio". */
+    public boolean resists(Player p, String what) {
+        return AincradCore.get().profile(p).getLong(plugin, "resistencia_" + what, 0) > System.currentTimeMillis();
+    }
+
+    /** Resistência à paralisia: lentidão e fadiga não pegam (venenos, frascos e habilidades de chefe). */
+    @EventHandler(ignoreCancelled = true)
+    public void onParalysis(org.bukkit.event.entity.EntityPotionEffectEvent event) {
+        if (!(event.getEntity() instanceof Player p) || event.getNewEffect() == null) {
+            return;
+        }
+        PotionEffectType t = event.getNewEffect().getType();
+        if ((t.equals(PotionEffectType.SLOWNESS) || t.equals(PotionEffectType.MINING_FATIGUE)) && resists(p, "paralisia")) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** Resistência ao frio: a neve fofa não congela nem fere. */
+    @EventHandler(ignoreCancelled = true)
+    public void onFreeze(org.bukkit.event.entity.EntityDamageEvent event) {
+        if (event.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FREEZE
+                && event.getEntity() instanceof Player p && resists(p, "frio")) {
+            event.setCancelled(true);
+            p.setFreezeTicks(0);
         }
     }
 

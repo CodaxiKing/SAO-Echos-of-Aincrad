@@ -282,17 +282,28 @@ public final class GuildManager {
             return false;
         }
         Player t = Names.online(target);
+        if (t == null && plugin.partyNet() != null && plugin.partyNet().onlineElsewhere(target)) {
+            // Está em outro servidor da rede: o convite vai junto com a guilda, e ele é avisado lá.
+            msg().send(p, "guilda.convite.sent", who(tn));
+            changed();
+            return true;
+        }
         if (t == null) {
             svc().declineInvite(target, g.id());
             msg().send(p, "geral.jogador_nao_encontrado", who(tn));
             return false;
         }
         msg().send(p, "guilda.convite.sent", who(tn));
-        t.sendMessage(msg().get("prefixo").append(msg().get("guilda.convite_recebido", guild(g), who(p.getName())))
-                .append(buttons("/guilda aceitar " + g.tag(), "/guilda recusar " + g.tag())));
-        t.playSound(NOTIFY, Sound.Emitter.self());
+        showInvite(t, g, p.getName());
         changed();
         return true;
+    }
+
+    /** Mostra a um jogador o convite de uma guilda (feito aqui ou em outro servidor). */
+    public void showInvite(Player t, Guild g, String inviter) {
+        t.sendMessage(msg().get("prefixo").append(msg().get("guilda.convite_recebido", guild(g), who(inviter == null ? g.name() : inviter)))
+                .append(buttons("/guilda aceitar " + g.tag(), "/guilda recusar " + g.tag())));
+        t.playSound(NOTIFY, Sound.Emitter.self());
     }
 
     private void joined(Player p, Guild g) {

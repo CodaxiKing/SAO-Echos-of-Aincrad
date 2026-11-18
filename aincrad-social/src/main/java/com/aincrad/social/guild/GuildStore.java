@@ -121,6 +121,15 @@ public final class GuildStore {
                 }
             }
         }
+        ConfigurationSection is = s.getConfigurationSection("convites");
+        if (is != null) {
+            for (String k : is.getKeys(false)) {
+                UUID p = uuid(k);
+                if (p != null) {
+                    g.invites.put(p, is.getLong(k));
+                }
+            }
+        }
         for (Map<?, ?> m : s.getMapList("extrato")) {
             Object t = m.get("quando");
             Object amt = m.get("valor");
@@ -152,6 +161,11 @@ public final class GuildStore {
             throw new IllegalStateException(e.getMessage(), e);
         }
         return read(id, c);
+    }
+
+    /** Quem tem convite desta guilda ainda sem resposta. */
+    public static java.util.Set<UUID> invited(Guild g) {
+        return new java.util.LinkedHashSet<>(g.invites.keySet());
     }
 
     /** Soma (ou tira) Col do tesouro, sem deixar negativo. */
@@ -249,6 +263,7 @@ public final class GuildStore {
         c.set(b + "aliados", g.allies.stream().map(UUID::toString).toList());
         c.set(b + "propostas", g.allyProposals.stream().map(UUID::toString).toList());
         g.applications.forEach((p, t) -> c.set(b + "candidaturas." + p, t));
+        g.invites.forEach((p, t) -> c.set(b + "convites." + p, t));
         List<Map<String, Object>> ledger = new ArrayList<>();
         for (Guild.Ledger l : g.ledger) {
             Map<String, Object> m = new LinkedHashMap<>();
