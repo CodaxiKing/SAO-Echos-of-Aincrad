@@ -45,6 +45,7 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
     private MonumentService monument;
     private BountyService bounties;
     private GraveService graves;
+    private CrimeService crime;
     private final List<String> commands = new ArrayList<>();
 
     @Override
@@ -57,6 +58,7 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
             steps.addAll(MonumentService.MIGRATIONS);
             steps.addAll(BountyService.MIGRATIONS);
             steps.addAll(GraveService.MIGRATIONS);
+            steps.addAll(CrimeService.MIGRATIONS);
             core.database().migrate("reputation", steps);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradReputation não vai ligar: " + e.getMessage());
@@ -81,7 +83,7 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
         hook(hooks, "AincradFloors", on, () -> new FloorsListener(reputation));
         hook(hooks, "AincradBosses", on, () -> new BossesListener(reputation));
         hook(hooks, "AincradLife", on, () -> new LifeListener(reputation, cursor));
-        hook(hooks, "AincradItems", on, () -> new ItemsListener(cursor, msg));
+        hook(hooks, "AincradItems", on, () -> new ItemsListener(cursor, msg, (p, type) -> crime != null && crime.crystalBlocked(p, type)));
 
         getServer().getScheduler().runTaskTimer(this, () -> {
             reputation.tickColors();
@@ -117,6 +119,15 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
             }
         }));
         command("recompensas", List.of("cabecas"), (sender, args) -> player(sender, bounties::list));
+        crime = new CrimeService(this, core.database(), msg, config, bounties);
+        try {
+            crime.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler as bases escondidas: " + e.getMessage());
+        }
+        getServer().getPluginManager().registerEvents(crime, this);
+        getServer().getScheduler().runTaskTimer(this, crime::refresh, 1200L, 1200L);
+        command("crime", List.of(), crime::command);
         command("monumento", List.of("monumentodavida"), (sender, args) ->
                 player(sender, p -> monument.menu(p, args.length == 0 ? null : args[0])));
         core.commands().register(this, new SubCommand() {

@@ -99,6 +99,22 @@ tumulo:
   aqui_jaz: "<gray>Aqui caiu <white><jogador></white>, em <white><data></white>. <dark_gray>Flores: <flores>. Clique com uma flor na mão para deixar uma."
   flor: "<light_purple>Você deixou uma flor para <white><jogador></white>."
 
+crime:
+  uso: "<gray>Uso: <white>/crime base</white> (o líder define a base aqui), <white>/crime base remover</white>, <white>/crime emboscada</white>, <white>/crime bases</white> (as que você encontrou)"
+  desligado: "<gray>As guildas de crime estão desligadas."
+  so_lider_vermelho: "<red>Só o líder de uma guilda vermelha define a base."
+  so_guilda_vermelha: "<red>Só membros de uma guilda vermelha armam emboscadas."
+  base_definida: "<red>Base escondida definida aqui, num raio de <white><raio></white> blocos. <gray>Ela não aparece em lista nenhuma até alguém a encontrar."
+  base_removida: "<gray>A guilda está sem base."
+  base_encontrada: "<gold>Você encontrou a base escondida da guilda <red><guilda></red>. <gray>Ela agora aparece em <white>/crime bases</white>."
+  base_linha: "<red><guilda></red> <gray><mundo> <white><x>, <y>, <z>"
+  nenhuma_base: "<gray>Você não encontrou nenhuma base escondida."
+  base_caiu: "<gold><white><captor></white> derrotou <red><lider></red> dentro da base da guilda <red><guilda></red> e levou a recompensa de todos os membros."
+  emboscada_armada: "<red>Emboscada armada aqui por <white><minutos></white> min, num raio de <white><raio></white> blocos."
+  emboscada_recarga: "<gray>A guilda só pode armar outra emboscada em <white><minutos></white> min."
+  emboscado: "<dark_red>Emboscada! <red>Seu cristal de teleporte não funciona por <white><segundos></white> s."
+  cristal_falhou: "<red>O cristal não responde: você foi pego numa emboscada."
+
 admin:
   descricao_monumento: "Monumento da Vida: definir onde fica o mural"
   uso_monumento: "<gray>Uso: <white>/aincrad monumento definir</white> <gray>(o mural aparece onde você está, virado para onde você olha)"

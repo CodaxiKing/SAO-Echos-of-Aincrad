@@ -80,3 +80,16 @@ tumulos:
   maximo_por_pedaco: 4
   # O bloco que faz a lápide (é só enfeite: não dá para quebrar nem pegar).
   bloco: MOSSY_COBBLESTONE_WALL
+
+# Guildas de crime: uma guilda vermelha do AincradSocial (o líder tem cursor vermelho)
+# pode ter uma base escondida e armar emboscadas. Comando: /crime
+crime:
+  ativo: true
+  # A base é um raio em volta do ponto onde o líder usou /crime base.
+  base_raio: 12
+  # A emboscada vale neste raio, por este tempo; depois a guilda espera a recarga.
+  emboscada_raio: 16
+  emboscada_minutos: 10
+  emboscada_recarga_minutos: 30
+  # Depois do primeiro golpe na emboscada, o cristal de teleporte da vítima falha por este tempo.
+  emboscada_segundos: 15

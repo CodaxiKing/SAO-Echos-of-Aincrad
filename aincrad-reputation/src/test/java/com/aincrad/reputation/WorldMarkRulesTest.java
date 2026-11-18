@@ -54,6 +54,23 @@ class WorldMarkRulesTest {
     }
 
     @Test
+    void aBaseEscondidaEAEmboscada() {
+        // A base é um raio em volta do ponto: só entra no mapa de quem pisa dentro.
+        CrimeService.Base base = new CrimeService.Base("g1", "Laughing Coffin", "andar19", "world", 100, 40, -50);
+        assertTrue(CrimeService.inRadius(100.5, 40, -49.5, 105, 41, -49.5, 12));
+        assertFalse(CrimeService.inRadius(100.5, 40, -49.5, 113, 40, -49.5, 12));
+        assertEquals("g1", base.guild());
+        // Na emboscada, o cristal de teleporte da vítima falha pelo tempo da config; os outros, não.
+        assertTrue(CrimeService.crystalBlocked("teleporte", NOW + 15_000, NOW));
+        assertFalse(CrimeService.crystalBlocked("teleporte", NOW + 15_000, NOW + 15_000));
+        assertFalse(CrimeService.crystalBlocked("cura", NOW + 15_000, NOW));
+        assertFalse(CrimeService.crystalBlocked(null, NOW + 15_000, NOW));
+        assertFalse(CrimeService.crystalBlocked("teleporte", 0, NOW));
+        assertTrue(new CrimeService.Guild("g1", "LC", "LIDER", true).leader());
+        assertFalse(new CrimeService.Guild("g1", "LC", "MEMBRO", true).leader());
+    }
+
+    @Test
     void aLapideSomeNoPrazoDaConfig() {
         long expires = WorldMarkRules.expiresAt(NOW, 30);
         Grave g = new Grave(1, "u", "Sachi", "world", 100, 64, -20, NOW, expires, 0);

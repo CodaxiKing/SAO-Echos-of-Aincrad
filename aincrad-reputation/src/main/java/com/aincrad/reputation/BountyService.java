@@ -39,6 +39,43 @@ public final class BountyService implements Listener {
     private record Open(long id, String hold, long amount, String placer) {
     }
 
+    /**
+     * Paga a {@code captor} as recompensas abertas de todos os alvos que {@code isTarget} aceitar
+     * (os membros de uma guilda de crime, quando o líder cai na base). O teste roda na thread do
+     * servidor.
+     */
+    public void payMatching(Player captor, String why, java.util.function.Predicate<UUID> isTarget) {
+        if (!hooks.has("AincradEconomy")) {
+            return;
+        }
+        db.query("SELECT id, hold_id, amount, target FROM rep_bounties WHERE state = 'ABERTA'",
+                rs -> new Object[] {rs.getLong(1), rs.getString(2), rs.getLong(3), rs.getString(4)}).whenComplete((rows, ex) -> AincradCore.get().runSync(() -> {
+            if (ex != null) {
+                plugin.getLogger().log(Level.WARNING, "Não foi possível ler as recompensas da guilda " + why, ex);
+                return;
+            }
+            for (Object[] r : rows) {
+                if (!isTarget.test(UUID.fromString((String) r[3]))) {
+                    continue;
+                }
+                long id = (Long) r[0];
+                String hold = (String) r[1];
+                long amount = (Long) r[2];
+                // Só paga a que este servidor conseguir marcar como paga.
+                db.update("UPDATE rep_bounties SET state = 'PAGA' WHERE id = ? AND state = 'ABERTA'", id).thenAccept(n -> {
+                    if (n > 0) {
+                        AincradCore.get().runSync(() -> {
+                            hooks.release(hold, captor.getUniqueId(), amount, "recompensa da guilda " + why);
+                            if (captor.isOnline()) {
+                                msg.send(captor, "recompensa.recebeu", Messages.vars("jogador", why, "valor", amount));
+                            }
+                        });
+                    }
+                });
+            }
+        }));
+    }
+
     private final Plugin plugin;
     private final Database db;
     private final Messages msg;

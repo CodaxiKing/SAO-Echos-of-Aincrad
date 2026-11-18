@@ -12,10 +12,13 @@ public final class ItemsListener implements Listener {
 
     private final CursorService cursor;
     private final Messages msg;
+    private final java.util.function.BiPredicate<org.bukkit.entity.Player, String> ambushed;
 
-    public ItemsListener(CursorService cursor, Messages msg) {
+    /** @param ambushed o cristal deste tipo falha para o jogador (pego numa emboscada)? */
+    public ItemsListener(CursorService cursor, Messages msg, java.util.function.BiPredicate<org.bukkit.entity.Player, String> ambushed) {
         this.cursor = cursor;
         this.msg = msg;
+        this.ambushed = ambushed;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -23,6 +26,9 @@ public final class ItemsListener implements Listener {
         if (cursor.jailed(event.getPlayer())) {
             event.setCancelled(true);
             msg.send(event.getPlayer(), "prisao.sem_cristal");
+        } else if (ambushed.test(event.getPlayer(), event.getType())) {
+            event.setCancelled(true);
+            msg.send(event.getPlayer(), "crime.cristal_falhou");
         }
     }
 }

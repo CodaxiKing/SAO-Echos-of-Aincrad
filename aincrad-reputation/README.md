@@ -113,6 +113,22 @@ Quando um jogador morre, fica uma **lápide** no lugar, com o nome e a data.
   contagem aparece na lápide).
 - Quem cai no vazio não deixa lápide.
 
+## Guildas de crime (etapa 55)
+
+O que a Laughing Coffin fazia. Vale para uma **guilda vermelha** do AincradSocial (o líder tem
+cursor vermelho); sem o AincradSocial, `/crime` não faz nada.
+
+- **Base escondida**: o líder usa `/crime base` e a base passa a ser um raio de `crime.base_raio`
+  blocos em volta dali. Ela **não aparece em lista nenhuma**. Quem entra nela a pé a **encontra**, e
+  só então ela aparece no `/crime bases` desse jogador. Mudar a base de lugar apaga quem a tinha
+  achado.
+- **Emboscada**: um membro usa `/crime emboscada` e, por `emboscada_minutos`, num raio de
+  `emboscada_raio`, quem levar o primeiro golpe de um membro da guilda fica com o **cristal de
+  teleporte sem funcionar** por `emboscada_segundos`. Depois a guilda espera a recarga.
+- **O líder derrotado dentro da base**: quem o prender leva a **recompensa por cabeça de todos os
+  membros** da guilda, e o servidor é avisado.
+- As emboscadas valem enquanto o servidor está ligado; as bases ficam no banco.
+
 ## Comandos
 
 | Comando | O que faz | Permissão |
@@ -121,6 +137,7 @@ Quando um jogador morre, fica uma **lápide** no lugar, com o nome e a data.
 | `/conquistas` | Lista as conquistas | todos |
 | `/reputacao [jogador]` | Cor do cursor, tempo, mortes, título | todos |
 | `/monumento [busca]` | O Monumento da Vida em menu | todos |
+| `/crime base` · `emboscada` · `bases` | Guildas de crime: definir a base, armar emboscada, ver as bases que você encontrou | todos |
 | `/recompensa <jogador> <valor>` · `/recompensas` | Põe Col pela prisão de um vermelho · lista as cabeças a prêmio | todos |
 | `/aincrad monumento definir` | Põe o mural onde você está | `aincrad.admin` |
 | `/aincrad prisao definir` | Define a prisão com a seleção da varinha | `aincrad.admin` |
