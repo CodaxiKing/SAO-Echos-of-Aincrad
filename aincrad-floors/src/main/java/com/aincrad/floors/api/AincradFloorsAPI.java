@@ -88,6 +88,18 @@ public final class AincradFloorsAPI {
         game = service;
     }
 
+    private static com.aincrad.floors.MapService map;
+
+    /** Chamado pelo plugin ao ligar (e com null ao desligar). */
+    public static void map(com.aincrad.floors.MapService service) {
+        map = service;
+    }
+
+    /** O jogador já explorou (a pé, ou com dados de mapa) o setor onde o lugar fica? */
+    public static boolean isExplored(Player player, Location location) {
+        return map != null && map.explored(player, location);
+    }
+
     /** O dia do anúncio já aconteceu e o jogo ainda não foi vencido (o logout está escondido). */
     public static boolean isDeathGame() {
         return game != null && game.deathGame();

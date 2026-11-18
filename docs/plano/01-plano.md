@@ -538,23 +538,34 @@ Terceira leva. Começa depois da etapa 30.
 
 ## O que ainda falta
 
-Estado em 18/11/2026. O AincradAdmin (etapas 28–30), o AincradSkills (etapas 34–36) e o AincradQuests (etapas 37–38) já têm código, nas pastas `aincrad-admin/`, `aincrad-skills/` e `aincrad-quests/`, sem teste em servidor; a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
+Estado em 18/11/2026. **Todas as etapas numeradas do plano (0 a 59) têm código.** Os quinze projetos compilam sem avisos e os 347 testes de regras passam. **Nada, da etapa 22 em diante, foi testado num servidor de verdade** — nem com um banco MySQL, nem com o MythicMobs, o ModelEngine ou um webhook do Discord de verdade. É o que falta fazer antes de abrir o servidor.
+
+O que entrou por último, por plugin:
 
 | Etapas | Plugin | O que é |
 | --- | --- | --- |
+| 26–27, 39, 46, 47, 55 | AincradReputation | Conquistas, títulos, cor do cursor e prisão; Monumento da Vida; recompensa por cabeça; túmulos; guildas de crime |
 | 28–30 | AincradAdmin | Registro das ações de admin, Discord por webhook, ranking em site, backup e restauração, `/aincrad status` |
-| 34–36 | AincradSkills | Proficiência por arma, Sword Skills ativas e passivas, atalhos, skill única |
-| 37–38 | AincradQuests | Motor de quests, NPCs com diálogo, diárias, quest de party, diário no menu |
+| 34–36, 56 | AincradSkills | Proficiência por arma, Sword Skills ativas e passivas, atalhos, Duas Espadas e as skills únicas com critério secreto |
+| 37–38 | AincradQuests | Motor de quests, NPCs com diálogo, diárias, quest de party, diário |
+| 40, 43, 54 | AincradFloors | O dia do anúncio, o fim de jogo e o mapa por exploração |
+| 41, 42, 49, 52, 53 | AincradBosses | Chefes de campo e de evento (Nicholas), informantes, reunião de estratégia, dungeons escondidas, chaves e mapas |
+| 44, 57–59 | AincradWorld | Jornal semanal, calendário, dia e noite e clima por andar |
+| 45, 51 | AincradRPG | Mobs por região, mobs raros (o coelho do ragu) e itens únicos do servidor |
+| 48 | AincradLife | Contratos de escolta |
+| 50 | AincradEconomy | Casas com vista vendidas por leilão |
 
-O AincradReputation (etapas 26–27) já tem código, na pasta `aincrad-reputation/`; como o AincradLife, ainda não foi testado num servidor de verdade.
+**O que continua por fazer**
 
-A quarta leva (etapas 39 a 43) também tem código, sem teste em servidor: o Monumento da Vida no AincradReputation, o dia do anúncio e o fim de jogo no AincradFloors (`deathgame.yml`), os chefes de campo e de evento (`roaming.yml`, com o Nicholas) e os informantes no AincradBosses. Os pacotes de conteúdo por andar (A1, A2…) continuam por fazer.
+1. **Testar num servidor.** Cada README diz o que o plugin faz e termina com o que ficou diferente do plano. As ligações feitas por reflexão (MythicMobs, ModelEngine, AincradUI, AincradSocial, AincradEffects, AincradItems) são as que mais precisam de teste.
+2. **Os pacotes de conteúdo por andar (A1, A2…).** Os arquivos trazem só exemplos: o Illfang, o Lobo Alfa, o Nicholas, três quests, 21 Sword Skills. O andar 1 completo (cidade, campos, labirinto, mobs, itens, quests) ainda não existe, e o mapa é construído pelo dono.
+3. **Decidir a morte permanente.** O Monumento da Vida risca o nome na primeira morte; se o servidor não tiver morte permanente, ele vira a lista de quem já morreu.
+4. **O que cada etapa deixou de fora**, anotado no README de cada plugin em "Escolhas diferentes do plano". Os principais: os efeitos das Sword Skills e do anúncio não passam pelo AincradEffects; o diário de quests e o mapa são do próprio plugin, não do menu do AincradUI (só a entrada "Mapa" abre o `/mapa`); as chaves e os mapas de dungeon ficaram no AincradBosses, não no AincradItems; a base escondida das guildas de crime é um raio em volta de um ponto, no AincradReputation, não uma casa do AincradSocial; o duelo do AincradSocial ainda não isenta o PvP da cor do cursor nem das skills em zona segura.
+5. **Equilíbrio.** Os números (dano das skills, preços, chances, multiplicadores da noite) são pontos de partida. O dia e noite e o clima mexem em mobs e drops do servidor inteiro: o plano os deixa para depois do andar 1 jogado, e dá para desligar os dois.
 
-Da quinta leva já têm código, sem teste em servidor: o AincradWorld (pasta `aincrad-world/`) com o jornal (44), o calendário (57), o dia e noite (58) e o clima (59), e os mobs raros no AincradRPG (45).
+Fora das etapas, o AincradRPG ganhou os **mobs por região** (`spawns.yml`): cada região do core pode ter a sua lista de mobs, do Minecraft ou do MythicMobs, com level, peso, clima e período. É a base dos mobs de cada pacote de andar.
 
-Fora das etapas, o AincradRPG ganhou os **mobs por região** (`spawns.yml`): cada região do core pode ter a sua lista de mobs, do Minecraft ou do MythicMobs, com level e peso. É a base dos mobs de cada pacote de andar (A1, A2…).
-
-**O que cada um dos três traz**
+**O que cada um dos três plugins que faltavam traz** (descrito quando ainda não tinham código)
 
 - **AincradSkills**: é o que mais faz falta no combate. Sem ele, lutar é o combate normal do Minecraft com números maiores. Inclui a pausa depois do golpe, a proficiência por arma e a Dual Blades.
 - **AincradQuests**: NPCs com missão, diárias e a quest "Selo da Guilda" do andar 3, que o AincradSocial exige para criar uma guilda.

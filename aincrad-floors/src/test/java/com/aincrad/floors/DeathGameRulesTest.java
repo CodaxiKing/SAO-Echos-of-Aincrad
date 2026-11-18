@@ -84,6 +84,34 @@ class DeathGameRulesTest {
     }
 
     @Test
+    void oMapaComecaEmBrancoEERevealdoAPe() {
+        var M = com.aincrad.floors.model.MapRules.class;
+        // Setores de 64 blocos: 0 a 63 é o setor 0; -1 já é o setor -1.
+        assertEquals(0, com.aincrad.floors.model.MapRules.sector(63, 64));
+        assertEquals(1, com.aincrad.floors.model.MapRules.sector(64, 64));
+        assertEquals(-1, com.aincrad.floors.model.MapRules.sector(-1, 64));
+        long k = com.aincrad.floors.model.MapRules.key(-3, 7);
+        assertEquals(-3, com.aincrad.floors.model.MapRules.sx(k));
+        assertEquals(7, com.aincrad.floors.model.MapRules.sz(k));
+        java.util.Set<Long> seen = new java.util.LinkedHashSet<>(List.of(com.aincrad.floors.model.MapRules.key(0, 0),
+                com.aincrad.floors.model.MapRules.key(1, 0)));
+        // O jogador está no setor (0,0): o vizinho a leste é conhecido, o resto está em branco.
+        assertEquals(List.of("...", ".@#", "..."), com.aincrad.floors.model.MapRules.grid(seen, 0, 0, 1, "@", "#", "."));
+        // Um andar de 256 x 256 blocos tem 16 setores; dois vistos são 13%.
+        assertEquals(16, com.aincrad.floors.model.MapRules.total(0, 255, 0, 255, 64));
+        assertEquals(13, com.aincrad.floors.model.MapRules.percent(2, 16));
+        assertEquals(0, com.aincrad.floors.model.MapRules.percent(5, 0));
+        // Os dados de mapa: vão para o item e voltam iguais; lixo é ignorado.
+        String data = com.aincrad.floors.model.MapRules.encode(seen, 100);
+        assertEquals("0,0;1,0", data);
+        assertEquals(seen, com.aincrad.floors.model.MapRules.decode(data));
+        assertEquals(1, com.aincrad.floors.model.MapRules.decode("5,5;lixo;;9").size());
+        assertEquals("0,0", com.aincrad.floors.model.MapRules.encode(seen, 1));
+        assertTrue(com.aincrad.floors.model.MapRules.decode(null).isEmpty());
+        assertEquals("MapRules", M.getSimpleName());
+    }
+
+    @Test
     void osCreditosCortamAListaLonga() {
         assertEquals("", DeathGameRules.credits(List.of(), 3, "e mais <n>"));
         assertEquals("Kirito, Asuna", DeathGameRules.credits(List.of("Kirito", "Asuna"), 3, "e mais <n>"));

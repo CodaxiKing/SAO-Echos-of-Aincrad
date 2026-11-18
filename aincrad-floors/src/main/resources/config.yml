@@ -35,3 +35,13 @@ rede:
   # Como trocar o jogador de servidor quando o andar fica em outro (Velocity com o canal
   # "BungeeCord" ligado: bungee-plugin-message-channel = true no velocity.toml).
   canal: "BungeeCord"
+
+# Mapa por exploração: o mapa de cada jogador começa em branco e é revelado a pé.
+mapa:
+  ativo: true
+  # Tamanho de um setor, em blocos.
+  setor: 64
+  # Quantos setores o /mapa mostra para cada lado do jogador.
+  raio: 6
+  # Avisa na barra de ação quando o jogador pisa num setor novo.
+  avisar_setor_novo: true

@@ -36,6 +36,7 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
         try {
             java.util.List<String> steps = new java.util.ArrayList<>(FloorStore.MIGRATIONS);
             steps.addAll(DeathGameService.MIGRATIONS);
+            steps.addAll(MapService.MIGRATIONS);
             core.database().migrate("floors", steps);
             store.loadBlocking();
         } catch (SQLException e) {
@@ -95,8 +96,27 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
             floors.track(p, p.getLocation());
         }
 
+        MapService map = new MapService(this, msg, floors, config);
+        pm.registerEvents(map, this);
+        getServer().getOnlinePlayers().forEach(pl -> map.load(pl.getUniqueId()));
+        getServer().getCommandMap().register("aincradfloors", new org.bukkit.command.Command("mapa", "", "/mapa [dados]", java.util.List.of("map")) {
+            @Override
+            public boolean execute(org.bukkit.command.CommandSender sender, String label, String[] args) {
+                if (sender instanceof Player p) {
+                    if (args.length > 0 && args[0].equalsIgnoreCase("dados")) {
+                        map.write(p);
+                    } else {
+                        map.show(p);
+                    }
+                }
+                return true;
+            }
+        });
+        // Depois de todos os plugins ligarem: a entrada "mapa" do menu do AincradUI abre o /mapa.
+        getServer().getScheduler().runTaskLater(this, map::hookUi, 40L);
         AincradFloorsAPI.init(floors);
         AincradFloorsAPI.game(game);
+        AincradFloorsAPI.map(map);
         getServer().getServicesManager().register(AincradFloorsAPI.class, AincradFloorsAPI.instance(), this, ServicePriority.Normal);
         if (pm.getPlugin("PlaceholderAPI") != null) {
             try {
@@ -112,6 +132,7 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         AincradFloorsAPI.init(null);
         AincradFloorsAPI.game(null);
+        AincradFloorsAPI.map(null);
         getServer().getServicesManager().unregisterAll(this);
     }
 

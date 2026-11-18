@@ -73,6 +73,20 @@ Placeholders (com o PlaceholderAPI): `%aincrad_frontline%`, `%aincrad_floor_atua
 `floor_state` (andar, liberado, data, participantes), `player_floors` (jogador, andar, visitou,
 acesso) e `floor_gates` (bloco → andar). Criadas pelas migrações do core.
 
+## Zonas fora do mapa (etapa 54)
+
+O mapa de cada jogador **começa em branco** e é revelado a pé. O andar é dividido em setores de
+`mapa.setor` blocos; cada setor em que o jogador pisa fica gravado no banco (`floor_sectors`).
+
+- `/mapa` mostra o que ele já viu do andar onde está, em volta dele, e quanto do andar explorou. Com
+  o AincradUI, a entrada **Mapa** do menu abre a mesma coisa.
+- `/mapa dados` copia o mapa do andar num item (**dados de mapa**; gasta 1 papel). Outro jogador
+  usa o item com o botão direito e os setores entram no mapa dele — é o comércio de dados de mapa
+  do anime.
+- API: `AincradFloorsAPI.isExplored(Player, Location)`.
+- O mapa é o desenho em texto no chat, não uma imagem; a porcentagem só é calculada para andares
+  que têm uma região do core.
+
 ## O jogo da morte (etapas 40 e 43)
 
 Tudo em `deathgame.yml`. O estado fica no banco (`floor_flags`) e vale para a rede.
