@@ -538,7 +538,7 @@ Terceira leva. Começa depois da etapa 30.
 
 ## O que ainda falta
 
-Estado em 18/11/2026. **Todas as etapas de 0 a 59 têm código.** As etapas 60 a 66 (a sexta leva: AincradPlaceholders, falas dos NPCs e mais conquistas) estão planejadas e ainda não têm código. Os duelos saíram do AincradSocial e viraram o AincradDuels. Os dezesseis projetos compilam sem avisos e os 347 testes de regras passam. **Nada, da etapa 22 em diante, foi testado num servidor de verdade** — nem com um banco MySQL, nem com o MythicMobs, o ModelEngine ou um webhook do Discord de verdade. É o que falta fazer antes de abrir o servidor.
+Estado em 18/11/2026. **Todas as etapas de 0 a 59 têm código.** As etapas 60 a 66 (a sexta leva: AincradPlaceholders, falas dos NPCs e mais conquistas) e 67 a 94 (a sétima leva: os sistemas do Sword Art Online que faltam) estão planejadas e ainda não têm código. Os duelos saíram do AincradSocial e viraram o AincradDuels. Os dezesseis projetos compilam sem avisos e os 347 testes de regras passam. **Nada, da etapa 22 em diante, foi testado num servidor de verdade** — nem com um banco MySQL, nem com o MythicMobs, o ModelEngine ou um webhook do Discord de verdade. É o que falta fazer antes de abrir o servidor.
 
 O que entrou por último, por plugin:
 
@@ -746,6 +746,68 @@ O "sem cair" precisa de uma decisão que fica registrada aqui: como o servidor n
 | 66 | aincrad-reputation, e os eventos de Duels, Quests, RPG, Social, Economy, Skills e Bosses | Os tipos novos e o `achievements.yml` ampliado | Vencer o terceiro duelo seguido dá a conquista de sequência; morrer na luta do chefe não dá a `chefe_sem_cair` |
 
 **Dependências entre as etapas**: a 61 pede métodos novos nas APIs de quatro plugins; a 63 usa o perfil do core; a 64 só faz sentido depois da 62 e da 63; a 66 depende da 65. O `%aincrad_titulo%` da 60 funciona com o Reputation de hoje. As três entregas não dependem uma da outra e podem ser feitas em qualquer ordem; a sugerida é a da numeração, do que custa menos para o que mexe em mais plugins.
+
+### Sétima leva — o que falta do Sword Art Online
+
+Os 34 sistemas do anime e das novels que o servidor ainda não tem, escolhidos em 18/11/2026. **Nenhum tem código ainda.** A arquitetura de cada um — onde mora, as classes, os arquivos, a API, o que vai para o banco e as decisões em aberto — está em [04-setima-leva-arquitetura.md](04-setima-leva-arquitetura.md). Aqui fica o resumo e a ordem.
+
+Sete itens da lista já existiam em parte e entram como ampliação: os slots de skill (4 ativas e 3 passivas), as passivas Cura em Batalha, Busca e Rastreio, a perda de XP ao morrer, o veneno de alquimia, os pontos de coleta de reagentes, o atributo Força e as zonas seguras extras. Troca segura, aprimoramento de arma e quadro de raid já estão prontos e ficam de fora.
+
+**Dois plugins novos**
+
+- **AincradCombat** (pasta `aincrad-combat`): a **ameaça** (o mob ataca quem ele mais odeia, não quem está mais perto, com folga de 110% para trocar de alvo) e o **Switch** (um colega de party que acerta o mesmo mob durante a pausa da skill do outro toma o alvo, atordoa o mob e bate mais forte); os **estados** veneno, sangramento, atordoamento, queda e paralisia, definidos em `estados.yml` e aplicados por mobs, chefes, skills e venenos pela mesma API; a **cor do cursor dos mobs** pela diferença de level; e a **quebra de arma**.
+- **AincradCasino** (pasta `aincrad-casino`): fichas compradas com Col que só compram prêmios, jogos de mesa por menu e a arena de monstros com apostas rateadas. Só com dinheiro do jogo.
+
+**O que entra nos plugins que já existem**
+
+| Plugin | Entra |
+| --- | --- |
+| AincradSkills | Passivas Furtividade, Escuta, Corrida, Acrobacia, Visão Noturna, Carga Ampliada, Destrancar e Desarmar; mods de skill a cada marco de proficiência; encadear skills; Artes Marciais |
+| AincradRPG | Farm que cansa; penalidade de morte com Col e durabilidade; peso e força mínima; posse e durabilidade do item no chão; itens não identificados |
+| AincradItems | Cristal de corredor; cristais de gravação e de mensagem |
+| AincradLife | Coleta de minério, madeira e fibra; alfaiate, carpinteiro, músico e mercador; refundir arma; contratos de guarda-costas e de aprendiz |
+| AincradQuests | Quests geradas pelo Cardinal a partir do que o andar já tem; campanhas entre andares (a Guerra dos Elfos) |
+| AincradBosses | Baús de labirinto (trancados, com armadilha, mímicos); rolagem de dados no drop |
+| AincradReputation | Guardas das cidades |
+| AincradSocial | Mensagens que não chegam a quem está num labirinto |
+| AincradEconomy | Armazém pessoal |
+| AincradFloors | Sala segura no labirinto; portal que abre sozinho; dados do mapa como item |
+| AincradWorld | Festivais; caça a relíquias; enigmas |
+
+| # | Pasta | Entrega | Pronto quando |
+| --- | --- | --- | --- |
+| 67 | aincrad-combat | Projeto, tabela de ameaça, troca de alvo com folga, decaimento, API; os chefes passam a usar a ameaça | Com dois jogadores batendo, o mob fica em quem causou mais dano e só troca quando o outro passa de 110% |
+| 68 | aincrad-combat, aincrad-skills, aincrad-social | Switch | O colega que acerta o mob na pausa da skill toma o alvo; fora da party ou fora da janela, não |
+| 69 | aincrad-combat | Motor de estados: `estados.yml`, acúmulos, resistência, cura, bloqueios, gravar ao sair | Veneno tira vida por segundo e para com o antídoto; atordoado não anda nem ataca; sair e voltar não cura |
+| 70 | aincrad-combat, e RPG, Bosses, Skills, Life, Items, UI | Estados nos mobs (`spawns.yml`), nos chefes, nas skills e nos venenos; ícones na tela; a paralisia do sopro passa pelo motor | O mob com `estados:` envenena ao bater; a Poção Antiparalisia barra o sopro como hoje |
+| 71 | aincrad-combat, aincrad-ui | Cor do cursor dos mobs | O mesmo mob aparece rosa para o level 40 e carmesim para o level 5 |
+| 72 | aincrad-combat, aincrad-life | Quebra de arma | Golpe na janela certa tira durabilidade da arma do oponente; zerada, ela não bate até ser reparada |
+| 73 | aincrad-reputation | Guardas das cidades | Um vermelho que entra na cidade é atacado e vai para a prisão; um verde passa |
+| 74 | aincrad-skills | Passivas novas | Agachado com Furtividade, o mob só nota de perto; a Busca maior vê quem se esconde |
+| 75 | aincrad-skills | Mods de skill | Aos 50 de proficiência o menu oferece os mods e o escolhido muda a skill |
+| 76 | aincrad-skills, aincrad-quests | Artes Marciais e encadear skills | A quest do eremita dá a skill; emendar na janela cancela a pausa e errar dobra |
+| 77 | aincrad-rpg | Farm que cansa; penalidade de morte ampliada | Depois de 60 abates na mesma área o XP dela cai, e volta com o tempo; morrer tira Col e durabilidade |
+| 78 | aincrad-rpg | Peso e força mínima; posse e durabilidade no chão | Acima do limite o jogador anda devagar; o item largado só é do dono por 5 minutos |
+| 79 | aincrad-rpg, aincrad-life | Itens não identificados; refundir arma | O drop raro cai selado e só equipa depois de avaliado; o lingote leva metade dos aprimoramentos |
+| 80 | aincrad-items | Cristal de corredor | Gravado num andar e aberto em outro, o portal leva a party inteira, inclusive entre servidores |
+| 81 | aincrad-items, aincrad-social | Cristais de gravação e de mensagem; mensagens com limite | A gravação repete o que foi dito por perto; a mensagem comum espera o jogador sair do labirinto e a do cristal chega |
+| 82 | aincrad-economy | Armazém pessoal | O que é guardado num servidor aparece no outro; a mesma página não abre em dois ao mesmo tempo |
+| 83 | aincrad-life | Coleta geral: minério, madeira e fibra | O veio esgota para quem colheu e renasce; a proficiência dá o material raro |
+| 84 | aincrad-life | Alfaiate e carpinteiro | A capa sai da mesa de corte com a qualidade do minijogo; o móvel só é posto na casa do dono |
+| 85 | aincrad-life | Músico e mercador; guarda-costas e aprendiz | A música dá o bônus a quem ouve na cidade; o guarda-costas recebe se o cliente não morrer |
+| 86 | aincrad-bosses, aincrad-skills | Baús de labirinto | O trancado pede Destrancar ou chave; o de gás envenena; o mímico vira mob |
+| 87 | aincrad-bosses, aincrad-social | Rolagem de dados no drop | O item raro do chefe vai para quem escolheu "Preciso" com o maior dado, e os dados aparecem no chat |
+| 88 | aincrad-floors, aincrad-ui, aincrad-items | Sala segura; portal que abre sozinho; dados do mapa como item | Mob não entra na sala; o portal ativa no toque ou em 2 horas; usar o item revela os setores de quem o criou |
+| 89 | aincrad-quests | Quests do Cardinal e o quadro de missões | Dois servidores mostram as mesmas quests do dia; nenhuma pede mob que o andar não tem |
+| 90 | aincrad-quests, conteúdo | Campanhas entre andares; a Guerra dos Elfos nos andares 3 e 4 | A escolha de lado no andar 3 muda as quests do capítulo do andar 4 |
+| 91 | aincrad-world | Festivais | Liberar um andar abre a festa de 24 horas na cidade nova, e a decoração some no fim |
+| 92 | aincrad-world | Caça a relíquias e enigmas | A relíquia é achada uma vez por jogador; resolver o enigma abre a porta e conta na quest |
+| 93 | aincrad-casino | Projeto, fichas, jogos de mesa, loja de prêmios | As fichas compram prêmio e não voltam a ser Col; o retorno de cada jogo bate com o da config no teste |
+| 94 | aincrad-casino | Arena de monstros | A aposta é rateada entre os que acertaram o vencedor da luta |
+
+**Dependências entre as etapas**: a 68 precisa da 67 e a 70 da 69; a 86 usa as passivas da 74; a 79 usa a posse da 78; a 84 e a 85 usam os materiais da 83; a 90 usa as marcas da etapa 63 da sexta leva. O AincradCombat vem primeiro porque estados e ameaça são usados por chefes, mobs, skills, baús e guardas. A 89 (Cardinal) não depende de nada novo e pode subir na fila se a prioridade for dar quests aos andares que não têm.
+
+**Decisões em aberto**, com o padrão que o plano assume: o veneno para em 1 de vida; os guardas avisam o laranja antes de atacar; a arma quebrada fica inutilizada até reparar, não some; morrer custa 10% do XP do level, 5% do Col da carteira e 10% de durabilidade; as mensagens com limite e o portal por toque vêm desligados; o veio de coleta esgota por jogador. A lista completa está no fim do documento de arquitetura.
 
 ## Testes e entrega
 

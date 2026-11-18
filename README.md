@@ -44,6 +44,7 @@ O plano de desenvolvimento (cópia do documento em https://claude.ai/artifact/A2
 - [docs/plano/01-plano.md](docs/plano/01-plano.md) — plano geral dos plugins e das etapas
 - [docs/plano/02-tarefas-bloco-1.md](docs/plano/02-tarefas-bloco-1.md) — tarefas do bloco 1 (core, rpg, economy, floors)
 - [docs/plano/03-aincrad-life-detalhes.md](docs/plano/03-aincrad-life-detalhes.md) — detalhes do AincradLife
+- [docs/plano/04-setima-leva-arquitetura.md](docs/plano/04-setima-leva-arquitetura.md) — arquitetura da sétima leva (AincradCombat, AincradCasino e o que entra nos outros plugins)
 
 ## Compilar
 
