@@ -3,15 +3,26 @@ package com.aincrad.life.command;
 import com.aincrad.core.AincradAdminActionEvent;
 import com.aincrad.core.command.SubCommand;
 import com.aincrad.core.message.Messages;
+import com.aincrad.life.alchemy.AlchemyMath;
+import com.aincrad.life.alchemy.AlchemyRegistry;
+import com.aincrad.life.alchemy.AlchemyService;
+import com.aincrad.life.alchemy.GatherService;
 import com.aincrad.life.cooking.CookingService;
 import com.aincrad.life.cooking.Ingredient;
 import com.aincrad.life.cooking.Quality;
 import com.aincrad.life.cooking.Recipe;
+import com.aincrad.life.fishing.FishingRegistry;
+import com.aincrad.life.fishing.FishingService;
 import com.aincrad.life.inn.Inn;
 import com.aincrad.life.inn.InnService;
+import com.aincrad.life.marriage.MarriageService;
 import com.aincrad.life.model.Learnable;
 import com.aincrad.life.model.Profession;
+import com.aincrad.life.orders.OrderService;
+import com.aincrad.life.pets.PetService;
 import com.aincrad.life.profession.ProfessionService;
+import com.aincrad.life.smith.ForgeRegistry;
+import com.aincrad.life.smith.SmithService;
 import com.aincrad.life.station.PanelManager;
 import com.aincrad.life.station.StationPanel;
 import com.aincrad.life.station.StationService;
@@ -37,7 +48,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
-/** Os subcomandos de admin do AincradLife em {@code /aincrad}: estacao, saber, arvore, profissao, cozinha e estalagem. */
+/** Os subcomandos de admin do AincradLife em {@code /aincrad}: estacao, saber, arvore, profissao, cozinha, pesca, forja, alquimia, contrato, familiar, casamento e estalagem. */
 public final class LifeCommands {
 
     private final Plugin plugin;
@@ -511,6 +522,363 @@ public final class LifeCommands {
                 case 4 -> op.equals("prato") ? filter(List.of("queimado", "comum", "bom", "excelente"), args[3]) : List.of();
                 default -> List.of();
             };
+        });
+    }
+
+    // ------------------------------------------------------------------ /aincrad pesca
+
+    public SubCommand fishing(FishingService fishing) {
+        return sub("pesca", "pesca vara <jogador> <id> | isca <jogador> <id> [qtd] | peixe <jogador> <id> [cm] | lista | torneio encerrar", "admin.descricao_pesca", (sender, args) -> {
+            String op = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+            FishingRegistry reg = fishing.registry();
+            if (op.equals("lista")) {
+                msg.send(sender, "pesca.lista", Messages.vars("varas", fishing.list("varas"), "iscas", fishing.list("iscas"),
+                        "peixes", fishing.list("peixes"), "pontos", fishing.list("pontos")));
+                return;
+            }
+            if (op.equals("torneio") && args.length > 1 && args[1].equalsIgnoreCase("encerrar")) {
+                fishing.tournament().closeNow();
+                msg.send(sender, "pesca.torneio.encerrando");
+                log(sender, "pesca.torneio.encerrar", "semana atual");
+                return;
+            }
+            Player t = args.length > 2 && List.of("vara", "isca", "peixe").contains(op) ? online(sender, args[1]) : null;
+            if (t == null) {
+                if (args.length < 3 || !List.of("vara", "isca", "peixe").contains(op)) {
+                    msg.send(sender, "admin.uso_pesca");
+                }
+                return;
+            }
+            org.bukkit.inventory.ItemStack item;
+            String name;
+            switch (op) {
+                case "vara" -> {
+                    FishingRegistry.Rod rod = reg.rod(args[2]);
+                    item = rod == null ? null : fishing.rodItem(rod);
+                    name = rod == null ? null : rod.name();
+                }
+                case "isca" -> {
+                    FishingRegistry.Bait bait = reg.bait(args[2]);
+                    item = bait == null ? null : fishing.baitItem(bait, amount(args, 3));
+                    name = bait == null ? null : bait.name();
+                }
+                default -> {
+                    FishingRegistry.Fish fish = reg.fish(args[2]);
+                    int mm = 0;
+                    if (fish != null) {
+                        try {
+                            mm = args.length > 3 ? (int) Math.round(Double.parseDouble(args[3].replace(',', '.')) * 10) : FishingRegistry.sizeMm(fish, Math.random());
+                        } catch (NumberFormatException e) {
+                            mm = FishingRegistry.sizeMm(fish, Math.random());
+                        }
+                    }
+                    item = fish == null ? null : fishing.fishItem(fish, Math.max(1, mm), t.getName());
+                    name = fish == null ? null : fish.name();
+                }
+            }
+            if (item == null) {
+                msg.send(sender, "pesca.desconhecido", Messages.vars("id", args[2]));
+                return;
+            }
+            int n = item.getAmount();
+            t.getInventory().addItem(item).values().forEach(r -> t.getWorld().dropItemNaturally(t.getLocation(), r));
+            msg.send(sender, "pesca.item_dado", Messages.vars("qtd", n, "nome", name, "jogador", t.getName()));
+            log(sender, "pesca." + op, t.getName() + " " + n + "x " + args[2].toLowerCase(Locale.ROOT));
+        }, args -> {
+            String op = args[0].toLowerCase(Locale.ROOT);
+            return switch (args.length) {
+                case 1 -> filter(List.of("vara", "isca", "peixe", "lista", "torneio"), args[0]);
+                case 2 -> op.equals("torneio") ? filter(List.of("encerrar"), args[1])
+                        : List.of("vara", "isca", "peixe").contains(op) ? filter(players(), args[1]) : List.of();
+                case 3 -> switch (op) {
+                    case "vara" -> filter(new ArrayList<>(fishing.registry().rods().keySet()), args[2]);
+                    case "isca" -> filter(new ArrayList<>(fishing.registry().baits().keySet()), args[2]);
+                    case "peixe" -> filter(new ArrayList<>(fishing.registry().fishes().keySet()), args[2]);
+                    default -> List.of();
+                };
+                default -> List.of();
+            };
+        });
+    }
+
+    // ------------------------------------------------------------------ /aincrad forja
+
+    public SubCommand smith(SmithService smith) {
+        return sub("forja", "forja criar <bigorna|fornalha|barril> | martelo <jogador> | material <jogador> <id> [qtd] | lista", "admin.descricao_forja", (sender, args) -> {
+            String op = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+            ForgeRegistry reg = smith.registry();
+            switch (op) {
+                case "lista" -> msg.send(sender, "forja.lista", Messages.vars("materiais", String.join(", ", reg.mats().keySet()),
+                        "projetos", String.join(", ", reg.blueprints().keySet())));
+                case "criar" -> {
+                    // Atalho para /aincrad estacao criar, com os três tipos da oficina.
+                    if (!(sender instanceof Player p)) {
+                        msg.send(sender, "geral.so_jogador");
+                        return;
+                    }
+                    String which = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "";
+                    String id = switch (which) {
+                        case "bigorna" -> "forge_anvil";
+                        case "fornalha" -> "forge_furnace";
+                        case "barril" -> "quench_barrel";
+                        default -> "";
+                    };
+                    StationType type = stations.types().get(id);
+                    Block target = p.getTargetBlockExact(5);
+                    Block at = target == null ? null : target.getRelative(BlockFace.UP);
+                    if (type == null) {
+                        msg.send(p, "admin.uso_forja");
+                        return;
+                    }
+                    if (at == null || !at.getType().isAir() || stations.at(at) != null) {
+                        msg.send(p, "estacao.sem_lugar");
+                        return;
+                    }
+                    stations.create(p, type, at);
+                    log(sender, "estacao.criar", type.id() + " em " + at.getWorld().getName() + " " + at.getX() + "," + at.getY() + "," + at.getZ());
+                }
+                case "martelo" -> {
+                    Player t = args.length > 1 ? online(sender, args[1]) : null;
+                    if (t == null) {
+                        if (args.length < 2) {
+                            msg.send(sender, "admin.uso_forja");
+                        }
+                        return;
+                    }
+                    t.getInventory().addItem(smith.hammer()).values().forEach(r -> t.getWorld().dropItemNaturally(t.getLocation(), r));
+                    msg.send(sender, "forja.item_dado", Messages.vars("qtd", 1, "nome", msg.raw("forja.martelo"), "jogador", t.getName()));
+                    log(sender, "forja.martelo", t.getName());
+                }
+                case "material" -> {
+                    Player t = args.length > 2 ? online(sender, args[1]) : null;
+                    if (t == null) {
+                        if (args.length < 3) {
+                            msg.send(sender, "admin.uso_forja");
+                        }
+                        return;
+                    }
+                    ForgeRegistry.Mat m = reg.mat(args[2]);
+                    if (m == null) {
+                        msg.send(sender, "forja.desconhecido", Messages.vars("id", args[2]));
+                        return;
+                    }
+                    int n = amount(args, 3);
+                    t.getInventory().addItem(smith.matItem(m, n)).values().forEach(r -> t.getWorld().dropItemNaturally(t.getLocation(), r));
+                    msg.send(sender, "forja.item_dado", Messages.vars("qtd", n, "nome", m.name(), "jogador", t.getName()));
+                    log(sender, "forja.material", t.getName() + " " + n + "x " + m.id());
+                }
+                default -> msg.send(sender, "admin.uso_forja");
+            }
+        }, args -> {
+            String op = args[0].toLowerCase(Locale.ROOT);
+            return switch (args.length) {
+                case 1 -> filter(List.of("criar", "martelo", "material", "lista"), args[0]);
+                case 2 -> op.equals("criar") ? filter(List.of("bigorna", "fornalha", "barril"), args[1])
+                        : op.equals("martelo") || op.equals("material") ? filter(players(), args[1]) : List.of();
+                case 3 -> op.equals("material") ? filter(new ArrayList<>(smith.registry().mats().keySet()), args[2]) : List.of();
+                default -> List.of();
+            };
+        });
+    }
+
+    // ------------------------------------------------------------------ /aincrad alquimia
+
+    public SubCommand alchemy(AlchemyService alchemy) {
+        return sub("alquimia", "alquimia criar | ponto <tipo> | removerponto | reagente <jogador> <id> [qtd] | pocao <jogador> <fórmula> [pureza] | lista", "admin.descricao_alquimia", (sender, args) -> {
+            String op = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+            AlchemyRegistry reg = alchemy.registry();
+            if (op.equals("lista")) {
+                msg.send(sender, "alquimia.lista", Messages.vars("reagentes", String.join(", ", reg.reagents().keySet()),
+                        "formulas", String.join(", ", reg.formulas().keySet()), "coleta", String.join(", ", reg.gathers().keySet()),
+                        "pontos", alchemy.gather().nodes().size()));
+                return;
+            }
+            if (op.equals("reagente") || op.equals("pocao")) {
+                Player t = args.length > 2 ? online(sender, args[1]) : null;
+                if (t == null) {
+                    if (args.length < 3) {
+                        msg.send(sender, "admin.uso_alquimia");
+                    }
+                    return;
+                }
+                org.bukkit.inventory.ItemStack item = null;
+                String name = null;
+                if (op.equals("reagente")) {
+                    AlchemyRegistry.Reagent r = reg.reagent(args[2]);
+                    if (r != null) {
+                        item = alchemy.reagentItem(r, amount(args, 3));
+                        name = r.name();
+                    }
+                } else {
+                    AlchemyRegistry.Formula f = reg.formula(args[2]);
+                    AlchemyMath.Purity purity = args.length > 3 ? AlchemyMath.Purity.parse(args[3]) : AlchemyMath.Purity.COMUM;
+                    if (f != null && purity != null && f.product().kind() != AlchemyRegistry.Kind.INSUMO && f.product().kind() != AlchemyRegistry.Kind.CRISTAL) {
+                        item = alchemy.potions().item(f, purity, 1, 0, 0, 0, 0, false);
+                        name = f.name();
+                    }
+                }
+                if (item == null) {
+                    msg.send(sender, "alquimia.desconhecido", Messages.vars("id", args[2]));
+                    return;
+                }
+                int n = item.getAmount();
+                t.getInventory().addItem(item).values().forEach(r -> t.getWorld().dropItemNaturally(t.getLocation(), r));
+                msg.send(sender, "alquimia.item_dado", Messages.vars("qtd", n, "nome", name, "jogador", t.getName()));
+                log(sender, "alquimia." + op, t.getName() + " " + n + "x " + args[2].toLowerCase(Locale.ROOT));
+                return;
+            }
+            if (!(sender instanceof Player p)) {
+                msg.send(sender, "geral.so_jogador");
+                return;
+            }
+            Block target = p.getTargetBlockExact(5);
+            switch (op) {
+                case "criar" -> {
+                    // Atalho para /aincrad estacao criar <mesa de alquimia>.
+                    StationType type = stations.types().get(alchemy.stationType());
+                    Block at = target == null ? null : target.getRelative(BlockFace.UP);
+                    if (type == null || at == null || !at.getType().isAir() || stations.at(at) != null) {
+                        msg.send(p, type == null ? "estacao.tipo_desconhecido" : "estacao.sem_lugar",
+                                Messages.vars("tipos", String.join(", ", stations.types().keySet())));
+                        return;
+                    }
+                    stations.create(p, type, at);
+                    log(sender, "estacao.criar", type.id() + " em " + at.getWorld().getName() + " " + at.getX() + "," + at.getY() + "," + at.getZ());
+                }
+                case "ponto" -> {
+                    AlchemyRegistry.Gather kind = args.length > 1 ? reg.gather(args[1]) : null;
+                    if (kind == null) {
+                        msg.send(p, "alquimia.desconhecido", Messages.vars("id", args.length > 1 ? args[1] : "?"));
+                        return;
+                    }
+                    if (target == null || alchemy.gather().at(target) != null) {
+                        msg.send(p, "alquimia.ponto_olhe");
+                        return;
+                    }
+                    alchemy.gather().create(p, kind, target);
+                    log(sender, "alquimia.ponto", kind.id() + " em " + target.getWorld().getName() + " " + target.getX() + "," + target.getY() + "," + target.getZ());
+                }
+                case "removerponto" -> {
+                    GatherService.Node node = target == null ? null : alchemy.gather().at(target);
+                    if (node == null) {
+                        msg.send(p, "alquimia.ponto_olhe");
+                        return;
+                    }
+                    alchemy.gather().remove(node);
+                    msg.send(p, "alquimia.ponto_removido", Messages.vars("tipo", node.kind));
+                    log(sender, "alquimia.removerponto", "#" + node.id + " " + node.kind);
+                }
+                default -> msg.send(p, "admin.uso_alquimia");
+            }
+        }, args -> {
+            String op = args[0].toLowerCase(Locale.ROOT);
+            return switch (args.length) {
+                case 1 -> filter(List.of("criar", "ponto", "removerponto", "reagente", "pocao", "lista"), args[0]);
+                case 2 -> op.equals("ponto") ? filter(new ArrayList<>(alchemy.registry().gathers().keySet()), args[1])
+                        : op.equals("reagente") || op.equals("pocao") ? filter(players(), args[1]) : List.of();
+                case 3 -> op.equals("reagente") ? filter(new ArrayList<>(alchemy.registry().reagents().keySet()), args[2])
+                        : op.equals("pocao") ? filter(new ArrayList<>(alchemy.registry().formulas().keySet()), args[2]) : List.of();
+                case 4 -> op.equals("pocao") ? filter(List.of("impura", "comum", "pura", "perfeita"), args[3]) : List.of();
+                default -> List.of();
+            };
+        });
+    }
+
+    // ------------------------------------------------------------------ /aincrad contrato
+
+    public SubCommand contract(OrderService orders) {
+        return sub("contrato", "contrato ver <id> | cancelar <id>", "admin.descricao_contrato", (sender, args) -> {
+            long id = -1;
+            try {
+                id = args.length > 1 ? Long.parseLong(args[1]) : -1;
+            } catch (NumberFormatException e) {
+                // fica -1
+            }
+            String op = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+            if (id < 0 || !(op.equals("ver") || op.equals("cancelar") || op.equals("devolver"))) {
+                msg.send(sender, "admin.uso_contrato");
+                return;
+            }
+            if (op.equals("ver")) {
+                orders.adminView(sender, id);
+            } else {
+                // Cancelar devolve tudo: o Col ao cliente e o item da caixa do contrato ao artesão.
+                orders.adminCancel(sender, id);
+                log(sender, "contrato.cancelar", "#" + id);
+            }
+        }, args -> args.length == 1 ? filter(List.of("ver", "cancelar"), args[0]) : List.of());
+    }
+
+    // ------------------------------------------------------------------ /aincrad familiar
+
+    public SubCommand pet(PetService pets) {
+        return sub("familiar", "familiar dar <jogador> <espécie> | remover <jogador> | level <jogador> <n> | flor <jogador> [qtd] | lista", "admin.descricao_familiar", (sender, args) -> {
+            String op = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+            if (op.equals("lista")) {
+                msg.send(sender, "familiar.lista", Messages.vars("especies", String.join(", ", pets.species().keySet())));
+                return;
+            }
+            Player t = args.length > 1 && List.of("dar", "remover", "level", "flor").contains(op) ? online(sender, args[1]) : null;
+            if (t == null) {
+                if (args.length < 2 || !List.of("dar", "remover", "level", "flor").contains(op)) {
+                    msg.send(sender, "admin.uso_familiar");
+                }
+                return;
+            }
+            var vars = Messages.vars("jogador", t.getName());
+            switch (op) {
+                case "dar" -> {
+                    if (args.length < 3 || !pets.adminGive(t, args[2])) {
+                        msg.send(sender, "familiar.lista", Messages.vars("especies", String.join(", ", pets.species().keySet())));
+                        return;
+                    }
+                    msg.send(sender, "familiar.admin_deu", vars);
+                }
+                case "remover" -> msg.send(sender, pets.adminRemove(t) ? "familiar.admin_removeu" : "familiar.admin_nao_tem", vars);
+                case "level" -> {
+                    int level = amount(args, 2);
+                    msg.send(sender, pets.adminLevel(t, level) ? "familiar.admin_level" : "familiar.admin_nao_tem",
+                            Messages.vars("jogador", t.getName(), "level", level));
+                }
+                default -> {
+                    int n = amount(args, 2);
+                    t.getInventory().addItem(pets.flower(n)).values().forEach(r -> t.getWorld().dropItemNaturally(t.getLocation(), r));
+                    msg.send(sender, "familiar.admin_flor", Messages.vars("jogador", t.getName(), "qtd", n));
+                }
+            }
+            log(sender, "familiar." + op, t.getName() + (args.length > 2 ? " " + args[2] : ""));
+        }, args -> switch (args.length) {
+            case 1 -> filter(List.of("dar", "remover", "level", "flor", "lista"), args[0]);
+            case 2 -> args[0].equalsIgnoreCase("lista") ? List.of() : filter(players(), args[1]);
+            case 3 -> args[0].equalsIgnoreCase("dar") ? filter(new ArrayList<>(pets.species().keySet()), args[2]) : List.of();
+            default -> List.of();
+        });
+    }
+
+    // ------------------------------------------------------------------ /aincrad casamento
+
+    public SubCommand marriage(MarriageService marriages) {
+        return sub("casamento", "casamento anel <jogador> [qtd] | divorciar <jogador>", "admin.descricao_casamento", (sender, args) -> {
+            String op = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+            Player t = args.length > 1 && (op.equals("anel") || op.equals("divorciar")) ? online(sender, args[1]) : null;
+            if (t == null) {
+                if (args.length < 2 || !(op.equals("anel") || op.equals("divorciar"))) {
+                    msg.send(sender, "admin.uso_casamento");
+                }
+                return;
+            }
+            if (op.equals("anel")) {
+                int n = amount(args, 2);
+                t.getInventory().addItem(marriages.ring(n)).values().forEach(r -> t.getWorld().dropItemNaturally(t.getLocation(), r));
+                msg.send(sender, "casamento.admin_anel", Messages.vars("qtd", n, "jogador", t.getName()));
+            } else {
+                marriages.divorce(sender, t.getUniqueId());
+            }
+            log(sender, "casamento." + op, t.getName());
+        }, args -> switch (args.length) {
+            case 1 -> filter(List.of("anel", "divorciar"), args[0]);
+            case 2 -> filter(players(), args[1]);
+            default -> List.of();
         });
     }
 

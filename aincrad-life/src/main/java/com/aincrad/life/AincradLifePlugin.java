@@ -4,17 +4,29 @@ import com.aincrad.core.AincradCore;
 import com.aincrad.core.AincradReloadEvent;
 import com.aincrad.core.config.ConfigFile;
 import com.aincrad.core.message.Messages;
+import com.aincrad.life.alchemy.AlchemyService;
+import com.aincrad.life.alchemy.GatherService;
 import com.aincrad.life.api.AincradLifeAPI;
 import com.aincrad.life.command.LifeCommands;
 import com.aincrad.life.cooking.CookingService;
 import com.aincrad.life.cooking.FoodBuffService;
 import com.aincrad.life.data.LifeStore;
+import com.aincrad.life.fishing.FishingService;
+import com.aincrad.life.fishing.TournamentService;
 import com.aincrad.life.hook.Hooks;
+import com.aincrad.life.hook.RpgPetXpListener;
 import com.aincrad.life.hook.RpgXpListener;
 import com.aincrad.life.inn.Inn;
 import com.aincrad.life.inn.InnService;
+import com.aincrad.life.marriage.MarriageService;
+import com.aincrad.life.orders.HuntListener;
+import com.aincrad.life.orders.MaterialService;
+import com.aincrad.life.orders.OrderService;
+import com.aincrad.life.pets.PetService;
 import com.aincrad.life.profession.ProfessionMenus;
 import com.aincrad.life.profession.ProfessionService;
+import com.aincrad.life.smith.SmithService;
+import com.aincrad.life.stall.StallService;
 import com.aincrad.life.station.PanelManager;
 import com.aincrad.life.station.StationService;
 import org.bukkit.OfflinePlayer;
@@ -44,13 +56,16 @@ import java.util.jar.JarFile;
 /**
  * AincradLife: a vida fora do combate. Esta versão traz a base (etapa 22: profissões com
  * proficiência, "aprender antes de fazer", árvore de especialização, bancadas com painel
- * flutuante e estalagens) e a culinária (etapa 23: receitas, preparo na bancada e buffs de
- * comida). Cada módulo liga e desliga em config.yml → modulos.
+ * flutuante e estalagens) e, da etapa 23, a culinária (receitas, preparo na bancada e buffs de
+ * comida), a pesca (pontos com zonas, lançar, fisgar e cansar, Senhor do Lago e torneio semanal),
+ * o ferreiro (reparo, forja com calor e batidas, e aprimoramento) e a alquimia (coleta, preparo
+ * na mesa, poções, óleos, venenos, frascos e insumos).
+ * Cada módulo liga e desliga em config.yml → modulos.
  */
 public final class AincradLifePlugin extends JavaPlugin implements Listener {
 
     /** Módulos do plano que ainda não têm código nesta versão (ficam só anunciados no console). */
-    private static final List<String> PENDING = List.of("pesca", "ferreiro", "alquimia", "familiares", "casamento");
+    private static final List<String> PENDING = List.of();
 
     private ConfigFile config;
     private ConfigFile professionsConfig;
@@ -62,6 +77,13 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
     private InnService inns;
     private CookingService cooking;
     private FoodBuffService foodBuffs;
+    private FishingService fishing;
+    private SmithService smith;
+    private AlchemyService alchemy;
+    private OrderService orders;
+    private PetService pets;
+    private MarriageService marriages;
+    private final List<String> uiEntries = new ArrayList<>();
     private LifeCommands commands;
     private final List<Listener> moduleListeners = new ArrayList<>();
     private final List<BukkitTask> moduleTasks = new ArrayList<>();
@@ -79,6 +101,13 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             core.database().migrate("life", LifeStore.MIGRATIONS);
             core.database().migrate("life_stations", StationService.MIGRATIONS);
             core.database().migrate("life_inns", InnService.MIGRATIONS);
+            core.database().migrate("life_fishing", TournamentService.MIGRATIONS);
+            core.database().migrate("life_gather", GatherService.MIGRATIONS);
+            core.database().migrate("life_orders", OrderService.MIGRATIONS);
+            core.database().migrate("life_materials", MaterialService.MIGRATIONS);
+            core.database().migrate("life_stalls", StallService.MIGRATIONS);
+            core.database().migrate("life_pets", PetService.MIGRATIONS);
+            core.database().migrate("life_marriage", MarriageService.MIGRATIONS);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradLife não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -105,6 +134,13 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             }
         }
         startModules();
+    }
+
+    /** Módulos ligados que não têm um campo próprio, para o resumo do console. */
+    private final List<String> extraModules = new ArrayList<>();
+
+    private void later(String name) {
+        extraModules.add(name);
     }
 
     private boolean on(String module) {
@@ -142,6 +178,101 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             if (on("culinaria")) {
                 startCooking(core);
             }
+            if (on("pesca")) {
+                startFishing(core);
+            }
+            if (on("ferreiro")) {
+                smith = new SmithService(this, msg, config, hooks, professions, stations, panels);
+                smith.load();
+                listen(smith);
+                moduleTasks.add(getServer().getScheduler().runTaskTimer(this, smith::tick, 1L, 1L));
+                core.commands().register(this, commands.smith(smith));
+            }
+            if (on("alquimia")) {
+                // Depois das outras três: os insumos da alquimia são itens delas.
+                alchemy = new AlchemyService(this, msg, config, hooks, professions, stations, panels, () -> cooking, () -> fishing, () -> smith);
+                alchemy.load();
+                listen(alchemy.potions());
+                listen(alchemy.gather());
+                moduleTasks.add(getServer().getScheduler().runTaskTimer(this, alchemy::tick, 1L, 1L));
+                moduleTasks.add(getServer().getScheduler().runTaskTimer(this, () -> alchemy.gather().sparkle(), 40L, 40L));
+                command("alquimia", List.of("livrodealquimia"), (sender, args) -> {
+                    if (sender instanceof Player p) {
+                        alchemy.book(p);
+                    } else {
+                        msg.send(sender, "geral.so_jogador");
+                    }
+                });
+                core.commands().register(this, commands.alchemy(alchemy));
+            }
+            if (on("barracas")) {
+                // Barraca do cozinheiro, banca de peixe e botica: um bloco na casa do dono, que vende com ele offline.
+                StallService stalls = new StallService(this, msg, config, hooks, professions, () -> fishing);
+                try {
+                    stalls.loadBlocking();
+                } catch (SQLException e) {
+                    getLogger().warning("Não foi possível ler as barracas: " + e.getMessage());
+                }
+                listen(stalls);
+                command("barraca", List.of("banca", "botica"), stalls::command);
+                later("barracas");
+            }
+            if (on("encomendas")) {
+                // O quadro de encomendas liga as quatro profissões; precisa do AincradEconomy (custódia).
+                orders = new OrderService(this, msg, config, hooks, professions, () -> cooking, () -> fishing, () -> smith, () -> alchemy);
+                core.subscribe(OrderService.BUS, m -> {
+                    if (orders != null && !core.server().equals(m.origin())) {
+                        orders.onBus(m.payload());
+                    }
+                });
+                stations.onUse(config.string("encomendas.estacao", "order_board").toLowerCase(Locale.ROOT), (p, st) -> orders.menu(p));
+                moduleTasks.add(getServer().getScheduler().runTaskTimer(this, () -> orders.minute(), 140L, 1200L));
+                listen(new HuntListener(orders));
+                command("encomenda", List.of("encomendas", "pedido"), (sender, args) -> orders.command(sender, args));
+                command("artesaos", List.of("artesoes"), (sender, args) -> orders.rankingCommand(sender, args));
+                command("catalogo", List.of(), (sender, args) -> orders.catalogCommand(sender, args));
+                command("contratar", List.of(), (sender, args) -> orders.hireCommand(sender, args));
+                MaterialService materials = new MaterialService(this, msg, config, hooks, orders);
+                moduleTasks.add(getServer().getScheduler().runTaskTimer(this, materials::minute, 180L, 1200L));
+                command("material", List.of("materiais"), materials::command);
+                core.commands().register(this, commands.contract(orders));
+            }
+        }
+        if (on("familiares")) {
+            pets = new PetService(this, msg, config, hooks);
+            pets.load();
+            listen(pets);
+            if (hooks.hasRpg()) {
+                try {
+                    listen(new RpgPetXpListener((p, xp) -> {
+                        if (pets != null) {
+                            pets.addXp(p, xp);
+                        }
+                    }));
+                } catch (LinkageError e) {
+                    getLogger().warning("AincradRPG incompatível: o familiar não ganha XP do dono (" + e + ").");
+                }
+            }
+            moduleTasks.add(getServer().getScheduler().runTaskTimer(this, pets::follow, 10L, 10L));
+            moduleTasks.add(getServer().getScheduler().runTaskTimer(this, pets::second, 20L, 20L));
+            moduleTasks.add(getServer().getScheduler().runTaskTimer(this, pets::minute, 1200L, 1200L));
+            command("familiar", List.of("familiares", "pet"), pets::command);
+            core.commands().register(this, commands.pet(pets));
+        }
+        if (on("casamento")) {
+            marriages = new MarriageService(this, msg, config, hooks);
+            marriages.load();
+            listen(marriages);
+            core.subscribe(MarriageService.BUS, m -> {
+                if (marriages != null && !core.server().equals(m.origin())) {
+                    marriages.onBus(m.payload());
+                }
+            });
+            moduleTasks.add(getServer().getScheduler().runTaskTimer(this, marriages::second, 20L, 20L));
+            command("casar", List.of(), marriages::marryCommand);
+            command("divorciar", List.of(), marriages::divorceCommand);
+            command("casal", List.of(), marriages::coupleCommand);
+            core.commands().register(this, commands.marriage(marriages));
         }
         if (on("estalagens")) {
             inns = new InnService(this, msg, hooks, core.database(), config);
@@ -170,13 +301,16 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         }
         AincradLifeAPI.init(professions, inns);
         AincradLifeAPI.food(foodBuffs);
+        AincradLifeAPI.pets(pets);
+        AincradLifeAPI.marriages(marriages);
+        uiEntries();
         List<String> later = new ArrayList<>();
         for (String m : PENDING) {
             if (on(m)) {
                 later.add(m);
             }
         }
-        getLogger().info("Módulos ligados: " + (anyProfession ? "profissões (base) " : "") + (cooking != null ? "culinária " : "") + (inns != null ? "estalagens " : "")
+        getLogger().info("Módulos ligados: " + (anyProfession ? "profissões (base) " : "") + (cooking != null ? "culinária " : "") + (fishing != null ? "pesca " : "") + (smith != null ? "ferreiro " : "") + (alchemy != null ? "alquimia " : "") + (orders != null ? "encomendas " : "") + (extraModules.isEmpty() ? "" : String.join(" ", extraModules) + " ") + (pets != null ? "familiares " : "") + (marriages != null ? "casamento " : "") + (inns != null ? "estalagens " : "")
                 + (later.isEmpty() ? "" : "— ainda sem código nesta versão: " + String.join(", ", later)));
     }
 
@@ -200,9 +334,90 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         core.commands().register(this, commands.kitchen(cooking));
     }
 
+    /** Pesca: pontos com zonas, a pescaria em três fases, Senhor do Lago e torneio semanal. */
+    private void startFishing(AincradCore core) {
+        fishing = new FishingService(this, msg, config, hooks, professions, () -> foodBuffs);
+        fishing.load();
+        listen(fishing);
+        moduleTasks.add(getServer().getScheduler().runTaskTimer(this, fishing::tick, 1L, 1L));
+        moduleTasks.add(getServer().getScheduler().runTaskTimer(this, () -> fishing.tournament().minute(), 100L, 1200L));
+        command("pesca", List.of("pescaria"), this::fishingCommand);
+        core.commands().register(this, commands.fishing(fishing));
+    }
+
+    /** /pesca [torneio [entrar <andar> | ranking <andar>]] */
+    private void fishingCommand(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player p)) {
+            msg.send(sender, "geral.so_jogador");
+            return;
+        }
+        if (args.length == 0) {
+            fishing.showRecords(p);
+            return;
+        }
+        var here = fishing.pointAt(p.getLocation());
+        int floor = here == null ? 0 : here.floor();
+        if (args.length > 2) {
+            try {
+                floor = Integer.parseInt(args[2]);
+            } catch (NumberFormatException e) {
+                floor = 0;
+            }
+        }
+        String op = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "ranking";
+        if (!args[0].equalsIgnoreCase("torneio") || floor <= 0 || !(op.equals("entrar") || op.equals("ranking"))) {
+            msg.send(p, "pesca.uso");
+            return;
+        }
+        if (op.equals("entrar")) {
+            fishing.tournament().enter(p, floor);
+        } else {
+            fishing.tournament().ranking(p, floor);
+        }
+    }
+
+    /** As telas do AincradLife no menu do AincradUI (se ele estiver no servidor). */
+    private void uiEntries() {
+        if (!getServer().getPluginManager().isPluginEnabled("AincradUI")) {
+            return;
+        }
+        if (professions != null && (on("culinaria") || on("pesca") || on("ferreiro") || on("alquimia"))) {
+            uiEntry("profissoes", "under_icons/skills", "ui.profissoes", p -> p.performCommand("profissoes"));
+        }
+        if (orders != null) {
+            uiEntry("encomendas", "under_icons/quests", "ui.encomendas", orders::menu);
+        }
+        if (pets != null) {
+            uiEntry("familiar", "under_icons/call", "ui.familiar", pets::panel);
+        }
+        if (marriages != null) {
+            uiEntry("casal", "under_icons/friends", "ui.casal", marriages::menu);
+        }
+    }
+
+    private void uiEntry(String id, String icon, String nameKey, java.util.function.Consumer<Player> action) {
+        if (hooks.uiEntry("life_" + id, icon, msg.get(nameKey), action)) {
+            uiEntries.add("life_" + id);
+        }
+    }
+
     private void stopModules() {
+        uiEntries.forEach(hooks::uiRemove);
+        uiEntries.clear();
+        if (marriages != null) {
+            marriages.shutdown();
+        }
         if (panels != null) {
             panels.closeAll();
+        }
+        if (fishing != null) {
+            fishing.shutdown();
+        }
+        if (smith != null) {
+            smith.shutdown();
+        }
+        if (pets != null) {
+            pets.shutdown();
         }
         if (foodBuffs != null) {
             foodBuffs.stripAll();
@@ -229,6 +444,13 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         inns = null;
         cooking = null;
         foodBuffs = null;
+        fishing = null;
+        smith = null;
+        alchemy = null;
+        orders = null;
+        pets = null;
+        marriages = null;
+        extraModules.clear();
     }
 
     private void listen(Listener l) {
@@ -314,6 +536,8 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         }
         AincradLifeAPI.init(null, null);
         AincradLifeAPI.food(null);
+        AincradLifeAPI.pets(null);
+        AincradLifeAPI.marriages(null);
         getServer().getServicesManager().unregisterAll(this);
     }
 

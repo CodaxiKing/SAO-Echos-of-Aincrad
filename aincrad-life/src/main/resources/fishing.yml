@@ -1,0 +1,136 @@
+# ============================================================
+#  Pesca. Dentro de um ponto de pesca (uma região do core) a pescaria é a do Aincrad: lançar,
+#  fisgar e cansar o peixe. Fora dos pontos, é a pesca normal do Minecraft.
+#
+#  Criar um ponto: /aincrad varinha, marque os dois cantos em volta do lago e da margem,
+#  /aincrad regiao criar <nome>, e ponha o nome em pontos → <id> → regiao.
+# ============================================================
+
+# A força do lançamento (0 a 1) escolhe a zona. "ate": até que força o lançamento cai na zona.
+# "vara_minima": rank da vara para alcançar a zona.
+zonas:
+  raso: {ate: 0.4, vara_minima: 1}
+  meio: {ate: 0.75, vara_minima: 2}
+  fundo: {ate: 1.0, vara_minima: 3}
+
+# Varas. "resistencia_ticks": quanto a linha aguenta no vermelho antes de arrebentar (20 = 1 s).
+# "sorte": chance a mais de peixe incomum e raro (0.1 = 10%).
+# Dar uma vara: /aincrad pesca vara <jogador> <id>
+varas:
+  vara_simples:
+    nome: "Vara Simples"
+    rank: 1
+    resistencia_ticks: 8
+    sorte: 0
+  vara_de_bambu:
+    nome: "Vara de Bambu"
+    rank: 2
+    resistencia_ticks: 14
+    sorte: 0.05
+  vara_de_aco:
+    nome: "Vara de Aço"
+    rank: 3
+    resistencia_ticks: 22
+    sorte: 0.1
+
+# A vara de pescar comum do Minecraft conta como esta.
+vara_padrao: vara_simples
+
+# Iscas: vão na outra mão. Uma é gasta a cada peixe pego e quando a linha arrebenta.
+# Dar uma isca: /aincrad pesca isca <jogador> <id> [qtd]
+iscas:
+  minhoca:
+    nome: "Minhoca"
+    material: WHEAT_SEEDS
+    sorte: 0.1
+  isca_brilhante:
+    nome: "Isca Brilhante"
+    material: GLOWSTONE_DUST
+    sorte: 0.25
+  isca_do_senhor_do_lago:
+    nome: "Isca do Senhor do Lago"
+    material: NAUTILUS_SHELL
+    sorte: 0
+    # Só com esta isca o lendário morde.
+    lendario: true
+
+# Peixes. raridade: comum, incomum, raro ou lendario. dificuldade: para o ganho de proficiência.
+peixes:
+  lambari:
+    nome: "Lambari"
+    material: COD
+    raridade: comum
+    dificuldade: 20
+    tamanho_cm: [6, 15]
+  tilapia:
+    nome: "Tilápia"
+    material: COD
+    raridade: comum
+    dificuldade: 80
+    tamanho_cm: [15, 40]
+  truta_do_inicio:
+    nome: "Truta do Início"
+    material: SALMON
+    raridade: incomum
+    dificuldade: 200
+    tamanho_cm: [25, 60]
+  carpa_dourada:
+    nome: "Carpa Dourada"
+    material: TROPICAL_FISH
+    raridade: incomum
+    dificuldade: 320
+    tamanho_cm: [30, 80]
+  enguia_das_sombras:
+    nome: "Enguia das Sombras"
+    material: SALMON
+    raridade: raro
+    dificuldade: 500
+    tamanho_cm: [60, 140]
+  baiacu_cristal:
+    nome: "Baiacu de Cristal"
+    material: PUFFERFISH
+    raridade: raro
+    dificuldade: 650
+    tamanho_cm: [20, 45]
+  senhor_do_lago_do_inicio:
+    nome: "Senhor do Lago do Início"
+    material: TROPICAL_FISH
+    raridade: lendario
+    dificuldade: 900
+    tamanho_cm: [180, 320]
+
+# Pontos de pesca. A tabela de cada zona é peixe: peso (quanto maior, mais comum).
+pontos:
+  lago_do_inicio:
+    # Nome da região do core (crie com /aincrad regiao criar lago_andar1).
+    regiao: lago_andar1
+    andar: 1
+    zonas:
+      raso:
+        lambari: 70
+        tilapia: 30
+      meio:
+        lambari: 30
+        tilapia: 40
+        truta_do_inicio: 25
+        carpa_dourada: 5
+      fundo:
+        tilapia: 25
+        truta_do_inicio: 35
+        carpa_dourada: 25
+        enguia_das_sombras: 10
+        baiacu_cristal: 5
+    # O lendário do andar: só na zona funda, com a isca certa e rank de Mestre em pesca.
+    # Fisgar não entrega o peixe: o Senhor do Lago sai da água e precisa ser derrotado.
+    lendario:
+      peixe: senhor_do_lago_do_inicio
+      isca: isca_do_senhor_do_lago
+      chance: 0.03
+      chefe:
+        mob: GUARDIAN
+        nome: "Senhor do Lago"
+        level: 12
+        vida: 150
+        dano: 7
+        # Minutos até ele voltar para o fundo, se ninguém o derrotar.
+        minutos: 5

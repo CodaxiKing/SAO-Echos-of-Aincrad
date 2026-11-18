@@ -9,11 +9,11 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD em barras, telas planas com cursor (loja), vida crítica, tela de morte | pronto (etapas 14–17), com as artes do SAO-UI/sao-assets |
 | `aincrad-social/` | **AincradSocial** — amigos, party, guilda (como no anime) e mensagens | pronto (dados em YAML até o aincrad-core) |
 | `aincrad-rpg/` | **AincradRPG** — level, XP, atributos, level dos mobs, itens com raridade | pronto (etapas A1–A2) |
-| `aincrad-economy/` | **AincradEconomy** — Col, Vault, lojas de NPC, /pagar, troca segura, leilão e casas | pronto (etapas A3–A4) |
+| `aincrad-economy/` | **AincradEconomy** — Col, Vault, lojas de NPC, /pagar, troca segura, leilão, casas e custódia | pronto (etapas A3–A4, mais a custódia das encomendas) |
 | `aincrad-floors/` | **AincradFloors** — andares, bloqueio de entrada, zona segura, anúncio, Teleport Gates | pronto (etapas 1–4) |
 | `aincrad-bosses/` | **AincradBosses** — chefes com fases e habilidades, sala, Last Attack, liberação do andar, labirinto | pronto (etapas 5–9, 18–19: proteção contra abuso, guia, raid, editor) |
 | `aincrad-items/` | **AincradItems** — cristais de cura, antídoto, teleporte, ressurreição e gravação | pronto (etapas 20–21) |
-| `aincrad-life/` | **AincradLife** — profissões (proficiência, aprender antes de fazer, árvore), bancadas 3D com painel, culinária e estalagens | base pronta (etapa 22) e culinária (23.1–23.3); pesca, ferreiro, alquimia, pedidos, familiares e casamento pendentes |
+| `aincrad-life/` | **AincradLife** — profissões (proficiência, aprender antes de fazer, árvore), bancadas 3D com painel, culinária, pesca, ferreiro, alquimia, encomendas, barracas, familiares, casamento e estalagens | base pronta (etapa 22), as quatro profissões da etapa 23 e as encomendas, as barracas, os familiares e o casamento: etapas 22 a 25 com código, sem teste em servidor |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | pronto (etapas 10–13): motor geral e integração com andares e chefes |
 
 ## Plano

@@ -253,6 +253,21 @@ public final class CookingService implements Listener {
         return it;
     }
 
+    /** Id da receita de um prato (null: não é prato, ou é gororoba). */
+    public String dishId(ItemStack it) {
+        if (it == null || !it.hasItemMeta()) {
+            return null;
+        }
+        String id = it.getItemMeta().getPersistentDataContainer().get(keyDish, PersistentDataType.STRING);
+        return id == null || id.equals("gororoba") ? null : id;
+    }
+
+    /** A qualidade de um prato (null: não é prato). */
+    public Quality dishQuality(ItemStack it) {
+        return it == null || !it.hasItemMeta() ? null
+                : Quality.parse(it.getItemMeta().getPersistentDataContainer().get(keyQuality, PersistentDataType.STRING));
+    }
+
     static void give(Player p, ItemStack it) {
         p.getInventory().addItem(it).values().forEach(rest -> p.getWorld().dropItemNaturally(p.getLocation(), rest));
     }

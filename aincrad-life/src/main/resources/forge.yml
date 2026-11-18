@@ -1,0 +1,131 @@
+# ============================================================
+#  Forja: tipos de item, projetos e armas nomeadas. Os materiais estão em ingots.yml.
+# ============================================================
+
+# O que o núcleo dá, por rank do material que está nele.
+dominante:
+  afiacao: {dano: 0.8}
+  rapidez: {velocidade_ataque: 3}
+  precisao: {critico: 2}
+  peso: {empurrao: 0.15}
+
+# Tipos de item: os encaixes (na ordem em que aparecem sobre a bigorna) e as batidas base.
+# Encaixes: lamina, cabeca, placa (base), nucleo, guarda, haste, forro, rebite, cabo e
+# catalisador (o único opcional). Um tipo com "placa" é armadura.
+tipos:
+  adaga:
+    nome: "Adaga"
+    encaixes: [lamina, cabo, catalisador]
+    batidas: 10
+  espada_uma_mao:
+    nome: "Espada de uma mão"
+    encaixes: [lamina, nucleo, guarda, cabo, catalisador]
+    batidas: 20
+  florete:
+    nome: "Florete"
+    encaixes: [lamina, nucleo, guarda, cabo, catalisador]
+    batidas: 20
+  machado:
+    nome: "Machado"
+    encaixes: [cabeca, nucleo, haste, catalisador]
+    batidas: 25
+  lanca:
+    nome: "Lança"
+    encaixes: [cabeca, nucleo, haste, catalisador]
+    batidas: 25
+  espada_duas_maos:
+    nome: "Espada de duas mãos"
+    encaixes: [lamina, lamina, nucleo, guarda, cabo, catalisador]
+    batidas: 35
+  escudo:
+    nome: "Escudo"
+    encaixes: [placa, placa, forro, rebite, catalisador]
+    batidas: 30
+  armadura:
+    nome: "Peça de armadura"
+    encaixes: [placa, placa, forro, rebite, catalisador]
+    batidas: 30
+
+# Projetos. Precisam ser aprendidos (/aincrad saber dar <jogador> projeto <id>).
+#  material:   o item do Minecraft que sai.
+#  item_rpg:   (opcional) modelo do AincradRPG (items.yml) usado como base: o item sai com a
+#              raridade, os bônus e o level mínimo dele, mais os bônus dos materiais.
+#  caminho / especializacao: exclusivo de um ramo da árvore do ferreiro.
+projetos:
+  adaga_simples:
+    nome: "Adaga Simples"
+    tipo: adaga
+    material: IRON_SWORD
+    proficiencia_estudo: 0
+    proficiencia_minima: 0
+    dificuldade: 50
+  espada_curta:
+    nome: "Espada Curta"
+    tipo: espada_uma_mao
+    material: IRON_SWORD
+    item_rpg: espada_pequena
+    proficiencia_estudo: 50
+    proficiencia_minima: 100
+    dificuldade: 150
+  escudo_de_ferro:
+    nome: "Escudo de Ferro"
+    tipo: escudo
+    material: SHIELD
+    proficiencia_estudo: 100
+    proficiencia_minima: 150
+    dificuldade: 220
+  florete_fino:
+    nome: "Florete Fino"
+    tipo: florete
+    material: IRON_SWORD
+    proficiencia_estudo: 150
+    proficiencia_minima: 200
+    dificuldade: 260
+  machado_de_batalha:
+    nome: "Machado de Batalha"
+    tipo: machado
+    material: IRON_AXE
+    proficiencia_estudo: 200
+    proficiencia_minima: 250
+    dificuldade: 320
+  lanca_de_caca:
+    nome: "Lança de Caça"
+    tipo: lanca
+    material: TRIDENT
+    proficiencia_estudo: 250
+    proficiencia_minima: 300
+    dificuldade: 380
+  espada_de_aco:
+    nome: "Espada de Aço"
+    tipo: espada_uma_mao
+    material: DIAMOND_SWORD
+    proficiencia_estudo: 250
+    proficiencia_minima: 300
+    dificuldade: 400
+    caminho: armeiro
+  peitoral_de_placas:
+    nome: "Peitoral de Placas"
+    tipo: armadura
+    material: IRON_CHESTPLATE
+    proficiencia_estudo: 250
+    proficiencia_minima: 300
+    dificuldade: 400
+    caminho: armoreiro
+  montante:
+    nome: "Montante"
+    tipo: espada_duas_maos
+    material: NETHERITE_SWORD
+    proficiencia_estudo: 500
+    proficiencia_minima: 550
+    dificuldade: 650
+    caminho: armeiro
+    especializacao: laminas
+
+# Armas nomeadas: um projeto feito com a combinação exata de materiais abaixo sai com nome e
+# bônus próprios. Não aparecem em lugar nenhum: o ferreiro descobre testando.
+nomeadas:
+  lamina_do_crepusculo:
+    nome: "Lâmina do Crepúsculo"
+    projeto: espada_de_aco
+    materiais: {lamina: aco_negro, nucleo: ametista, catalisador: presa_do_kobold}
+    bonus: {dano: 2, critico: 4}

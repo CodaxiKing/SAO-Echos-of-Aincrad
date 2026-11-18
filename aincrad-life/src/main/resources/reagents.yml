@@ -1,0 +1,144 @@
+# ============================================================
+#  Reagentes da alquimia e pontos de coleta.
+#
+#  encaixe:       onde o reagente entra na mesa: frasco, base, principal, secundario ou
+#                 catalisador (opcional).
+#  material:      item do Minecraft. item_proprio: true = só vale o item com a marca do plugin
+#                 (colhido num ponto de coleta ou dado por /aincrad alquimia reagente).
+#                 Dois reagentes comuns não podem usar o mesmo material.
+#  Para frascos:  doses (quantas poções rende) e teto (a maior pureza que comporta: impura,
+#                 comum, pura ou perfeita).
+# ============================================================
+reagentes:
+  # ----- frascos -----
+  frasco_de_vidro:
+    nome: "Frasco de Vidro"
+    encaixe: frasco
+    material: GLASS_BOTTLE
+    doses: 1
+    teto: pura
+  frasco_de_cristal:
+    nome: "Frasco de Cristal"
+    encaixe: frasco
+    material: GLASS_BOTTLE
+    item_proprio: true
+    doses: 2
+    teto: perfeita
+  frasco_reforcado:
+    nome: "Frasco Reforçado"
+    encaixe: frasco
+    material: EXPERIENCE_BOTTLE
+    item_proprio: true
+    doses: 3
+    teto: perfeita
+
+  # ----- bases: definem se sai poção de beber, óleo de arma ou frasco arremessável -----
+  agua:
+    nome: "Água"
+    encaixe: base
+    # Uma garrafa de água (qualquer poção comum conta).
+    material: POTION
+  oleo:
+    nome: "Óleo Escuro"
+    encaixe: base
+    material: INK_SAC
+  alcool:
+    nome: "Álcool de Cana"
+    encaixe: base
+    material: SUGAR_CANE
+
+  # ----- reagentes principais: o efeito -----
+  erva_curativa:
+    nome: "Erva Curativa"
+    encaixe: principal
+    material: FERN
+    item_proprio: true
+  erva_lunar:
+    nome: "Erva Lunar"
+    encaixe: principal
+    material: LARGE_FERN
+    item_proprio: true
+  cristal_bruto:
+    nome: "Cristal Bruto"
+    encaixe: principal
+    material: AMETHYST_SHARD
+    item_proprio: true
+  cogumelo_rubro:
+    nome: "Cogumelo Rubro"
+    encaixe: principal
+    material: RED_MUSHROOM
+  po_de_blaze:
+    nome: "Pó de Blaze"
+    encaixe: principal
+    material: BLAZE_POWDER
+  acucar:
+    nome: "Açúcar"
+    encaixe: principal
+    material: SUGAR
+  cenoura_dourada:
+    nome: "Cenoura Dourada"
+    encaixe: principal
+    material: GOLDEN_CARROT
+  olho_de_aranha:
+    nome: "Olho de Aranha"
+    encaixe: principal
+    material: SPIDER_EYE
+  polvora:
+    nome: "Pólvora"
+    encaixe: principal
+    material: GUNPOWDER
+
+  # ----- reagentes secundários: duração ou intensidade -----
+  flor_azul:
+    nome: "Flor Azul"
+    encaixe: secundario
+    material: CORNFLOWER
+  carvao:
+    nome: "Carvão Vegetal"
+    encaixe: secundario
+    material: CHARCOAL
+  redstone:
+    nome: "Pó de Redstone"
+    encaixe: secundario
+    material: REDSTONE
+  glowstone:
+    nome: "Pó de Pedra Luminosa"
+    encaixe: secundario
+    material: GLOWSTONE_DUST
+  argila:
+    nome: "Argila"
+    encaixe: secundario
+    material: CLAY_BALL
+  farinha_de_osso:
+    nome: "Farinha de Osso"
+    encaixe: secundario
+    material: BONE_MEAL
+
+  # ----- catalisadores (opcionais): mais um passo na infusão, mais pureza -----
+  lagrima_de_ghast:
+    nome: "Lágrima de Ghast"
+    encaixe: catalisador
+    material: GHAST_TEAR
+  po_de_cristal:
+    nome: "Pó de Cristal"
+    encaixe: catalisador
+    material: PRISMARINE_CRYSTALS
+    item_proprio: true
+
+# Pontos de coleta. Um admin marca um bloco com /aincrad alquimia ponto <tipo>; qualquer jogador
+# colhe clicando nele, e o ponto renasce depois de "renasce_segundos".
+#   raro: quem tem a proficiência em alquimia pode achar o reagente raro no lugar do comum.
+coleta:
+  canteiro_de_ervas:
+    reagente: erva_curativa
+    renasce_segundos: 120
+    raro:
+      reagente: erva_lunar
+      chance: 0.15
+      proficiencia: 250
+  cogumelos:
+    reagente: cogumelo_rubro
+    renasce_segundos: 180
+  veio_de_cristal:
+    reagente: cristal_bruto
+    renasce_segundos: 600

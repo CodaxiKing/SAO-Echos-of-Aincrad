@@ -1,0 +1,231 @@
+# ============================================================
+#  Fórmulas da alquimia. Precisam ser aprendidas
+#  (/aincrad saber dar <jogador> formula <id>); o livro do alquimista (/alquimia) mostra a
+#  ordem dos reagentes e as cores de cada fórmula aprendida.
+#
+#  base / principal / secundario: os reagentes (reagents.yml). Duas fórmulas não podem ter a
+#                mesma combinação. O frasco é livre (define doses e teto de pureza) e o
+#                catalisador é opcional (mais um passo na infusão, mais pureza).
+#  infusao:      os dois passos, na ordem: qual reagente entra e em que cor do líquido
+#                (vermelho, laranja, amarelo, verde, azul, roxo). Reagente fora de ordem estraga
+#                a mistura; cor errada baixa a pureza.
+#  cor_catalisador: cor em que o catalisador entra, por último (padrão: roxo).
+#  produto.tipo:
+#    cura          vida (pontos de vida, recuperados ao longo de "segundos")
+#    antidoto      remove: [efeitos]
+#    buff          efeito, nivel, minutos        (só um buff de poção por vez)
+#    oleo          dano, golpes                  (aplicado na arma da outra mão)
+#    veneno        efeito, nivel, segundos, golpes
+#    arremessavel  efeito, nivel, segundos, raio
+#    insumo        insumo: isca | ingrediente | po_de_tempera, id, quantidade
+#    cristal       id: cura | antidoto, quantidade   (precisa do AincradItems)
+#  Os efeitos são os nomes do Minecraft: strength, resistance, speed, night_vision,
+#  fire_resistance, poison, wither, slowness, weakness, blindness, glowing...
+#  cor:          cor da poção pronta.
+# ============================================================
+formulas:
+  pocao_de_cura_menor:
+    nome: "Poção de Cura Menor"
+    base: agua
+    principal: erva_curativa
+    secundario: flor_azul
+    proficiencia_estudo: 0
+    proficiencia_minima: 0
+    dificuldade: 50
+    infusao:
+      - {reagente: principal, cor: verde}
+      - {reagente: secundario, cor: azul}
+    produto: {tipo: cura, vida: 8, segundos: 10}
+    cor: "#F82423"
+  antidoto:
+    nome: "Antídoto"
+    base: agua
+    principal: cogumelo_rubro
+    secundario: carvao
+    proficiencia_estudo: 50
+    proficiencia_minima: 100
+    dificuldade: 150
+    infusao:
+      - {reagente: secundario, cor: amarelo}
+      - {reagente: principal, cor: verde}
+    produto: {tipo: antidoto, remove: [poison, wither, slowness]}
+    cor: "#7FB238"
+  pocao_de_velocidade:
+    nome: "Poção de Velocidade"
+    base: agua
+    principal: acucar
+    secundario: redstone
+    proficiencia_estudo: 100
+    proficiencia_minima: 150
+    dificuldade: 200
+    infusao:
+      - {reagente: principal, cor: azul}
+      - {reagente: secundario, cor: vermelho}
+    produto: {tipo: buff, efeito: speed, nivel: 1, minutos: 8}
+    cor: "#33EBFF"
+  pocao_de_visao:
+    nome: "Poção de Visão"
+    base: agua
+    principal: cenoura_dourada
+    secundario: redstone
+    proficiencia_estudo: 100
+    proficiencia_minima: 150
+    dificuldade: 220
+    infusao:
+      - {reagente: principal, cor: laranja}
+      - {reagente: secundario, cor: roxo}
+    produto: {tipo: buff, efeito: night_vision, nivel: 1, minutos: 10}
+    cor: "#C2FF66"
+  oleo_de_fogo:
+    nome: "Óleo de Fogo"
+    base: oleo
+    principal: po_de_blaze
+    secundario: carvao
+    proficiencia_estudo: 150
+    proficiencia_minima: 200
+    dificuldade: 280
+    infusao:
+      - {reagente: secundario, cor: vermelho}
+      - {reagente: principal, cor: laranja}
+    produto: {tipo: oleo, dano: 2, golpes: 30}
+    cor: "#FF9900"
+  frasco_de_fumaca:
+    nome: "Frasco de Fumaça"
+    base: alcool
+    principal: polvora
+    secundario: carvao
+    proficiencia_estudo: 150
+    proficiencia_minima: 200
+    dificuldade: 260
+    infusao:
+      - {reagente: principal, cor: roxo}
+      - {reagente: secundario, cor: azul}
+    produto: {tipo: arremessavel, efeito: blindness, nivel: 1, segundos: 6, raio: 4}
+    cor: "#444444"
+  pocao_de_forca:
+    nome: "Poção de Força"
+    base: alcool
+    principal: po_de_blaze
+    secundario: glowstone
+    proficiencia_estudo: 200
+    proficiencia_minima: 250
+    dificuldade: 320
+    infusao:
+      - {reagente: principal, cor: vermelho}
+      - {reagente: secundario, cor: amarelo}
+    produto: {tipo: buff, efeito: strength, nivel: 1, minutos: 5}
+    cor: "#FFC700"
+  pocao_de_cura:
+    nome: "Poção de Cura"
+    base: agua
+    principal: erva_lunar
+    secundario: flor_azul
+    proficiencia_estudo: 250
+    proficiencia_minima: 300
+    dificuldade: 380
+    infusao:
+      - {reagente: secundario, cor: azul}
+      - {reagente: principal, cor: roxo}
+    produto: {tipo: cura, vida: 16, segundos: 10}
+    cor: "#F82423"
+
+  # ----- venenos e frascos de área: exclusivos de caminho -----
+  veneno_de_aranha:
+    nome: "Veneno de Aranha"
+    base: oleo
+    principal: olho_de_aranha
+    secundario: farinha_de_osso
+    proficiencia_estudo: 250
+    proficiencia_minima: 300
+    dificuldade: 400
+    caminho: toxicologista
+    infusao:
+      - {reagente: principal, cor: verde}
+      - {reagente: secundario, cor: roxo}
+    produto: {tipo: veneno, efeito: poison, nivel: 1, segundos: 5, golpes: 15}
+    cor: "#4E9331"
+  frasco_de_lentidao:
+    nome: "Frasco de Lentidão"
+    base: alcool
+    principal: olho_de_aranha
+    secundario: argila
+    proficiencia_estudo: 250
+    proficiencia_minima: 300
+    dificuldade: 400
+    caminho: artifice
+    infusao:
+      - {reagente: secundario, cor: azul}
+      - {reagente: principal, cor: verde}
+    produto: {tipo: arremessavel, efeito: slowness, nivel: 2, segundos: 8, raio: 4}
+    cor: "#5A6C81"
+
+  # ----- insumos para as outras profissões -----
+  isca_avancada:
+    nome: "Isca Avançada"
+    base: oleo
+    principal: cogumelo_rubro
+    secundario: farinha_de_osso
+    proficiencia_estudo: 200
+    proficiencia_minima: 250
+    dificuldade: 320
+    infusao:
+      - {reagente: principal, cor: amarelo}
+      - {reagente: secundario, cor: verde}
+    # Uma isca de fishing.yml.
+    produto: {tipo: insumo, insumo: isca, id: isca_brilhante, quantidade: 3}
+  tempero_raro:
+    nome: "Tempero Raro"
+    base: alcool
+    principal: acucar
+    secundario: glowstone
+    proficiencia_estudo: 200
+    proficiencia_minima: 250
+    dificuldade: 320
+    infusao:
+      - {reagente: secundario, cor: amarelo}
+      - {reagente: principal, cor: laranja}
+    # Um ingrediente de ingredients.yml.
+    produto: {tipo: insumo, insumo: ingrediente, id: tempero_basico, quantidade: 3}
+  po_de_tempera:
+    nome: "Pó de Têmpera"
+    base: agua
+    principal: polvora
+    secundario: argila
+    proficiencia_estudo: 300
+    proficiencia_minima: 350
+    dificuldade: 430
+    infusao:
+      - {reagente: secundario, cor: laranja}
+      - {reagente: principal, cor: vermelho}
+    # Com ele no inventário, o ferreiro tem mais tempo na têmpera (gasta um por peça).
+    produto: {tipo: insumo, insumo: po_de_tempera, quantidade: 2}
+
+  # ----- cristais: rank Mestre, caminho Curandeiro -----
+  cristal_de_cura:
+    nome: "Cristal de Cura"
+    base: agua
+    principal: cristal_bruto
+    secundario: glowstone
+    proficiencia_estudo: 750
+    proficiencia_minima: 750
+    dificuldade: 850
+    caminho: curandeiro
+    especializacao: cristais
+    infusao:
+      - {reagente: principal, cor: azul}
+      - {reagente: secundario, cor: roxo}
+    produto: {tipo: cristal, id: cura, quantidade: 1}
+  cristal_de_antidoto:
+    nome: "Cristal de Antídoto"
+    base: agua
+    principal: cristal_bruto
+    secundario: carvao
+    proficiencia_estudo: 750
+    proficiencia_minima: 750
+    dificuldade: 850
+    caminho: curandeiro
+    especializacao: cristais
+    infusao:
+      - {reagente: secundario, cor: verde}
+      - {reagente: principal, cor: azul}
+    produto: {tipo: cristal, id: antidoto, quantidade: 1}

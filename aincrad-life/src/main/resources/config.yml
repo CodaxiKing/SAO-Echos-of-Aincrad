@@ -4,12 +4,16 @@
 # ============================================================
 
 # Cada módulo liga e desliga aqui (/aincrad reload aplica; os comandos de um módulo desligado somem).
-# Nesta versão têm código: a base das profissões (ligada se alguma das quatro estiver), culinária e estalagens.
+# Todos têm código nesta versão. As quatro profissões compartilham a base (proficiência, árvore, bancadas).
 modulos:
   culinaria: true
   pesca: true
   ferreiro: true
   alquimia: true
+  # O quadro de encomendas liga as quatro profissões. Precisa do AincradEconomy.
+  encomendas: true
+  # Barraca do cozinheiro, banca de peixe e botica. Precisa do AincradEconomy.
+  barracas: true
   estalagens: true
   familiares: true
   casamento: true
@@ -80,6 +84,327 @@ culinaria:
   # Uma combinação que não é receita conhecida gasta os ingredientes e vira "gororoba".
   # false: a bancada só avisa e não gasta nada.
   mistura_errada_consome: true
+
+# Pesca. Varas, iscas, peixes e pontos em fishing.yml. Tempos em ticks (20 = 1 s) onde indicado.
+pesca:
+  # Lançar: o primeiro clique abre a barra de força, que sobe e desce; o segundo lança.
+  lancar:
+    # Tempo de uma ida e volta da barra.
+    periodo_ticks: 40
+    # Sem lançar neste tempo, a barra some.
+    espera_segundos: 10
+  # Quanto tempo a boia espera na água até um peixe morder.
+  mordida:
+    min_segundos: 4
+    max_segundos: 10
+  # Por raridade: a janela para fisgar, quanto tempo na faixa verde cansa o peixe e a chance,
+  # por segundo, de uma arrancada.
+  raridade:
+    comum: {janela_ticks: 30, cansar_ticks: 60, arrancada_por_segundo: 0}
+    incomum: {janela_ticks: 24, cansar_ticks: 90, arrancada_por_segundo: 0.05}
+    raro: {janela_ticks: 16, cansar_ticks: 130, arrancada_por_segundo: 0.2}
+    lendario: {janela_ticks: 12, cansar_ticks: 200, arrancada_por_segundo: 0.3}
+  # No Bedrock a janela da fisgada é multiplicada por isto (o toque é mais lento).
+  bedrock_janela: 1.5
+  # A tensão da linha vai de 0 a 1. Cada clique puxa; sem clicar, ela cai.
+  tensao:
+    # Largura da faixa verde, e quanto ela ganha com 1000 de proficiência.
+    faixa: 0.3
+    faixa_no_mestre: 0.1
+    # Daqui para cima é vermelho: a linha arrebenta depois dos "resistencia_ticks" da vara.
+    vermelho_a_partir: 0.9
+    # Daqui para baixo a linha está frouxa: depois de "frouxa_ticks", o peixe se solta.
+    frouxa_abaixo: 0.1
+    frouxa_ticks: 40
+    queda_por_tick: 0.012
+    puxada: 0.07
+    # Arrancada: a tensão sobe sozinha até o pescador virar o olhar para o lado oposto.
+    arrancada_por_tick: 0.02
+    arrancada_ticks: 40
+    arrancada_graus: 20
+  # Sorte a mais (peixes incomuns e raros) com 1000 de proficiência.
+  sorte_no_mestre: 0.3
+  # Torneio semanal, por andar. Precisa do AincradEconomy.
+  torneio:
+    ativo: true
+    inscricao_col: 200
+    # Parte das inscrições que fica com o servidor.
+    taxa_pct: 10
+
+# Ferreiro. Materiais em ingots.yml; tipos, projetos e armas nomeadas em forge.yml.
+ferreiro:
+  # Tipos de bancada (stations.yml) da oficina.
+  estacao_bigorna: forge_anvil
+  estacao_fornalha: forge_furnace
+  estacao_barril: quench_barrel
+  # A bigorna só abre com o martelo de ferreiro na mão (/aincrad forja martelo <jogador>).
+  exigir_martelo: true
+  martelo_item: MACE
+  # Quanto o golpe crítico dos itens forjados multiplica o dano.
+  critico_multiplicador: 1.5
+  reparo:
+    # Custo de um reparo completo (item com a durabilidade toda gasta): Col e unidades do material.
+    col: 300
+    unidades: 4
+    # Desconto no Col com 1000 de proficiência (cresce em linha reta).
+    desconto_no_mestre: 0.5
+    # Dificuldade do reparo, para o ganho de proficiência.
+    dificuldade: 100
+    # Material do reparo, pelo começo do nome do item.
+    materiais:
+      WOODEN: OAK_PLANKS
+      STONE: COBBLESTONE
+      LEATHER: LEATHER
+      CHAINMAIL: IRON_NUGGET
+      IRON: IRON_INGOT
+      GOLDEN: GOLD_INGOT
+      DIAMOND: DIAMOND
+      NETHERITE: NETHERITE_INGOT
+      TRIDENT: PRISMARINE_SHARD
+      BOW: STRING
+      FISHING_ROD: STRING
+    material_padrao: IRON_INGOT
+    # Aviso na tela quando a durabilidade passa deste percentual.
+    aviso_pct: 10
+    # true: item com durabilidade zerada quebra de vez. false: fica com 1 e nunca quebra.
+    quebra_em_zero: true
+  forja:
+    # A marca de batida: tempo do anel para fechar (menos "anel_por_rank" a cada rank do material
+    # base, até "anel_minimo") e as folgas do clique, em ticks.
+    anel_ticks: 26
+    anel_por_rank: 3
+    anel_minimo: 10
+    perfeita: 2
+    boa: 5
+    # A proficiência alarga a batida perfeita: +1 tick a cada tantos pontos.
+    perfeita_mais_1_a_cada: 400
+    # Ticks entre uma batida e a próxima marca.
+    intervalo_ticks: 10
+    # O calor do lingote vai de 0 a 1. Batida fora da faixa ideal conta como ruim.
+    calor:
+      inicio: 0.75
+      ideal_de: 0.45
+      ideal_ate: 0.85
+      queda_por_tick: 0.0015
+      queda_por_batida: 0.035
+      # Quanto cada clique no fole da fornalha sobe.
+      fole: 0.12
+    # Batidas ruins que quebram a peça, e a parte dos materiais que se perde quando quebra.
+    trincas: 3
+    perda_na_falha: 0.5
+    # Qualidade mínima (0 a 100) de cada raridade. O teto do material base sempre vale.
+    raridade:
+      incomum: 40
+      raro: 60
+      epico: 75
+      lendario: 90
+    # Têmpera: itens desta raridade para cima, se houver um barril de têmpera a até 8 blocos.
+    tempera:
+      a_partir_de: raro
+      segundos: 3
+      bonus_durabilidade: 15
+      perda_qualidade: 10
+      # Quanto o pó de têmpera do alquimista aumenta a janela (1.0 = o dobro do tempo).
+      po_de_tempera: 1.0
+    # Peça com qualidade a partir disto sai com tentativas de aprimoramento a mais.
+    tentativas_extras_a_partir_de: 90
+    tentativas_extras: 2
+  aprimoramento:
+    # Tentativas de um item (as dos forjados são definidas na forja; os outros ganham estas
+    # no primeiro aprimoramento).
+    tentativas: 8
+    # Quanto cada nível de cada atributo dá: dano, % de velocidade de ataque, % de crítico,
+    # empurrão e % de durabilidade.
+    por_nivel:
+      afiacao: 1
+      rapidez: 2
+      precisao: 2
+      peso: 0.2
+      durabilidade: 5
+    # Material extra de cada atributo: cada um nos encaixes soma "por_material" à chance.
+    material:
+      afiacao: FLINT
+      rapidez: FEATHER
+      precisao: ENDER_EYE
+      peso: IRON_BLOCK
+      durabilidade: OBSIDIAN
+    encaixes_de_material: 3
+    batidas: 5
+    anel_ticks: 22
+    chance_base: 0.5
+    chance_no_mestre: 0.3
+    queda_por_nivel: 0.06
+    por_material: 0.1
+    por_batida_perfeita: 0.02
+    teto: 0.95
+    # O maior nível que cada rank de ferreiro consegue dar a um atributo.
+    limite:
+      aprendiz: 0
+      praticante: 0
+      especialista: 5
+      mestre: 10
+      completo: 10
+    # Acima de +5, só quem escolheu este caminho na árvore ("" = qualquer um).
+    acima_de_5_exige_caminho: refinador
+
+# Alquimia. Reagentes e pontos de coleta em reagents.yml; fórmulas em formulas.yml.
+alquimia:
+  # Tipo de bancada (stations.yml) que serve de mesa de alquimia.
+  estacao: alchemy_table
+  # Moer: marcas em ritmo regular. "anel_ticks" é o tempo do anel; "perfeita" e "boa", as folgas.
+  moer:
+    marcas: 5
+    anel_ticks: 20
+    intervalo_ticks: 6
+    perfeita: 2
+    boa: 5
+  # Infusão: quanto tempo o líquido fica em cada cor.
+  infusao:
+    cor_ticks: 24
+  # Destilar: a temperatura (de 0 a 1) cai sozinha; aquecer sobe, esfriar desce.
+  destilar:
+    segundos: 8
+    faixa: 0.22
+    queda_por_tick: 0.006
+    aquecer: 0.12
+    esfriar: 0.10
+    # Tempo acima da faixa que faz a mistura explodir, o dano em quem está por perto e o raio.
+    explode_segundos: 3
+    explosao_dano: 4
+    explosao_raio: 4
+  # Engarrafar: uma marca só, com folga pequena. Perfeita é exigida para a pureza "perfeita".
+  engarrafar:
+    anel_ticks: 30
+    perfeita: 1
+    boa: 4
+  # Pontos de pureza (0 a 100) de cada parte do preparo, e a partir de quantos sai cada pureza.
+  pureza:
+    # Depois de moer: do pior ritmo ao ritmo perfeito.
+    moer_minimo: 35
+    moer_maximo: 60
+    # Por reagente adicionado na infusão.
+    infusao_cor_certa: 8
+    infusao_cor_errada: 15
+    # Destilação inteira na faixa.
+    destilar: 20
+    engarrafar_perfeito: 5
+    engarrafar_bom: 2
+    engarrafar_ruim: -5
+    # A cada 100 de proficiência acima (ou abaixo) da dificuldade, até o máximo.
+    por_100_de_proficiencia: 3
+    maximo_da_proficiencia: 10
+    comum: 40
+    pura: 70
+    perfeita: 90
+  # Recarga compartilhada entre as poções de cura.
+  cura_recarga_segundos: 5
+  # O efeito ruim de uma poção impura.
+  colateral:
+    efeito: slowness
+    segundos: 5
+  # Colheita: unidades a mais nos pontos de coleta com 1000 de proficiência.
+  colheita:
+    bonus_no_mestre: 1.0
+  # Uma combinação que não é fórmula conhecida gasta os reagentes. false: só avisa.
+  mistura_errada_consome: true
+
+# Encomendas: um cliente abre um pedido, os artesãos propõem, e o Col fica em custódia até a entrega.
+encomendas:
+  # Tipo de bancada (stations.yml) que abre o quadro.
+  estacao: order_board
+  # Parte da mão de obra que fica com o quadro (sai de circulação).
+  taxa_pct: 5
+  # Maior prazo de um pedido e de uma proposta, em dias reais.
+  prazo_maximo_dias: 14
+  # Encomendas em andamento por cliente.
+  pedidos_por_jogador: 5
+  # Contrato direto (/contratar): horas que o artesão tem para aceitar. Sem resposta, tudo volta ao cliente.
+  resposta_horas: 24
+  # Fornecimento recorrente (/encomenda recorrente).
+  recorrente:
+    maximo_de_entregas: 30
+  # Pedidos de material (/material).
+  material:
+    # Quanto tempo vale uma reserva. Vencida sem entrega, a quantidade volta a ficar livre.
+    reserva_horas: 24
+    # XP para a guilda por unidade entregue num pedido só da guilda (precisa do AincradSocial).
+    xp_de_guilda_por_unidade: 1
+
+# Barracas: um bloco onde o dono põe itens à venda; os clientes compram com ele offline.
+barracas:
+  # A barraca precisa ficar dentro de uma casa do dono (AincradEconomy). false: em qualquer lugar.
+  exigir_casa: true
+  por_jogador: 1
+  # Itens diferentes à venda numa barraca.
+  itens_por_barraca: 27
+  # Parte de cada venda que não chega ao dono (sai de circulação).
+  taxa_pct: 0
+  # Peixe pescado num ponto de pesca: vale o preço cheio por estas horas, contadas da pescaria;
+  # depois, a fração abaixo.
+  frescor:
+    horas: 24
+    preco_depois: 0.5
+
+# Familiares. As espécies estão em pets.yml.
+familiares:
+  # Multiplica a chance de domar de todas as espécies (para testar, ponha um valor alto).
+  multiplicador_de_chance: 1.0
+  # Outros jogadores podem ferir um familiar?
+  outros_jogadores_ferem: false
+  # O familiar entra em sala de chefe do AincradBosses? (false: some na porta e volta na saída)
+  permitir_em_sala_de_chefe: false
+  level:
+    maximo: 50
+    # Parte do XP do dono (AincradRPG) que vai para o familiar.
+    parte_do_xp: 0.2
+    # Sem o AincradRPG: XP do familiar por mob que o dono mata.
+    xp_por_mob_sem_rpg: 10
+    # XP para o próximo level = xp_base × level ^ expoente.
+    xp_base: 50
+    expoente: 1.5
+    vida_por_level: 1
+  vinculo:
+    inicial: 60
+    # Abaixo disto a habilidade para.
+    minimo_para_habilidade: 30
+    cai_1_a_cada_minutos: 10
+    por_comida: 15
+    cura_por_comida: 4
+    ao_reviver: 50
+  cura:
+    segundos: 30
+    vida: 2
+    vida_por_level: 0.1
+  bolha:
+    recarga_segundos: 60
+  alerta:
+    raio: 12
+    intervalo_segundos: 10
+  busca:
+    raio: 6
+  coracao:
+    item: HEART_OF_THE_SEA
+    # Dias reais para reviver o familiar depois da morte.
+    dias: 3
+  flor:
+    item: ALLIUM
+
+# Casamento.
+casamento:
+  anel:
+    # O anel de casamento (/aincrad casamento anel <jogador>) é este item, com a marca do plugin.
+    item: GOLD_NUGGET
+    # true: o item comum desse material também vale como anel (para vender numa loja de NPC).
+    # Escolha então um item que os jogadores não consigam de outro jeito.
+    aceitar_item_comum: false
+  # Distância máxima entre os dois na hora do pedido, em blocos.
+  distancia: 8
+  # Os dois precisam estar em zona segura do AincradFloors (sem ele, não confere).
+  exigir_zona_segura: true
+  # Anuncia o casamento para o servidor.
+  anunciar: true
+  # Dias reais de espera para casar de novo depois de um divórcio.
+  espera_dias: 7
 
 estalagens:
   descanso:

@@ -1,0 +1,149 @@
+# ============================================================
+#  Materiais de forja. O material define o item: o mesmo projeto com materiais diferentes dá
+#  armas diferentes.
+#
+#  classe:        em que encaixes o material cabe:
+#                   lingote      — lâmina, cabeça, placa, núcleo, guarda, rebite
+#                   cristal      — núcleo
+#                   couro        — cabo, forro
+#                   madeira      — cabo, haste
+#                   tecido       — cabo, forro
+#                   catalisador  — catalisador (encaixe opcional)
+#  material:      item do Minecraft. item_proprio: true = só vale o item com a marca do plugin
+#                 (/aincrad forja material <jogador> <id> [qtd]).
+#  rank:          1 a 5. No encaixe base, mais rank = mais batidas e anel mais rápido.
+#  teto:          raridade máxima do item quando este é o material base (comum, incomum, raro,
+#                 epico, lendario).
+#  arma:          bônus como lâmina ou cabeça.        armadura: bônus como placa.
+#  apoio:         bônus na guarda, haste, forro, rebite ou cabo.
+#  nucleo:        atributo dominante quando vai no núcleo: afiacao, rapidez, precisao ou peso
+#                 (o valor de cada um está em forge.yml → dominante, vezes o rank).
+#  catalisador:   bônus quando é o catalisador.
+#
+#  Bônus aceitos: dano, velocidade_ataque (%), armadura, resistencia, vida, empurrao,
+#  critico (% de chance de golpe crítico), durabilidade (% a mais).
+# ============================================================
+materiais:
+  # ----- lingotes -----
+  cobre:
+    nome: "Lingote de Cobre"
+    classe: lingote
+    material: COPPER_INGOT
+    rank: 1
+    teto: comum
+    arma: {dano: 1}
+    armadura: {armadura: 1}
+    apoio: {durabilidade: 5}
+    nucleo: rapidez
+  ferro:
+    nome: "Lingote de Ferro"
+    classe: lingote
+    material: IRON_INGOT
+    rank: 1
+    teto: incomum
+    arma: {dano: 2}
+    armadura: {armadura: 1.5}
+    apoio: {durabilidade: 10}
+    nucleo: peso
+  ouro:
+    nome: "Lingote de Ouro"
+    classe: lingote
+    material: GOLD_INGOT
+    rank: 2
+    teto: raro
+    arma: {dano: 1.5, velocidade_ataque: 4}
+    armadura: {armadura: 1, vida: 1}
+    apoio: {critico: 2}
+    nucleo: precisao
+  aco_negro:
+    nome: "Lingote de Aço Negro"
+    classe: lingote
+    material: NETHERITE_INGOT
+    rank: 4
+    teto: epico
+    arma: {dano: 4}
+    armadura: {armadura: 3, resistencia: 1}
+    apoio: {durabilidade: 25}
+    nucleo: afiacao
+  cristalita:
+    nome: "Lingote de Cristalita"
+    classe: lingote
+    material: DIAMOND
+    item_proprio: true
+    rank: 5
+    teto: lendario
+    arma: {dano: 5, critico: 3}
+    armadura: {armadura: 4, resistencia: 2}
+    apoio: {durabilidade: 40}
+    nucleo: afiacao
+
+  # ----- cristais (núcleo) -----
+  quartzo:
+    nome: "Quartzo"
+    classe: cristal
+    material: QUARTZ
+    rank: 2
+    nucleo: rapidez
+  ametista:
+    nome: "Ametista"
+    classe: cristal
+    material: AMETHYST_SHARD
+    rank: 2
+    nucleo: precisao
+  diamante:
+    nome: "Diamante"
+    classe: cristal
+    material: DIAMOND
+    rank: 3
+    nucleo: afiacao
+
+  # ----- couro, madeira e tecido -----
+  couro:
+    nome: "Couro"
+    classe: couro
+    material: LEATHER
+    apoio: {velocidade_ataque: 3}
+  pele_de_coelho:
+    nome: "Pele de Coelho"
+    classe: couro
+    material: RABBIT_HIDE
+    apoio: {velocidade_ataque: 5}
+  madeira:
+    nome: "Madeira"
+    classe: madeira
+    material: STICK
+    apoio: {velocidade_ataque: 2, durabilidade: 5}
+  bambu:
+    nome: "Bambu"
+    classe: madeira
+    material: BAMBOO
+    apoio: {velocidade_ataque: 4}
+  linha:
+    nome: "Linha"
+    classe: tecido
+    material: STRING
+    apoio: {velocidade_ataque: 4}
+  la:
+    nome: "Lã"
+    classe: tecido
+    material: WHITE_WOOL
+    apoio: {vida: 1}
+
+  # ----- catalisadores -----
+  po_de_blaze:
+    nome: "Pó de Blaze"
+    classe: catalisador
+    material: BLAZE_POWDER
+    catalisador: {dano: 1}
+  presa_do_kobold:
+    nome: "Presa do Senhor Kobold"
+    classe: catalisador
+    material: BONE
+    item_proprio: true
+    catalisador: {critico: 5}
+  escama_do_senhor_do_lago:
+    nome: "Escama do Senhor do Lago"
+    classe: catalisador
+    material: PRISMARINE_SHARD
+    item_proprio: true
+    catalisador: {dano: 1, durabilidade: 15}

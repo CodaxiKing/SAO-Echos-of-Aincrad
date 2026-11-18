@@ -15,6 +15,8 @@ public final class AincradLifeAPI {
     private static ProfessionService professions;
     private static InnService inns;
     private static com.aincrad.life.cooking.FoodBuffService food;
+    private static com.aincrad.life.pets.PetService pets;
+    private static com.aincrad.life.marriage.MarriageService marriages;
 
     private AincradLifeAPI() {
     }
@@ -27,6 +29,16 @@ public final class AincradLifeAPI {
     /** Interno: o módulo de culinária (null quando desligado). */
     public static void food(com.aincrad.life.cooking.FoodBuffService f) {
         food = f;
+    }
+
+    /** Interno: o módulo de familiares (null quando desligado). */
+    public static void pets(com.aincrad.life.pets.PetService p) {
+        pets = p;
+    }
+
+    /** Interno: o módulo de casamento (null quando desligado). */
+    public static void marriages(com.aincrad.life.marriage.MarriageService m) {
+        marriages = m;
     }
 
     public static AincradLifeAPI instance() {
@@ -86,5 +98,28 @@ public final class AincradLifeAPI {
     /** Fração de sorte a mais na pesca vinda da comida (0.1 = +10%). */
     public static double getFishingLuck(Player player) {
         return food == null ? 0 : food.fishingLuck(player);
+    }
+
+    /** O jogador tem um familiar vivo? */
+    public static boolean hasPet(Player player) {
+        var p = pets == null ? null : pets.pet(player.getUniqueId());
+        return p != null && p.alive();
+    }
+
+    /** Level do familiar do jogador (0 se não tem). */
+    public static int getPetLevel(Player player) {
+        var p = pets == null ? null : pets.pet(player.getUniqueId());
+        return p == null ? 0 : p.level();
+    }
+
+    /** O jogador (online neste servidor) é casado? */
+    public static boolean isMarried(Player player) {
+        return marriages != null && marriages.marriage(player.getUniqueId()) != null;
+    }
+
+    /** O par do jogador, ou null se ele não é casado. */
+    public static java.util.UUID getSpouse(Player player) {
+        var m = marriages == null ? null : marriages.marriage(player.getUniqueId());
+        return m == null ? null : m.spouse(player.getUniqueId());
     }
 }

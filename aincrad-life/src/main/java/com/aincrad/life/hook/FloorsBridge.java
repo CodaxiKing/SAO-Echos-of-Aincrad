@@ -9,6 +9,14 @@ final class FloorsBridge {
     private FloorsBridge() {
     }
 
+    static boolean safeZone(org.bukkit.Location l) {
+        return AincradFloorsAPI.isSafeZone(l);
+    }
+
+    static int floorOf(Player p) {
+        return AincradFloorsAPI.getFloor(p);
+    }
+
     static boolean teleport(Player p, int floor) {
         return AincradFloorsAPI.teleport(p, floor);
     }

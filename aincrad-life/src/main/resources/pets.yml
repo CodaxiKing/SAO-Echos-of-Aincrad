@@ -1,0 +1,45 @@
+# ============================================================
+#  Familiares: mobs pequenos que podem ser domados e acompanham o dono.
+#
+#  mob:         tipo de mob do Minecraft (cada mob só pode ser uma espécie).
+#  comida:      a comida favorita. Clicar no mob selvagem com ela na mão é uma tentativa de domar
+#               (gasta uma unidade); no próprio familiar, alimenta e aumenta o vínculo.
+#  chance:      chance de domar por tentativa (0.03 = 3%). Para testar, ponha 1.0 aqui ou
+#               aumente config.yml → familiares.multiplicador_de_chance.
+#  habilidade:  cura   — recupera um pouco da vida do dono de tempos em tempos
+#               bolha  — absorve um golpe que o dono levaria
+#               alerta — avisa quando há mob hostil por perto
+#               busca  — traz para o dono os itens caídos por perto
+#  vida:        vida do familiar no level 1.
+#
+#  O mob só aceita ser domado por quem não o atacou. Um familiar por jogador.
+# ============================================================
+familiares:
+  dragao_plumado:
+    nome: "Dragão Plumado"
+    mob: PARROT
+    comida: GLOW_BERRIES
+    chance: 0.02
+    habilidade: cura
+    vida: 12
+  gato_do_luar:
+    nome: "Gato do Luar"
+    mob: CAT
+    comida: SALMON
+    chance: 0.04
+    habilidade: bolha
+    vida: 14
+  coelho_vigia:
+    nome: "Coelho Vigia"
+    mob: RABBIT
+    comida: GOLDEN_CARROT
+    chance: 0.05
+    habilidade: alerta
+    vida: 8
+  raposa_catadora:
+    nome: "Raposa Catadora"
+    mob: FOX
+    comida: SWEET_BERRIES
+    chance: 0.03
+    habilidade: busca
+    vida: 14
