@@ -74,6 +74,12 @@ public final class AincradBossesAPI {
     }
 
     private static com.aincrad.bosses.fight.InformantService informants;
+    private static com.aincrad.bosses.maze.DungeonService dungeons;
+
+    /** Chamado pelo plugin ao ligar. */
+    public static void dungeons(com.aincrad.bosses.maze.DungeonService service) {
+        dungeons = service;
+    }
 
     /** Chamado pelo plugin ao ligar. */
     public static void informants(com.aincrad.bosses.fight.InformantService service) {
@@ -151,6 +157,10 @@ public final class AincradBossesAPI {
     public static boolean isCrystalBlocked(Location location) {
         if (fights == null || location == null) {
             return false;
+        }
+        // Numa dungeon escondida com a armadilha disparada também não.
+        if (dungeons != null && dungeons.crystalBlocked(location)) {
+            return true;
         }
         for (BossDef d : fights.registry().all()) {
             RoomStore.Room r = fights.rooms().get(d.id());

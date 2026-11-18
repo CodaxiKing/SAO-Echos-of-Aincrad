@@ -38,6 +38,7 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
     private GuideStore guide;
     private RaidService raids;
     private ConfigFile roamingFile;
+    private com.aincrad.bosses.maze.DungeonService dungeons;
     private com.aincrad.bosses.fight.InformantService informants;
     private com.aincrad.bosses.fight.RoamingService roaming;
 
@@ -113,6 +114,12 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskTimer(this, roaming::refresh, 1200L, 1200L);
         core.commands().register(this, commands.boss());
         core.commands().register(this, commands.maze());
+        dungeons = new com.aincrad.bosses.maze.DungeonService(this, msg, hooks);
+        dungeons.load();
+        getServer().getPluginManager().registerEvents(dungeons, this);
+        getServer().getScheduler().runTaskTimer(this, dungeons::tick, 20L, 20L);
+        core.commands().register(this, new com.aincrad.bosses.command.DungeonCommand(msg, dungeons));
+        AincradBossesAPI.dungeons(dungeons);
         core.subscribe(FightManager.BUS_STATE, m -> {
             if (!core.server().equals(m.origin())) {
                 states.reloadAsync();
@@ -157,6 +164,9 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         if (maze != null) {
             maze.clearAll();
         }
+        if (dungeons != null) {
+            dungeons.shutdown();
+        }
         AincradBossesAPI.init(null);
         getServer().getServicesManager().unregisterAll(this);
     }
@@ -173,6 +183,7 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         roaming.reload(roamingFile);
         rooms.load();
         maze.load();
+        dungeons.load();
         states.reloadAsync();
         guide.reloadAsync();
         raids.reloadAsync();

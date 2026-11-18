@@ -1,0 +1,42 @@
+# ============================================================
+#  Dungeons escondidas
+#  Uma sala fora do caminho do labirinto, com um baú-armadilha:
+#  abrir o baú fecha a saída, bloqueia os cristais e dispara o
+#  alarme, que chama levas de mobs até o grupo vencer, o tempo
+#  acabar ou todos caírem.
+#
+#  Montar:
+#    1. /aincrad regiao criar cripta_27       (a sala inteira)
+#    2. /aincrad masmorra criar cripta cripta_27
+#    3. ponha um baú na sala, olhe para ele:  /aincrad masmorra bau cripta
+#    4. ajuste os números abaixo e  /aincrad reload
+#
+#  trancada: true  -> só entra quem usou uma chave (ou está na party
+#                     de quem usou). /aincrad masmorra chave cripta
+#  O mapa mostra onde fica:  /aincrad masmorra mapa cripta
+#  Chave e mapa também podem ser drop de chefe: "chave:cripta" e
+#  "mapa:cripta" nas recompensas de bosses/*.yml e na recompensa daqui.
+#
+#  recompensa: o que sai do baú quando o grupo vence — "DIAMOND 3",
+#              "rpg:<id>", "cristal:<tipo>", "chave:<id>", "mapa:<id>"
+# ============================================================
+masmorras: {}
+
+# Exemplo:
+#
+# masmorras:
+#   cripta:
+#     nome: "Cripta do Andar 27"
+#     regiao: cripta_27
+#     bau: "world,120,34,-88"
+#     trancada: false
+#     anti_cristal: true
+#     mobs: [ZOMBIE, SKELETON, WITHER_SKELETON]
+#     level: 32                 # acima do level do andar
+#     levas: 3
+#     mobs_por_leva: 6
+#     intervalo_segundos: 15
+#     tempo_limite_segundos: 180
+#     recarga_minutos: 60       # tempo até a armadilha armar de novo
+#     chave_minutos: 30         # quanto vale uma chave usada
+#     recompensa: ["DIAMOND 4", "GOLD_INGOT 12"]

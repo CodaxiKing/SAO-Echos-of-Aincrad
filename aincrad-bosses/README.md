@@ -118,6 +118,26 @@ Antes de um chefe, o líder da raid convoca os inscritos: `/raid reuniao <n>`, n
 - `/raid informados <n>` lista quem esteve na reunião; o líder recebe a lista quando ela acaba.
 - A marca de informado vale enquanto o servidor está ligado: não vai para o banco.
 
+## Dungeons escondidas, chaves e mapas (etapas 52 e 53)
+
+Uma sala fora do caminho do labirinto com um **baú-armadilha** (`dungeons.yml`).
+
+1. `/aincrad regiao criar cripta_27` (a sala inteira) e `/aincrad masmorra criar cripta cripta_27`.
+2. Ponha um baú na sala, olhe para ele e use `/aincrad masmorra bau cripta`.
+3. Ajuste as levas, os mobs e a recompensa no `dungeons.yml` e use `/aincrad reload`.
+
+Abrir o baú **fecha a saída** (ninguém sai nem entra, nem por teleporte), **bloqueia os cristais**
+do AincradItems e **dispara o alarme**: levas de mobs acima do level do andar, até o grupo vencer
+(a recompensa sai do baú), o tempo acabar (a porta abre, sem recompensa) ou todos caírem. A
+armadilha só arma de novo depois de `recarga_minutos`.
+
+- **Trancada**: com `/aincrad masmorra trancar <id>`, só entra quem usou uma **chave**. A chave
+  abre a dungeon para a **party** de quem a usa, por `chave_minutos`, e é gasta.
+- **Mapa**: mostra as coordenadas da entrada, aponta a bússola do jogador para lá e some.
+- Os dois podem ser dados à mão (`/aincrad masmorra chave|mapa <id> [jogador]`) ou sair como drop:
+  `chave:<id>` e `mapa:<id>` na recompensa de uma dungeon.
+- O acesso da chave vale enquanto o servidor está ligado.
+
 ## Como montar a sala de um chefe
 
 1. Em um canto da sala: `/aincrad chefe sala illfang canto1`; no canto oposto: `canto2`
