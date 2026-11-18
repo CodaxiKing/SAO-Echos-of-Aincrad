@@ -325,6 +325,7 @@ public final class SpawnService implements Listener {
             return null;
         }
         mob.setPersistent(false);
+        mob.getPersistentDataContainer().set(com.aincrad.rpg.api.AincradRPGAPI.MOB_ID, PersistentDataType.STRING, e.mob().text());
         if (mob instanceof LivingEntity le) {
             if (le instanceof Mob m) {
                 m.setRemoveWhenFarAway(false);

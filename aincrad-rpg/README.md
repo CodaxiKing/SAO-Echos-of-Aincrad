@@ -93,6 +93,7 @@ migração do core. Carrega no pré-login (fora da thread principal), grava ao s
 int  getLevel(Player)                 long getXp(Player)          long getXpToNext(Player)
 long addXp(Player, long qtd, String motivo)   int getAttribute(Player, "forca")
 int  getMobLevel(Entity)              void setMobLevel(LivingEntity, int)
+String getMobId(Entity)               // "mythic:Lobo" ou "WOLF": o mob do spawns.yml, ou null
 ItemStack createItem(String id, String raridade)   String getRarity(ItemStack)
 int  getRequiredLevel(ItemStack)      void openStatus(Player)
 ```

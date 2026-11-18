@@ -132,6 +132,10 @@ public final class ProfessionService implements Listener {
      * @return pontos ganhos
      */
     public double practice(Player p, Profession prof, double difficulty, boolean success) {
+        if (success) {
+            org.bukkit.Bukkit.getPluginManager().callEvent(
+                    new com.aincrad.life.api.ProfessionPracticeEvent(p, prof.key(), difficulty));
+        }
         double now = proficiency(p, prof);
         double gain = Profession.gain(now, difficulty, success, config.decimal("ganho.maximo", 8, 0, 1000),
                 config.decimal("ganho.faixa_facil", 200, 0, 1000), config.decimal("ganho.fator_falha", 0.5, 0, 1));

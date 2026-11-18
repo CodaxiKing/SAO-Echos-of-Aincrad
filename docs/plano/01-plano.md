@@ -538,7 +538,7 @@ Terceira leva. Começa depois da etapa 30.
 
 ## O que ainda falta
 
-Estado em 18/11/2026. O AincradAdmin (etapas 28–30) e o AincradSkills (etapas 34–36) já têm código, nas pastas `aincrad-admin/` e `aincrad-skills/`, sem teste em servidor; a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
+Estado em 18/11/2026. O AincradAdmin (etapas 28–30), o AincradSkills (etapas 34–36) e o AincradQuests (etapas 37–38) já têm código, nas pastas `aincrad-admin/`, `aincrad-skills/` e `aincrad-quests/`, sem teste em servidor; a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
 
 | Etapas | Plugin | O que é |
 | --- | --- | --- |

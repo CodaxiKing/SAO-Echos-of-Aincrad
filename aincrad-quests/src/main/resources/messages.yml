@@ -1,0 +1,81 @@
+# ============================================================
+#  AincradQuests — mensagens (MiniMessage)
+# ============================================================
+tipo:
+  historia: "história"
+  diaria: "diária"
+  semanal: "semanal"
+
+objetivo:
+  qualquer: "qualquer"
+  matar: "Derrote <quantidade>x <alvo>"
+  coletar: "Consiga <quantidade>x <alvo>"
+  entregar: "Entregue <quantidade>x <alvo>"
+  falar: "Fale com <alvo>"
+  chegar: "Vá até <alvo>"
+  chefe: "Derrote o chefe <alvo>"
+  pescar: "Pesque <quantidade> peixe(s)"
+  cozinhar: "Cozinhe <quantidade> prato(s)"
+
+quest:
+  carregando: "<gray>Suas quests ainda estão carregando."
+  aceita: "<gold>Quest aceita: <white><quest></white>."
+  objetivo: "<gray>➤ <white><texto></white> <dark_gray>(<feito>/<total>)"
+  progresso: "<gold><quest></gold> <gray><texto> <white><feito>/<total>"
+  rastreio: "<gold><quest></gold> <gray><texto> <white><feito>/<total>"
+  etapa: "<green>Etapa concluída em <white><quest></white>."
+  pronta: "<green>Objetivos de <white><quest></white> concluídos. Volte e fale com quem deu a quest."
+  voltar: "Volte e entregue a quest"
+  faltam_itens: "<red><quest>: faltam itens (<white><quantidade>x <item></white>)."
+  concluida: "<gold>Quest concluída: <white><quest></white>! <gray>+<xp> XP, +<col> Col."
+  rastreando: "<gray>Rastreando <white><quest></white>."
+  bloqueio:
+    ativa: "<gray>Você já está fazendo essa quest."
+    ja_feita: "<gray>Você já concluiu essa quest. Diárias e semanais voltam depois."
+    level: "<red>Essa quest exige level <white><level></white>."
+    andar: "<red>Essa quest exige o andar <white><andar></white> liberado."
+    quest_anterior: "<red>Conclua antes: <white><quest></white>."
+
+dialogo:
+  descricao: "<gray><descricao>"
+  recompensa: "<dark_gray>Recompensa: <gray><xp> XP, <col> Col"
+  disponivel: "<yellow>! <white><quest>"
+  em_andamento: "<gray>… <white><quest>"
+  pronta: "<green>? <white><quest>"
+  clique_aceitar: "<yellow>Clique para aceitar"
+  clique_entregar: "<green>Clique para entregar"
+
+npc:
+  icone_disponivel: "<yellow><bold>!"
+  icone_pronta: "<green><bold>?"
+
+diario:
+  titulo: "<dark_gray>Diário de quests"
+  ativa: "<gold><quest> <dark_gray>(<tipo>)"
+  feita: "<gray>✔ <quest>"
+  etapa: "<dark_gray>Etapa <etapa> de <total>"
+  vezes: "<dark_gray>Concluída <vezes> vez(es)"
+  rastreada: "<green>Rastreada na tela"
+  clique_rastrear: "<yellow>Clique para rastrear"
+  como_abandonar: "<dark_gray>Abandonar: /quests abandonar <id>"
+  vazio: "<gray>Você não tem quests. Procure um NPC com <yellow>!</yellow> sobre a cabeça."
+  abandonou: "<gray>Você abandonou <white><quest></white>."
+  nao_ativa: "<red>Você não está fazendo a quest <white><quest></white>."
+
+admin:
+  descricao_quest: "Quests: dar, concluir e resetar a quest de um jogador"
+  descricao_npc: "NPCs de quest: criar, mover, definir a fala e remover"
+  uso_quest: "<gray>Uso: <white>/aincrad quest dar|concluir|resetar <jogador> <id></white> <gray>(jogador online) ou <white>/aincrad quest lista"
+  uso_npc: "<gray>Uso: <white>/aincrad npc criar <id> <nome></white>, <white>mover <id></white>, <white>fala <id> <texto></white>, <white>remover <id></white>, <white>listar</white>. <gray>O NPC nasce onde você está; o id só tem letras minúsculas, números, _ e -."
+  feito_dar: "<green><white><jogador></white> recebeu a quest <white><quest></white>."
+  feito_concluir: "<green>Quest <white><quest></white> concluída para <white><jogador></white>, com a recompensa."
+  feito_resetar: "<green>Progresso de <white><jogador></white> em <white><quest></white> apagado."
+  falhou: "<red>As quests de <white><jogador></white> ainda estão carregando."
+  lista: "<gold><qtd> quests: <gray><quests>"
+  erro: "<red>quests/<erro>"
+  npc_nenhum: "<gray>Nenhum NPC criado."
+  npc_linha: "<white><id></white> <gray><nome> <dark_gray><mundo> <x>, <y>, <z>"
+  npc_criado: "<green>NPC <white><id></white> criado onde você está."
+  npc_movido: "<green>NPC <white><id></white> movido para onde você está."
+  npc_fala: "<green>Fala do NPC <white><id></white> definida."
+  npc_removido: "<green>NPC <white><id></white> removido."

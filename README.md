@@ -17,6 +17,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-reputation/` | **AincradReputation** — conquistas, títulos, cor do cursor, cidades fechadas, prisão e PvP por andar | código pronto (etapas 26–27), sem teste em servidor |
 | `aincrad-admin/` | **AincradAdmin** — registro das ações de administração (`/aincrad log`), Discord por webhook, ranking em site, backup diário com restauração e `/aincrad status` | etapas 28–30 com código, sem teste em servidor |
 | `aincrad-skills/` | **AincradSkills** — proficiência por arma, Sword Skills ativas e passivas, atalhos e a skill única Duas Espadas | código pronto (etapas 34–36), sem teste em servidor |
+| `aincrad-quests/` | **AincradQuests** — quests em etapas, diárias e semanais, quest de party, NPCs com diálogo e diário | código pronto (etapas 37–38), sem teste em servidor |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | pronto (etapas 10–13): motor geral e integração com andares e chefes |
 
 ## Plano

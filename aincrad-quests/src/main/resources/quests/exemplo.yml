@@ -1,0 +1,60 @@
+# ============================================================
+#  Quests de exemplo. Cada arquivo .yml desta pasta é lido.
+#
+#  tipo:   historia (uma vez), diaria (renova à meia-noite) ou semanal (renova na segunda)
+#  party:  true = matar conta para os membros da party por perto (64 blocos)
+#  npc:    quem dá a quest e a quem ela é entregue (/aincrad npc criar <id> <nome>)
+#  requisitos: level (AincradRPG), andar liberado (AincradFloors), quest anterior concluída
+#
+#  etapas (em sequência), cada uma com um "tipo":
+#    matar     alvo: WOLF  ou  alvo: "mythic:LoboTerrivel"  (o mob do spawns.yml do AincradRPG)
+#              sem alvo = qualquer mob          quantidade: 5
+#    coletar   item: BONE   quantidade: 3       (ter no inventário; não é tirado)
+#    entregar  item: BONE   quantidade: 3       (levar ao npc da quest; é tirado)
+#    falar     npc: ferreiro
+#    chegar    regiao: nome_da_regiao           (região do /aincrad regiao)
+#    chefe     alvo: illfang                    (id do chefe; sem alvo = qualquer chefe)
+#    pescar    quantidade: 3                    (AincradLife)
+#    cozinhar  quantidade: 1                    (AincradLife)
+#    texto:    o que aparece para o jogador (opcional)
+#
+#  recompensas: xp, col, itens ("BREAD 3" ou "rpg:id_do_item"), titulo (AincradReputation),
+#               comandos (do console, com <jogador>)
+# ============================================================
+lobos_na_estrada:
+  nome: "Lobos na estrada"
+  descricao: "Os lobos estão atacando quem sai da cidade."
+  tipo: historia
+  npc: guarda
+  etapas:
+    - { tipo: matar, alvo: WOLF, quantidade: 5, texto: "Mate 5 lobos" }
+  recompensas:
+    xp: 120
+    col: 80
+
+peles_para_o_guarda:
+  nome: "Peles para o guarda"
+  descricao: "O guarda precisa de couro para as botas novas."
+  tipo: historia
+  npc: guarda
+  requisitos:
+    quest: lobos_na_estrada
+  etapas:
+    - { tipo: coletar, item: LEATHER, quantidade: 3, texto: "Consiga 3 couros" }
+    - { tipo: entregar, item: LEATHER, quantidade: 3, texto: "Leve os 3 couros ao guarda" }
+  recompensas:
+    xp: 150
+    col: 100
+    itens: ["BREAD 4"]
+
+ronda_diaria:
+  nome: "Ronda diária"
+  descricao: "Mantenha os campos limpos. Vale para a party inteira."
+  tipo: diaria
+  party: true
+  npc: guarda
+  etapas:
+    - { tipo: matar, quantidade: 10, texto: "Derrote 10 monstros" }
+  recompensas:
+    xp: 60
+    col: 40

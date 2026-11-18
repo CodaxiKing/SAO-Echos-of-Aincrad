@@ -79,6 +79,17 @@ public final class AincradRPGAPI {
         return rpg == null ? 0 : rpg.progress(p).points();
     }
 
+    /** Chave onde o gerador de mobs por região guarda de qual linha do spawns.yml o mob veio. */
+    public static final org.bukkit.NamespacedKey MOB_ID = new org.bukkit.NamespacedKey("aincradrpg", "mob_id");
+
+    /**
+     * O mob do spawns.yml de onde a entidade veio: {@code "mythic:LoboTerrivel"} ou {@code "WOLF"}.
+     * Null se não foi criada pelo gerador de mobs por região.
+     */
+    public static String getMobId(Entity e) {
+        return e.getPersistentDataContainer().get(MOB_ID, org.bukkit.persistence.PersistentDataType.STRING);
+    }
+
     /** Level do mob (0 = sem level). */
     public static int getMobLevel(Entity e) {
         return mobs == null ? 0 : mobs.level(e);
