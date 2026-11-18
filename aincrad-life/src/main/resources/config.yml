@@ -320,6 +320,22 @@ encomendas:
   pedidos_por_jogador: 5
   # Contrato direto (/contratar): horas que o artesão tem para aceitar. Sem resposta, tudo volta ao cliente.
   resposta_horas: 24
+  # Contrato de serviço (/contrato <profissão> <artesão> <preço> [horas]): o cliente manda um item
+  # dele para o artesão trabalhar. O item fica preso ao inventário do artesão até a entrega.
+  servico:
+    # Prazo para devolver o item pronto, quando o cliente não diz, e o maior prazo aceito.
+    prazo_horas: 48
+    prazo_maximo_horas: 168
+    # Com um item em contrato na mão, estes comandos não rodam (eles tiram o item da mão).
+    comandos_bloqueados:
+      - leilao
+      - ah
+      - trocar
+      - barraca por
+      - barraca vender
+      - encomenda material
+      - encomenda oferecer
+      - contrato
   # Fornecimento recorrente (/encomenda recorrente).
   recorrente:
     maximo_de_entregas: 30

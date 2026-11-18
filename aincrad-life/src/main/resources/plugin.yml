@@ -7,7 +7,7 @@ authors: [CodaxiKing]
 depend: [AincradCore]
 softdepend: [AincradRPG, AincradEconomy, AincradFloors, AincradEffects, AincradUI, AincradItems, AincradSocial, AincradBosses]
 
-# Os comandos de jogador (/profissoes, /pesca, /alquimia, /encomenda, /contratar, /catalogo, /material, /artesaos, /barraca, /familiar, /casar, /casal, /divorciar, /estalagem) são registrados pelo plugin só quando o módulo
+# Os comandos de jogador (/profissoes, /pesca, /alquimia, /encomenda, /contrato, /contratar, /catalogo, /material, /artesaos, /barraca, /familiar, /casar, /casal, /divorciar, /estalagem) são registrados pelo plugin só quando o módulo
 # deles está ligado em config.yml → modulos.
 
 permissions:

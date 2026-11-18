@@ -587,7 +587,7 @@ alquimia:
 
 encomenda:
   sem_economia: "<gray>As encomendas precisam do AincradEconomy (o Col fica em custódia)."
-  uso: "<gray>Uso: <white>/encomenda</white> (menu), <white>quadro</white>, <white>minhas</white>, <white>abrir ...</white>, <white>propor <id> <preço> <dias></white>, <white>propostas <id></white>, <white>entregar <id></white>, <white>oferecer <id> <preço></white>, <white>oferta <id> aceitar|recusar</white>, <white>cancelar <id></white>, <white>avaliar <id> <1-5></white>. <gray>Contrato direto: <white>aceitar <id></white>, <white>recusar <id></white>, <white>material <id></white>, <white>caixa <id></white>. Veja também <white>/contratar</white>, <white>/catalogo</white> e <white>/material</white>."
+  uso: "<gray>Uso: <white>/encomenda</white> (menu), <white>quadro</white>, <white>minhas</white>, <white>abrir ...</white>, <white>propor <id> <preço> <dias></white>, <white>propostas <id></white>, <white>entregar <id></white>, <white>oferecer <id> <preço></white>, <white>oferta <id> aceitar|recusar</white>, <white>cancelar <id></white>, <white>avaliar <id> <1-5></white>. <gray>Mandar um item seu para um artesão: <white>/contrato</white>. Contrato direto: <white>aceitar <id></white>, <white>recusar <id></white>, <white>material <id></white>, <white>caixa <id></white>. Veja também <white>/contratar</white>, <white>/catalogo</white> e <white>/material</white>."
   uso_abrir: "<gray>Para abrir um pedido: <white>/encomenda abrir <profissão> <produto> <orçamento> <dias> [quantidade] [nota mínima]</white>. <gray>Ex.: <white>/encomenda abrir ferreiro espada_curta 800 3 1 70</white>. Nota mínima: ferreiro, qualidade de 0 a 100; culinária, comum/bom/excelente; alquimia, comum/pura/perfeita; pesca, tamanho em cm."
   uso_artesaos: "<gray>Uso: <white>/artesaos <culinaria|pesca|ferreiro|alquimia>"
   uso_recorrente: "<gray>Fornecimento recorrente: <white>/encomenda recorrente <profissão> <produto> <orçamento por entrega> <vezes> <dia|semana> [quantidade] [nota mínima]</white>. <gray>Ex.: <white>/encomenda recorrente culinaria pao_doce 150 7 dia 10</white>."
@@ -599,6 +599,7 @@ encomenda:
   tipo:
     recorrente: "<aqua>Recorrente: <white><feitas>/<vezes></white> entregas, uma a cada <white><intervalo>"
     banquete: "<gold>Banquete da raid <white>#<raid></white>: um prato por inscrito"
+    servico: "<aqua>Serviço: o cliente entregou o item para o artesão trabalhar"
     kit: "<light_purple>Kit da raid <white>#<raid></white>: <white><cada></white> por inscrito"
     cacada: "<blue>Caçada ao Senhor do Lago do andar <white><andar></white> <dark_gray>· <white><vagas></white> vaga(s)"
   recorrente_vezes: "<red>Um fornecimento recorrente tem de 2 a <maximo> entregas."
@@ -677,6 +678,7 @@ encomenda:
   minhas_titulo: "<dark_gray>Minhas encomendas"
   nenhuma: "<gray>Você não tem encomendas em andamento."
   item: "<white>#<id> <gray>· <white><qtd>x <produto>"
+  item_servico: "<white>#<id> <gray>· serviço em <white><item>"
   linha_profissao: "<gray><profissao> <dark_gray>· <gray>cliente: <white><cliente>"
   linha_exigencia: "<gray>Exigência: <nota>"
   linha_orcamento: "<gray>Orçamento máximo: <yellow><preco>"
@@ -752,6 +754,22 @@ encomenda:
   admin_nao_existe: "<red>Essa encomenda não existe (ou já terminou)."
   admin_ver: "<gray>#<id> <white><estado></white> <dark_gray>· <gray>cliente <white><cliente></white>, artesão <white><artesao></white> <dark_gray>· <white><qtd>x <produto></white> <dark_gray>· <gray>orçamento <white><orcamento></white>, preço <white><preco>"
   admin_cancelou: "<yellow>Encomenda <white>#<id></white> cancelada: o Col voltou ao cliente e o item da caixa, ao artesão."
+
+servico:
+  uso: "<gray>Uso: <white>/contrato <profissão> <artesão> <preço> [horas]</white> com o item na mão: manda o item para o artesão aprimorar ou reparar. Sem item na mão, <white>/contrato <profissão> <artesão></white> abre o catálogo dele, para criar algo novo."
+  um_item: "<red>Segure na mão principal o item (um só) que vai para o artesão."
+  valores: "<red>O preço precisa ser maior que zero e o prazo de 1 a <horas> horas."
+  artesao_desconhecido: "<red>Não encontrei <white><jogador></white>. Ele precisa já ter entrado neste servidor (e não pode ser você)."
+  enviado: "<green>Contrato <white>#<id></white> enviado a <white><artesao></white>: <white><item></white> por <yellow><preco></yellow>. O item e o Col ficam guardados. Ele tem <white><resposta> h</white> para aceitar e, depois, <white><horas> h</white> para devolver o item pronto. Se não aceitar ou não entregar, o item volta para você."
+  aviso_pedido: "<aqua><white><cliente></white> quer contratar você (<profissao>): trabalhar em <white><item></white> por <yellow><preco></yellow>, em até <white><horas> h</white> (contrato <white>#<id></white>). Responda: <white>/encomenda aceitar <id></white> ou <white>/encomenda recusar <id></white>."
+  sem_espaco: "<red>Abra um espaço no inventário para receber o item do cliente e aceite de novo."
+  aceitou: "<green>Contrato <white>#<id></white> aceito: o item de <white><cliente></white> está no seu inventário. Você tem <white><tempo></white> para devolvê-lo pronto com <white>/encomenda entregar <id></white>. <gray>Ele não pode ser guardado, largado nem vendido."
+  item_lore:
+    - "<red>Item em contrato #<id> <gray>— de <white><dono>"
+    - "<gray>Não pode ser guardado, largado nem vendido."
+  item_errado: "<red>Segure na mão principal o item do contrato <white>#<id></white>."
+  preso: "<red>Este item é de um cliente: fica no seu inventário até você entregar o contrato."
+  item_recolhido: "<yellow>Um contrato de serviço acabou sem entrega: o item do cliente voltou para o dono."
 
 material:
   uso: "<gray>Uso: <white>/material</white> (quadro de coleta), <white>reservar <id> <qtd></white>, <white>entregar <id></white>, <white>cancelar <id></white>, <white>taxa</white>, <white>pedir ..."

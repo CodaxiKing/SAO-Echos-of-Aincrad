@@ -53,7 +53,9 @@ public final class OrderRules {
         /** Banquete de raid: um prato para cada inscrito, até a hora da raid. */
         BANQUETE,
         /** Caçada ao Senhor do Lago: o pescador paga os aventureiros que ajudarem a derrotá-lo. */
-        CACADA;
+        CACADA,
+        /** Serviço: o cliente entrega um item dele para o artesão trabalhar (aprimorar, reparar) e devolver. */
+        SERVICO;
 
         public static Kind parse(String s) {
             try {
@@ -108,6 +110,44 @@ public final class OrderRules {
             }
         }
         return out;
+    }
+
+    /**
+     * O que acontece com o item de um contrato de serviço quando o contrato muda de estado.
+     */
+    public enum ItemFate {
+        /** Fica guardado na caixa do contrato, à espera do aceite. */
+        GUARDADO,
+        /** Está com o artesão, preso ao inventário dele. */
+        COM_O_ARTESAO,
+        /** O item trabalhado vai para o dono. */
+        ENTREGUE_AO_DONO,
+        /** O item volta para o dono como ele o entregou. */
+        DEVOLVIDO_AO_DONO
+    }
+
+    /** Onde o item de um contrato de serviço está (ou para onde vai) em cada estado. */
+    public static ItemFate itemFate(State state) {
+        return switch (state) {
+            case ABERTO, AGUARDANDO -> ItemFate.GUARDADO;
+            case CONTRATADO, OFERTA -> ItemFate.COM_O_ARTESAO;
+            case ENTREGUE -> ItemFate.ENTREGUE_AO_DONO;
+            case CANCELADO, VENCIDO, ATRASADO -> ItemFate.DEVOLVIDO_AO_DONO;
+        };
+    }
+
+    /**
+     * O item que o artesão tem na mão é o do contrato?
+     *
+     * @param boundTo o contrato a que o item da mão está preso (0 = item comum)
+     */
+    public static boolean serviceItem(long contract, long boundTo) {
+        return contract > 0 && contract == boundTo;
+    }
+
+    /** Um item entregue ao artesão só é recolhido se o banco foi lido depois da entrega (com folga): nunca por engano. */
+    public static boolean purge(boolean contractActive, long handedAt, long refreshedAt, long slackMs) {
+        return !contractActive && refreshedAt > 0 && handedAt + slackMs < refreshedAt;
     }
 
     /** O resultado de conferir um item com as exigências do pedido. */

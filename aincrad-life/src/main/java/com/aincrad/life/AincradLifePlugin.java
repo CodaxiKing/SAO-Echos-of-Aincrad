@@ -22,6 +22,7 @@ import com.aincrad.life.marriage.MarriageService;
 import com.aincrad.life.orders.HuntListener;
 import com.aincrad.life.orders.MaterialService;
 import com.aincrad.life.orders.OrderService;
+import com.aincrad.life.orders.ServiceItems;
 import com.aincrad.life.pets.PetService;
 import com.aincrad.life.profession.ProfessionMenus;
 import com.aincrad.life.profession.ProfessionService;
@@ -228,6 +229,10 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
                 stations.onUse(config.string("encomendas.estacao", "order_board").toLowerCase(Locale.ROOT), (p, st) -> orders.menu(p));
                 moduleTasks.add(getServer().getScheduler().runTaskTimer(this, () -> orders.minute(), 140L, 1200L));
                 listen(new HuntListener(orders));
+                ServiceItems serviceItems = new ServiceItems(this, msg, config);
+                orders.services(serviceItems);
+                listen(serviceItems);
+                command("contrato", List.of("servico"), (sender, args) -> orders.contractCommand(sender, args));
                 command("encomenda", List.of("encomendas", "pedido"), (sender, args) -> orders.command(sender, args));
                 command("artesaos", List.of("artesoes"), (sender, args) -> orders.rankingCommand(sender, args));
                 command("catalogo", List.of(), (sender, args) -> orders.catalogCommand(sender, args));

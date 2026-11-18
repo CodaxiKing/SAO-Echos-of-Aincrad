@@ -116,6 +116,7 @@ public final class OrderService {
     private final Supplier<FishingService> fishing;
     private final Supplier<SmithService> smith;
     private final Supplier<AlchemyService> alchemy;
+    private ServiceItems services;
 
     public OrderService(Plugin plugin, Messages msg, ConfigFile config, Hooks hooks, ProfessionService professions,
                         Supplier<CookingService> cooking, Supplier<FishingService> fishing, Supplier<SmithService> smith,
@@ -130,6 +131,11 @@ public final class OrderService {
         this.fishing = fishing;
         this.smith = smith;
         this.alchemy = alchemy;
+    }
+
+    /** Liga a parte dos itens em contrato de serviço (travas e devolução). */
+    public void services(ServiceItems items) {
+        this.services = items;
     }
 
     // ------------------------------------------------------------------ produtos e notas
@@ -445,7 +451,11 @@ public final class OrderService {
     private List<Component> lore(Order o) {
         List<Component> out = new ArrayList<>();
         out.add(msg.get("encomenda.linha_profissao", Messages.vars("profissao", professions.name(o.profession()), "cliente", o.clientName())));
-        out.add(msg.get("encomenda.linha_exigencia", Messages.vars("nota", gradeText(o.profession(), o.minGrade()))));
+        if (o.kind() == Kind.SERVICO) {
+            out.add(msg.get("encomenda.tipo.servico"));
+        } else {
+            out.add(msg.get("encomenda.linha_exigencia", Messages.vars("nota", gradeText(o.profession(), o.minGrade()))));
+        }
         out.add(msg.get("encomenda.linha_orcamento", Messages.vars("preco", col(o.budget()))));
         if (o.state() == State.AGUARDANDO) {
             out.add(msg.get("encomenda.linha_aguardando", Messages.vars("artesao", o.artisanName() == null ? "—" : o.artisanName(),
@@ -479,6 +489,9 @@ public final class OrderService {
     }
 
     private Component title(Order o) {
+        if (o.kind() == Kind.SERVICO) {
+            return msg.get("encomenda.item_servico", Messages.vars("id", o.id(), "item", o.ref() == null ? "?" : o.ref()));
+        }
         String name = productName(o.profession(), o.product());
         return msg.get("encomenda.item", Messages.vars("id", o.id(), "qtd", o.quantity(), "produto", name == null ? o.product() : name));
     }
@@ -714,6 +727,10 @@ public final class OrderService {
                 msg.send(p, "encomenda.nao_e_seu_contrato");
                 return;
             }
+            if (o.kind() == Kind.SERVICO) {
+                deliverService(p, o);
+                return;
+            }
             ItemStack hand = p.getInventory().getItemInMainHand();
             Found f = inspect(o.profession(), hand);
             Check check = OrderRules.check(o.product(), o.minGrade(), o.quantity(), f == null ? null : f.product(),
@@ -874,6 +891,15 @@ public final class OrderService {
     /** Roda a cada minuto: pedidos sem contrato e contratos que passaram do prazo voltam o Col ao cliente. */
     public void minute() {
         long now = System.currentTimeMillis();
+        if (services != null) {
+            // Depois de fechar os vencidos (abaixo), relê quais serviços ainda estão em produção.
+            Bukkit.getScheduler().runTaskLater(plugin, () -> db.query("SELECT id FROM life_orders WHERE kind = 'SERVICO' AND state = 'CONTRATADO'",
+                    rs -> rs.getLong(1)).thenAccept(ids -> AincradCore.get().runSync(() -> {
+                if (services != null) {
+                    services.refresh(new java.util.HashSet<>(ids));
+                }
+            })), 60L);
+        }
         db.async(c -> {
             List<Closed> out = new ArrayList<>();
             for (Order o : Database.query(c, "SELECT " + COLUMNS + " FROM life_orders WHERE (state IN ('ABERTO', 'AGUARDANDO') AND expires < ?) "
@@ -1481,16 +1507,27 @@ public final class OrderService {
     /** O artesão aceita ou recusa um contrato direto. Recusado, o Col e os materiais voltam ao cliente. */
     public void answerDirect(Player p, long id, boolean accept) {
         long now = System.currentTimeMillis();
+        // Um contrato de serviço entrega o item do cliente: precisa de lugar no inventário.
+        boolean room = p.getInventory().firstEmpty() >= 0;
         run(p, c -> {
             Order o = find(c, id);
             if (o == null || o.state() != State.AGUARDANDO || !p.getUniqueId().equals(o.artisan()) || o.expires() < now) {
                 return null;
             }
             if (accept) {
-                // "due" guardava os dias do catálogo: agora vira a data de entrega.
-                long due = now + Math.max(1, o.due()) * 86_400_000L;
+                if (o.kind() == Kind.SERVICO && (!room || services == null)) {
+                    return new Closed(null, List.of());
+                }
+                // "due" guardava os dias do catálogo (no serviço, "period" guarda o prazo): agora vira a data de entrega.
+                long due = o.kind() == Kind.SERVICO ? now + o.period() : now + Math.max(1, o.due()) * 86_400_000L;
                 boolean ok = Database.update(c, "UPDATE life_orders SET state = 'CONTRATADO', due = ? WHERE id = ? AND state = 'AGUARDANDO'", due, id) > 0;
-                return ok ? new Closed(o, List.of()) : null;
+                if (!ok) {
+                    return null;
+                }
+                // No serviço, o item continua guardado na caixa (é o que volta ao dono se o prazo vencer); o artesão recebe um igual, preso.
+                return new Closed(o, o.kind() != Kind.SERVICO ? List.of() : Database.query(c,
+                        "SELECT owner, item FROM life_contract_box WHERE order_id = ? AND kind = 'SERVICO'",
+                        rs -> new String[]{rs.getString(1), rs.getString(2)}, id));
             }
             return move(c, id, State.AGUARDANDO, State.CANCELADO, p.getUniqueId()) ? new Closed(o, emptyBox(c, id)) : null;
         }, closed -> {
@@ -1499,7 +1536,21 @@ public final class OrderService {
                 return;
             }
             Order o = closed.order();
-            if (accept) {
+            if (o == null) {
+                msg.send(p, "servico.sem_espaco");
+                return;
+            }
+            if (accept && o.kind() == Kind.SERVICO) {
+                for (String[] row : closed.box()) {
+                    ItemStack it = unpack(row[1]);
+                    if (it != null) {
+                        give(p, services.bind(it, id, o.clientName()));
+                    }
+                }
+                msg.send(p, "servico.aceitou", Messages.vars("id", id, "cliente", o.clientName(),
+                        "tempo", TimeFormat.duration(o.period(), 2)));
+                tell(o.client(), "encomenda.aviso_direto_aceito", "id", id, "artesao", p.getName());
+            } else if (accept) {
                 msg.send(p, "encomenda.aceitou_direto", Messages.vars("id", id, "dias", Math.max(1, o.due())));
                 tell(o.client(), "encomenda.aviso_direto_aceito", "id", id, "artesao", p.getName());
             } else {
@@ -1509,6 +1560,155 @@ public final class OrderService {
                 tell(o.client(), "encomenda.aviso_direto_recusado", "id", id, "artesao", p.getName());
             }
         });
+    }
+
+    // ------------------------------------------------------------------ contrato de serviço
+
+    private static String plainName(ItemStack it) {
+        String name = it.hasItemMeta() && it.getItemMeta().hasDisplayName()
+                ? net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(it.getItemMeta().displayName())
+                : it.getType().name().toLowerCase(Locale.ROOT).replace('_', ' ');
+        return name.length() > 60 ? name.substring(0, 60) : name;
+    }
+
+    /**
+     * Contrato de serviço: o cliente manda o item que está na mão para um artesão trabalhar nele
+     * (aprimorar, reparar...) por um preço. O item e o Col ficam guardados até o artesão aceitar;
+     * aceito, o item vai para o inventário dele, preso: não pode ser guardado, largado nem
+     * vendido. Sem resposta, sem entrega no prazo ou com cancelamento, o item volta ao dono como
+     * foi entregue, e o Col também.
+     *
+     * @param hours prazo para o artesão devolver o item pronto, depois de aceitar
+     */
+    public void service(Player p, Profession prof, String artisanName, long price, int hours) {
+        if (services == null) {
+            msg.send(p, "encomenda.sem_economia");
+            return;
+        }
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        int maxHours = config.integer("encomendas.servico.prazo_maximo_horas", 168, 1, 8760);
+        if (hand.getType().isAir() || hand.getAmount() != 1 || services.bound(hand)) {
+            msg.send(p, "servico.um_item");
+            return;
+        }
+        if (price <= 0 || hours < 1 || hours > maxHours) {
+            msg.send(p, "servico.valores", Messages.vars("horas", maxHours));
+            return;
+        }
+        org.bukkit.OfflinePlayer artisan = Bukkit.getPlayerExact(artisanName) != null ? Bukkit.getPlayerExact(artisanName)
+                : Bukkit.getOfflinePlayerIfCached(artisanName);
+        if (artisan == null || artisan.getUniqueId().equals(p.getUniqueId())) {
+            msg.send(p, "servico.artesao_desconhecido", Messages.vars("jogador", artisanName));
+            return;
+        }
+        String shown = artisan.getName() == null ? artisanName : artisan.getName();
+        int limit = config.integer("encomendas.pedidos_por_jogador", 5, 1, 1000);
+        String id = p.getUniqueId().toString();
+        ItemStack item = hand.clone();
+        run(p, c -> Database.query(c, "SELECT COUNT(*) FROM life_orders WHERE client = ? AND state IN ('ABERTO', 'AGUARDANDO', 'CONTRATADO', 'OFERTA')",
+                rs -> rs.getInt(1), id).get(0), count -> {
+            if (count >= limit) {
+                msg.send(p, "encomenda.limite", Messages.vars("limite", limit));
+                return;
+            }
+            // O item precisa ser o mesmo que estava na mão quando o comando foi dado.
+            if (!p.isOnline() || !p.getInventory().getItemInMainHand().equals(item)) {
+                msg.send(p, "servico.um_item");
+                return;
+            }
+            String hold = hooks.hold(p, price, "life:servico");
+            if (hold == null) {
+                msg.send(p, "encomenda.sem_col", Messages.vars("preco", col(price)));
+                return;
+            }
+            p.getInventory().setItemInMainHand(null);
+            long created = System.currentTimeMillis();
+            long answerBy = created + config.integer("encomendas.resposta_horas", 24, 1, 720) * 3_600_000L;
+            String packed = pack(item);
+            db.async(c -> {
+                // "period" guarda o prazo do serviço; vira data de entrega quando o artesão aceita.
+                Database.update(c, "INSERT INTO life_orders (client, client_name, profession, product, quantity, min_grade, budget, hold, "
+                                + "expires, state, created, artisan, artisan_name, price, due, offer, ended, kind, ref, rounds, rounds_done, period) "
+                                + "VALUES (?, ?, ?, 'servico', 1, 0, ?, ?, ?, 'AGUARDANDO', ?, ?, ?, ?, 0, 0, 0, 'SERVICO', ?, 1, 0, ?)",
+                        id, p.getName(), prof.name(), price, hold, answerBy, created, artisan.getUniqueId().toString(), shown, price,
+                        plainName(item), hours * 3_600_000L);
+                long orderId = Database.query(c, "SELECT id FROM life_orders WHERE hold = ?", rs -> rs.getLong(1), hold).get(0);
+                Database.update(c, "INSERT INTO life_contract_box (order_id, owner, kind, item, created) VALUES (?, ?, 'SERVICO', ?, ?)",
+                        orderId, id, packed, created);
+                return orderId;
+            }).whenComplete((orderId, err) -> AincradCore.get().runSync(() -> {
+                if (err != null) {
+                    // Nada foi gravado: o item e o Col voltam na hora.
+                    plugin.getLogger().log(Level.WARNING, "Encomendas: não foi possível gravar o contrato de serviço", err);
+                    hooks.refund(hold, "life:servico_estorno");
+                    give(p, item);
+                    msg.send(p, "geral.erro");
+                    return;
+                }
+                msg.send(p, "servico.enviado", Messages.vars("id", orderId, "artesao", shown, "item", plainName(item), "preco", col(price),
+                        "horas", hours, "resposta", config.integer("encomendas.resposta_horas", 24, 1, 720)));
+                tell(artisan.getUniqueId(), "servico.aviso_pedido", "id", orderId, "cliente", p.getName(), "item", plainName(item),
+                        "preco", col(price), "horas", hours, "profissao", professions.name(prof));
+            }));
+        });
+    }
+
+    /** O artesão devolve o item do cliente, pronto: ele vai para a caixa de retirada do dono e o artesão recebe. */
+    private void deliverService(Player p, Order o) {
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        if (services == null || !OrderRules.serviceItem(o.id(), services.contract(hand))) {
+            msg.send(p, "servico.item_errado", Messages.vars("id", o.id()));
+            return;
+        }
+        ItemStack done = services.unbind(hand);
+        p.getInventory().setItemInMainHand(null);
+        run(p, c -> {
+            if (!move(c, o.id(), State.CONTRATADO, State.ENTREGUE, null)) {
+                return false;
+            }
+            // A cópia guardada na caixa não é mais necessária: o item trabalhado é o que vai para o dono.
+            Database.update(c, "DELETE FROM life_contract_box WHERE order_id = ? AND kind = 'SERVICO'", o.id());
+            return true;
+        }, ok -> {
+            if (!ok) {
+                // O contrato acabou neste instante (prazo ou cancelamento): o dono já recebe a cópia guardada.
+                msg.send(p, "encomenda.nao_e_seu_contrato");
+                return;
+            }
+            hooks.mail(o.client(), done, "encomenda");
+            settle(o, o.price());
+            long pay = OrderRules.pay(o.price(), feePercent());
+            msg.send(p, "encomenda.entregou", Messages.vars("id", o.id(), "preco", col(pay), "taxa", col(o.price() - pay)));
+            tell(o.client(), "encomenda.aviso_entregue", "id", o.id(), "artesao", p.getName());
+        }, () -> give(p, services.bind(done, o.id(), o.clientName())));
+    }
+
+    /** /contrato &lt;profissão&gt; &lt;artesão&gt; [preço] [horas]: com um item na mão, manda o item para ele trabalhar; sem item, abre o catálogo dele. */
+    public void contractCommand(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player p)) {
+            msg.send(sender, "geral.so_jogador");
+            return;
+        }
+        if (!hooks.hasEconomy()) {
+            msg.send(p, "encomenda.sem_economia");
+            return;
+        }
+        Profession prof = args.length > 1 ? Profession.parse(args[0]) : null;
+        if (prof == null) {
+            msg.send(p, "servico.uso");
+            return;
+        }
+        if (p.getInventory().getItemInMainHand().getType().isAir()) {
+            // Sem item na mão: é para ele criar algo novo, pelo catálogo dele.
+            catalog(p, args[1]);
+            return;
+        }
+        if (args.length < 3) {
+            msg.send(p, "servico.uso");
+            return;
+        }
+        int hours = args.length > 3 ? (int) Math.max(-1, Math.min(100_000, number(args[3]))) : config.integer("encomendas.servico.prazo_horas", 48, 1, 8760);
+        service(p, prof, args[1], number(args[2]), hours);
     }
 
     // ------------------------------------------------------------------ caixa do contrato

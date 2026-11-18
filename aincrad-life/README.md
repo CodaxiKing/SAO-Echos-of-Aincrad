@@ -305,6 +305,28 @@ cada uma. Quem está em outro servidor da rede recebe os avisos pelo MessageBus.
 - Aceito, segue como qualquer contrato: `/encomenda caixa <id>` retira os materiais para
   trabalhar e `/encomenda entregar <id>` entrega.
 
+**Contrato de serviço** (`/contrato`): para o artesão trabalhar num item **seu** — aprimorar ou
+reparar a sua arma, por exemplo.
+
+- Com o item na mão: `/contrato <profissão> <artesão> <preço> [horas]`. O item e o Col ficam
+  guardados. Funciona com o artesão offline, desde que ele já tenha entrado neste servidor.
+- Sem item na mão, `/contrato <profissão> <artesão>` abre o catálogo dele, para **criar** algo novo
+  (é o mesmo que `/contratar <artesão>`).
+- O artesão tem 24 h para `/encomenda aceitar <id>` ou `recusar <id>`. Aceito, o item vai para o
+  inventário dele, **preso**:
+  - não vai para baú, baú do fim, baú do casal, moldura, suporte de armadura, trouxinha, nem
+    para nenhuma outra tela (loja, troca, bigorna comum);
+  - não pode ser largado, não cai se ele morrer e não gasta;
+  - com ele na mão, não rodam o leilão, a troca, a barraca nem os outros comandos de
+    `encomendas.servico.comandos_bloqueados`.
+- Ele trabalha no item (na oficina, com o item na outra mão) e devolve com
+  `/encomenda entregar <id>`, com o item na mão. O item vai para a caixa de retirada do dono e o
+  artesão recebe o preço menos a taxa.
+- **Se o serviço não for feito no prazo** (48 h por padrão, contadas do aceite), o contrato
+  encerra sozinho: o dono recebe de volta o item **como o entregou** e o Col; o item que estava
+  com o artesão some do inventário dele. O mesmo vale se o artesão recusar, não responder, ou se
+  um dos dois cancelar.
+
 **Pedidos de material** (`/material`):
 
 - O artesão de um contrato em produção pede o que falta:
@@ -505,6 +527,12 @@ Eventos: `ProfessionRankUpEvent`, `LegendaryFishEvent` (Senhor do Lago derrotado
 - O banquete conta os inscritos na hora do pedido; quem entrar na raid depois só recebe se
   sobrar prato.
 - A oferta com desconto vale só para o pedido comum, não para os contratos especiais.
+- Contrato de serviço: quando o prazo vence, o dono recebe a cópia do item guardada na hora do
+  pedido, não o item que estava com o artesão. Assim ele recebe o item mesmo que o artesão nunca
+  mais entre; em troca, um trabalho feito pela metade se perde.
+- O serviço não confere se o artesão de fato aprimorou ou reparou o item: o cliente avalia
+  depois, com as estrelas.
+- O artesão do `/contrato` é procurado entre quem já entrou neste servidor, não na rede inteira.
 - Barraca: é um bloco marcado por comando, não um menu de cardápio montado numa bancada; vende
   qualquer item, não só os das profissões.
 - O kit de raid é de uma fórmula por pedido (ex.: 5 poções de cura por membro). Para cura e
