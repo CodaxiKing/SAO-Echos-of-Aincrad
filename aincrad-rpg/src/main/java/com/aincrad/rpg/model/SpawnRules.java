@@ -47,6 +47,31 @@ public final class SpawnRules {
     }
 
     /**
+     * Um item que o mob solta ao ser morto por um jogador.
+     *
+     * @param item   MATERIAL, {@code rpg:<id>} (items.yml) ou {@code life:<ingrediente>} (AincradLife)
+     * @param chance de 0 a 1
+     */
+    public record Drop(String item, double chance, int min, int max) {
+    }
+
+    /**
+     * O que faz de um mob do Minecraft um mob do andar: nome, equipamento e drops próprios.
+     *
+     * @param id          nome curto da linha, usado pelas quests no lugar do tipo (ou null)
+     * @param name        nome mostrado, em MiniMessage (ou null: o nome do Minecraft)
+     * @param equipment   mao, mao_secundaria, cabeca, peito, pernas, pes → material
+     * @param drops       vazio = os drops normais do Minecraft
+     * @param hostile     ataca jogadores mesmo sendo um mob neutro (lobo)
+     */
+    public record Extra(String id, String name, Map<String, String> equipment, List<Drop> drops, boolean hostile) {
+        public static final Extra NONE = new Extra(null, null, Map.of(), List.of(), false);
+    }
+
+    /** Os espaços aceitos em {@code equipamento}. */
+    public static final List<String> SLOTS = List.of("mao", "mao_secundaria", "cabeca", "peito", "pernas", "pes");
+
+    /**
      * Uma linha da lista de mobs de uma região.
      *
      * @param minLevel 0 = usa a faixa de level do lugar (mobs.yml)
@@ -54,7 +79,16 @@ public final class SpawnRules {
      * @param weather  só nasce com este clima do AincradWorld ("nevoa"), ou null
      * @param night    só nasce de noite (true), só de dia (false), ou null
      */
-    public record Entry(MobRef mob, int weight, int minLevel, int maxLevel, String model, String weather, Boolean night) {
+    public record Entry(MobRef mob, int weight, int minLevel, int maxLevel, String model, String weather, Boolean night, Extra extra) {
+
+        public Entry(MobRef mob, int weight, int minLevel, int maxLevel, String model, String weather, Boolean night) {
+            this(mob, weight, minLevel, maxLevel, model, weather, night, Extra.NONE);
+        }
+
+        /** Como o mob é conhecido pelas quests e pelos drops: o {@code id} da linha, ou o próprio mob. */
+        public String key() {
+            return extra.id() != null ? extra.id() : mob.text();
+        }
 
         /** O clima e o período de agora servem para esta linha? */
         public boolean fits(String weatherNow, boolean nightNow) {
@@ -190,10 +224,14 @@ public final class SpawnRules {
                     errors.add(where + ": 'periodo' precisa ser dia ou noite");
                     continue;
                 }
+                Extra extra = extra(m, where, errors);
+                if (extra == null) {
+                    continue;
+                }
                 mobs.add(new Entry(ref, weight, lv[0], lv[1],
                         model == null || model.toString().isBlank() ? null : model.toString().trim(),
                         weather == null || weather.toString().isBlank() ? null : weather.toString().trim().toLowerCase(Locale.ROOT),
-                        night[0]));
+                        night[0], extra));
             }
             if (mobs.isEmpty()) {
                 errors.add(key + ": nenhum mob válido na lista 'mobs'");
@@ -210,6 +248,51 @@ public final class SpawnRules {
                     List.copyOf(mobs)));
         }
         return out;
+    }
+
+    /** Lê {@code id}, {@code nome}, {@code equipamento}, {@code drops} e {@code agressivo}. Null = linha com erro. */
+    private static Extra extra(Map<?, ?> m, String where, List<String> errors) {
+        String id = text(m.get("id"));
+        if (id != null) {
+            id = id.toLowerCase(Locale.ROOT);
+            if (!id.matches("[a-z0-9_]+")) {
+                errors.add(where + ": 'id' só pode ter letras minúsculas, números e _");
+                return null;
+            }
+        }
+        Map<String, String> equipment = new LinkedHashMap<>();
+        if (m.get("equipamento") instanceof Map<?, ?> eq) {
+            for (Map.Entry<?, ?> e : eq.entrySet()) {
+                String slot = String.valueOf(e.getKey()).toLowerCase(Locale.ROOT);
+                String item = text(e.getValue());
+                if (!SLOTS.contains(slot) || item == null) {
+                    errors.add(where + ": 'equipamento." + slot + "' inválido (use " + String.join(", ", SLOTS) + ")");
+                    return null;
+                }
+                equipment.put(slot, item.toUpperCase(Locale.ROOT));
+            }
+        }
+        List<Drop> drops = new ArrayList<>();
+        if (m.get("drops") instanceof List<?> list) {
+            for (Object o : list) {
+                if (!(o instanceof Map<?, ?> d) || text(d.get("item")) == null) {
+                    errors.add(where + ": cada drop precisa de 'item'");
+                    return null;
+                }
+                double chance = d.get("chance") instanceof Number n ? n.doubleValue() : 1.0;
+                int[] amount = levels(d.get("quantidade"));
+                if (chance <= 0 || chance > 1 || amount == null) {
+                    errors.add(where + ": drop '" + d.get("item") + "' com 'chance' (0 a 1) ou 'quantidade' inválida");
+                    return null;
+                }
+                drops.add(new Drop(text(d.get("item")), chance, Math.max(1, amount[0]), Math.max(1, amount[1])));
+            }
+        }
+        return new Extra(id, text(m.get("nome")), Map.copyOf(equipment), List.copyOf(drops), Boolean.TRUE.equals(m.get("agressivo")));
+    }
+
+    private static String text(Object o) {
+        return o == null || o.toString().isBlank() ? null : o.toString().trim();
     }
 
     private static int clamp(int v, int min, int max) {

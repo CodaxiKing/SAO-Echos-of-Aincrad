@@ -18,6 +18,18 @@
 #          Para mob do MythicMobs, escolha o modelo no arquivo do
 #          próprio MythicMobs (é o caminho normal).
 #
+#  Para fazer de um mob do Minecraft um mob do andar (opcionais):
+#  id:     nome curto da linha. As quests usam (alvo: kobold_soldado) no lugar do tipo.
+#  nome:   nome mostrado sobre o mob (MiniMessage). O level entra na frente.
+#  equipamento: { mao: IRON_SWORD, cabeca: LEATHER_HELMET }  (e mao_secundaria, peito,
+#          pernas, pes). Não cai quando o mob morre.
+#  drops:  o que ele solta quando um jogador o mata; com "drops", os drops normais do
+#          Minecraft saem.  - { item: IRON_NUGGET, chance: 0.6, quantidade: "1-3" }
+#          item: MATERIAL, rpg:<id> ou life:<ingrediente>
+#  agressivo: true faz um lobo atacar sem ser provocado.
+#  Zumbis e esqueletos daqui nascem adultos e não queimam no sol.
+#  Um exemplo completo: conteudo/andar1 no repositório.
+#
 #  clima:   só nasce com este clima do AincradWorld: limpo, chuva, neve ou nevoa
 #  periodo: só nasce de dia ou de noite
 #          (é assim que a névoa ou a noite trocam os mobs de uma região)

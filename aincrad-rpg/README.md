@@ -90,6 +90,12 @@ Para os campos terem os mobs deles — o javali e o lobo do andar 1, por exemplo
 - O MythicMobs e o ModelEngine são opcionais e chamados por reflexão. **Esta parte compila e passa
   nos testes de regras, mas não foi testada com os dois plugins num servidor.**
 
+**Mobs do andar sem MythicMobs.** Uma linha de mob do Minecraft pode ter `id` (o nome que as
+quests usam em `alvo:`), `nome`, `equipamento`, `drops` (trocam os drops normais; aceitam
+materiais, `rpg:<id>` e `life:<ingrediente>`) e `agressivo: true` para lobos. Zumbis e esqueletos
+do `spawns.yml` nascem adultos e não queimam no sol; hoglins não viram zoglins. O pacote
+[conteudo/andar1](../conteudo/andar1/README.md) usa tudo isso.
+
 ## Mobs raros (`rare-mobs.yml`)
 
 Mobs que aparecem com chance baixa perto de um jogador que está na região, **fogem dele** e, se
@@ -141,7 +147,7 @@ migração do core. Carrega no pré-login (fora da thread principal), grava ao s
 int  getLevel(Player)                 long getXp(Player)          long getXpToNext(Player)
 long addXp(Player, long qtd, String motivo)   int getAttribute(Player, "forca")
 int  getMobLevel(Entity)              void setMobLevel(LivingEntity, int)
-String getMobId(Entity)               // "mythic:Lobo" ou "WOLF": o mob do spawns.yml, ou null
+String getMobId(Entity)               // o "id" da linha do spawns.yml (ou "mythic:Lobo" / "WOLF"), ou null
 ItemStack createItem(String id, String raridade)   String getRarity(ItemStack)
 int  getRequiredLevel(ItemStack)      void openStatus(Player)
 ```

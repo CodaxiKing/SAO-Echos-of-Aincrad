@@ -15,7 +15,7 @@ cidades, anúncio quando um andar abre e os Teleport Gates. Precisa do **Aincrad
 - **Anúncio global**: título, chat e som para todos os jogadores da rede. Cita a guilda quando
   todos os participantes são da mesma (AincradSocial). O título desliga em `anuncio.titulo`
   (para o AincradEffects assumir).
-- **Zona segura** (a região `cidade` de cada andar): nenhum dano, sem PvP (nem de dentro para
+- **Zona segura** (a região `cidade` de cada andar e as de `vilas: [horunka, tolbana]`): nenhum dano, sem PvP (nem de dentro para
   fora), sem fome, mobs hostis não miram, não nascem e são removidos; blocos não quebram nem com
   explosão. Aviso ao entrar e sair. Com `aincrad.floors.bypass` dá para construir.
 - **Teleport Gates**: `/aincrad gate criar <n>` marca o bloco olhado. Clicar abre o menu de

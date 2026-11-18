@@ -10,6 +10,7 @@
 #  chegada:  "mundo,x,y,z,yaw,pitch" — onde o jogador aparece. Mais fácil: fique no lugar e use
 #            /aincrad andar setspawn <n>.
 #  cidade:   região do AincradCore que é a cidade principal (zona segura). Opcional.
+#  vilas:    outras regiões do andar que também são zona segura. Ex.: [horunka, tolbana]. Opcional.
 #
 #  Teleport Gates: olhe para o bloco e use /aincrad gate criar <n>.
 # ============================================================

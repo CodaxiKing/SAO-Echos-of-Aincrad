@@ -1,0 +1,23 @@
+# ============================================================
+#  Mobs raros — ANDAR 1
+#  Pacote de conteúdo: copie para plugins/AincradRPG/rare-mobs.yml.
+#
+#  Aparecem com chance baixa perto de um jogador que está na região, fogem dele e,
+#  se forem pegos, soltam um drop raro. Só existe um de cada por vez.
+#  Testar sem esperar a chance:  /aincrad rpg raro <id>
+# ============================================================
+intervalo: 30
+
+mobs:
+  # O coelho do ragu. A carne dele é o ingrediente de rank S do Ensopado de Coelho
+  # (recipes.yml do AincradLife). Sem o AincradLife, ele não solta nada.
+  coelho_do_ragu:
+    mob: RABBIT
+    nome: "<gold>Ragout Rabbit"
+    regiao: floresta_horunka
+    chance: 0.004
+    level: 3
+    foge: true
+    drop: "life:carne_coelho_raro"
+    drop_quantidade: 1
+    some_em_segundos: 120

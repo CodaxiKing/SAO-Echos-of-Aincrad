@@ -90,7 +90,7 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         command("status", status);
         command("level", new LevelCommand(rpg));
         spawnFile = core.config(this, "spawns.yml");
-        spawns = new SpawnService(this, mobService);
+        spawns = new SpawnService(this, mobService, items);
         getServer().getPluginManager().registerEvents(spawns, this);
         spawns.reload(spawnFile);
         rareFile = core.config(this, "rare-mobs.yml");

@@ -1,0 +1,211 @@
+# ============================================================
+#  Mobs por região — ANDAR 1
+#  Pacote de conteúdo: copie para plugins/AincradRPG/spawns.yml.
+#  As regiões precisam existir (veja conteudo/andar1/README.md).
+#
+#  mob:    ZOMBIE, WOLF, PIG...  ou  mythic:NomeDoMob (MythicMobs)
+#  id:     nome curto da linha. As quests usam (alvo: kobold_soldado) no lugar do tipo.
+#  nome:   nome mostrado sobre o mob (MiniMessage). O level entra na frente.
+#  equipamento: mao, mao_secundaria, cabeca, peito, pernas, pes. Não cai quando o mob morre.
+#  drops:  o que o mob solta quando um jogador o mata. Com "drops", os drops normais do
+#          Minecraft saem. item: MATERIAL, rpg:<id> ou life:<ingrediente>;
+#          chance de 0 a 1 (padrão 1); quantidade: 2 ou "1-3".
+#  agressivo: true faz um lobo atacar sem ser provocado.
+#  peso, level, clima, periodo, modelo: como no spawns.yml do plugin.
+#
+#  Para trocar um mob por um do MythicMobs, mude só o "mob:" da linha
+#  (o nome e o equipamento passam a vir do MythicMobs; os drops daqui continuam).
+# ============================================================
+intervalo: 5
+
+regioes:
+
+  # ---------------------------------------------------------- Campos do Oeste (level 1 a 3)
+  # Logo fora do portão da Cidade do Início. É onde o jogador aprende a lutar.
+  campos_oeste:
+    maximo: 16
+    por_vez: 2
+    raio: 40
+    distancia_minima: 10
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: PIG
+        id: javali_frenetico
+        nome: "<white>Frenzy Boar"
+        peso: 6
+        level: "1-2"
+        drops:
+          - { item: PORKCHOP, chance: 0.8, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.25 }
+      - mob: WOLF
+        id: lobo_jovem
+        nome: "<white>Lobo Jovem"
+        agressivo: true
+        peso: 1
+        level: 2
+        periodo: dia
+        drops:
+          - { item: BONE, chance: 0.5 }
+          - { item: LEATHER, chance: 0.3 }
+      - mob: WOLF
+        id: lobo_terrivel
+        nome: "<white>Dire Wolf"
+        agressivo: true
+        peso: 3
+        level: "2-3"
+        periodo: noite
+        drops:
+          - { item: BONE, chance: 0.6, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.4 }
+
+  # ---------------------------------------------------------- Floresta de Horunka (level 3 a 5)
+  # Em volta da vila de Horunka. Os Little Nepents guardam o óvulo da quest da Anneal Blade.
+  floresta_horunka:
+    maximo: 14
+    por_vez: 2
+    raio: 36
+    distancia_minima: 10
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: ZOMBIE
+        id: little_nepent
+        nome: "<green>Little Nepent"
+        equipamento: { cabeca: AZALEA_LEAVES }
+        peso: 5
+        level: "3-4"
+        drops:
+          - { item: VINE, chance: 0.5, quantidade: "1-2" }
+          # O Óvulo de Little Nepent (quest "O remédio secreto da floresta").
+          - { item: SPORE_BLOSSOM, chance: 0.04 }
+      - mob: WOLF
+        id: lobo_terrivel
+        nome: "<white>Dire Wolf"
+        agressivo: true
+        peso: 3
+        level: "3-5"
+        drops:
+          - { item: BONE, chance: 0.6, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.4 }
+      - mob: RABBIT
+        id: coelho_da_floresta
+        nome: "<white>Coelho da Floresta"
+        peso: 1
+        level: 3
+        drops:
+          - { item: RABBIT, chance: 0.8 }
+          - { item: RABBIT_HIDE, chance: 0.5 }
+      - mob: SPIDER
+        id: aranha_da_mata
+        nome: "<white>Aranha da Mata"
+        peso: 3
+        level: "4-5"
+        periodo: noite
+        drops:
+          - { item: STRING, chance: 0.7, quantidade: "1-2" }
+          - { item: SPIDER_EYE, chance: 0.2 }
+
+  # ---------------------------------------------------------- Planície de Tolbana (level 4 a 6)
+  # A estrada da floresta até Tolbana, a cidade ao pé do labirinto.
+  planicie_tolbana:
+    maximo: 14
+    por_vez: 2
+    raio: 40
+    distancia_minima: 12
+    sumir_longe: 72
+    spawn_natural: false
+    mobs:
+      - mob: HOGLIN
+        id: javali_furioso
+        nome: "<yellow>Rampage Boar"
+        peso: 3
+        level: "4-5"
+        drops:
+          - { item: PORKCHOP, quantidade: "1-3" }
+          - { item: LEATHER, chance: 0.5 }
+      - mob: WOLF
+        id: lobo_terrivel
+        nome: "<white>Dire Wolf"
+        agressivo: true
+        peso: 3
+        level: "5-6"
+        drops:
+          - { item: BONE, chance: 0.6, quantidade: "1-2" }
+          - { item: LEATHER, chance: 0.5 }
+      - mob: ZOMBIE
+        id: kobold_batedor
+        nome: "<white>Kobold Scout"
+        equipamento: { mao: STONE_SWORD, cabeca: LEATHER_HELMET }
+        peso: 2
+        level: "5-6"
+        drops:
+          - { item: IRON_NUGGET, chance: 0.6, quantidade: "1-3" }
+          - { item: RAW_IRON, chance: 0.15 }
+      - mob: SKELETON
+        id: esqueleto_errante
+        nome: "<white>Esqueleto Errante"
+        peso: 3
+        level: 6
+        periodo: noite
+        drops:
+          - { item: BONE, chance: 0.8, quantidade: "1-2" }
+          - { item: ARROW, chance: 0.5, quantidade: "1-4" }
+
+  # ---------------------------------------------------------- Labirinto, andares de baixo (level 6 a 8)
+  labirinto_andar1:
+    maximo: 18
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: ZOMBIE
+        id: kobold_soldado
+        nome: "<white>Ruin Kobold Trooper"
+        equipamento: { mao: IRON_SWORD, cabeca: CHAINMAIL_HELMET, peito: LEATHER_CHESTPLATE }
+        peso: 5
+        level: "6-8"
+        drops:
+          - { item: IRON_NUGGET, chance: 0.7, quantidade: "2-4" }
+          - { item: COAL, chance: 0.3 }
+          - { item: IRON_INGOT, chance: 0.15 }
+      - mob: SKELETON
+        id: kobold_arqueiro
+        nome: "<white>Ruin Kobold Archer"
+        equipamento: { cabeca: LEATHER_HELMET }
+        peso: 2
+        level: "7-8"
+        drops:
+          - { item: ARROW, chance: 0.8, quantidade: "2-5" }
+          - { item: FLINT, chance: 0.3 }
+
+  # ---------------------------------------------------------- Labirinto, andares de cima (level 8 a 9)
+  # O caminho até a porta do chefe. Os Sentinelas são os mesmos que lutam ao lado do Illfang.
+  labirinto_andar1_topo:
+    maximo: 14
+    por_vez: 2
+    raio: 24
+    distancia_minima: 8
+    sumir_longe: 56
+    spawn_natural: false
+    mobs:
+      - mob: ZOMBIE
+        id: kobold_sentinela
+        nome: "<yellow>Ruin Kobold Sentinel"
+        equipamento: { mao: IRON_AXE, cabeca: IRON_HELMET, peito: CHAINMAIL_CHESTPLATE }
+        peso: 4
+        level: "8-9"
+        drops:
+          - { item: IRON_INGOT, chance: 0.35, quantidade: "1-2" }
+          - { item: "rpg:machado_kobold", chance: 0.02 }
+      - mob: ZOMBIE
+        id: kobold_soldado
+        nome: "<white>Ruin Kobold Trooper"
+        equipamento: { mao: IRON_SWORD, cabeca: CHAINMAIL_HELMET, peito: LEATHER_CHESTPLATE }
+        peso: 3
+        level: "8-9"
+        drops:
+          - { item: IRON_NUGGET, chance: 0.7, quantidade: "2-4" }
+          - { item: IRON_INGOT, chance: 0.2 }

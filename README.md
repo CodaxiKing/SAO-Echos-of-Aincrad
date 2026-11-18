@@ -21,6 +21,13 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-world/` | **AincradWorld** — jornal semanal, calendário com estações e datas, dia e noite e clima por andar | código pronto (etapas 44, 57–59), sem teste em servidor |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | pronto (etapas 10–13): motor geral e integração com andares e chefes |
 
+## Conteúdo
+
+Os plugins dão os sistemas; o conteúdo de cada andar vem em pacotes de arquivos de configuração.
+
+- [conteudo/andar1](conteudo/andar1/README.md) — o andar 1: mobs, itens, lojas, Illfang e as quests,
+  com o guia para montar o mapa. Carrega sem erro nos testes; ainda não foi jogado.
+
 ## Plano
 
 O plano de desenvolvimento (cópia do documento em https://claude.ai/artifact/A23oCqBsYC54PhuHKenyhW, de 17/11/2026):

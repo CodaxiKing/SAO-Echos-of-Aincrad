@@ -4,6 +4,7 @@ import com.aincrad.core.AincradCore;
 import com.aincrad.core.config.ConfigFile;
 import com.aincrad.core.region.Region;
 import com.aincrad.rpg.RpgSettings;
+import com.aincrad.rpg.item.ItemService;
 import com.aincrad.rpg.model.MobRewards;
 import com.aincrad.rpg.model.SpawnRules;
 import com.aincrad.rpg.model.SpawnRules.Area;
@@ -51,6 +52,7 @@ public final class SpawnService implements Listener {
 
     private final Plugin plugin;
     private final MobService mobs;
+    private final ItemService items;
     private final MythicBridge mythic = new MythicBridge();
     private final ModelBridge models = new ModelBridge();
     private final NamespacedKey keyRegion;
@@ -60,9 +62,10 @@ public final class SpawnService implements Listener {
     private List<String> errors = List.of();
     private BukkitTask task;
 
-    public SpawnService(Plugin plugin, MobService mobs) {
+    public SpawnService(Plugin plugin, MobService mobs, ItemService items) {
         this.plugin = plugin;
         this.mobs = mobs;
+        this.items = items;
         keyRegion = new NamespacedKey(plugin, "spawn_regiao");
     }
 
@@ -331,13 +334,15 @@ public final class SpawnService implements Listener {
             return null;
         }
         mob.setPersistent(false);
-        mob.getPersistentDataContainer().set(com.aincrad.rpg.api.AincradRPGAPI.MOB_ID, PersistentDataType.STRING, e.mob().text());
+        mob.getPersistentDataContainer().set(com.aincrad.rpg.api.AincradRPGAPI.MOB_ID, PersistentDataType.STRING, e.key());
         if (mob instanceof LivingEntity le) {
             if (le instanceof Mob m) {
                 m.setRemoveWhenFarAway(false);
             }
             // O nome que o MythicMobs deu fica; o level entra na frente.
-            Component name = e.mob().kind() == Kind.MYTHIC ? le.customName() : null;
+            Component name = e.mob().kind() == Kind.MYTHIC ? le.customName()
+                    : e.extra().name() != null ? com.aincrad.core.message.Messages.parse(e.extra().name()) : null;
+            dress(le, e, where);
             mobs.setLevel(le, level, name);
         }
         if (e.model() != null && !models.apply(mob, e.model())) {
@@ -346,6 +351,101 @@ public final class SpawnService implements Listener {
                     : "o ModelEngine não está ligado (modelo '" + e.model() + "')");
         }
         return mob;
+    }
+
+    /** Faz do mob do Minecraft um mob do andar: adulto, sem queimar no sol, com o equipamento da linha. */
+    private void dress(LivingEntity le, Entry e, String where) {
+        if (le instanceof org.bukkit.entity.Ageable age) {
+            age.setAdult();
+        }
+        if (le instanceof org.bukkit.entity.Zombie z) {
+            z.setShouldBurnInDay(false);
+        }
+        if (le instanceof org.bukkit.entity.AbstractSkeleton s) {
+            s.setShouldBurnInDay(false);
+        }
+        if (le instanceof org.bukkit.entity.Hoglin h) {
+            h.setImmuneToZombification(true);
+        }
+        if (le instanceof org.bukkit.entity.PiglinAbstract pg) {
+            pg.setImmuneToZombification(true);
+        }
+        if (e.extra().hostile() && le instanceof org.bukkit.entity.Wolf w) {
+            w.setAngry(true);
+        }
+        org.bukkit.inventory.EntityEquipment eq = le.getEquipment();
+        if (eq == null || e.mob().kind() == Kind.MYTHIC) {
+            return;
+        }
+        for (Map.Entry<String, String> en : e.extra().equipment().entrySet()) {
+            org.bukkit.Material m = org.bukkit.Material.matchMaterial(en.getValue());
+            if (m == null || (!m.isItem() && !m.isAir())) {
+                warn(where, "equipamento." + en.getKey() + ": '" + en.getValue() + "' não é um item");
+                continue;
+            }
+            org.bukkit.inventory.EquipmentSlot slot = switch (en.getKey()) {
+                case "mao" -> org.bukkit.inventory.EquipmentSlot.HAND;
+                case "mao_secundaria" -> org.bukkit.inventory.EquipmentSlot.OFF_HAND;
+                case "cabeca" -> org.bukkit.inventory.EquipmentSlot.HEAD;
+                case "peito" -> org.bukkit.inventory.EquipmentSlot.CHEST;
+                case "pernas" -> org.bukkit.inventory.EquipmentSlot.LEGS;
+                default -> org.bukkit.inventory.EquipmentSlot.FEET;
+            };
+            eq.setItem(slot, new org.bukkit.inventory.ItemStack(m));
+            eq.setDropChance(slot, 0f); // o que ele veste não cai; os drops são os da lista
+        }
+    }
+
+    /** O item de um drop: MATERIAL, rpg:&lt;id&gt; ou life:&lt;ingrediente&gt;. Null se não existe. */
+    private org.bukkit.inventory.ItemStack item(String spec, int amount) {
+        String lower = spec.toLowerCase(java.util.Locale.ROOT);
+        if (lower.startsWith("life:")) {
+            return Conditions.lifeIngredient(spec.substring(5), amount);
+        }
+        if (lower.startsWith("rpg:")) {
+            String[] parts = spec.substring(4).split(":", 2);
+            return items.create(parts[0], parts.length > 1 ? com.aincrad.rpg.item.Rarity.parse(parts[1]) : null);
+        }
+        org.bukkit.Material m = org.bukkit.Material.matchMaterial(spec);
+        return m == null || !m.isItem() ? null : new org.bukkit.inventory.ItemStack(m, amount);
+    }
+
+    /**
+     * Os drops da linha do spawns.yml, quando o mob é morto por um jogador. Uma linha com
+     * {@code drops} troca os drops normais do Minecraft pelos dela. Roda antes do sorteio de
+     * itens do items.yml, que continua valendo.
+     */
+    @EventHandler(priority = EventPriority.LOW)
+    public void onDeath(org.bukkit.event.entity.EntityDeathEvent event) {
+        Entity mob = event.getEntity();
+        String region = mob.getPersistentDataContainer().get(keyRegion, PersistentDataType.STRING);
+        String key = mob.getPersistentDataContainer().get(com.aincrad.rpg.api.AincradRPGAPI.MOB_ID, PersistentDataType.STRING);
+        Area a = region == null ? null : areas.get(region);
+        if (a == null || key == null) {
+            return;
+        }
+        for (Entry e : a.mobs()) {
+            if (!e.key().equals(key) || e.extra().drops().isEmpty()) {
+                continue;
+            }
+            event.getDrops().clear();
+            if (event.getEntity().getKiller() == null) {
+                return;
+            }
+            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+            for (SpawnRules.Drop d : e.extra().drops()) {
+                if (rnd.nextDouble() >= d.chance()) {
+                    continue;
+                }
+                org.bukkit.inventory.ItemStack it = item(d.item(), d.min() >= d.max() ? d.min() : rnd.nextInt(d.min(), d.max() + 1));
+                if (it == null) {
+                    warn(region, "o drop '" + d.item() + "' não existe (o plugin dele está ligado?)");
+                } else {
+                    event.getDrops().add(it);
+                }
+            }
+            return;
+        }
     }
 
     private void warn(String where, String what) {

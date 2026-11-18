@@ -68,6 +68,12 @@ public final class FloorRegistry {
                 spawn = null;
             }
             String city = blank(s.getString("cidade"));
+            // Outras zonas seguras do andar (vilas), além da cidade principal.
+            for (String v : s.getStringList("vilas")) {
+                if (!v.isBlank()) {
+                    reg.cities.add(v.trim().toLowerCase(Locale.ROOT));
+                }
+            }
             reg.floors.put(n, new Floor(n, s.getString("nome", "Andar " + n), s.getString("servidor", ""), world, region, spawn,
                     city == null ? null : city.toLowerCase(Locale.ROOT)));
         }
