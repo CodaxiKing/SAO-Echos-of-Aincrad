@@ -5,7 +5,7 @@ api-version: '1.21'
 description: Missões de NPC do Aincrad - objetivos em etapas, diárias, quest de party, NPCs e diário.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [AincradRPG, AincradEconomy, AincradFloors, AincradBosses, AincradLife, AincradSocial, AincradReputation]
+softdepend: [AincradUI, AincradRPG, AincradEconomy, AincradFloors, AincradBosses, AincradLife, AincradSocial, AincradReputation]
 
 # O comando de jogador (/quests) é registrado pelo plugin ao ligar.
 

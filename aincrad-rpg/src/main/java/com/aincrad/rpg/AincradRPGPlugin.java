@@ -100,6 +100,12 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         core.commands().register(this, new AdminCommand(rpg, items, spawns, rares));
         core.commands().register(this, new com.aincrad.rpg.command.SpawnCommand(this, msg, spawns, spawnFile, items));
         AincradRPGAPI.init(rpg, mobService, items, status);
+        // O botão "Status" do menu SAO, quando o AincradUI existe (ele pode ligar depois deste plugin).
+        getServer().getScheduler().runTask(this, () -> {
+            if (com.aincrad.rpg.hook.UiLink.menuEntry("status", "under_icons/player", msg.get("status.menu_ui"), "perfil", AincradRPGAPI::openStatus)) {
+                getLogger().info("Botão \"Status\" posto no menu do AincradUI.");
+            }
+        });
         getServer().getServicesManager().register(AincradRPGAPI.class, AincradRPGAPI.instance(), this, ServicePriority.Normal);
 
         // /reload ou plugin ligado com gente online: carrega quem já está.

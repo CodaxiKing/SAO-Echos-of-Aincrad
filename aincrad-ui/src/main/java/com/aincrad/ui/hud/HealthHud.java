@@ -47,6 +47,8 @@ public final class HealthHud implements Listener {
     private final Map<UUID, List<BossBar>> memberBars = new HashMap<>();
     private PartyHudProvider partyProvider;
     private java.util.function.Function<Player, Component> badgeProvider;
+    private java.util.function.Function<Player, Component> trackerProvider;
+    private final Map<UUID, BossBar> trackerBars = new HashMap<>();
     private final Map<UUID, Long> lastAlert = new HashMap<>();
     private final Map<UUID, Long> forcedUntil = new HashMap<>();
     private BukkitTask task;
@@ -119,6 +121,7 @@ public final class HealthHud implements Listener {
                     colorOf(state, blinkOff).value(), energy[0], energy[1], FlatHud.xpText(p), FlatHud.level(p), partyData(p, st));
             plugin.flat().hud(p, plugin.flat().paint(d -> FlatHud.paint(d, data, -st.flatHudX)));
             alert(p, state, st);
+            updateTracker(p);
             return;
         }
         plugin.flat().hud(p, null);
@@ -159,6 +162,45 @@ public final class HealthHud implements Listener {
 
         alert(p, state, st);
         updateParty(p, st);
+        updateTracker(p);
+    }
+
+    public void setTrackerProvider(java.util.function.Function<Player, Component> provider) {
+        this.trackerProvider = provider;
+    }
+
+    /** A linha de rastreio (a quest em andamento): uma BossBar só de texto, por último. */
+    private void updateTracker(Player p) {
+        Component text = null;
+        if (trackerProvider != null) {
+            try {
+                text = trackerProvider.apply(p);
+            } catch (RuntimeException | LinkageError e) {
+                text = null;
+            }
+        }
+        BossBar bar = trackerBars.get(p.getUniqueId());
+        if (text == null) {
+            if (bar != null) {
+                p.hideBossBar(trackerBars.remove(p.getUniqueId()));
+            }
+            return;
+        }
+        if (bar == null) {
+            // Barra branca: com o pack ela fica transparente e sobra só o texto.
+            bar = BossBar.bossBar(text, 1f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
+            trackerBars.put(p.getUniqueId(), bar);
+            p.showBossBar(bar);
+        } else {
+            bar.name(text);
+        }
+    }
+
+    private void hideTracker(Player p) {
+        BossBar bar = trackerBars.remove(p.getUniqueId());
+        if (bar != null) {
+            p.hideBossBar(bar);
+        }
     }
 
     private void alert(Player p, HealthState state, UiSettings st) {
@@ -377,6 +419,7 @@ public final class HealthHud implements Listener {
     }
 
     private void hideBars(Player p) {
+        hideTracker(p);
         BossBar bar = bars.remove(p.getUniqueId());
         if (bar != null) {
             p.hideBossBar(bar);
@@ -392,6 +435,7 @@ public final class HealthHud implements Listener {
         UUID id = event.getPlayer().getUniqueId();
         bars.remove(id);
         memberBars.remove(id);
+        trackerBars.remove(id);
         lastAlert.remove(id);
         forcedUntil.remove(id);
     }

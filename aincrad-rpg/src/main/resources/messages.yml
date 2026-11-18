@@ -16,6 +16,7 @@ level:
 
 status:
   titulo: "<dark_gray>Status — Lv.<level>"
+  menu_ui: "<white>Status"
   info_nome: "<aqua>Level <level>"
   info_lore:
     - "<gray>XP: <white><atual></white>/<white><proximo></white>"

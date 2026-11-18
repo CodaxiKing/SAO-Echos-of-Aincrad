@@ -25,7 +25,7 @@ import java.util.UUID;
 /** /amigo, /party, /mensagem e /caixa. Fazem o mesmo que o menu SAO (via {@link SocialActions}). */
 public final class SocialCommands implements CommandExecutor, TabCompleter {
 
-    private static final List<String> FRIEND_SUBS = List.of("lista", "adicionar", "aceitar", "recusar", "remover", "pedidos");
+    private static final List<String> FRIEND_SUBS = List.of("lista", "adicionar", "aceitar", "recusar", "remover", "pedidos", "ir");
     private static final List<String> PARTY_SUBS = List.of("convidar", "aceitar", "recusar", "sair", "expulsar", "lider", "desfazer", "lista", "chat");
 
     private final AincradSocialPlugin plugin;
@@ -100,6 +100,7 @@ public final class SocialCommands implements CommandExecutor, TabCompleter {
             case "aceitar" -> run(p, args, "uso.amigo", id -> act().acceptFriend(p, id));
             case "recusar" -> run(p, args, "uso.amigo", id -> act().declineFriend(p, id));
             case "remover" -> run(p, args, "uso.amigo", id -> act().removeFriend(p, id));
+            case "ir" -> run(p, args, "uso.amigo", id -> act().visit(p, id));
             default -> msg().send(p, "uso.amigo");
         }
     }

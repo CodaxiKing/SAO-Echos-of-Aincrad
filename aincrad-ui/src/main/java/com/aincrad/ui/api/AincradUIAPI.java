@@ -74,6 +74,12 @@ public interface AincradUIAPI {
      */
     void setHudBadgeProvider(java.util.function.Function<Player, Component> provider);
 
+    /**
+     * Uma linha de texto embaixo da barra de vida (e das barras da party): a quest rastreada.
+     * A função devolve null quando não há nada para mostrar.
+     */
+    void setTrackerProvider(java.util.function.Function<Player, Component> provider);
+
     /** Telas planas: desenhadas direto na tela, com cursor (como a loja). */
     FlatApi flat();
 

@@ -181,6 +181,7 @@ public final class UiMenu implements MenuHook {
             }));
         }
         list.row(UiList.Row.icon("under_icons/call", msg().get("menu.enviar_mensagem"), null, pl -> act().askMessage(pl, member)));
+        duelRow(list, member);
         if (!plugin.friends().areFriends(p.getUniqueId(), member)) {
             list.row(UiList.Row.icon("under_icons/invite", msg().get("menu.adicionar_amigo"), null, pl -> act().addFriend(pl, member)));
         }
@@ -275,6 +276,14 @@ public final class UiMenu implements MenuHook {
             list.row(UiList.Row.icon("under_icons/player", msg().get("menu.convidar_party"), null, pl -> act().invite(pl, friend)));
         }
         list.row(UiList.Row.icon("under_icons/call", msg().get("menu.enviar_mensagem"), null, pl -> act().askMessage(pl, friend)));
+        duelRow(list, friend);
+        if (Names.online(friend) != null) {
+            list.row(UiList.Row.icon("under_icons/map", msg().get("menu.ir_ate"), null, pl -> {
+                if (act().visit(pl, friend)) {
+                    ui.closeMenu(pl);
+                }
+            }));
+        }
         list.row(UiList.Row.icon("under_icons/logout", msg().get("menu.remover_amigo"), null, pl ->
                 ui.openConfirm(pl, msg().get("menu.confirmar_remover", Placeholder.unparsed("jogador", name(friend))),
                         p2 -> {
@@ -285,6 +294,30 @@ public final class UiMenu implements MenuHook {
                         }, null)));
         list.button(back());
         ui.openList(p, list);
+    }
+
+    /** "Duelar": só aparece para quem está online; abre a escolha do modo. */
+    private void duelRow(UiList list, UUID other) {
+        if (Names.online(other) == null || !plugin.settings().duelEnabled) {
+            return;
+        }
+        list.row(UiList.Row.icon("under_icons/player", msg().get("menu.duelar"), null, pl -> {
+            UiList modes = UiList.of(msg().get("menu.duelar_titulo", Placeholder.unparsed("jogador", name(other))));
+            for (com.aincrad.social.duel.DuelMode m : com.aincrad.social.duel.DuelMode.values()) {
+                if (m.lethal() && !plugin.settings().duelAllowTotal) {
+                    continue;
+                }
+                modes.row(UiList.Row.icon("under_icons/player", msg().get("duelo.modo." + m.key()), msg().get("menu.duelo_dica." + m.key()), p2 -> {
+                    Player target = Names.online(other);
+                    if (target != null) {
+                        plugin.duels().challenge(p2, target, m);
+                    }
+                    ui.closeMenu(p2);
+                }));
+            }
+            modes.button(back());
+            ui.openList(pl, modes);
+        }));
     }
 
     private void openAddFriend(Player p) {

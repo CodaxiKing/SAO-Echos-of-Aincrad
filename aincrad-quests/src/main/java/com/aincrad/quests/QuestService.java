@@ -213,6 +213,26 @@ public final class QuestService implements Listener {
         return true;
     }
 
+    /** Com a HUD do AincradUI mostrando o rastreio, a barra de ação fica livre. */
+    private boolean hudTracker;
+
+    public void useHudTracker(boolean on) {
+        hudTracker = on;
+    }
+
+    /** A linha da quest rastreada, para a HUD. Null se o jogador não rastreia nada em andamento. */
+    public net.kyori.adventure.text.Component trackerLine(Player p) {
+        Map<String, Progress> m = data(p);
+        QuestDef t = m == null ? null : quests.get(tracked.getOrDefault(p.getUniqueId(), ""));
+        Progress pr = t == null ? null : m.get(t.id());
+        if (pr == null || pr.state() != State.ATIVA) {
+            return null;
+        }
+        boolean ready = QuestRules.ready(t, pr);
+        return msg.get("quest.rastreio", Messages.vars("quest", t.name(), "texto", text(t, pr.stage()),
+                "feito", ready ? 1 : pr.count(), "total", ready ? 1 : t.stages().get(pr.stage()).amount()));
+    }
+
     /** O texto da etapa (o do arquivo, ou um montado a partir do objetivo). */
     public String text(QuestDef def, int stage) {
         if (stage >= def.stages().size()) {
@@ -324,8 +344,10 @@ public final class QuestService implements Listener {
             Progress pr = t == null ? null : m.get(t.id());
             if (pr != null && pr.state() == State.ATIVA) {
                 boolean ready = QuestRules.ready(t, pr);
-                msg.actionBar(p, "quest.rastreio", Messages.vars("quest", t.name(), "texto", text(t, pr.stage()),
-                        "feito", ready ? 1 : pr.count(), "total", ready ? 1 : t.stages().get(pr.stage()).amount()));
+                if (!hudTracker) {
+                    msg.actionBar(p, "quest.rastreio", Messages.vars("quest", t.name(), "texto", text(t, pr.stage()),
+                            "feito", ready ? 1 : pr.count(), "total", ready ? 1 : t.stages().get(pr.stage()).amount()));
+                }
             }
         }
     }

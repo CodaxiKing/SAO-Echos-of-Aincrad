@@ -17,7 +17,7 @@ geral:
   tempo_esgotado: "<gray>Tempo para digitar esgotado."
 
 uso:
-  amigo: "<gray>Uso: <white>/amigo [lista|adicionar|aceitar|recusar|remover|pedidos] [jogador]"
+  amigo: "<gray>Uso: <white>/amigo [lista|adicionar|aceitar|recusar|remover|pedidos|ir] [jogador]"
   party: "<gray>Uso: <white>/party [convidar|aceitar|recusar|sair|expulsar|lider|desfazer|lista|chat] [jogador]"
   mensagem: "<gray>Uso: <white>/mensagem <jogador> <texto>"
   caixa: "<gray>Uso: <white>/caixa [ler <n>|apagar <n>]"
@@ -29,6 +29,11 @@ uso:
   guilda_admin: "<gray>Uso: <white>/aincrad guilda renomear <tag> <nome></white>, <white>desfazer <tag></white>, <white>dar-xp <tag> <valor>"
 
 amigo:
+  nao_e_amigo: "<red><white><jogador></white> não é seu amigo."
+  ir_offline: "<red><white><jogador></white> não está neste servidor."
+  ir_fora_da_cidade: "<red>Só dá para ir até um amigo quando vocês dois estão numa cidade."
+  ir_foi: "<green>Você foi até <white><jogador></white>."
+  ir_chegou: "<aqua><jogador></aqua> <white>veio até você."
   enviado: "<green>Pedido de amizade enviado para <white><jogador></white>."
   recebido: "<aqua><jogador></aqua> <white>quer ser seu amigo."
   aceito: "<green>Agora você e <white><jogador></white> são amigos."
@@ -154,6 +159,13 @@ menu:
   enviar_mensagem: "Enviar mensagem"
   convidar_party: "Convidar para a party"
   adicionar_amigo: "Adicionar amigo"
+  duelar: "Duelar"
+  duelar_titulo: "<white>Duelo contra <jogador>"
+  ir_ate: "Ir até ele"
+  duelo_dica:
+    primeiro_golpe: "o primeiro golpe vence"
+    metade: "até metade da vida"
+    total: "até a morte, de verdade"
   remover_amigo: "Remover amigo"
   aceitar: "Aceitar"
   recusar: "Recusar"

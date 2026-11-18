@@ -70,6 +70,15 @@ public final class AincradQuestsPlugin extends JavaPlugin implements Listener {
             npcs.tick();
         }, 40L, 40L);
 
+        // Menu SAO e HUD do AincradUI (ele pode ligar depois deste plugin).
+        getServer().getScheduler().runTask(this, () -> {
+            if (com.aincrad.quests.hook.UiLink.menuEntry("quests", p -> journal(p, new String[0]))) {
+                boolean hud = com.aincrad.quests.hook.UiLink.tracker(quests::trackerLine);
+                quests.useHudTracker(hud);
+                getLogger().info("Diário ligado ao menu do AincradUI" + (hud ? " e rastreio na HUD." : "."));
+            }
+        });
+
         Command journal = new Command("quests", "", "/quests", List.of("missoes", "diario")) {
             @Override
             public boolean execute(CommandSender sender, String label, String[] args) {
@@ -103,6 +112,7 @@ public final class AincradQuestsPlugin extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         AincradQuestsAPI.init(null);
+        com.aincrad.quests.hook.UiLink.tracker(null);
         getServer().getServicesManager().unregisterAll(this);
         if (npcs != null) {
             npcs.removeBodies();

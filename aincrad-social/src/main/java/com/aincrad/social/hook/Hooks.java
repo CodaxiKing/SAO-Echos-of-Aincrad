@@ -181,6 +181,11 @@ public final class Hooks {
         return r != null && String.valueOf(r).equalsIgnoreCase("RED");
     }
 
+    /** O lugar é zona segura (cidade ou vila) do AincradFloors? Sem ele, nunca: não há como ir até um amigo. */
+    public boolean safeZone(org.bukkit.Location l) {
+        return Boolean.TRUE.equals(call(floors, "isSafeZone", new Class<?>[]{org.bukkit.Location.class}, l));
+    }
+
     /** Dá XP do AincradRPG (passa pelo XpGainEvent dele, com o motivo dado). Sem o RPG, nada. */
     public void addXp(Player p, long amount, String reason) {
         call(rpg, "addXp", new Class<?>[]{Player.class, long.class, String.class}, p, amount, reason);

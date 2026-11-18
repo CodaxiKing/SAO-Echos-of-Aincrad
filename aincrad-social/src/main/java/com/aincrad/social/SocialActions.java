@@ -117,6 +117,32 @@ public final class SocialActions {
         return ok;
     }
 
+    /**
+     * Vai até um amigo. Só dentro de zona segura: os dois precisam estar numa cidade (com o
+     * AincradFloors), neste servidor, e fora de duelo.
+     */
+    public boolean visit(Player p, UUID other) {
+        Player target = Names.online(other);
+        String name = plugin.names().name(other);
+        if (!plugin.friends().areFriends(p.getUniqueId(), other)) {
+            plugin.messages().send(p, "amigo.nao_e_amigo", Placeholder.unparsed("jogador", name));
+            return false;
+        }
+        if (target == null) {
+            plugin.messages().send(p, "amigo.ir_offline", Placeholder.unparsed("jogador", name));
+            return false;
+        }
+        if (plugin.duels().service().duelOf(p.getUniqueId()) != null
+                || !plugin.hooks().safeZone(p.getLocation()) || !plugin.hooks().safeZone(target.getLocation())) {
+            plugin.messages().send(p, "amigo.ir_fora_da_cidade", Placeholder.unparsed("jogador", name));
+            return false;
+        }
+        p.teleportAsync(target.getLocation());
+        plugin.messages().send(p, "amigo.ir_foi", Placeholder.unparsed("jogador", name));
+        plugin.messages().send(target, "amigo.ir_chegou", Placeholder.unparsed("jogador", p.getName()));
+        return true;
+    }
+
     public boolean removeFriend(Player p, UUID other) {
         boolean ok = plugin.friends().remove(p.getUniqueId(), other);
         msg().send(p, ok ? "amigo.removido" : "amigo.nao_amigo", who(name(other)));

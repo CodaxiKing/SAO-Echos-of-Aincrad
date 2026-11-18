@@ -114,6 +114,11 @@ public final class AincradUIAPIImpl implements AincradUIAPI {
     }
 
     @Override
+    public void setTrackerProvider(java.util.function.Function<Player, Component> provider) {
+        plugin.hud().setTrackerProvider(provider);
+    }
+
+    @Override
     public void setHudBadgeProvider(java.util.function.Function<Player, Component> provider) {
         plugin.hud().setBadgeProvider(provider);
     }
