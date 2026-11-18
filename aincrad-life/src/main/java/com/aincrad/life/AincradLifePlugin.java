@@ -229,6 +229,12 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             if (on("encomendas")) {
                 // O quadro de encomendas liga as quatro profissões; precisa do AincradEconomy (custódia).
                 orders = new OrderService(this, msg, config, hooks, professions, () -> cooking, () -> fishing, () -> smith, () -> alchemy);
+                // Ao abrir uma bancada, o artesão recebe os materiais das caixas dos contratos dele.
+                stations.beforeUse(p -> {
+                    if (orders != null) {
+                        orders.pullBoxes(p);
+                    }
+                });
                 core.subscribe(OrderService.BUS, m -> {
                     if (orders != null && !core.server().equals(m.origin())) {
                         orders.onBus(m.payload());
@@ -480,6 +486,9 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         smith = null;
         alchemy = null;
         orders = null;
+        if (stations != null) {
+            stations.beforeUse(null);
+        }
         pets = null;
         marriages = null;
         extraModules.clear();

@@ -648,6 +648,7 @@ encomenda:
   material_nao_pode: "<red>Você só deixa materiais num contrato seu que esteja aguardando resposta ou em produção."
   material_depositado: "<green>Você deixou <white><qtd></white> item(ns) na caixa do contrato <white>#<id></white>. Se o contrato for cancelado, o que não foi usado volta para você."
   caixa_vazia: "<gray>A caixa do contrato <white>#<id></white> está vazia."
+  caixa_na_bancada: "<green><white><qtd></white> pilha(s) de material dos seus contratos vieram para o inventário."
   caixa_retirada: "<green>Você retirou <white><qtd></white> pilha(s) de material da caixa do contrato <white>#<id></white>."
   linha_aguardando: "<gray>Contrato direto com <white><artesao></white> <dark_gray>· <gray>ele responde em até <white><tempo>"
   aviso_direto: "<aqua><white><cliente></white> quer contratar você: <white><produto></white> por <yellow><preco></yellow> (contrato <white>#<id></white>). Responda: <white>/encomenda aceitar <id></white> ou <white>/encomenda recusar <id></white>."

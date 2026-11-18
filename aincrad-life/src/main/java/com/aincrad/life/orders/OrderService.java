@@ -1748,6 +1748,36 @@ public final class OrderService {
         }, () -> give(p, item));
     }
 
+    /**
+     * O artesão abriu uma bancada: os materiais que os clientes deixaram nas caixas dos contratos
+     * dele em produção vêm para o inventário, sem precisar do {@code /encomenda caixa}. Sem
+     * contrato com material, não diz nada.
+     */
+    public void pullBoxes(Player p) {
+        String me = p.getUniqueId().toString();
+        run(p, c -> {
+            List<String> items = Database.query(c, "SELECT b.item FROM life_contract_box b JOIN life_orders o ON o.id = b.order_id "
+                    + "WHERE b.kind = 'MATERIAL' AND o.state = 'CONTRATADO' AND o.artisan = ?", rs -> rs.getString(1), me);
+            if (!items.isEmpty()) {
+                Database.update(c, "DELETE FROM life_contract_box WHERE kind = 'MATERIAL' AND order_id IN "
+                        + "(SELECT id FROM life_orders WHERE state = 'CONTRATADO' AND artisan = ?)", me);
+            }
+            return items;
+        }, items -> {
+            int n = 0;
+            for (String raw : items) {
+                ItemStack it = unpack(raw);
+                if (it != null) {
+                    give(p, it);
+                    n++;
+                }
+            }
+            if (n > 0) {
+                msg.send(p, "encomenda.caixa_na_bancada", Messages.vars("qtd", n));
+            }
+        });
+    }
+
     /** O artesão de um contrato em produção retira os materiais da caixa dele para trabalhar. */
     public void withdrawBox(Player p, long id) {
         run(p, c -> {

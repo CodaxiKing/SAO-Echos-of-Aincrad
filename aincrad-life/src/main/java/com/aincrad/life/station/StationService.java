@@ -155,6 +155,13 @@ public final class StationService implements Listener {
         return placed;
     }
 
+    /** Roda antes de qualquer bancada abrir (as encomendas trazem os materiais do contrato). Null tira. */
+    public void beforeUse(java.util.function.Consumer<Player> hook) {
+        this.beforeUse = hook;
+    }
+
+    private java.util.function.Consumer<Player> beforeUse;
+
     /** Um módulo de profissão diz o que acontece ao clicar numa bancada do tipo. */
     public void onUse(String type, BiConsumer<Player, Placed> handler) {
         handlers.put(type.toLowerCase(Locale.ROOT), handler);
@@ -421,6 +428,13 @@ public final class StationService implements Listener {
         if (h == null) {
             msg.send(p, "estacao.em_breve", Messages.vars("tipo", st.type.name()));
             return;
+        }
+        if (beforeUse != null) {
+            try {
+                beforeUse.accept(p);
+            } catch (RuntimeException e) {
+                plugin.getLogger().log(Level.WARNING, "Erro antes de usar a bancada " + st.type.id(), e);
+            }
         }
         try {
             h.accept(p, st);
