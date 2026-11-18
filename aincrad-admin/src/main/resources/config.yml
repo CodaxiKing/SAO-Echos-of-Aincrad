@@ -1,0 +1,12 @@
+# ============================================================
+#  AincradAdmin — ferramentas do dono
+# ============================================================
+registro:
+  # Guarda as ações de administração por tantos dias. 0 = para sempre.
+  guardar_dias: 90
+  # Linhas por página em /aincrad log.
+  por_pagina: 10
+  # Também escreve cada ação no console do servidor.
+  console: true
+  # Formato da data em /aincrad log (padrão do Java: dd, MM, yyyy, HH, mm).
+  formato_data: "dd/MM/yyyy HH:mm"

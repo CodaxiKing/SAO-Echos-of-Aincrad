@@ -1,0 +1,15 @@
+# ============================================================
+#  AincradAdmin — mensagens (MiniMessage)
+# ============================================================
+log:
+  descricao: "Registro das ações de administração"
+  uso: "<gray>Uso: <white>/aincrad log [jogador|*] [tipo|*] [página]</white>. <gray>Tipo é o plugin (<white>floors</white>) ou a ação (<white>andar</white>, <white>andar.liberar</white>)."
+  pagina_invalida: "<red>Página inválida: <white><valor></white>."
+  titulo: "<gold>Registro de admin <gray>· página <white><pagina></white> <dark_gray>(<filtro>)"
+  linha: "<dark_gray><data> <aqua><autor></aqua> <dark_gray>[<plugin>] <yellow><acao></yellow> <gray><detalhe>"
+  vazio: "<gray>Nada no registro para esse filtro."
+  proxima: "<gray>Próxima página: <white>/aincrad log <jogador> <tipo> <pagina>"
+  filtro_tudo: "tudo"
+  filtro_jogador: "jogador <jogador>"
+  filtro_tipo: "tipo <tipo>"
+  erro: "<red>Não foi possível ler o registro. Veja o console."
