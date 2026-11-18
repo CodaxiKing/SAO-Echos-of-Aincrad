@@ -73,6 +73,32 @@ monumento:
     queda: "queda"
     outro: "outra causa"
 
+recompensa:
+  uso: "<gray>Uso: <white>/recompensa <jogador> <valor></white>. <gray>Veja as cabeças a prêmio em <white>/recompensas</white>."
+  desligada: "<gray>As recompensas por cabeça estão desligadas (ou falta o AincradEconomy)."
+  desconhecido: "<red>Não conheço o jogador <white><jogador></white>."
+  sem_col: "<red>Você não tem <white><valor> Col</white>."
+  erro: "<red>Não foi possível registrar a recompensa. Seu Col voltou."
+  posta: "<green>Você pôs <gold><valor> Col</gold> pela prisão de <white><jogador></white>. <gray>Volta para você se ele ficar verde sem ser preso."
+  na_sua_cabeca: "<red>Puseram <gold><valor> Col</gold> pela sua prisão."
+  recebeu: "<gold>Você prendeu <white><jogador></white> e recebeu <white><valor> Col</white> de recompensa."
+  anuncio: "<gold><white><captor></white> prendeu <white><jogador></white> e levou <white><valor> Col</white> de recompensa."
+  devolvida: "<gray>Uma recompensa sua não foi cobrada: <white><valor> Col</white> voltaram para você."
+  nenhuma: "<gray>Nenhuma cabeça a prêmio."
+  menu: "<dark_gray>Cabeças a prêmio"
+  item: "<red><jogador>"
+  item_valor: "<gold><valor> Col <dark_gray>(<qtd> recompensa(s))"
+  bloqueio:
+    voce_mesmo: "<red>Você não pode pôr recompensa pela própria cabeça."
+    valor: "<red>O valor mínimo é <white><minimo> Col</white>."
+    nao_e_criminoso: "<red><white><jogador></white> não é um criminoso procurado."
+
+tumulo:
+  texto: "<gray>Aqui caiu\n<white><jogador>\n<dark_gray><data>"
+  flores: "<light_purple>✿ <flores>"
+  aqui_jaz: "<gray>Aqui caiu <white><jogador></white>, em <white><data></white>. <dark_gray>Flores: <flores>. Clique com uma flor na mão para deixar uma."
+  flor: "<light_purple>Você deixou uma flor para <white><jogador></white>."
+
 admin:
   descricao_monumento: "Monumento da Vida: definir onde fica o mural"
   uso_monumento: "<gray>Uso: <white>/aincrad monumento definir</white> <gray>(o mural aparece onde você está, virado para onde você olha)"

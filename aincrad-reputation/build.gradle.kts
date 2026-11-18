@@ -19,6 +19,7 @@ dependencies {
     compileOnly("com.aincrad:aincrad-bosses:0.1.0")
     compileOnly("com.aincrad:aincrad-items:0.1.0")
     compileOnly("com.aincrad:aincrad-life:0.1.0")
+    compileOnly("com.aincrad:aincrad-economy:0.1.0")
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation(platform("org.junit:junit-bom:5.11.4"))

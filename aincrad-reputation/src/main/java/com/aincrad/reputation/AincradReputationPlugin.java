@@ -43,6 +43,8 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
     private ReputationService reputation;
     private CursorService cursor;
     private MonumentService monument;
+    private BountyService bounties;
+    private GraveService graves;
     private final List<String> commands = new ArrayList<>();
 
     @Override
@@ -53,6 +55,8 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
         try {
             List<String> steps = new ArrayList<>(ReputationService.MIGRATIONS);
             steps.addAll(MonumentService.MIGRATIONS);
+            steps.addAll(BountyService.MIGRATIONS);
+            steps.addAll(GraveService.MIGRATIONS);
             core.database().migrate("reputation", steps);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradReputation não vai ligar: " + e.getMessage());
@@ -94,6 +98,25 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
                 reputation.describe(sender, target);
             }
         });
+        bounties = new BountyService(this, core.database(), msg, config, hooks);
+        getServer().getPluginManager().registerEvents(bounties, this);
+        getServer().getScheduler().runTaskTimer(this, bounties::tick, 600L, 1200L);
+        graves = new GraveService(this, core.database(), msg, config);
+        try {
+            graves.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler os túmulos: " + e.getMessage());
+        }
+        getServer().getPluginManager().registerEvents(graves, this);
+        getServer().getScheduler().runTaskTimer(this, graves::tick, 100L, 200L);
+        command("recompensa", List.of(), (sender, args) -> player(sender, p -> {
+            if (args.length < 2) {
+                msg.send(p, "recompensa.uso");
+            } else {
+                bounties.place(p, args[0], args[1]);
+            }
+        }));
+        command("recompensas", List.of("cabecas"), (sender, args) -> player(sender, bounties::list));
         command("monumento", List.of("monumentodavida"), (sender, args) ->
                 player(sender, p -> monument.menu(p, args.length == 0 ? null : args[0])));
         core.commands().register(this, new SubCommand() {
@@ -317,6 +340,9 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
         }
         if (monument != null) {
             monument.removeBoard();
+        }
+        if (graves != null) {
+            graves.removeBodies();
         }
         var known = getServer().getCommandMap().getKnownCommands();
         for (String name : commands) {

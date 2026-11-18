@@ -62,3 +62,21 @@ nome:
 monumento:
   # Quantos nomes o mural mostra por vez (as páginas passam a cada 10 segundos).
   nomes_por_pagina: 16
+
+# Recompensa por cabeça: /recompensa <jogador> <valor>. Precisa do AincradEconomy.
+recompensa:
+  ativa: true
+  # Valor mínimo, em Col.
+  minimo: 100
+  # true = só jogador vermelho pode ter a cabeça a prêmio; false = laranja também.
+  so_vermelhos: true
+
+# Túmulos: uma lápide onde cada jogador morre, com o nome e a data.
+tumulos:
+  ativo: true
+  # Some depois de tantos dias. 0 = nunca.
+  dias: 30
+  # Num pedaço de mapa (16 x 16) cabem tantas lápides; a mais velha dá lugar à nova.
+  maximo_por_pedaco: 4
+  # O bloco que faz a lápide (é só enfeite: não dá para quebrar nem pegar).
+  bloco: MOSSY_COBBLESTONE_WALL

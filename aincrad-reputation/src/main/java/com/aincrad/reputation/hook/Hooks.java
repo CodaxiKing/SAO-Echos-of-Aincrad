@@ -44,6 +44,43 @@ public final class Hooks {
         }
     }
 
+    /** Põe Col do jogador em custódia no AincradEconomy. Null se ele não tem o valor, ou sem o plugin. */
+    public String hold(org.bukkit.entity.Player p, long amount, String reason) {
+        if (!has("AincradEconomy")) {
+            return null;
+        }
+        try {
+            return EcoBridge.hold(p, amount, reason);
+        } catch (LinkageError | RuntimeException e) {
+            plugin.getLogger().warning("AincradEconomy incompatível (custódia): " + e);
+            return null;
+        }
+    }
+
+    /** Libera a custódia para alguém, online ou não. */
+    public void release(String hold, java.util.UUID to, long amount, String reason) {
+        try {
+            EcoBridge.release(hold, to, amount, reason).exceptionally(ex -> {
+                plugin.getLogger().warning("Não foi possível liberar a custódia " + hold + ": " + ex);
+                return false;
+            });
+        } catch (LinkageError | RuntimeException e) {
+            plugin.getLogger().warning("AincradEconomy incompatível (liberar custódia): " + e);
+        }
+    }
+
+    /** Devolve a custódia ao dono. */
+    public void refund(String hold, String reason) {
+        try {
+            EcoBridge.refund(hold, reason).exceptionally(ex -> {
+                plugin.getLogger().warning("Não foi possível devolver a custódia " + hold + ": " + ex);
+                return 0L;
+            });
+        } catch (LinkageError | RuntimeException e) {
+            plugin.getLogger().warning("AincradEconomy incompatível (devolver custódia): " + e);
+        }
+    }
+
     /** O andar do lugar (0 sem o AincradFloors, ou fora de qualquer andar). */
     public int floorAt(Location l) {
         if (!has("AincradFloors") || l == null) {
