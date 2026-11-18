@@ -1,4 +1,4 @@
-package com.aincrad.social.api.event;
+package com.aincrad.duels.api;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -18,8 +18,10 @@ public final class DuelEndEvent extends Event {
     private final UUID winner;
     private final String mode;
     private final String reason;
+    private final long stake;
 
-    public DuelEndEvent(UUID first, UUID second, UUID winner, String mode, String reason) {
+    public DuelEndEvent(UUID first, UUID second, UUID winner, String mode, String reason, long stake) {
+        this.stake = stake;
         this.first = first;
         this.second = second;
         this.winner = winner;
@@ -47,6 +49,11 @@ public final class DuelEndEvent extends Event {
 
     public String getMode() {
         return mode;
+    }
+
+    /** Quanto cada um apostou, em Col (0 = sem aposta). O vencedor leva o dobro; no empate, cada um recebe o seu de volta. */
+    public long getStake() {
+        return stake;
     }
 
     public String getReason() {

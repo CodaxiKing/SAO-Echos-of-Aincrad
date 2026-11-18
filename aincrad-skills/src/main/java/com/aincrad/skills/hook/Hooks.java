@@ -26,22 +26,18 @@ public final class Hooks {
         }
     }
 
-    /** O jogador está num duelo do AincradSocial? Sem o plugin: false. */
+    /** O jogador está num duelo do AincradDuels? Sem o plugin: false. */
     public boolean dueling(Player p) {
-        if (!has("AincradSocial")) {
+        org.bukkit.plugin.Plugin duels = Bukkit.getPluginManager().getPlugin("AincradDuels");
+        if (duels == null || !duels.isEnabled()) {
             return false;
         }
         try {
-            for (Class<?> c : Bukkit.getServicesManager().getKnownServices()) {
-                if (c.getName().equals("com.aincrad.social.api.AincradSocialAPI")) {
-                    Object api = Bukkit.getServicesManager().load(c);
-                    return api != null && Boolean.TRUE.equals(c.getMethod("isDueling", java.util.UUID.class).invoke(api, p.getUniqueId()));
-                }
-            }
+            Class<?> api = Class.forName("com.aincrad.duels.api.AincradDuelsAPI", true, duels.getClass().getClassLoader());
+            return Boolean.TRUE.equals(api.getMethod("isDueling", java.util.UUID.class).invoke(null, p.getUniqueId()));
         } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
             return false;
         }
-        return false;
     }
 
     /**

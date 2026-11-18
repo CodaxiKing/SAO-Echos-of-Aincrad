@@ -1,4 +1,4 @@
-package com.aincrad.social.duel;
+package com.aincrad.duels.model;
 
 import java.util.Locale;
 

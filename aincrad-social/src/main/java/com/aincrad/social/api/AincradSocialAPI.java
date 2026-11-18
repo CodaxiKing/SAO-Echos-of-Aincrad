@@ -8,7 +8,8 @@ import java.util.UUID;
 
 /**
  * API pública do AincradSocial, registrada no ServicesManager do Bukkit.
- * Os eventos de guilda e de duelo ficam em {@code com.aincrad.social.api.event}.
+ * Os eventos de guilda ficam em {@code com.aincrad.social.api.event}. Os duelos têm o plugin deles,
+ * o AincradDuels ({@code com.aincrad.duels.api.AincradDuelsAPI}).
  *
  * <pre>
  * AincradSocialAPI social = Bukkit.getServicesManager().load(AincradSocialAPI.class);
@@ -30,12 +31,6 @@ public interface AincradSocialAPI {
 
     /** Mesma party, mesma guilda ou guildas aliadas (para não se ferirem, dividir loot etc.). */
     boolean areAllies(UUID a, UUID b);
-
-    /** O jogador está num duelo (em contagem ou valendo)? */
-    boolean isDueling(UUID player);
-
-    /** Os dois estão duelando um contra o outro? */
-    boolean inDuel(UUID a, UUID b);
 
     /** Soma XP à guilda do jogador. */
     void addGuildXp(UUID player, long amount, String reason);

@@ -5,7 +5,7 @@ api-version: '1.21'
 description: Proficiência por arma, Sword Skills ativas e passivas e a skill única do Aincrad.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [AincradRPG, AincradFloors, AincradEffects, AincradSocial]
+softdepend: [AincradRPG, AincradFloors, AincradEffects, AincradDuels]
 
 # Os comandos de jogador (/skills, /skill, /rastrear) são registrados pelo plugin ao ligar.
 

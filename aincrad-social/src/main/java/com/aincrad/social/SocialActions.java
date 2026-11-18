@@ -132,7 +132,7 @@ public final class SocialActions {
             plugin.messages().send(p, "amigo.ir_offline", Placeholder.unparsed("jogador", name));
             return false;
         }
-        if (plugin.duels().service().duelOf(p.getUniqueId()) != null
+        if (plugin.hooks().isDueling(p.getUniqueId())
                 || !plugin.hooks().safeZone(p.getLocation()) || !plugin.hooks().safeZone(target.getLocation())) {
             plugin.messages().send(p, "amigo.ir_fora_da_cidade", Placeholder.unparsed("jogador", name));
             return false;

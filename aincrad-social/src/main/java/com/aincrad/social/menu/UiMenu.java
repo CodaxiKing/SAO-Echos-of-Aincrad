@@ -296,21 +296,18 @@ public final class UiMenu implements MenuHook {
         ui.openList(p, list);
     }
 
-    /** "Duelar": só aparece para quem está online; abre a escolha do modo. */
+    /** "Duelar": só com o AincradDuels no servidor e para quem está online; abre a escolha do modo. */
     private void duelRow(UiList list, UUID other) {
-        if (Names.online(other) == null || !plugin.settings().duelEnabled) {
+        if (Names.online(other) == null || !plugin.hooks().hasDuels()) {
             return;
         }
         list.row(UiList.Row.icon("under_icons/player", msg().get("menu.duelar"), null, pl -> {
             UiList modes = UiList.of(msg().get("menu.duelar_titulo", Placeholder.unparsed("jogador", name(other))));
-            for (com.aincrad.social.duel.DuelMode m : com.aincrad.social.duel.DuelMode.values()) {
-                if (m.lethal() && !plugin.settings().duelAllowTotal) {
-                    continue;
-                }
-                modes.row(UiList.Row.icon("under_icons/player", msg().get("duelo.modo." + m.key()), msg().get("menu.duelo_dica." + m.key()), p2 -> {
+            for (String mode : List.of("primeiro_golpe", "metade", "total")) {
+                modes.row(UiList.Row.icon("under_icons/player", msg().get("menu.duelo_modo." + mode), msg().get("menu.duelo_dica." + mode), p2 -> {
                     Player target = Names.online(other);
                     if (target != null) {
-                        plugin.duels().challenge(p2, target, m);
+                        plugin.hooks().challenge(p2, target, mode);
                     }
                     ui.closeMenu(p2);
                 }));

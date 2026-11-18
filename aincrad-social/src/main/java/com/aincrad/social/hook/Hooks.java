@@ -237,14 +237,54 @@ public final class Hooks {
         call(rpg, "addXp", new Class<?>[]{Player.class, long.class, String.class}, p, amount, reason);
     }
 
-    /**
-     * Duelo: até a hora dada (milissegundos; 0 encerra), os dois podem se ferir dentro de zona
-     * segura (AincradFloors) e sem mudar a cor do cursor (AincradReputation).
-     */
-    public void exemptPvp(java.util.UUID a, java.util.UUID b, long until) {
-        Class<?>[] sig = {java.util.UUID.class, java.util.UUID.class, long.class};
-        call(floors, "exemptPvp", sig, a, b, until);
-        call(reputation, "exemptPvp", sig, a, b, until);
+    // ------------------------------------------------------------------ duelos (AincradDuels)
+
+    private static Class<?> duels() {
+        org.bukkit.plugin.Plugin p = Bukkit.getPluginManager().getPlugin("AincradDuels");
+        if (p == null || !p.isEnabled()) {
+            return null;
+        }
+        try {
+            return Class.forName("com.aincrad.duels.api.AincradDuelsAPI", true, p.getClass().getClassLoader());
+        } catch (ReflectiveOperationException | LinkageError e) {
+            return null;
+        }
+    }
+
+    public boolean hasDuels() {
+        return duels() != null;
+    }
+
+    /** O jogador está num duelo? Sem o AincradDuels, nunca. */
+    public boolean isDueling(java.util.UUID p) {
+        Class<?> api = duels();
+        try {
+            return api != null && Boolean.TRUE.equals(api.getMethod("isDueling", java.util.UUID.class).invoke(null, p));
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
+        }
+    }
+
+    /** Os dois estão duelando um contra o outro? (num duelo, colegas de party e de guilda se acertam) */
+    public boolean inDuel(java.util.UUID a, java.util.UUID b) {
+        Class<?> api = duels();
+        try {
+            return api != null && Boolean.TRUE.equals(api.getMethod("inDuel", java.util.UUID.class, java.util.UUID.class).invoke(null, a, b));
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
+        }
+    }
+
+    /** Desafia para um duelo, sem aposta (o botão "Duelar" do menu SAO). */
+    public void challenge(Player from, Player to, String mode) {
+        Class<?> api = duels();
+        try {
+            if (api != null) {
+                api.getMethod("challenge", Player.class, Player.class, String.class, long.class).invoke(null, from, to, mode, 0L);
+            }
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            log.warning("AincradDuels incompatível (desafiar): " + e);
+        }
     }
 
     public boolean hasFloors() {

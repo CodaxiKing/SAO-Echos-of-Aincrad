@@ -1,6 +1,6 @@
 # AincradSocial
 
-Amigos, party, guilda, duelos e mensagens no estilo SAO, para Paper 1.21.11. Funciona sozinho pelos comandos e
+Amigos, party, guilda e mensagens no estilo SAO, para Paper 1.21.11. Funciona sozinho pelos comandos e
 pelo chat; com o **AincradUI** instalado, tudo aparece no menu SAO e os membros da party ganham
 barras de vida embaixo da barra do jogador, como no anime.
 
@@ -35,8 +35,6 @@ próxima linha que o jogador digitar no chat é usada (só ele vê). `cancelar` 
 | `/party expulsar\|lider <jogador>` | Só o líder |
 | `/party sair`, `/party desfazer` | Sair; desfazer (só o líder) |
 | `/party chat <mensagem>` ou `@mensagem` no chat | Chat só da party |
-| `/duelo <jogador> [primeiro_golpe\|metade\|total]` | Desafia para um duelo |
-| `/duelo aceitar\|recusar [jogador]`, `/duelo desistir` | Responde ao desafio; desiste do duelo em andamento |
 | `/mensagem <jogador> [texto]` | Manda para a caixa de entrada (sem texto, pede no chat) |
 | `/caixa`, `/caixa ler <n>`, `/caixa apagar <n>` | Caixa de entrada (com o AincradUI, `/caixa` abre no menu) |
 
@@ -108,7 +106,7 @@ Sair/Desfazer.
 
 ### API
 
-`AincradSocialAPI` no ServicesManager: `isDueling`, `inDuel`, `getParty`, `getGuild` (nome, tag, emblema, nível, cargo,
+`AincradSocialAPI` no ServicesManager: `getParty`, `getGuild` (nome, tag, emblema, nível, cargo,
 vermelha), `areAllies` (party, guilda ou aliança), `addGuildXp`, `recordBossKill(participantes, andar,
 lastAttacker)` para o AincradBosses, `questCompleted` para o AincradQuests e `taxIncome` para a
 economia. Eventos em `com.aincrad.social.api.event`: `GuildCreateEvent`, `GuildJoinEvent`,
@@ -146,25 +144,9 @@ economia. Eventos em `com.aincrad.social.api.event`: `GuildCreateEvent`, `GuildJ
 
 ## Duelos
 
-`/duelo <jogador> [modo]` desafia alguém a até `duelo.distancia_desafio` blocos (16). O desafio chega
-no chat com os botões Aceitar e Recusar e expira em 30 s. Aceito, há uma contagem de 5 s e os golpes
-passam a valer.
-
-| Modo | Como acaba |
-|---|---|
-| `primeiro_golpe` (padrão) | Quem acerta o primeiro golpe vence. O golpe não tira vida. |
-| `metade` | Vence quem deixar o outro com metade da vida ou menos. Ninguém morre. |
-| `total` | Até a morte, **de verdade** — o aviso aparece no convite. `duelo.modo_total: false` desliga. |
-
-- **Dentro de zona segura**: com o AincradFloors, os dois podem se ferir na cidade enquanto o duelo dura.
-- **Cor do cursor**: com o AincradReputation, nenhum golpe do duelo muda a cor de ninguém, nem a morte no modo total.
-- **Sword Skills**: com o AincradSkills, quem está em duelo usa skills dentro da cidade.
-- Colegas de party, de guilda e aliados se acertam durante o duelo.
-- Ninguém de fora acerta um duelista, e um duelista só acerta o oponente.
-- Perde quem sai do servidor, quem desiste (`/duelo desistir`) e quem se afasta mais de `duelo.raio`
-  blocos (30) do lugar onde o duelo começou.
-- Passado o `tempo_limite_segundos` (180), vence quem tem a maior fração de vida; igual, empata.
-- O resultado aparece no chat de quem está a até `raio_aviso` blocos.
+Os duelos têm o plugin deles, o [AincradDuels](../aincrad-duels/README.md): modos, aposta em Col,
+placar e ranking. Com ele no servidor, o menu SAO mostra "Duelar" ao clicar num membro da party
+ou num amigo online, e colegas de party e de guilda se acertam durante o duelo.
 
 ## Dados
 
@@ -217,7 +199,6 @@ troca atômica do arquivo.
 
 - Emblema como imagem do pack (hoje é um símbolo de texto) e banner da guilda (nível 5).
 - Aviso de amigo entrando ou saindo em outro servidor da rede.
-- Duelos: sem aposta de Col nem de itens e sem placar de vitórias.
 - O dono do drop (`por_vez`, `lider`) nunca perde a posse: se ele não pegar, o item some no tempo
   normal do Minecraft sem ficar livre para os outros.
 

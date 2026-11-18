@@ -33,24 +33,6 @@ party:
   # De quem são os itens que os mobs soltam: livre (quem pegar), por_vez (rodízio) ou lider.
   drops: livre
 
-duelo:
-  ativo: true
-  convite_expira_segundos: 30
-  # Contagem antes de os golpes valerem.
-  contagem_segundos: 5
-  # Passado o tempo, vence quem tem mais vida (em fração); igual, empata.
-  tempo_limite_segundos: 180
-  # Distância máxima entre os dois para desafiar e aceitar.
-  distancia_desafio: 16
-  # Quem se afasta mais que isto do lugar onde o duelo começou perde.
-  raio: 30
-  # Quem está a até este raio vê o resultado no chat.
-  raio_aviso: 32
-  # O modo "total" mata de verdade. false deixa só "primeiro_golpe" e "metade".
-  modo_total: true
-  # Modo usado quando o jogador não escolhe: primeiro_golpe, metade ou total.
-  modo_padrao: primeiro_golpe
-
 mensagens:
   # Só dá para mandar mensagem para amigos (como no anime).
   so_amigos: true

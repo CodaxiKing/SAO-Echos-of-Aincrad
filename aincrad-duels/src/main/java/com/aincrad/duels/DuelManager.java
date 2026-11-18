@@ -1,17 +1,18 @@
-package com.aincrad.social.duel;
+package com.aincrad.duels;
 
-import com.aincrad.social.AincradSocialPlugin;
-import com.aincrad.social.api.event.DuelEndEvent;
-import com.aincrad.social.api.event.DuelStartEvent;
-import com.aincrad.social.config.Messages;
-import com.aincrad.social.config.Settings;
-import com.aincrad.social.duel.DuelService.Challenge;
-import com.aincrad.social.duel.DuelService.Duel;
+import com.aincrad.core.AincradCore;
+import com.aincrad.core.config.ConfigFile;
+import com.aincrad.core.message.Messages;
+import com.aincrad.duels.api.DuelEndEvent;
+import com.aincrad.duels.api.DuelStartEvent;
+import com.aincrad.duels.hook.Hooks;
+import com.aincrad.duels.model.DuelMode;
+import com.aincrad.duels.model.DuelScore;
+import com.aincrad.duels.model.DuelService;
+import com.aincrad.duels.model.DuelService.Challenge;
+import com.aincrad.duels.model.DuelService.Duel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,7 +27,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -35,78 +38,106 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Os duelos no servidor: desafio, contagem, golpes e fim. Durante o duelo os dois podem se ferir
- * dentro de zona segura (AincradFloors) e sem mudar a cor do cursor (AincradReputation); ninguém
- * de fora acerta os duelistas, nem eles acertam alguém de fora.
+ * Os duelos no servidor: desafio, aposta, contagem, golpes e fim. Durante o duelo os dois podem
+ * se ferir dentro de zona segura (AincradFloors) e sem mudar a cor do cursor
+ * (AincradReputation); ninguém de fora acerta os duelistas, nem eles acertam alguém de fora.
  */
 public final class DuelManager implements Listener {
 
-    private final AincradSocialPlugin plugin;
+    private final Plugin plugin;
+    private final Messages msg;
+    private final ConfigFile config;
+    private final Hooks hooks;
+    private final ScoreStore scores;
     private final DuelService duels = new DuelService(System::currentTimeMillis);
     /** Centro de cada duelo: quem se afasta demais perde. */
     private final Map<Duel, Location> centers = new HashMap<>();
     /** Último número da contagem já mostrado. */
     private final Map<Duel, Integer> shown = new HashMap<>();
 
-    public DuelManager(AincradSocialPlugin plugin) {
+    public DuelManager(Plugin plugin, Messages msg, ConfigFile config, Hooks hooks, ScoreStore scores) {
         this.plugin = plugin;
+        this.msg = msg;
+        this.config = config;
+        this.hooks = hooks;
+        this.scores = scores;
     }
 
     public DuelService service() {
         return duels;
     }
 
-    private Messages msg() {
-        return plugin.messages();
-    }
-
-    private Settings cfg() {
-        return plugin.settings();
-    }
-
     private Component modeName(DuelMode m) {
-        return msg().get("duelo.modo." + m.key());
+        return msg.get("modo." + m.key());
     }
 
-    private static TagResolver who(Player p) {
-        return Placeholder.unparsed("jogador", p.getName());
+    public DuelMode defaultMode() {
+        DuelMode m = DuelMode.parse(config.string("modo_padrao", "primeiro_golpe"));
+        return m == null || (m.lethal() && !allowTotal()) ? DuelMode.PRIMEIRO_GOLPE : m;
+    }
+
+    public boolean allowTotal() {
+        return config.bool("modo_total", true);
+    }
+
+    public long maxStake() {
+        return hooks.hasEconomy() ? config.integer("aposta.maximo", 100_000, 0, Integer.MAX_VALUE) : 0;
+    }
+
+    private static boolean near(Player a, Player b, double max) {
+        return a.getWorld().equals(b.getWorld()) && a.getLocation().distanceSquared(b.getLocation()) <= max * max;
+    }
+
+    private double challengeDistance() {
+        return config.decimal("distancia_desafio", 16, 2, 256);
     }
 
     // ------------------------------------------------------------------ desafio
 
-    /** {@code mode} null usa o modo padrão da config. */
-    public void challenge(Player from, Player to, DuelMode mode) {
-        if (!cfg().duelEnabled) {
-            msg().send(from, "duelo.desligado");
+    /**
+     * @param mode  null usa o modo padrão da config
+     * @param stake quanto cada um aposta, em Col (0 = sem aposta)
+     */
+    public void challenge(Player from, Player to, DuelMode mode, long stake) {
+        if (!config.bool("ativo", true)) {
+            msg.send(from, "desligado");
             return;
         }
-        DuelMode m = mode == null ? cfg().duelDefaultMode : mode;
-        if (m.lethal() && !cfg().duelAllowTotal) {
-            msg().send(from, "duelo.total_desligado");
+        DuelMode m = mode == null ? defaultMode() : mode;
+        if (m.lethal() && !allowTotal()) {
+            msg.send(from, "total_desligado");
             return;
         }
-        if (!near(from, to, cfg().duelChallengeDistance)) {
-            msg().send(from, "duelo.longe", who(to));
+        if (stake < 0 || stake > maxStake()) {
+            msg.send(from, "aposta.invalida", Messages.vars("maximo", hooks.format(maxStake())));
+            return;
+        }
+        if (stake > 0 && hooks.balance(from) < stake) {
+            msg.send(from, "aposta.sem_saldo", Messages.vars("valor", hooks.format(stake)));
+            return;
+        }
+        if (!near(from, to, challengeDistance())) {
+            msg.send(from, "longe", Messages.vars("jogador", to.getName()));
             return;
         }
         if (from.isDead() || to.isDead()) {
             return;
         }
-        switch (duels.challenge(from.getUniqueId(), to.getUniqueId(), m, cfg().duelInviteSeconds * 1000L)) {
-            case SELF -> msg().send(from, "duelo.si_mesmo");
-            case BUSY -> msg().send(from, "duelo.voce_em_duelo");
-            case TARGET_BUSY -> msg().send(from, "duelo.alvo_em_duelo", who(to));
-            case ALREADY -> msg().send(from, "duelo.ja_desafiou", who(to));
+        long ttl = config.integer("convite_expira_segundos", 30, 5, 600);
+        switch (duels.challenge(from.getUniqueId(), to.getUniqueId(), m, ttl * 1000L, stake)) {
+            case SELF -> msg.send(from, "si_mesmo");
+            case BUSY -> msg.send(from, "voce_em_duelo");
+            case TARGET_BUSY -> msg.send(from, "alvo_em_duelo", Messages.vars("jogador", to.getName()));
+            case ALREADY -> msg.send(from, "ja_desafiou", Messages.vars("jogador", to.getName()));
             case SENT -> {
-                msg().send(from, "duelo.enviado", who(to), Placeholder.component("modo", modeName(m)));
-                msg().send(to, m.lethal() ? "duelo.recebido_total" : "duelo.recebido", who(from),
-                        Placeholder.component("modo", modeName(m)),
-                        Placeholder.unparsed("segundos", String.valueOf(cfg().duelInviteSeconds)));
-                Component yes = msg().get("geral.aceitar").clickEvent(ClickEvent.runCommand("/duelo aceitar " + from.getName()))
-                        .hoverEvent(HoverEvent.showText(msg().get("geral.dica_aceitar")));
-                Component no = msg().get("geral.recusar").clickEvent(ClickEvent.runCommand("/duelo recusar " + from.getName()))
-                        .hoverEvent(HoverEvent.showText(msg().get("geral.dica_recusar")));
-                to.sendMessage(Component.text("  ").append(yes).append(Component.text("  ")).append(no));
+                Component bet = stake > 0 ? msg.get("aposta.linha", Messages.vars("valor", hooks.format(stake))) : Component.empty();
+                msg.send(from, "enviado", Messages.vars("jogador", to.getName(), "modo", modeName(m), "aposta", bet));
+                msg.send(to, m.lethal() ? "recebido_total" : "recebido", Messages.vars("jogador", from.getName(),
+                        "modo", modeName(m), "segundos", ttl, "aposta", bet));
+                to.sendMessage(Component.text("  ")
+                        .append(msg.get("botao_aceitar").clickEvent(ClickEvent.runCommand("/duelo aceitar " + from.getName())))
+                        .append(Component.text("  "))
+                        .append(msg.get("botao_recusar").clickEvent(ClickEvent.runCommand("/duelo recusar " + from.getName()))));
                 to.playSound(to.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.2f);
             }
         }
@@ -116,25 +147,52 @@ public final class DuelManager implements Listener {
     public void accept(Player me, UUID from) {
         Challenge c = duels.pending(me.getUniqueId(), from);
         if (c == null) {
-            msg().send(me, "duelo.sem_desafio");
+            msg.send(me, "sem_desafio");
             return;
         }
         Player other = Bukkit.getPlayer(c.from());
-        if (other == null || !near(me, other, cfg().duelChallengeDistance) || other.isDead() || me.isDead()) {
+        if (other == null || !near(me, other, challengeDistance()) || other.isDead() || me.isDead()) {
             duels.decline(me.getUniqueId(), c.from());
-            msg().send(me, "duelo.desafiante_longe");
+            msg.send(me, "desafiante_longe");
             return;
         }
-        Duel d = duels.begin(c, cfg().duelCountdownSeconds * 1000L, cfg().duelLimitSeconds * 1000L);
+        // A aposta dos dois vai para a custódia antes de qualquer golpe.
+        String holdA = null;
+        String holdB = null;
+        if (c.stake() > 0) {
+            holdA = hooks.hold(other, c.stake());
+            holdB = holdA == null ? null : hooks.hold(me, c.stake());
+            if (holdA == null || holdB == null) {
+                hooks.refund(holdA);
+                duels.decline(me.getUniqueId(), c.from());
+                Player broke = holdA == null ? other : me;
+                for (Player p : new Player[]{other, me}) {
+                    msg.send(p, "aposta.alguem_sem_saldo", Messages.vars("jogador", broke.getName(), "valor", hooks.format(c.stake())));
+                }
+                return;
+            }
+        }
+        long countdown = config.integer("contagem_segundos", 5, 1, 60) * 1000L;
+        long limit = config.integer("tempo_limite_segundos", 180, 10, 3600) * 1000L;
+        Duel d = duels.begin(c, countdown, limit);
         if (d == null) {
-            msg().send(me, "duelo.alvo_em_duelo", who(other));
+            hooks.refund(holdA);
+            hooks.refund(holdB);
+            msg.send(me, "alvo_em_duelo", Messages.vars("jogador", other.getName()));
             return;
+        }
+        d.holds(holdA, holdB);
+        if (holdA != null) {
+            String server = AincradCore.get().server();
+            scores.betOpened(holdA, server);
+            scores.betOpened(holdB, server);
         }
         centers.put(d, other.getLocation().add(me.getLocation()).multiply(0.5));
         // Zona segura e cor do cursor: liberados para os dois até o duelo acabar (com folga).
-        plugin.hooks().exemptPvp(d.a(), d.b(), d.endAt() + 5_000L);
+        hooks.exemptPvp(d.a(), d.b(), d.endAt() + 5_000L);
+        Component bet = d.stake() > 0 ? msg.get("aposta.linha", Messages.vars("valor", hooks.format(d.stake()))) : Component.empty();
         for (Player p : new Player[]{other, me}) {
-            msg().send(p, "duelo.aceito", who(p == me ? other : me), Placeholder.component("modo", modeName(d.mode())));
+            msg.send(p, "aceito", Messages.vars("jogador", (p == me ? other : me).getName(), "modo", modeName(d.mode()), "aposta", bet));
         }
         Bukkit.getPluginManager().callEvent(new DuelStartEvent(other, me, d.mode().key()));
     }
@@ -142,13 +200,13 @@ public final class DuelManager implements Listener {
     public void decline(Player me, UUID from) {
         Challenge c = duels.decline(me.getUniqueId(), from);
         if (c == null) {
-            msg().send(me, "duelo.sem_desafio");
+            msg.send(me, "sem_desafio");
             return;
         }
-        msg().send(me, "duelo.recusado");
+        msg.send(me, "recusado");
         Player other = Bukkit.getPlayer(c.from());
         if (other != null) {
-            msg().send(other, "duelo.recusou", who(me));
+            msg.send(other, "recusou", Messages.vars("jogador", me.getName()));
         }
     }
 
@@ -156,14 +214,10 @@ public final class DuelManager implements Listener {
     public void surrender(Player me) {
         Duel d = duels.duelOf(me.getUniqueId());
         if (d == null) {
-            msg().send(me, "duelo.nao_esta");
+            msg.send(me, "nao_esta");
             return;
         }
         finish(d, d.opponent(me.getUniqueId()), "desistiu");
-    }
-
-    private static boolean near(Player a, Player b, double max) {
-        return a.getWorld().equals(b.getWorld()) && a.getLocation().distanceSquared(b.getLocation()) <= max * max;
     }
 
     // ------------------------------------------------------------------ andamento
@@ -171,6 +225,7 @@ public final class DuelManager implements Listener {
     /** A cada meio segundo: contagem, tempo limite e quem saiu da área. */
     public void tick() {
         long now = System.currentTimeMillis();
+        double r = config.decimal("raio", 30, 5, 256);
         for (Duel d : new ArrayList<>(duels.duels())) {
             Player a = Bukkit.getPlayer(d.a());
             Player b = Bukkit.getPlayer(d.b());
@@ -182,17 +237,16 @@ public final class DuelManager implements Listener {
                 int left = (int) Math.ceil((d.startAt() - now) / 1000.0);
                 if (shown.getOrDefault(d, -1) != left) {
                     shown.put(d, left);
-                    title(a, b, Component.text(left), msg().get("duelo.contagem_sub", Placeholder.component("modo", modeName(d.mode()))));
+                    title(a, b, Component.text(left), msg.get("contagem_sub", Messages.vars("modo", modeName(d.mode()))));
                     sound(a, b, Sound.BLOCK_NOTE_BLOCK_HAT, 1f);
                 }
                 continue;
             }
             if (shown.remove(d) != null) {
-                title(a, b, msg().get("duelo.lutem"), Component.empty());
+                title(a, b, msg.get("lutem"), Component.empty());
                 sound(a, b, Sound.BLOCK_NOTE_BLOCK_PLING, 2f);
             }
             Location c = centers.get(d);
-            double r = cfg().duelRadius;
             boolean aOut = c != null && (!a.getWorld().equals(c.getWorld()) || a.getLocation().distanceSquared(c) > r * r);
             boolean bOut = c != null && (!b.getWorld().equals(c.getWorld()) || b.getLocation().distanceSquared(c) > r * r);
             if (aOut || bOut) {
@@ -222,6 +276,15 @@ public final class DuelManager implements Listener {
         b.playSound(b.getLocation(), s, 1f, pitch);
     }
 
+    private static String nameOf(UUID id) {
+        Player p = Bukkit.getPlayer(id);
+        if (p != null) {
+            return p.getName();
+        }
+        String n = Bukkit.getOfflinePlayer(id).getName();
+        return n == null ? id.toString().substring(0, 8) : n;
+    }
+
     /** Encerra o duelo. {@code winner} null é empate. */
     private void finish(Duel d, UUID winner, String reason) {
         if (!duels.end(d)) {
@@ -229,25 +292,44 @@ public final class DuelManager implements Listener {
         }
         Location center = centers.remove(d);
         shown.remove(d);
-        plugin.hooks().exemptPvp(d.a(), d.b(), 0L);
-        Player a = Bukkit.getPlayer(d.a());
-        Player b = Bukkit.getPlayer(d.b());
-        String nameA = plugin.names().name(d.a());
-        String nameB = plugin.names().name(d.b());
+        hooks.exemptPvp(d.a(), d.b(), 0L);
+        String nameA = nameOf(d.a());
+        String nameB = nameOf(d.b());
+        // A aposta: o vencedor leva as duas; no empate, cada um recebe a sua de volta.
+        if (d.holdA() != null) {
+            if (winner == null) {
+                hooks.refund(d.holdA());
+                hooks.refund(d.holdB());
+            } else {
+                hooks.release(d.holdA(), winner, d.stake());
+                hooks.release(d.holdB(), winner, d.stake());
+            }
+            scores.betClosed(d.holdA());
+            scores.betClosed(d.holdB());
+        }
         Component line;
         if (winner == null) {
-            line = msg().get("duelo.fim.empate", Placeholder.unparsed("a", nameA), Placeholder.unparsed("b", nameB));
+            line = msg.get("fim.empate", Messages.vars("a", nameA, "b", nameB));
+            scores.record(d.a(), nameA, DuelScore::drew);
+            scores.record(d.b(), nameB, DuelScore::drew);
         } else {
             boolean aWon = winner.equals(d.a());
-            line = msg().get("duelo.fim." + reason, Placeholder.unparsed("vencedor", aWon ? nameA : nameB),
-                    Placeholder.unparsed("perdedor", aWon ? nameB : nameA));
+            line = msg.get("fim." + reason, Messages.vars("vencedor", aWon ? nameA : nameB, "perdedor", aWon ? nameB : nameA));
+            scores.record(d.a(), nameA, aWon ? DuelScore::won : DuelScore::lost);
+            scores.record(d.b(), nameB, aWon ? DuelScore::lost : DuelScore::won);
         }
-        Component full = msg().get("prefixo").append(line);
+        Component full = msg.prefix().append(line);
+        if (d.stake() > 0) {
+            full = full.append(Component.space()).append(msg.get(winner == null ? "aposta.devolvida" : "aposta.levou",
+                    Messages.vars("valor", hooks.format(d.stake() * 2))));
+        }
+        Player a = Bukkit.getPlayer(d.a());
+        Player b = Bukkit.getPlayer(d.b());
         // Os dois e quem assistia por perto ficam sabendo.
+        double hear = config.decimal("raio_aviso", 32, 0, 256);
         if (center != null && center.getWorld() != null) {
-            double r = cfg().duelAnnounceRadius;
             for (Player p : center.getWorld().getPlayers()) {
-                if (p.getLocation().distanceSquared(center) <= r * r || d.has(p.getUniqueId())) {
+                if (p.getLocation().distanceSquared(center) <= hear * hear || d.has(p.getUniqueId())) {
                     p.sendMessage(full);
                 }
             }
@@ -263,19 +345,27 @@ public final class DuelManager implements Listener {
                 continue;
             }
             boolean won = winner != null && winner.equals(p.getUniqueId());
-            p.showTitle(Title.title(msg().get(winner == null ? "duelo.titulo_empate" : won ? "duelo.titulo_vitoria" : "duelo.titulo_derrota"),
+            p.showTitle(Title.title(msg.get(winner == null ? "titulo_empate" : won ? "titulo_vitoria" : "titulo_derrota"),
                     Component.empty(), Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(2), Duration.ofMillis(500))));
             p.playSound(p.getLocation(), won ? Sound.UI_TOAST_CHALLENGE_COMPLETE : Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 1f);
             p.setFireTicks(0);
         }
-        Bukkit.getPluginManager().callEvent(new DuelEndEvent(d.a(), d.b(), winner, d.mode().key(), reason));
+        Bukkit.getPluginManager().callEvent(new DuelEndEvent(d.a(), d.b(), winner, d.mode().key(), reason, d.stake()));
     }
 
-    /** Encerra tudo sem vencedor (plugin desligando). */
+    /** Encerra tudo sem vencedor (plugin desligando): as apostas voltam. */
     public void shutdown() {
         for (Duel d : new ArrayList<>(duels.duels())) {
-            finish(d, null, "tempo");
+            if (duels.end(d)) {
+                hooks.exemptPvp(d.a(), d.b(), 0L);
+                hooks.refund(d.holdA());
+                hooks.refund(d.holdB());
+                scores.betClosed(d.holdA());
+                scores.betClosed(d.holdB());
+            }
         }
+        centers.clear();
+        shown.clear();
     }
 
     // ------------------------------------------------------------------ golpes
@@ -301,7 +391,7 @@ public final class DuelManager implements Listener {
         }
         if (mine != theirs) {
             event.setCancelled(true);
-            by.sendActionBar(msg().get(mine == null ? "duelo.nao_interfira" : "duelo.so_o_oponente"));
+            msg.actionBar(by, mine == null ? "nao_interfira" : "so_o_oponente");
         } else if (!mine.started(System.currentTimeMillis())) {
             event.setCancelled(true);
         }
@@ -337,6 +427,11 @@ public final class DuelManager implements Listener {
         }
     }
 
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        scores.load(event.getPlayer().getUniqueId(), s -> { });
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent event) {
         UUID id = event.getPlayer().getUniqueId();
@@ -345,5 +440,6 @@ public final class DuelManager implements Listener {
         if (d != null) {
             finish(d, d.opponent(id), "saiu");
         }
+        scores.forget(id);
     }
 }

@@ -1,4 +1,4 @@
-package com.aincrad.social.api.event;
+package com.aincrad.duels.api;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

@@ -1,0 +1,35 @@
+# ============================================================
+#  AincradDuels — configuração
+# ============================================================
+ativo: true
+
+# Quanto tempo o desafiado tem para responder.
+convite_expira_segundos: 30
+# Contagem antes de os golpes valerem.
+contagem_segundos: 5
+# Passado o tempo, vence quem tem mais vida (em fração); igual, empata.
+tempo_limite_segundos: 180
+# Distância máxima entre os dois para desafiar e aceitar.
+distancia_desafio: 16
+# Quem se afasta mais que isto do lugar onde o duelo começou perde.
+raio: 30
+# Quem está a até este raio vê o resultado no chat.
+raio_aviso: 32
+
+# O modo "total" mata de verdade. false deixa só "primeiro_golpe" e "metade".
+modo_total: true
+# Modo usado quando o jogador não escolhe: primeiro_golpe, metade ou total.
+modo_padrao: primeiro_golpe
+
+# Aposta em Col (precisa do AincradEconomy). Cada um põe o valor em custódia ao aceitar; o
+# vencedor leva os dois, e no empate cada um recebe o seu de volta. Se o servidor cair no meio
+# de um duelo, as apostas voltam aos donos quando ele ligar.
+aposta:
+  # O máximo que cada um pode apostar. 0 desliga as apostas.
+  maximo: 100000
+  # Os valores que aparecem no menu (só os que cabem no saldo de quem desafia).
+  valores: [100, 500, 1000, 5000, 10000]
+
+ranking:
+  # Quantos nomes o /duelo ranking mostra.
+  tamanho: 10

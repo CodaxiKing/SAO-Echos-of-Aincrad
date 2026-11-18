@@ -119,7 +119,7 @@ public final class GuildListener implements Listener {
             attacker = p;
         }
         if (attacker == null || attacker.equals(victim)
-                || plugin.duels().service().inDuel(attacker.getUniqueId(), victim.getUniqueId())) {
+                || plugin.hooks().inDuel(attacker.getUniqueId(), victim.getUniqueId())) {
             return; // num duelo, colegas de guilda se acertam
         }
         if (svc().sameGuild(attacker.getUniqueId(), victim.getUniqueId()) || svc().areAllies(attacker.getUniqueId(), victim.getUniqueId())) {

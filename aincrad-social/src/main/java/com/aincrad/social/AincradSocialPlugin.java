@@ -8,8 +8,6 @@ import com.aincrad.social.data.Storage;
 import com.aincrad.social.data.YamlStorage;
 import com.aincrad.social.api.AincradSocialAPI;
 import com.aincrad.social.api.AincradSocialAPIImpl;
-import com.aincrad.social.duel.DuelCommand;
-import com.aincrad.social.duel.DuelManager;
 import com.aincrad.social.party.PartyRewards;
 import com.aincrad.social.guild.GuildCommands;
 import com.aincrad.social.guild.GuildConfig;
@@ -30,7 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 
 /**
- * AincradSocial: amigos, party, guilda e mensagens. Funciona por comandos e chat; com o AincradUI,
+ * AincradSocial: amigos, party, guilda e mensagens (os duelos ficam no AincradDuels). Funciona por comandos e chat; com o AincradUI,
  * tudo aparece também no menu SAO (Party, Amigos, Caixa, Escrever) e os membros da party ganham
  * barras de vida embaixo da barra do jogador.
  */
@@ -52,7 +50,6 @@ public final class AincradSocialPlugin extends JavaPlugin {
     private GuildManager guildManager;
     private GuildVault guildVault;
     private Hooks hooks;
-    private DuelManager duels;
     private PartyRewards partyRewards;
     private com.aincrad.social.party.PartyNet partyNet;
 
@@ -82,7 +79,6 @@ public final class AincradSocialPlugin extends JavaPlugin {
         guildManager = new GuildManager(this);
         guildVault = new GuildVault(this);
         hooks = new Hooks(getLogger());
-        duels = new DuelManager(this);
         partyRewards = new PartyRewards(this);
 
         var pm = getServer().getPluginManager();
@@ -90,7 +86,6 @@ public final class AincradSocialPlugin extends JavaPlugin {
         pm.registerEvents(new SocialListener(this), this);
         pm.registerEvents(new GuildListener(this), this);
         pm.registerEvents(guildVault, this);
-        pm.registerEvents(duels, this);
         pm.registerEvents(partyRewards, this);
 
         SocialCommands commands = new SocialCommands(this);
@@ -109,13 +104,6 @@ public final class AincradSocialPlugin extends JavaPlugin {
                 cmd.setTabCompleter(guildCommands);
             }
         }
-        PluginCommand duelCmd = getCommand("duelo");
-        if (duelCmd != null) {
-            DuelCommand dc = new DuelCommand(this);
-            duelCmd.setExecutor(dc);
-            duelCmd.setTabCompleter(dc);
-        }
-        Bukkit.getScheduler().runTaskTimer(this, duels::tick, 10L, 10L);
         if (storage.network()) {
             partyNet = new com.aincrad.social.party.PartyNet(this);
             partyNet.start();
@@ -147,9 +135,6 @@ public final class AincradSocialPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         menu.shutdown();
-        if (duels != null) {
-            duels.shutdown();
-        }
         if (guildVault != null && storage != null) {
             guildVault.saveAll();
         }
@@ -281,10 +266,6 @@ public final class AincradSocialPlugin extends JavaPlugin {
     /** A party na rede; null num servidor só (dados em arquivo). */
     public com.aincrad.social.party.PartyNet partyNet() {
         return partyNet;
-    }
-
-    public DuelManager duels() {
-        return duels;
     }
 
     public Hooks hooks() {

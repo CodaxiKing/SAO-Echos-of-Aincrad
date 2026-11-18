@@ -1,0 +1,10 @@
+name: AincradDuels
+version: '${version}'
+main: com.aincrad.duels.AincradDuelsPlugin
+api-version: '1.21'
+description: Duelos como no anime - primeiro golpe, metade da vida ou total - com aposta em Col, placar e ranking.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [AincradEconomy, AincradFloors, AincradReputation, AincradUI]
+
+# O comando /duelo é registrado pelo plugin ao ligar.

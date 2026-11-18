@@ -1,0 +1,84 @@
+# ============================================================
+#  AincradDuels — mensagens (formato MiniMessage)
+# ============================================================
+prefixo: "<dark_aqua>[<aqua>Duelo</aqua>]</dark_aqua> "
+
+so_jogador: "<red>Este comando só pode ser usado por jogadores."
+jogador_nao_encontrado: "<red>Jogador não encontrado: <white><jogador>"
+uso: "<gray>Uso: <white>/duelo</white> (menu), <white>/duelo <jogador> [primeiro_golpe|metade|total] [aposta]</white>, <white>/duelo aceitar|recusar [jogador]</white>, <white>/duelo desistir</white>, <white>/duelo placar [jogador]</white>, <white>/duelo ranking"
+
+desligado: "<red>Os duelos estão desligados."
+total_desligado: "<red>O modo total está desligado neste servidor."
+longe: "<red><white><jogador></white> está longe demais para um duelo."
+si_mesmo: "<red>Você não pode duelar consigo mesmo."
+voce_em_duelo: "<red>Você já está num duelo."
+alvo_em_duelo: "<red><white><jogador></white> já está num duelo."
+ja_desafiou: "<yellow>Você já desafiou <white><jogador></white>."
+enviado: "<green>Desafio enviado para <white><jogador></white> — modo <modo><green>.<aposta>"
+recebido: "<aqua><jogador></aqua> <white>desafiou você para um duelo — modo <modo><white>.<aposta> <gray>(expira em <segundos> s)"
+recebido_total: "<aqua><jogador></aqua> <white>desafiou você para um duelo — modo <modo><white>.<aposta> <red><bold>Quem perde morre de verdade.</bold> <gray>(expira em <segundos> s)"
+botao_aceitar: "<green><bold>[Aceitar]"
+botao_recusar: "<red><bold>[Recusar]"
+sem_desafio: "<red>Não há desafio de duelo para você."
+desafiante_longe: "<red>Quem desafiou não está mais por perto."
+aceito: "<green>Duelo contra <white><jogador></white> — modo <modo><green>.<aposta> Prepare-se!"
+recusado: "<gray>Desafio recusado."
+recusou: "<gray><white><jogador></white> recusou o duelo."
+nao_esta: "<red>Você não está num duelo."
+nao_interfira: "<red>Não interfira no duelo."
+so_o_oponente: "<red>Num duelo, só o oponente."
+contagem_sub: "<gray>Duelo — <modo>"
+lutem: "<red><bold>Lutem!"
+titulo_vitoria: "<gold><bold>Vitória"
+titulo_derrota: "<gray><bold>Derrota"
+titulo_empate: "<yellow><bold>Empate"
+
+modo:
+  primeiro_golpe: "<white>primeiro golpe"
+  metade: "<yellow>metade da vida"
+  total: "<red>total"
+
+aposta:
+  linha: " <gold>Aposta: <valor> cada."
+  invalida: "<red>Aposta inválida. O máximo é <white><maximo></white>."
+  sem_saldo: "<red>Você não tem <white><valor></white> para apostar."
+  alguem_sem_saldo: "<red>O duelo não começou: <white><jogador></white> não tem <white><valor></white> para a aposta."
+  levou: "<gold>O vencedor levou <valor>."
+  devolvida: "<gray>As apostas voltaram aos dois."
+
+fim:
+  golpe: "<gold><vencedor></gold> <white>venceu o duelo contra <gray><perdedor></gray> com o primeiro golpe."
+  metade: "<gold><vencedor></gold> <white>venceu o duelo contra <gray><perdedor></gray>."
+  morte: "<gold><vencedor></gold> <white>venceu o duelo. <red><perdedor> caiu."
+  tempo: "<gold><vencedor></gold> <white>venceu o duelo contra <gray><perdedor></gray> no tempo."
+  fugiu: "<gold><vencedor></gold> <white>venceu: <gray><perdedor></gray> saiu da área do duelo."
+  saiu: "<gold><vencedor></gold> <white>venceu: <gray><perdedor></gray> saiu do servidor."
+  desistiu: "<gold><vencedor></gold> <white>venceu: <gray><perdedor></gray> desistiu."
+  empate: "<yellow>O duelo entre <white><a></white> e <white><b></white> terminou empatado."
+
+placar:
+  linha: "<aqua><jogador></aqua><gray>: <green><vitorias> vitórias</green>, <red><derrotas> derrotas</red>, <yellow><empates> empates</yellow> <gray>· <white><aproveitamento>%</white> · sequência <white><sequencia></white> (melhor <white><melhor></white>)"
+  ranking_titulo: "<gold>Os melhores duelistas"
+  ranking_linha: "<gray><pos>. <white><jogador></white> <gray>— <green><vitorias></green>/<red><derrotas></red> <gray>(<aproveitamento>%, melhor sequência <melhor>)"
+  ranking_vazio: "<gray>Ninguém venceu um duelo ainda."
+
+menu:
+  titulo: "<dark_gray>Duelar com quem?"
+  titulo_modo: "<dark_gray>Modo do duelo"
+  titulo_aposta: "<dark_gray>Aposta"
+  ninguem: "<gray>Ninguém por perto para duelar"
+  jogador_lore:
+    - "<green><vitorias> vitórias <gray>· <red><derrotas> derrotas"
+    - "<yellow>Clique para desafiar"
+  meu_placar: "<white>Meu placar"
+  ranking: "<white>Ranking"
+  voltar: "<gray>Voltar"
+  sem_aposta: "<white>Sem aposta"
+  aposta: "<gold>Apostar <valor>"
+  modo_lore:
+    primeiro_golpe:
+      - "<gray>Quem acerta o primeiro golpe vence."
+    metade:
+      - "<gray>Vence quem deixar o outro com metade da vida."
+    total:
+      - "<red>Até a morte, de verdade."
