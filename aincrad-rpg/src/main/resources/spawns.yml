@@ -1,0 +1,44 @@
+# ============================================================
+#  Mobs por região
+#  Em cada região do AincradCore listada aqui, o plugin mantém mobs
+#  vivos perto dos jogadores.
+#
+#  1. Marque a região:  /aincrad varinha  (clique esquerdo e direito
+#     nos dois cantos)  e  /aincrad regiao criar campos_andar1
+#  2. Liste a região aqui, com os mobs dela.
+#  3. /aincrad reload   e confira com   /aincrad rpg spawns
+#
+#  mob:    ZOMBIE, WOLF, PIG...      -> mob do Minecraft
+#          mythic:NomeDoMob          -> mob do MythicMobs (o nome interno,
+#                                       como está no arquivo do MythicMobs)
+#  peso:   chance em relação aos outros da lista (padrão 1)
+#  level:  3, "2-4" ou {min: 2, max: 4}. Sem level, vale a faixa do
+#          lugar no mobs.yml (zonas / mundos / padrao).
+#  modelo: modelo do ModelEngine posto sobre um mob do Minecraft.
+#          Para mob do MythicMobs, escolha o modelo no arquivo do
+#          próprio MythicMobs (é o caminho normal).
+#
+#  O level do mob vale para XP, vida e dano pelas regras do mobs.yml.
+#  Não use LevelModifiers no MythicMobs, ou a vida escala duas vezes.
+#  Os mobs daqui não são salvos com o mapa: somem quando ninguém está
+#  por perto e voltam a nascer quando alguém chega.
+#  Evite ponto (.) no nome da região.
+# ============================================================
+intervalo: 5              # segundos entre uma rodada e outra
+
+regioes: {}
+
+# Exemplo (os campos do andar 1: javalis e lobos):
+#
+# regioes:
+#   campos_andar1:
+#     maximo: 14            # mobs vivos na região ao mesmo tempo
+#     por_vez: 2            # quantos nascem por rodada
+#     raio: 40              # nascem a até tantos blocos de um jogador
+#     distancia_minima: 10  # e nunca mais perto que isto
+#     sumir_longe: 72       # somem sem jogador a esta distância
+#     spawn_natural: false  # false = o Minecraft não põe mobs aqui
+#     mobs:
+#       - { mob: "mythic:JavaliFrenetico", peso: 3, level: "1-2" }
+#       - { mob: "mythic:LoboTerrivel", peso: 1, level: "2-4" }
+#       - { mob: PIG, modelo: javali, peso: 1, level: 1 }

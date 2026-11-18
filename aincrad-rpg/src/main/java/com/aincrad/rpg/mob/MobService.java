@@ -78,6 +78,15 @@ public final class MobService implements Listener {
 
     /** Dá level ao mob (também usado por outros plugins pela API). */
     public void setLevel(LivingEntity e, int level) {
+        setLevel(e, level, null);
+    }
+
+    /**
+     * Dá level ao mob.
+     *
+     * @param baseName o nome do mob no lugar do nome do Minecraft (mob do MythicMobs), ou null
+     */
+    public void setLevel(LivingEntity e, int level, Component baseName) {
         RpgSettings s = rpg.settings();
         int lv = Math.max(1, level);
         e.getPersistentDataContainer().set(keyLevel, PersistentDataType.INTEGER, lv);
@@ -91,7 +100,7 @@ public final class MobService implements Listener {
             e.setHealth(hp.getValue());
         }
         Component name = Messages.parse(s.mobName, Messages.vars("level", lv),
-                Placeholder.component("mob", Component.translatable(e.getType().translationKey())));
+                Placeholder.component("mob", baseName != null ? baseName : Component.translatable(e.getType().translationKey())));
         e.customName(name);
         e.setCustomNameVisible(s.mobNameVisible);
     }

@@ -5,6 +5,8 @@ import com.aincrad.core.message.Messages;
 import com.aincrad.rpg.RpgService;
 import com.aincrad.rpg.item.ItemService;
 import com.aincrad.rpg.item.Rarity;
+import com.aincrad.rpg.mob.SpawnService;
+import com.aincrad.rpg.model.SpawnRules;
 import com.aincrad.rpg.model.Progress;
 import com.aincrad.rpg.model.Stat;
 import net.kyori.adventure.text.Component;
@@ -18,16 +20,18 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * {@code /aincrad rpg ...}: xp dar|tirar, level, item, resetar, info.
+ * {@code /aincrad rpg ...}: xp dar|tirar, level, item, resetar, info, spawns, mob.
  */
 public final class AdminCommand implements SubCommand {
 
     private final RpgService rpg;
     private final ItemService items;
+    private final SpawnService spawns;
 
-    public AdminCommand(RpgService rpg, ItemService items) {
+    public AdminCommand(RpgService rpg, ItemService items, SpawnService spawns) {
         this.rpg = rpg;
         this.items = items;
+        this.spawns = spawns;
     }
 
     @Override
@@ -42,7 +46,7 @@ public final class AdminCommand implements SubCommand {
 
     @Override
     public String usage() {
-        return "rpg xp|level|item|resetar|info ...";
+        return "rpg xp|level|item|resetar|info|spawns|mob ...";
     }
 
     @Override
@@ -57,7 +61,7 @@ public final class AdminCommand implements SubCommand {
             msg.send(sender, "admin.uso");
             return;
         }
-        if (List.of("xp", "level", "item", "resetar").contains(args[0].toLowerCase(Locale.ROOT))) {
+        if (List.of("xp", "level", "item", "resetar", "mob").contains(args[0].toLowerCase(Locale.ROOT))) {
             // Registro de ações de admin (AincradAdmin): o comando como foi digitado.
             org.bukkit.Bukkit.getPluginManager().callEvent(new com.aincrad.core.AincradAdminActionEvent(sender, "rpg", "rpg." + args[0].toLowerCase(Locale.ROOT), String.join(" ", args)));
         }
@@ -82,7 +86,49 @@ public final class AdminCommand implements SubCommand {
                             "vitalidade", p.stat(Stat.VITALIDADE)));
                 }
             }
+            case "spawns" -> spawns(sender);
+            case "mob" -> mob(sender, args);
             default -> msg.send(sender, "admin.uso");
+        }
+    }
+
+    /** Lista as regiões do spawns.yml: vivos, máximo e o que está errado. */
+    private void spawns(CommandSender sender) {
+        Messages msg = rpg.messages();
+        if (spawns.areas().isEmpty() && spawns.errors().isEmpty()) {
+            msg.send(sender, "admin.spawns_vazio");
+            return;
+        }
+        msg.send(sender, "admin.spawns_titulo", Messages.vars("qtd", spawns.areas().size()));
+        for (SpawnRules.Area a : spawns.areas().values()) {
+            String problem = spawns.problem(a);
+            msg.send(sender, problem == null ? "admin.spawns_linha" : "admin.spawns_linha_erro",
+                    Messages.vars("regiao", a.region(), "vivos", spawns.alive(a.region()), "maximo", a.max(),
+                            "mobs", a.mobs().size(), "erro", problem == null ? "" : problem));
+        }
+        for (String e : spawns.errors()) {
+            msg.send(sender, "admin.spawns_erro", Messages.vars("erro", e));
+        }
+    }
+
+    /** Cria um mob onde o admin está, para testar um nome do MythicMobs ou um modelo. */
+    private void mob(CommandSender sender, String[] args) {
+        Messages msg = rpg.messages();
+        if (!(sender instanceof Player p)) {
+            msg.send(sender, "geral.so_jogador");
+            return;
+        }
+        SpawnRules.MobRef ref = args.length < 2 ? null : SpawnRules.MobRef.parse(args[1]);
+        int[] lv = SpawnRules.levels(args.length > 2 ? args[2] : null);
+        if (ref == null || lv == null) {
+            msg.send(sender, "admin.uso_mob");
+            return;
+        }
+        SpawnRules.Entry e = new SpawnRules.Entry(ref, 1, lv[0], lv[1], args.length > 3 ? args[3] : null);
+        if (spawns.spawn(e, p.getLocation(), "/aincrad rpg mob") == null) {
+            msg.send(sender, "admin.mob_falhou", Messages.vars("mob", ref.text()));
+        } else {
+            msg.send(sender, "admin.mob_criado", Messages.vars("mob", ref.text()));
         }
     }
 
@@ -180,10 +226,12 @@ public final class AdminCommand implements SubCommand {
     @Override
     public List<String> complete(CommandSender sender, String[] args) {
         List<String> opts = switch (args.length) {
-            case 1 -> List.of("xp", "level", "item", "resetar", "info");
+            case 1 -> List.of("xp", "level", "item", "resetar", "info", "spawns", "mob");
             case 2 -> switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "xp" -> List.of("dar", "tirar");
                 case "item" -> new ArrayList<>(items.ids());
+                case "spawns" -> List.of();
+                case "mob" -> List.of("mythic:");
                 default -> players();
             };
             case 3 -> switch (args[0].toLowerCase(Locale.ROOT)) {

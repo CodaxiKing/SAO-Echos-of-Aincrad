@@ -17,6 +17,8 @@ Precisa do **AincradCore** (banco, mensagens, menus, regiões, `/aincrad`).
 - **Itens com raridade** — modelos em `items.yml` (material, nome, level mínimo, slot, faixas de bônus,
   chance de drop). Raridades comum → lendário multiplicam os bônus (`config.yml → raridades`).
   Arma acima do level bate com `penalidade_arma`; armadura acima do level volta para o inventário.
+- **Mobs por região** — `spawns.yml` diz quais mobs nascem em cada região, do Minecraft ou do
+  **MythicMobs** (veja abaixo).
 - **Encantamento** — mesa de encantamento bloqueada por padrão (`encantamento: bloquear`).
 
 ## Comandos
@@ -32,8 +34,50 @@ Precisa do **AincradCore** (banco, mensagens, menus, regiões, `/aincrad`).
 | `/aincrad rpg level <jogador> <n>` | Define o level (pontos recalculados, atributos zerados) | `aincrad.rpg.admin` |
 | `/aincrad rpg item <id> [raridade\|aleatoria] [jogador]` | Gera item de `items.yml` | `aincrad.rpg.admin` |
 | `/aincrad rpg resetar <jogador>` · `info <jogador>` | Devolve pontos · mostra os dados | `aincrad.rpg.admin` |
+| `/aincrad rpg spawns` | Regiões do `spawns.yml`: mobs vivos, máximo e o que está errado | `aincrad.rpg.admin` |
+| `/aincrad rpg mob <ZOMBIE\|mythic:Nome> [level] [modelo]` | Cria um mob onde você está, para testar | `aincrad.rpg.admin` |
 
-`/aincrad reload` recarrega `config.yml`, `levels.yml`, `mobs.yml`, `items.yml` e as mensagens.
+`/aincrad reload` recarrega `config.yml`, `levels.yml`, `mobs.yml`, `spawns.yml`, `items.yml` e as
+mensagens.
+
+## Mobs por região (`spawns.yml`)
+
+Para os campos terem os mobs deles — o javali e o lobo do andar 1, por exemplo:
+
+1. **Marque a região**: `/aincrad varinha`, clique esquerdo num canto e direito no outro, e
+   `/aincrad regiao criar campos_andar1`. (`/aincrad regiao listar|info|remover` são do core.)
+2. **Crie os mobs no MythicMobs**, com o modelo do ModelEngine no arquivo do próprio mob. Teste o
+   nome com `/aincrad rpg mob mythic:JavaliFrenetico`.
+3. **Liste a região no `spawns.yml`**:
+
+   ```yaml
+   regioes:
+     campos_andar1:
+       maximo: 14            # mobs vivos na região ao mesmo tempo
+       por_vez: 2            # quantos nascem por rodada (a cada "intervalo" segundos)
+       raio: 40              # nascem a até tantos blocos de um jogador
+       distancia_minima: 10  # e nunca mais perto que isto
+       sumir_longe: 72       # somem sem jogador a esta distância
+       spawn_natural: false  # false = o Minecraft não põe mobs aqui
+       mobs:
+         - { mob: "mythic:JavaliFrenetico", peso: 3, level: "1-2" }
+         - { mob: "mythic:LoboTerrivel", peso: 1, level: "2-4" }
+   ```
+
+4. `/aincrad reload` e `/aincrad rpg spawns` para conferir.
+
+- `mob:` é um mob do Minecraft (`WOLF`) ou `mythic:Nome`, o nome interno do MythicMobs.
+- `level:` aceita `3`, `"2-4"` ou `{min: 2, max: 4}`. Sem ele, vale a faixa do lugar no `mobs.yml`.
+  O level dá XP, vida e dano pelas regras do `mobs.yml`, também para mobs do MythicMobs; o nome
+  que o MythicMobs deu fica, com o `[Lv.X]` na frente. Não use `LevelModifiers` no MythicMobs, ou
+  a vida escala duas vezes.
+- `modelo:` põe um modelo do ModelEngine sobre um mob do Minecraft, sem MythicMobs. O mob continua
+  com o comportamento do Minecraft (um `PIG` com modelo de javali não ataca).
+- Os mobs nascem só com jogador por perto, no chão mais próximo da altura dele (serve para campo
+  e para labirinto), e não são salvos com o mapa: somem quando ninguém está perto ou o servidor
+  reinicia, e voltam a nascer.
+- O MythicMobs e o ModelEngine são opcionais e chamados por reflexão. **Esta parte compila e passa
+  nos testes de regras, mas não foi testada com os dois plugins num servidor.**
 
 ## Banco
 
@@ -64,8 +108,9 @@ Eventos: `XpGainEvent` (cancelável, dá para mudar a quantidade — bônus de p
 ```
 
 Compila junto com o `../aincrad-core` (build composto). O jar sai em `build/libs/AincradRPG-<versão>.jar`.
-Os testes (`RpgLogicTest`) cobrem curva de XP, subir vários levels, level máximo, morte, tirar XP,
-pontos, XP de mob com redução, sorteio de level e de raridade.
+Os testes cobrem curva de XP, subir vários levels, level máximo, morte, tirar XP, pontos, XP de mob
+com redução, sorteio de level e de raridade (`RpgLogicTest`) e a leitura do `spawns.yml`, o sorteio
+por peso e as contas dos mobs por região (`SpawnRulesTest`).
 
 ## Ainda falta
 

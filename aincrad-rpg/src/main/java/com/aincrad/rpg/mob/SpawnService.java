@@ -1,0 +1,372 @@
+package com.aincrad.rpg.mob;
+
+import com.aincrad.core.AincradCore;
+import com.aincrad.core.config.ConfigFile;
+import com.aincrad.core.region.Region;
+import com.aincrad.rpg.RpgSettings;
+import com.aincrad.rpg.model.MobRewards;
+import com.aincrad.rpg.model.SpawnRules;
+import com.aincrad.rpg.model.SpawnRules.Area;
+import com.aincrad.rpg.model.SpawnRules.Entry;
+import com.aincrad.rpg.model.SpawnRules.Kind;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * Mobs por região (spawns.yml): em cada região do AincradCore listada, mantém até um máximo de
+ * mobs vivos perto dos jogadores, sorteados entre mobs do Minecraft e do MythicMobs. Os mobs não
+ * são salvos com o mapa: somem quando o pedaço descarrega ou ninguém está por perto.
+ */
+public final class SpawnService implements Listener {
+
+    private static final int TRIES = 8;
+    private static final int Y_SCAN = 24;
+
+    private final Plugin plugin;
+    private final MobService mobs;
+    private final MythicBridge mythic = new MythicBridge();
+    private final ModelBridge models = new ModelBridge();
+    private final NamespacedKey keyRegion;
+    private final Map<String, Set<UUID>> alive = new HashMap<>();
+    private final Set<String> warned = new HashSet<>();
+    private Map<String, Area> areas = Map.of();
+    private List<String> errors = List.of();
+    private BukkitTask task;
+
+    public SpawnService(Plugin plugin, MobService mobs) {
+        this.plugin = plugin;
+        this.mobs = mobs;
+        keyRegion = new NamespacedKey(plugin, "spawn_regiao");
+    }
+
+    /** Lê o spawns.yml e (re)começa as rodadas. */
+    public void reload(ConfigFile file) {
+        List<String> errs = new ArrayList<>();
+        areas = SpawnRules.parse(file.yaml().getConfigurationSection("regioes"), errs);
+        errors = List.copyOf(errs);
+        warned.clear();
+        for (String e : errors) {
+            plugin.getLogger().warning("spawns.yml: " + e);
+        }
+        // Regiões que saíram do arquivo: os mobs delas somem.
+        for (Iterator<Map.Entry<String, Set<UUID>>> it = alive.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, Set<UUID>> en = it.next();
+            if (!areas.containsKey(en.getKey())) {
+                removeAll(en.getValue());
+                it.remove();
+            }
+        }
+        if (task != null) {
+            task.cancel();
+        }
+        long every = file.integer("intervalo", 5, 1, 600) * 20L;
+        task = areas.isEmpty() ? null : Bukkit.getScheduler().runTaskTimer(plugin, this::round, every, every);
+    }
+
+    /** Ao desligar: tira do mundo tudo o que este serviço criou. */
+    public void shutdown() {
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
+        alive.values().forEach(SpawnService::removeAll);
+        alive.clear();
+    }
+
+    private static void removeAll(Set<UUID> ids) {
+        for (UUID id : ids) {
+            Entity e = Bukkit.getEntity(id);
+            if (e != null) {
+                e.remove();
+            }
+        }
+        ids.clear();
+    }
+
+    public Map<String, Area> areas() {
+        return areas;
+    }
+
+    public List<String> errors() {
+        return errors;
+    }
+
+    public int alive(String region) {
+        Set<UUID> s = alive.get(region);
+        return s == null ? 0 : s.size();
+    }
+
+    /** O que impede a região de funcionar agora (null = nada). */
+    public String problem(Area a) {
+        Region r = AincradCore.get().regions().get(a.region());
+        if (r == null) {
+            return "a região não existe (/aincrad regiao criar " + a.region() + ")";
+        }
+        if (Bukkit.getWorld(r.world()) == null) {
+            return "o mundo '" + r.world() + "' não está carregado neste servidor";
+        }
+        for (Entry e : a.mobs()) {
+            String p = problem(e);
+            if (p != null) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    private String problem(Entry e) {
+        if (e.mob().kind() == Kind.MYTHIC) {
+            if (!mythic.available()) {
+                return "o MythicMobs não está ligado (" + e.mob().text() + ")";
+            }
+            if (!mythic.exists(e.mob().id())) {
+                return "o MythicMobs não conhece o mob '" + e.mob().id() + "'";
+            }
+        } else if (type(e.mob().id()) == null) {
+            return "'" + e.mob().id() + "' não é um mob do Minecraft";
+        }
+        if (e.model() != null && !models.available()) {
+            return "o ModelEngine não está ligado (modelo '" + e.model() + "')";
+        }
+        return null;
+    }
+
+    private static EntityType type(String id) {
+        try {
+            EntityType t = EntityType.valueOf(id);
+            return t.isSpawnable() && t.isAlive() ? t : null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    // ------------------------------------------------------------------ rodada
+
+    private void round() {
+        for (Area a : areas.values()) {
+            Region r = AincradCore.get().regions().get(a.region());
+            World w = r == null ? null : Bukkit.getWorld(r.world());
+            Set<UUID> ids = alive.computeIfAbsent(a.region(), k -> new HashSet<>());
+            if (w == null) {
+                ids.clear();
+                continue;
+            }
+            List<Player> all = new ArrayList<>();
+            for (Player p : w.getPlayers()) {
+                if (p.getGameMode() != GameMode.SPECTATOR && !p.isDead()) {
+                    all.add(p);
+                }
+            }
+            prune(ids, all, a.despawn());
+
+            List<Player> near = new ArrayList<>();
+            double reach = (double) a.radius() * a.radius();
+            for (Player p : all) {
+                Location l = p.getLocation();
+                if (SpawnRules.distanceSq(r.minX(), r.minY(), r.minZ(), r.maxX(), r.maxY(), r.maxZ(),
+                        l.getX(), l.getY(), l.getZ()) <= reach) {
+                    near.add(p);
+                }
+            }
+            if (near.isEmpty()) {
+                continue;
+            }
+            int n = SpawnRules.toSpawn(ids.size(), a.max(), a.perRound());
+            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+            for (int i = 0; i < n; i++) {
+                Location at = place(a, r, w, near, all, rnd);
+                if (at == null) {
+                    continue;
+                }
+                Entry e = SpawnRules.pick(a.mobs(), rnd.nextDouble());
+                Entity mob = e == null ? null : spawn(e, at, a.region());
+                if (mob != null) {
+                    mob.getPersistentDataContainer().set(keyRegion, PersistentDataType.STRING, a.region());
+                    ids.add(mob.getUniqueId());
+                }
+            }
+        }
+    }
+
+    /** Tira da conta os que morreram ou descarregaram, e do mundo os que ficaram longe de todos. */
+    private static void prune(Set<UUID> ids, List<Player> players, int despawn) {
+        double far = (double) despawn * despawn;
+        for (Iterator<UUID> it = ids.iterator(); it.hasNext(); ) {
+            Entity e = Bukkit.getEntity(it.next());
+            if (e == null || !e.isValid()) {
+                it.remove();
+                continue;
+            }
+            boolean someone = false;
+            for (Player p : players) {
+                if (p.getLocation().distanceSquared(e.getLocation()) <= far) {
+                    someone = true;
+                    break;
+                }
+            }
+            if (!someone) {
+                e.remove();
+                it.remove();
+            }
+        }
+    }
+
+    /** Um lugar dentro da região, perto de um jogador mas não em cima de nenhum, com chão e espaço. */
+    private static Location place(Area a, Region r, World w, List<Player> near, List<Player> all, ThreadLocalRandom rnd) {
+        double min = (double) a.minDistance() * a.minDistance();
+        for (int t = 0; t < TRIES; t++) {
+            Location pl = near.get(rnd.nextInt(near.size())).getLocation();
+            int x = clamp(pl.getBlockX() + rnd.nextInt(-a.radius(), a.radius() + 1), r.minX(), r.maxX());
+            int z = clamp(pl.getBlockZ() + rnd.nextInt(-a.radius(), a.radius() + 1), r.minZ(), r.maxZ());
+            if (!w.isChunkLoaded(x >> 4, z >> 4)) {
+                continue;
+            }
+            int y = floor(w, r, x, z, pl.getBlockY());
+            if (y == Integer.MIN_VALUE) {
+                continue;
+            }
+            Location at = new Location(w, x + 0.5, y, z + 0.5, rnd.nextFloat() * 360f, 0f);
+            boolean close = false;
+            for (Player p : all) {
+                if (p.getLocation().distanceSquared(at) < min) {
+                    close = true;
+                    break;
+                }
+            }
+            if (!close) {
+                return at;
+            }
+        }
+        return null;
+    }
+
+    /** O Y dos pés mais próximo de {@code hint} onde há chão sólido e dois blocos livres. */
+    private static int floor(World w, Region r, int x, int z, int hint) {
+        int lo = Math.max(r.minY(), w.getMinHeight() + 1);
+        int hi = Math.min(r.maxY(), w.getMaxHeight() - 2);
+        if (lo > hi) {
+            return Integer.MIN_VALUE;
+        }
+        int start = clamp(hint, lo, hi);
+        for (int d = 0; d <= Y_SCAN; d++) {
+            if (start - d >= lo && stands(w, x, start - d, z)) {
+                return start - d;
+            }
+            if (d > 0 && start + d <= hi && stands(w, x, start + d, z)) {
+                return start + d;
+            }
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    private static boolean stands(World w, int x, int y, int z) {
+        Block feet = w.getBlockAt(x, y, z);
+        Block head = w.getBlockAt(x, y + 1, z);
+        return w.getBlockAt(x, y - 1, z).getType().isSolid()
+                && feet.isPassable() && !feet.isLiquid()
+                && head.isPassable() && !head.isLiquid();
+    }
+
+    private static int clamp(int v, int min, int max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
+    // ------------------------------------------------------------------ criar
+
+    /**
+     * Cria o mob de uma linha do spawns.yml (também usado por {@code /aincrad rpg mob}).
+     *
+     * @param where só para o aviso no console
+     */
+    public Entity spawn(Entry e, Location at, String where) {
+        int level;
+        if (e.fixedLevel()) {
+            level = MobRewards.pick(e.minLevel(), e.maxLevel(), ThreadLocalRandom.current().nextDouble());
+        } else {
+            RpgSettings.LevelRange range = mobs.rangeAt(at);
+            level = MobRewards.pick(range.min(), range.max(), ThreadLocalRandom.current().nextDouble());
+        }
+        Entity mob;
+        if (e.mob().kind() == Kind.MYTHIC) {
+            mob = mythic.spawn(e.mob().id(), at, level);
+        } else {
+            EntityType type = type(e.mob().id());
+            mob = type == null ? null : at.getWorld().spawnEntity(at, type, CreatureSpawnEvent.SpawnReason.CUSTOM);
+        }
+        if (mob == null) {
+            warn(where, problem(e) != null ? problem(e) : "não foi possível criar " + e.mob().text());
+            return null;
+        }
+        mob.setPersistent(false);
+        if (mob instanceof LivingEntity le) {
+            if (le instanceof Mob m) {
+                m.setRemoveWhenFarAway(false);
+            }
+            // O nome que o MythicMobs deu fica; o level entra na frente.
+            Component name = e.mob().kind() == Kind.MYTHIC ? le.customName() : null;
+            mobs.setLevel(le, level, name);
+        }
+        if (e.model() != null && !models.apply(mob, e.model())) {
+            warn(where, models.available()
+                    ? "o ModelEngine não conhece o modelo '" + e.model() + "'"
+                    : "o ModelEngine não está ligado (modelo '" + e.model() + "')");
+        }
+        return mob;
+    }
+
+    private void warn(String where, String what) {
+        if (warned.add(where + "|" + what)) {
+            plugin.getLogger().warning("spawns.yml, " + where + ": " + what);
+        }
+    }
+
+    // ------------------------------------------------------------------ spawn natural
+
+    /** Nas regiões com {@code spawn_natural: false}, o Minecraft não põe mobs por conta própria. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onNatural(CreatureSpawnEvent event) {
+        if (areas.isEmpty()) {
+            return;
+        }
+        switch (event.getSpawnReason()) {
+            case NATURAL, REINFORCEMENTS, PATROL, RAID, VILLAGE_INVASION, JOCKEY, MOUNT, TRAP -> {
+                for (Region r : AincradCore.get().regions().at(event.getLocation())) {
+                    Area a = areas.get(r.name());
+                    if (a != null && !a.natural()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+            default -> {
+            }
+        }
+    }
+}

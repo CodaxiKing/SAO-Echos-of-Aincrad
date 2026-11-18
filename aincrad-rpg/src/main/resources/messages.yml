@@ -61,7 +61,7 @@ encantamento:
 
 admin:
   descricao: "Admin do RPG: XP, level, itens e pontos"
-  uso: "<gray>Uso: <white>/aincrad rpg xp dar|tirar <jogador> <qtd></white>, <white>level <jogador> <n></white>, <white>item <id> [raridade] [jogador]</white>, <white>resetar <jogador></white>, <white>info <jogador>"
+  uso: "<gray>Uso: <white>/aincrad rpg xp dar|tirar <jogador> <qtd></white>, <white>level <jogador> <n></white>, <white>item <id> [raridade] [jogador]</white>, <white>resetar <jogador></white>, <white>info <jogador></white>, <white>spawns</white>, <white>mob <mob> [level] [modelo]"
   xp_dado: "<green><qtd> XP para <white><jogador></white>."
   xp_tirado: "<yellow><qtd> XP tirado de <white><jogador></white>."
   level_definido: "<green><jogador></green> agora está no level <white><level></white>."
@@ -69,5 +69,13 @@ admin:
   raridade_invalida: "<red>Raridade inválida. Use comum, incomum, raro, epico ou lendario."
   item_dado: "<green>Item <white><id></white> entregue para <white><jogador></white>."
   resetado: "<yellow>Pontos de <white><jogador></white> devolvidos."
+  uso_mob: "<gray>Uso: <white>/aincrad rpg mob <ZOMBIE|mythic:Nome> [level] [modelo]"
+  mob_criado: "<green>Mob <white><mob></white> criado onde você está."
+  mob_falhou: "<red>Não foi possível criar <white><mob></white>. <gray>O motivo está no console."
+  spawns_vazio: "<gray>Nenhuma região no <white>spawns.yml</white>."
+  spawns_titulo: "<gold>Mobs por região <gray>(<qtd>)"
+  spawns_linha: "<green>● <white><regiao></white> <gray>vivos <white><vivos>/<maximo></white> · <mobs> tipo(s) de mob"
+  spawns_linha_erro: "<red>● <white><regiao></white> <gray>vivos <white><vivos>/<maximo></white> · <red><erro>"
+  spawns_erro: "<red>spawns.yml: <gray><erro>"
   numero_invalido: "<red>Número inválido: <white><valor></white>."
   info: "<aqua><jogador></aqua> <gray>Lv.<white><level></white> XP <white><xp></white> pontos <white><pontos></white> F/A/V <white><forca>/<agilidade>/<vitalidade>"

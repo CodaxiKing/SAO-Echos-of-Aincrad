@@ -5,7 +5,7 @@ api-version: '1.21'
 description: Level, XP, atributos, level dos mobs e raridade de itens do Aincrad.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [AincradSocial]
+softdepend: [AincradSocial, MythicMobs, ModelEngine]
 
 commands:
   status:

@@ -11,6 +11,7 @@ import com.aincrad.rpg.command.StatusCommand;
 import com.aincrad.rpg.data.PlayerStore;
 import com.aincrad.rpg.item.ItemService;
 import com.aincrad.rpg.mob.MobService;
+import com.aincrad.rpg.mob.SpawnService;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
@@ -27,6 +28,8 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
     private ConfigFile config;
     private ConfigFile levels;
     private ConfigFile mobs;
+    private ConfigFile spawnFile;
+    private SpawnService spawns;
     private Messages msg;
     private PlayerStore store;
     private RpgService rpg;
@@ -60,7 +63,11 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(mobService, this);
         command("status", status);
         command("level", new LevelCommand(rpg));
-        core.commands().register(this, new AdminCommand(rpg, items));
+        spawnFile = core.config(this, "spawns.yml");
+        spawns = new SpawnService(this, mobService);
+        getServer().getPluginManager().registerEvents(spawns, this);
+        spawns.reload(spawnFile);
+        core.commands().register(this, new AdminCommand(rpg, items, spawns));
         AincradRPGAPI.init(rpg, mobService, items, status);
         getServer().getServicesManager().register(AincradRPGAPI.class, AincradRPGAPI.instance(), this, ServicePriority.Normal);
 
@@ -91,6 +98,9 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         AincradRPGAPI.init(null, null, null, null);
         getServer().getServicesManager().unregisterAll(this);
+        if (spawns != null) {
+            spawns.shutdown();
+        }
         if (rpg != null) {
             for (Player p : getServer().getOnlinePlayers()) {
                 rpg.clearAttributes(p);
@@ -110,6 +120,8 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         RpgSettings s = new RpgSettings(config, levels, mobs);
         rpg.settings(s);
         items.reload(s);
+        spawnFile.reload();
+        spawns.reload(spawnFile);
         for (Player p : getServer().getOnlinePlayers()) {
             rpg.applyAttributes(p);
             rpg.refresh(p);
