@@ -59,7 +59,7 @@ Cada profissão tem 5 nós gerais, 3 caminhos (aos 250) com 4 nós cada e, dentr
 - Os efeitos dos nós somam e as profissões leem por `ProfessionService.modifier`.
 - As árvores são geradas por `tools/gerar_arvores.py`; pode editar os YAML à mão.
 
-Por enquanto a árvore abre em páginas de baú. A versão flutuante do AincradUI fica para depois.
+Com o AincradUI, os menus de profissões e a árvore abrem flutuando, no estilo SAO; sem ele (ou sem o resource pack), em baú.
 
 ## Bancadas (`stations.yml`)
 
@@ -522,9 +522,11 @@ Eventos: `ProfessionRankUpEvent`, `LegendaryFishEvent` (Senhor do Lago derrotado
 - A lista de projetos é um menu, não um anel de ícones por categoria.
 - O martelo abre a oficina; para pôr um material num encaixe, o ferreiro troca para ele na mão.
 - A raridade vem da qualidade (40, 60, 75 e 90%), cortada pelo teto do material base.
-- Ainda não têm efeito: NPCs ferreiros nas cidades, a regra de que só o Refinador repara itens
-  épicos e lendários, os bônus específicos de ramo (ex.: `defesa_placas`) e as técnicas dos nós
-  finais. Os projetos de caminho usam `caminho:` no `forge.yml`, não os nós "desbloqueia".
+- **Ferreiro NPC**: `/reparo` repara o item da mão só por Col, por 1,5× o preço cheio, sem material
+  e sem proficiência, e recusa itens épicos e lendários (`ferreiro.npc`). Para um NPC da cidade:
+  `/aincrad npc criar ferreiro_npc Ferreiro` e `/aincrad npc comando ferreiro_npc reparo`.
+- Ainda não têm efeito: a regra de que só o Refinador repara itens épicos e lendários na bigorna, os
+  bônus específicos de ramo (ex.: `defesa_placas`) e as técnicas dos nós finais. Os projetos de caminho usam `caminho:` no `forge.yml`, não os nós "desbloqueia".
 - Alquimia: os pontos de coleta são blocos marcados por um admin, não regiões do core.
 - O livro do alquimista é um menu (`/alquimia`), não `/alquimia livro`.
 - Óleos e venenos são aplicados "bebendo" o frasco com a arma na outra mão.
@@ -536,8 +538,8 @@ Eventos: `ProfessionRankUpEvent`, `LegendaryFishEvent` (Senhor do Lago derrotado
 - Encomendas: o pedido é aberto por comando (`/encomenda abrir ...`); o quadro e as listas são menus.
 - A proposta tem um preço só (mão de obra e materiais juntos); o artesão compra o que falta
   pelos pedidos de material.
-- O artesão retira os materiais da caixa do contrato por comando (`/encomenda caixa`); as
-  estações ainda não puxam direto da caixa.
+- Ao abrir uma bancada, o artesão recebe no inventário os materiais das caixas dos contratos dele
+  em produção; o `/encomenda caixa` continua existindo.
 - O catálogo é um comando (`/catalogo`, `/contratar`), não um balcão numa casa do Economy.
 - O pedido de material é pago pelo artesão; o tesouro da guilda ainda não entra.
 - Um pedido de material aceita só o item comum do Minecraft (sem nome nem marca), então não

@@ -73,8 +73,23 @@ mensagens.
 
 Cada mudança é gravada no `spawns.yml` e vale na hora, sem `/aincrad reload`.
 
-O nome mostrado sobre o mob, o equipamento e os drops não têm menu: o nome muda com
-`/aincrad spawn nome`, e os outros dois ficam no arquivo.
+No menu de cada mob há também:
+
+- **Drops**: "Adicionar o item da minha mão" põe o item que você segura; depois é só clicar na
+  chance (1% a 100%) e nos botões de quantidade.
+- **Equipamento**: clique num espaço com o item na mão para pôr (mão vazia tira), ou use "Copiar o
+  que eu estou vestindo e segurando".
+- **Nome**: "usar o do item na minha mão" — renomeie uma etiqueta na bigorna e clique com ela na mão.
+  O nome de uma área nova sai do mesmo jeito.
+- **Modelo do ModelEngine**: escolhido numa lista dos modelos carregados.
+
+**Modelos 3D.** Os mobs com modelo entram pelo **MythicMobs** (a lista de mobs dele aparece primeiro
+na escolha do mob) ou por um modelo do **ModelEngine** posto sobre um mob do Minecraft. Itens do
+**ItemsAdder** valem como drop e como equipamento (`ia:namespace:id`; o menu reconhece o item da
+mão), e o `modelo:` de um item do `items.yml` aceita o modelo ou o custom model data que o
+ItemsAdder gerou. Nome, equipamento e modelo de um mob do MythicMobs vêm do arquivo dele.
+
+Com o AincradUI, o menu SAO ganha o botão **Status**.
 
 | Comando | O que faz |
 |---|---|

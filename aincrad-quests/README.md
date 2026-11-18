@@ -92,8 +92,8 @@ core.
 
 ## Escolhas diferentes do plano
 
-- O diário é o menu `/quests` do próprio plugin, e o rastreio aparece na barra de ação. Entrar no
-  menu de ícones e no HUD do AincradUI fica para a ligação com ele.
+- Com o AincradUI, a entrada **Quests** do menu SAO abre o diário e a quest rastreada aparece
+  numa linha embaixo da barra de vida. Sem ele, o diário é o `/quests` e o rastreio fica na barra de ação.
 - O diálogo é um menu com as quests do NPC, não uma janela de falas com opções.
 - Não há integração com Citizens nem FancyNpcs: só os NPCs próprios.
 - Recompensa de skill sai pela lista `comandos`.

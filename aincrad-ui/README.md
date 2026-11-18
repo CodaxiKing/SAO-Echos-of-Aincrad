@@ -216,3 +216,12 @@ Testes (JUnit) cobrem a geometria do cursor, slots do baú, faixas de vida, desl
 leitura de glifos, a medição da fonte SAO, o posicionamento por pixel, as cores sobre os painéis
 brancos, os pontos do painel de perfil, o redirecionamento de comando e se todo glifo e ícone do
 menu tem imagem no pack.
+
+## Ligações com os outros plugins
+
+- **Menus do AincradCore**: um menu marcado com `Menu.floating()` abre como lista SAO para quem tem
+  o resource pack (os outros veem o baú). O AincradLife marca os menus de profissões e a árvore.
+- **Linha de rastreio**: `setTrackerProvider` põe uma linha de texto embaixo da barra de vida; o
+  AincradQuests mostra ali a quest rastreada.
+- **Entradas do menu**: Quests (AincradQuests), Status (AincradRPG), party, amigos e guilda
+  (AincradSocial), Mapa (AincradFloors).

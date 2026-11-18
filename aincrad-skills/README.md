@@ -124,8 +124,9 @@ cada skill única), no banco do core.
 
 ## Escolhas diferentes do plano
 
-- O efeito visual e o som das skills são partículas e sons do Minecraft, definidos em cada skill;
-  não passam pelo AincradEffects.
+- Com o AincradEffects, usar uma skill toca o efeito `aincrad_skill_<id>`, `aincrad_skill_<arma>`
+  ou `aincrad_skill` (o primeiro que existir; o último já vem pronto). As partículas e o som de cada
+  golpe, definidos na skill, continuam.
 - Em zona segura as skills são bloqueadas, menos para quem está num duelo do AincradSocial.
 - A Cura em Batalha cura sempre, não só fora de combate.
 

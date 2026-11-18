@@ -132,6 +132,18 @@ economia. Eventos em `com.aincrad.social.api.event`: `GuildCreateEvent`, `GuildJ
   offline; ao entrar, o jogador é avisado das não lidas. Até `mensagens.caixa_maxima` por jogador
   (as mais antigas saem). Texto puro, até 256 letras.
 
+## Ir até um amigo, sede comprada e emblema
+
+- **Ir até um amigo**: `/amigo ir <jogador>` ou "Ir até ele" no menu de amigos. Só quando os dois
+  estão numa cidade ou vila (zona segura do AincradFloors), no mesmo servidor e fora de duelo.
+- **Sede comprada com o tesouro**: o líder, dentro de uma casa à venda do AincradEconomy, usa
+  `/guilda casa comprar`. O Col sai do tesouro, a casa fica no nome do líder, vira a casa da guilda
+  e abre para todos os membros; quem entra na guilda ganha a chave e quem sai a perde.
+- **Emblema como imagem**: ponha em `guilds.yml → emblemas` um `ia:namespace:id` de um font_image
+  do ItemsAdder. Sem o ItemsAdder, ou com o id errado, aparece ⚔.
+- **Duelar pelo menu**: no menu SAO, ao clicar num membro da party ou num amigo que está online,
+  "Duelar" abre a escolha do modo.
+
 ## Duelos
 
 `/duelo <jogador> [modo]` desafia alguém a até `duelo.distancia_desafio` blocos (16). O desafio chega
@@ -186,9 +198,17 @@ passam a valer.
 Cada servidor precisa de um nome diferente em `AincradCore/config.yml → servidor`: é por ele que
 as travas sabem de quem é a vez.
 
-**Continua por servidor**, mesmo com o banco: as parties (somem ao reiniciar e não atravessam
-servidores), os convites de guilda ainda não respondidos, os duelos e o limite diário de retiradas
-do cofre de cada membro.
+- **Party**: vale para a rede. Convites e o chat da party chegam a quem está em outro servidor, e
+  trocar de servidor não tira ninguém da party (quem some da rede por 10 segundos sai). O XP
+  dividido, os drops e as barras de vida continuam valendo só entre quem está no mesmo servidor.
+- **Tesouro**: se dois servidores mexem no tesouro da mesma guilda no mesmo instante, o Col que
+  entrou ou saiu em cada um é somado de novo depois de a guilda ser relida. Nenhum depósito se perde.
+- **Desfazer a guilda**: só com o cofre nas mãos do servidor onde o líder está. Com o cofre aberto
+  em outro, o líder vê o aviso e tenta de novo.
+
+**Continua por servidor**, mesmo com o banco: os convites de guilda ainda não respondidos, os
+duelos e o limite diário de retiradas do cofre de cada membro. As outras mudanças feitas ao mesmo
+tempo na mesma guilda (cargos, opções) continuam valendo a primeira gravação.
 
 **Em arquivo**: gravado 5 s depois de cada mudança (fora da thread principal) e ao desligar, com
 troca atômica do arquivo.
@@ -196,12 +216,8 @@ troca atômica do arquivo.
 ## Ficou para depois
 
 - Emblema como imagem do pack (hoje é um símbolo de texto) e banner da guilda (nível 5).
-- Casa da guilda comprada com o tesouro (precisa das casas do AincradEconomy).
-- Party e convites entre servidores: a party vale só no servidor onde foi formada.
 - Aviso de amigo entrando ou saindo em outro servidor da rede.
-- Teleporte até um amigo dentro de zona segura.
-- Duelos: sem aposta de Col nem de itens, sem placar de vitórias, e o desafio é só por comando
-  (ainda não há botão "Duelar" no menu SAO).
+- Duelos: sem aposta de Col nem de itens e sem placar de vitórias.
 - O dono do drop (`por_vez`, `lider`) nunca perde a posse: se ele não pegar, o item some no tempo
   normal do Minecraft sem ficar livre para os outros.
 

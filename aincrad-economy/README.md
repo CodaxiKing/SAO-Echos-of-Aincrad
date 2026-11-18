@@ -152,4 +152,5 @@ soma sem estouro, leitura de quantidades) e `AuctionMathTest` (prazo, taxas do l
 ## Ainda falta
 
 - Estalagem e ferreiro do AincradLife cobrando em Col (quando o Life existir).
-- Teleporte para casa em outro servidor da rede (`/casa ir` só funciona no servidor da casa).
+- O `/casa ir` leva ao servidor do andar da casa (o `servidor` do `floors.yml`) e termina a viagem na
+  chegada. Sem o AincradFloors, só funciona no servidor da casa.
