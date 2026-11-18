@@ -4,7 +4,7 @@ main: com.aincrad.ui.AincradUIPlugin
 api-version: '1.21'
 description: Interface estilo SAO — menu de ícones, HUD de vida, vida crítica e tela de morte.
 authors: [CodaxiKing]
-softdepend: [AincradEffects, PlaceholderAPI]
+softdepend: [AincradCore, AincradEffects, PlaceholderAPI]
 
 commands:
   menu:

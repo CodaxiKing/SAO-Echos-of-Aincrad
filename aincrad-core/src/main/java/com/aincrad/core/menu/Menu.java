@@ -45,6 +45,7 @@ public final class Menu {
     private final List<Button> items = new ArrayList<>();
     private final List<Button> buttons = new ArrayList<>();
     private int rows = 6;
+    private boolean floating;
     private Consumer<Player> onClose;
 
     private Menu(Component title) {
@@ -70,6 +71,19 @@ public final class Menu {
     public Menu button(Button b) {
         buttons.add(b);
         return this;
+    }
+
+    /**
+     * Marca o menu como feito para o jogador (e não para o admin): com o AincradUI, ele abre no
+     * estilo SAO, flutuando, em vez do baú.
+     */
+    public Menu floating() {
+        this.floating = true;
+        return this;
+    }
+
+    public boolean isFloating() {
+        return floating;
     }
 
     /** Linhas do baú (2 a 6). */

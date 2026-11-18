@@ -315,6 +315,18 @@ public final class Hooks {
         }
     }
 
+    /** A raridade de um item do AincradRPG ("comum", "epico"...), ou null se não é um item dele. */
+    public String rpgRarity(ItemStack it) {
+        if (hasRpg() && it != null) {
+            try {
+                return RpgBridge.rarity(it);
+            } catch (LinkageError | RuntimeException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
     /**
      * Cria um item de um modelo do AincradRPG (items.yml), na raridade dada.
      *

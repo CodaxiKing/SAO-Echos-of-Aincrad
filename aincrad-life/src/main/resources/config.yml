@@ -144,6 +144,14 @@ ferreiro:
   martelo_item: MACE
   # Quanto o golpe crítico dos itens forjados multiplica o dano.
   critico_multiplicador: 1.5
+  # O ferreiro NPC das cidades (/reparo): repara o item da mão só por Col, mais caro que um
+  # ferreiro jogador, sem material e sem proficiência. Faça um NPC dele com
+  # /aincrad npc criar ferreiro_npc Ferreiro  e  /aincrad npc comando ferreiro_npc reparo
+  npc:
+    # Quantas vezes o Col de um reparo completo (reparo.col).
+    preco_x: 1.5
+    # Raridades (do AincradRPG) que ele não sabe reparar: são trabalho do Refinador.
+    recusa_raridades: [epico, lendario]
   reparo:
     # Custo de um reparo completo (item com a durabilidade toda gasta): Col e unidades do material.
     col: 300

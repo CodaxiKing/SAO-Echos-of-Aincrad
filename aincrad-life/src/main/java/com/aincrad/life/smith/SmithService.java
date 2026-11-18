@@ -488,6 +488,49 @@ public final class SmithService implements Listener {
                 config.decimal("ferreiro.reparo.desconto_no_mestre", 0.5, 0, 0.9), -mod(p, "custo_reparo"), mod(p, "material_reparo"));
     }
 
+    /**
+     * O ferreiro NPC das cidades ({@code /reparo}, ou um NPC com esse comando): repara o item da
+     * mão só por Col, pelo preço cheio vezes {@code ferreiro.npc.preco_x}, sem pedir material e
+     * sem dar proficiência. Itens de raridade alta (config) ele recusa: esses são do Refinador.
+     */
+    public void npcRepair(Player p) {
+        ItemStack it = p.getInventory().getItemInMainHand();
+        if (it.getType().isAir() || maxDamage(it) <= 0 || damage(it) <= 0) {
+            msg.send(p, "forja.npc_nada");
+            return;
+        }
+        String rarity = hooks.rpgRarity(it);
+        if (rarity != null && config.yaml().getStringList("ferreiro.npc.recusa_raridades").stream().anyMatch(rarity::equalsIgnoreCase)) {
+            msg.send(p, "forja.npc_recusa");
+            return;
+        }
+        double wear = damage(it) / (double) Math.max(1, maxDamage(it));
+        long price = Math.max(1, Math.round(wear * config.integer("ferreiro.reparo.col", 300, 0, Integer.MAX_VALUE)
+                * config.decimal("ferreiro.npc.preco_x", 1.5, 1, 100)));
+        ItemStack snapshot = it.clone();
+        Material coin = Material.matchMaterial(config.string("sem_economia.item", "GOLD_INGOT"));
+        Material fallback = coin == null ? Material.GOLD_INGOT : coin;
+        long perItem = config.integer("sem_economia.col_por_item", 100, 1, Integer.MAX_VALUE);
+        var vars = Messages.vars("preco", hooks.price(price, fallback, perItem));
+        AincradCore.get().menus().confirm(p, msg.get("forja.npc_confirmar", vars), yes -> {
+            ItemStack now = yes.getInventory().getItemInMainHand();
+            if (!now.equals(snapshot)) {
+                msg.send(yes, "forja.item_mudou");
+                return;
+            }
+            if (!hooks.charge(yes, price, fallback, perItem, "life:reparo_npc")) {
+                msg.send(yes, "forja.reparo_sem_col", vars);
+                return;
+            }
+            ItemMeta meta = now.getItemMeta();
+            ((Damageable) meta).setDamage(0);
+            now.setItemMeta(meta);
+            yes.getInventory().setItemInMainHand(now);
+            yes.playSound(yes.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 0.9f);
+            msg.send(yes, "forja.npc_reparado", vars);
+        }, no -> { });
+    }
+
     /** Reparo: o item vai na outra mão (o martelo está na principal). Mostra o custo e pede confirmação. */
     private void repair(Player p) {
         ItemStack it = p.getInventory().getItemInOffHand();

@@ -186,6 +186,12 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             }
             if (on("ferreiro")) {
                 smith = new SmithService(this, msg, config, hooks, professions, stations, panels);
+                // O ferreiro NPC: /reparo, ou um NPC do AincradQuests com /aincrad npc comando <id> reparo.
+                command("reparo", List.of("reparar"), (sender, args) -> {
+                    if (sender instanceof Player p && smith != null) {
+                        smith.npcRepair(p);
+                    }
+                });
                 smith.load();
                 listen(smith);
                 moduleTasks.add(getServer().getScheduler().runTaskTimer(this, smith::tick, 1L, 1L));

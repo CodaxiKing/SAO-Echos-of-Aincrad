@@ -48,7 +48,15 @@ public final class MenuService {
     }
 
     public void open(Player p, Menu menu) {
-        rendererFor(p).open(p, menu);
+        List<MenuRenderer> sorted = new ArrayList<>(renderers);
+        sorted.sort(Comparator.comparingInt(MenuRenderer::priority).reversed());
+        for (MenuRenderer r : sorted) {
+            if (r.supports(p, menu)) {
+                r.open(p, menu);
+                return;
+            }
+        }
+        renderers.get(0).open(p, menu);
     }
 
     /** Confirmação sim/não. */

@@ -74,7 +74,17 @@ public final class AincradUIPlugin extends JavaPlugin {
             }
         }
 
-        getServer().getServicesManager().register(AincradUIAPI.class, new AincradUIAPIImpl(this), this, ServicePriority.Normal);
+        AincradUIAPIImpl uiApi = new AincradUIAPIImpl(this);
+        getServer().getServicesManager().register(AincradUIAPI.class, uiApi, this, ServicePriority.Normal);
+        // Com o AincradCore, os menus dele marcados como flutuantes abrem no estilo SAO.
+        if (getServer().getPluginManager().isPluginEnabled("AincradCore")) {
+            try {
+                com.aincrad.ui.core.CoreMenuBridge.register(this, uiApi);
+                coreMenus = true;
+            } catch (LinkageError | RuntimeException e) {
+                getLogger().warning("AincradCore incompatível: os menus dele continuam em baú (" + e + ").");
+            }
+        }
 
         sessions.start();
         flat.start();
@@ -85,6 +95,14 @@ public final class AincradUIPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (coreMenus) {
+            try {
+                com.aincrad.ui.core.CoreMenuBridge.unregister();
+            } catch (LinkageError | RuntimeException ignored) {
+                // o core já desligou
+            }
+            coreMenus = false;
+        }
         if (sessions != null) {
             sessions.stop();
         }
@@ -163,6 +181,8 @@ public final class AincradUIPlugin extends JavaPlugin {
     public PackService pack() {
         return pack;
     }
+
+    private boolean coreMenus;
 
     public PackStatusTracker packStatus() {
         return packStatus;

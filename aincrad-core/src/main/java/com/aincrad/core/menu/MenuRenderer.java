@@ -18,5 +18,10 @@ public interface MenuRenderer {
     /** Este renderizador serve para o jogador agora? (ex.: Bedrock, tem o resource pack) */
     boolean supports(Player player);
 
+    /** Serve para este menu? Por padrão, o mesmo que {@link #supports(Player)}. */
+    default boolean supports(Player player, Menu menu) {
+        return supports(player);
+    }
+
     void open(Player player, Menu menu);
 }

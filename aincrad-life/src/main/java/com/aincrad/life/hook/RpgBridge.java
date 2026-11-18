@@ -18,6 +18,11 @@ final class RpgBridge {
         AincradRPGAPI.setMobLevel(e, level);
     }
 
+    static String rarity(ItemStack it) {
+        Object r = AincradRPGAPI.getRarity(it);
+        return r == null ? null : r.toString().toLowerCase(java.util.Locale.ROOT);
+    }
+
     static ItemStack createItem(String id, String rarity) {
         return AincradRPGAPI.createItem(id, rarity);
     }

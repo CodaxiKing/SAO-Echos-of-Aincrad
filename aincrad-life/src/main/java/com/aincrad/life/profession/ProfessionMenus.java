@@ -55,7 +55,7 @@ public final class ProfessionMenus {
     // ------------------------------------------------------------------ /profissoes
 
     public void open(Player p) {
-        Menu menu = Menu.of(msg.get("menu.titulo")).rows(3);
+        Menu menu = Menu.of(msg.get("menu.titulo")).rows(3).floating();
         for (Profession prof : Profession.values()) {
             double value = service.proficiency(p, prof);
             Profession.Rank rank = Profession.Rank.of(value);
@@ -75,7 +75,7 @@ public final class ProfessionMenus {
     }
 
     private void profession(Player p, Profession prof) {
-        Menu menu = Menu.of(msg.get("menu.profissao", Messages.vars("profissao", service.name(prof)))).rows(3);
+        Menu menu = Menu.of(msg.get("menu.profissao", Messages.vars("profissao", service.name(prof)))).rows(3).floating();
         menu.item(Menu.Button.of(icon(Material.KNOWLEDGE_BOOK), msg.get("menu.conhecimentos"), pl -> knowledge(pl, prof)));
         menu.item(Menu.Button.of(icon(Material.OAK_SAPLING), msg.get("menu.arvore"), pl -> tree(pl, prof)));
         menu.button(back(this::open));
@@ -84,7 +84,7 @@ public final class ProfessionMenus {
 
     /** O que existe para aprender nesta profissão: o que o jogador não conhece aparece como "???". */
     private void knowledge(Player p, Profession prof) {
-        Menu menu = Menu.of(msg.get("menu.conhecimentos")).rows(6);
+        Menu menu = Menu.of(msg.get("menu.conhecimentos")).rows(6).floating();
         double value = service.proficiency(p, prof);
         boolean any = false;
         for (Learnable l : service.learnables()) {
@@ -173,7 +173,7 @@ public final class ProfessionMenus {
         TreeDef tree = service.tree(prof);
         TreeDef.Path pa = tree.path(path);
         String name = spec == null ? pa.name() : pa.specs().get(spec);
-        Menu menu = Menu.of(msg.get("arvore.ramo", Messages.vars("nome", name, "livres", service.freePoints(p, prof)))).rows(4);
+        Menu menu = Menu.of(msg.get("arvore.ramo", Messages.vars("nome", name, "livres", service.freePoints(p, prof)))).rows(4).floating();
         Consumer<Player> here = pl -> branch(pl, prof, path, spec);
         tree.level(path, spec).forEach(n -> menu.item(node(p, prof, n, here)));
         menu.button(back(pl -> tree(pl, prof)));
