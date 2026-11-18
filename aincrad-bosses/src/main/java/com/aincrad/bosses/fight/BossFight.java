@@ -3,6 +3,7 @@ package com.aincrad.bosses.fight;
 import com.aincrad.bosses.data.RoomStore;
 import com.aincrad.bosses.model.BossDef;
 import com.aincrad.bosses.model.DamageLedger;
+import com.aincrad.bosses.model.ThreatTable;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -61,6 +62,14 @@ public final class BossFight {
     boolean roaming;
     /** Chefe de evento: quando some, em milissegundos (0 = não some). */
     long despawnAt;
+    /** Quem gerou mais ameaça: é quem o chefe ataca. */
+    final ThreatTable threat = new ThreatTable();
+    /** O alvo escolhido pela ameaça (null = ainda ninguém; vale o mais próximo). */
+    UUID target;
+    /** Tick até o qual o chefe está avisando um golpe: ele leva dano a mais (janela de punição). */
+    long telegraphUntil;
+    /** Próximo tick em que o painel de ameaça aparece. */
+    long nextHud;
 
     BossFight(BossDef def, RoomStore.Room room, Location spawn, BossBar bar, long now) {
         this.def = def;

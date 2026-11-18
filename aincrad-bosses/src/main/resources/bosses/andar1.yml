@@ -13,6 +13,12 @@
 #    salto      — dano, raio
 #    furia      — segundos, multiplicador
 #    sopro      — dano, raio (alcance do cone), aviso_ticks, segundos (de paralisia)
+#    mythic     — skill (nome da skill no MythicMobs), aviso_skill (opcional), aviso_ticks
+#
+#  Chefe com modelo e animações do MythicMobs/ModelEngine: mob: "mythic:Illfang". A vida, as
+#  fases e as recompensas continuam as deste arquivo; equipamento, escala e velocidade passam a
+#  ser os do mob do Mythic. O estado da luta vai para as variáveis do mob (boss_state,
+#  boss_phase, boss_attack), e as skills do Mythic podem reagir a elas. Veja o README.
 #    "nome" nas outras habilidades é a fala do chefe ao usar (MiniMessage).
 #  recompensas: itens são materiais ou "rpg:<id>[:raridade]" (items.yml do AincradRPG).
 # ============================================================

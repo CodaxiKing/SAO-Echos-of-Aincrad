@@ -37,7 +37,9 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
         /** Mais dano por alguns segundos. */
         FURIA,
         /** Sopro num cone à frente: dano e paralisia (lentidão e fadiga) por alguns segundos. */
-        SOPRO;
+        SOPRO,
+        /** Uma skill do MythicMobs: o aviso (opcional) e depois o golpe, com modelo, animação e efeitos de lá. */
+        MYTHIC;
 
         public static SkillType parse(String s) {
             try {
@@ -61,10 +63,23 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
      * @param seconds    duração da fúria, ou da paralisia do sopro
      * @param multiplier multiplicador de dano da fúria
      * @param label      nome dos lacaios, ou a fala do chefe ao usar
+     * @param warnSkill  skill do MythicMobs tocada no começo do aviso (tipo mythic; a do golpe fica em {@code mob})
      */
     public record Skill(SkillType type, double cooldown, double damage, double radius, int warnTicks, String mob, int count,
-                        int level, double seconds, double multiplier, String label) {
+                        int level, double seconds, double multiplier, String label, String warnSkill) {
     }
+
+    /** O corpo do chefe é um mob do MythicMobs ({@code mob: "mythic:Illfang"})? */
+    public boolean isMythic() {
+        return mob.regionMatches(true, 0, MYTHIC, 0, MYTHIC.length());
+    }
+
+    /** O id do mob no MythicMobs, com as maiúsculas e minúsculas do arquivo. */
+    public String mythicId() {
+        return isMythic() ? mob.substring(MYTHIC.length()).trim() : "";
+    }
+
+    private static final String MYTHIC = "mythic:";
 
     /**
      * Uma fase.
@@ -105,7 +120,9 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
             errors.add(where + "\"vida\" precisa ser maior que zero.");
             return null;
         }
-        String mob = s.getString("mob", "ZOMBIE").toUpperCase(Locale.ROOT);
+        // O id do MythicMobs diferencia maiúsculas de minúsculas: só os mobs do Minecraft viram maiúsculas.
+        String rawMob = s.getString("mob", "ZOMBIE").trim();
+        String mob = rawMob.regionMatches(true, 0, MYTHIC, 0, MYTHIC.length()) ? rawMob : rawMob.toUpperCase(Locale.ROOT);
         List<Phase> phases = new ArrayList<>();
         for (Map<?, ?> raw : s.getMapList("fases")) {
             phases.add(phase(raw, where, errors));
@@ -151,14 +168,20 @@ public record BossDef(String id, int floor, String name, int level, String mob, 
                 }
                 SkillType type = SkillType.parse(String.valueOf(m.get("tipo")));
                 if (type == null) {
-                    errors.add(where + "habilidade \"" + m.get("tipo") + "\" não existe (investida, area, lacaios, projetil, salto, furia, sopro).");
+                    errors.add(where + "habilidade \"" + m.get("tipo") + "\" não existe (investida, area, lacaios, projetil, salto, furia, sopro, mythic).");
+                    continue;
+                }
+                if (type == SkillType.MYTHIC && (m.get("skill") == null || m.get("skill").toString().isBlank())) {
+                    errors.add(where + "habilidade mythic precisa de \"skill\" (o nome da skill no MythicMobs).");
                     continue;
                 }
                 skills.add(new Skill(type, Math.max(1, num(m.get("recarga"), 15)), Math.max(0, num(m.get("dano"), 6)),
                         Math.max(0.5, num(m.get("raio"), 3)), Math.max(0, (int) num(m.get("aviso_ticks"), 30)),
-                        m.get("mob") == null ? "ZOMBIE" : m.get("mob").toString(), Math.max(1, (int) num(m.get("quantidade"), 2)),
+                        type == SkillType.MYTHIC ? m.get("skill").toString().trim() : m.get("mob") == null ? "ZOMBIE" : m.get("mob").toString(),
+                        Math.max(1, (int) num(m.get("quantidade"), 2)),
                         Math.max(1, (int) num(m.get("level"), 1)), Math.max(1, num(m.get("segundos"), 8)),
-                        Math.max(1, num(m.get("multiplicador"), 1.5)), m.get("nome") == null ? "" : m.get("nome").toString()));
+                        Math.max(1, num(m.get("multiplicador"), 1.5)), m.get("nome") == null ? "" : m.get("nome").toString(),
+                        m.get("aviso_skill") == null ? "" : m.get("aviso_skill").toString().trim()));
             }
         }
         Map<String, String> equipment = new LinkedHashMap<>();

@@ -78,6 +78,7 @@ public final class FightManager implements Listener {
     private final RoomStore rooms;
     private final BossStateStore states;
     private final Skills skills;
+    private final MythicLink mythic = new MythicLink();
     private final NamespacedKey bossKey;
     private final NamespacedKey minionKey;
     private BossRegistry registry;
@@ -310,6 +311,26 @@ public final class FightManager implements Listener {
 
     private LivingEntity spawnBoss(BossFight f) {
         BossDef def = f.def;
+        if (def.isMythic()) {
+            // O corpo vem do MythicMobs (modelo, animações, skills); vida e fases continuam as do YAML.
+            Entity made = mythic.spawn(def.mythicId(), f.spawn, def.level());
+            if (!(made instanceof LivingEntity le)) {
+                if (made != null) {
+                    made.remove();
+                }
+                plugin.getLogger().warning("Chefe " + def.id() + ": o MythicMobs não está ligado ou não conhece o mob \"" + def.mythicId() + "\".");
+                return null;
+            }
+            le.getPersistentDataContainer().set(bossKey, PersistentDataType.STRING, def.id());
+            le.setRemoveWhenFarAway(false);
+            le.setPersistent(false);
+            le.setAI(false);
+            le.setInvulnerable(true);
+            base(le, Attribute.MAX_HEALTH, def.health());
+            base(le, Attribute.FOLLOW_RANGE, 64);
+            le.setHealth(def.health());
+            return le;
+        }
         EntityType type;
         try {
             type = EntityType.valueOf(def.mob());
@@ -504,6 +525,7 @@ public final class FightManager implements Listener {
             f.entity.teleport(f.spawn);
         }
         f.minions.removeIf(m -> !m.isValid());
+        threatStep(f);
         double max = f.def.health();
         double pct = f.entity.getHealth() / max * 100.0;
         int phase = f.def.phaseAt(pct);
@@ -551,8 +573,11 @@ public final class FightManager implements Listener {
         BossDef.Phase ph = f.currentPhase();
         f.ready.clear();
         f.nextSkill = tick + 40;
-        equip(f.entity, ph.equipment());
-        base(f.entity, Attribute.MOVEMENT_SPEED, f.def.speed() * ph.speedTimes());
+        if (!f.def.isMythic()) {
+            equip(f.entity, ph.equipment());
+            base(f.entity, Attribute.MOVEMENT_SPEED, f.def.speed() * ph.speedTimes());
+        }
+        publish(f, phaseState(f), "");
         if (!announce) {
             return;
         }
@@ -842,6 +867,13 @@ public final class FightManager implements Listener {
             Player p = attacker(by.getDamager());
             if (p != null && !f.isFighter(p)) {
                 event.setCancelled(true);
+                return;
+            }
+            // Janela de punição: quem lê o aviso e ataca em vez de só recuar causa mais dano.
+            double times = config.decimal("punicao.multiplicador", 1.5, 1, 10);
+            if (p != null && times > 1 && tick < f.telegraphUntil) {
+                event.setDamage(event.getDamage() * times);
+                msg.actionBar(p, "luta.punicao", Messages.vars("pct", Math.round((times - 1) * 100)));
             }
         }
     }
@@ -864,6 +896,7 @@ public final class FightManager implements Listener {
         }
         double dealt = Math.min(event.getFinalDamage(), f.entity.getHealth());
         f.ledger.add(p.getUniqueId(), dealt);
+        f.threat.add(p.getUniqueId(), dealt * config.decimal("ameaca.por_dano", 1, 0, 100), System.currentTimeMillis());
         f.lastActive.put(p.getUniqueId(), tick);
         plugin.getServer().getPluginManager().callEvent(new BossDamageEvent(f.def.id(), f.def.name(), f.def.floor(), f.entity, p, dealt, event.isCritical()));
     }
@@ -889,7 +922,16 @@ public final class FightManager implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onTarget(EntityTargetLivingEntityEvent event) {
         BossFight f = fightOf(event.getEntity());
-        if (f != null && (!(event.getTarget() instanceof Player p) || !f.isFighter(p))) {
+        if (f == null) {
+            return;
+        }
+        if (!(event.getTarget() instanceof Player p) || !f.isFighter(p)) {
+            event.setCancelled(true);
+            return;
+        }
+        // Com a ameaça ligada, o mob não troca de alvo sozinho: quem decide é a tabela.
+        if (f.target != null && !p.getUniqueId().equals(f.target)
+                && event.getReason() != EntityTargetLivingEntityEvent.TargetReason.CUSTOM && Bukkit.getPlayer(f.target) != null) {
             event.setCancelled(true);
         }
     }
@@ -900,6 +942,96 @@ public final class FightManager implements Listener {
         if (event.getEntity().getPersistentDataContainer().has(bossKey) && !(event instanceof org.bukkit.event.entity.EntityCombustByEntityEvent)) {
             event.setCancelled(true);
         }
+    }
+
+    // ------------------------------------------------------------------ ameaça, aviso e MythicMobs
+
+    MythicLink mythic() {
+        return mythic;
+    }
+
+    private static String phaseState(BossFight f) {
+        return "PHASE_" + (f.phase + 1);
+    }
+
+    /** Grava o estado nas variáveis do mob do Mythic (não faz nada num chefe do Minecraft). */
+    void publish(BossFight f, String state, String attack) {
+        if (f.def.isMythic() && f.entity != null) {
+            mythic.state(f.entity, state, f.phase + 1, attack);
+        }
+    }
+
+    /**
+     * O chefe começa a avisar um golpe: fica parado, abre a janela de punição e o Mythic recebe
+     * {@code boss_state = TELEGRAPH}. No fim do aviso volta a andar, e o estado volta ao da fase
+     * (a não ser que o golpe seja do Mythic, que passa antes por {@code HEAVY_ATTACK}).
+     */
+    void telegraph(BossFight f, int ticks, String attack, boolean backToPhase) {
+        if (ticks <= 0) {
+            return;
+        }
+        f.telegraphUntil = tick + ticks;
+        publish(f, "TELEGRAPH", attack);
+        boolean freeze = config.bool("punicao.congelar_no_aviso", true);
+        if (freeze) {
+            f.entity.setAI(false);
+        }
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (f.over || f.entity == null || !f.entity.isValid() || f.stage != BossFight.Stage.LUTA) {
+                return;
+            }
+            if (freeze) {
+                f.entity.setAI(true);
+            }
+            if (backToPhase) {
+                publish(f, phaseState(f), "");
+            }
+        }, ticks);
+    }
+
+    /** A cada passo: a ameaça de quem parou de bater cai, o alvo é escolhido e o painel aparece. */
+    private void threatStep(BossFight f) {
+        if (!config.bool("ameaca.ativo", true)) {
+            f.target = null;
+            return;
+        }
+        long now = System.currentTimeMillis();
+        java.util.function.Predicate<UUID> valid = id -> {
+            Player p = f.fighters.contains(id) ? Bukkit.getPlayer(id) : null;
+            return p != null && !p.isDead();
+        };
+        f.threat.prune(valid);
+        f.threat.decay(config.decimal("ameaca.perda_por_segundo", 2.5, 0, 100), STEP / 20.0,
+                config.decimal("ameaca.carencia_segundos", 3, 0, 600), now);
+        f.target = f.threat.selectTarget(f.target, config.decimal("ameaca.margem_de_troca", 1.15, 1, 10), valid).orElse(null);
+        Player p = f.target == null ? null : Bukkit.getPlayer(f.target);
+        if (p != null && f.entity instanceof Mob mob && tick >= f.telegraphUntil && !p.equals(mob.getTarget())) {
+            mob.setTarget(p);
+        }
+        if (config.bool("ameaca.painel", true) && tick >= f.nextHud && !f.threat.isEmpty()) {
+            f.nextHud = tick + 20;
+            Map<UUID, Integer> shares = f.threat.shares();
+            for (Player viewer : fighters(f)) {
+                StringBuilder line = new StringBuilder();
+                int shown = 0;
+                for (Map.Entry<UUID, Integer> e : shares.entrySet()) {
+                    Player who = Bukkit.getPlayer(e.getKey());
+                    if (who == null || shown++ >= 3) {
+                        continue;
+                    }
+                    line.append(line.length() > 0 ? " <dark_gray>· " : "")
+                            .append(msg.raw(who.equals(viewer) ? "luta.ameaca_voce" : "luta.ameaca_outro")
+                                    .replace("<nome>", who.getName()).replace("<pct>", String.valueOf(e.getValue())));
+                }
+                msg.actionBar(viewer, "luta.ameaca", net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.component("linha", Messages.parse(line.toString())));
+            }
+        }
+    }
+
+    /** Em quem o chefe usa a habilidade: quem tem mais ameaça; sem ameaça ainda, o mais perto. */
+    Player target(BossFight f) {
+        Player p = f.target == null ? null : Bukkit.getPlayer(f.target);
+        return p != null && !p.isDead() && f.fighters.contains(p.getUniqueId()) ? p : nearest(f);
     }
 
     /** Alvo para o chefe: o lutador mais perto. */

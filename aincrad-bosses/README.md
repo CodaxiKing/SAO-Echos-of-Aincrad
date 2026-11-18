@@ -14,7 +14,7 @@ Last Attack, liberação do próximo andar e o labirinto. Precisa do **AincradCo
   e velocidade, falar e mudar as habilidades. O Illfang troca o machado e o escudo por uma espada
   aos 25% e fica 40% mais rápido.
 - **Habilidades com recarga**: investida, ataque em área (círculo vermelho de aviso no chão),
-  lacaios, projétil, salto com impacto, fúria e sopro (cone que fere e paralisa). Uma habilidade pronta é escolhida ao acaso, com
+  lacaios, projétil, salto com impacto, fúria, sopro (cone que fere e paralisa) e skills do MythicMobs. Uma habilidade pronta é escolhida ao acaso, com
   um intervalo entre elas.
 - **Sala do chefe**: a luta começa quando alguém pisa na sala. Há uma contagem
   (`sala.espera_segundos`) para o grupo entrar; depois a porta fecha, o chefe aparece parado e
@@ -33,6 +33,37 @@ Last Attack, liberação do próximo andar e o labirinto. Precisa do **AincradCo
 - **Labirinto**: zonas de spawn com level de mob, limite e intervalo. Crie as zonas com level
   cada vez maior conforme chegam perto da sala do chefe. Os mobs só nascem com jogador por perto,
   nunca a menos de 6 blocos de alguém, e não são salvos com o mundo.
+
+## Ameaça, janela de punição e MythicMobs
+
+Trazido do plugin BossAI (Crown-FMSMYTHICBOSS). A ideia é a mesma: **o AincradBosses decide, o
+MythicMobs executa**.
+
+- **Tabela de ameaça** (`config.yml → ameaca`): o chefe ataca quem causou mais dano, não quem
+  está mais perto. A ameaça de quem para de bater cai depois de uma carência, e para roubar o
+  alvo é preciso passar a ameaça do alvo atual por uma margem (15%). É o que deixa um tanque
+  segurar o chefe e o grupo fazer o "switch". As habilidades também miram esse alvo. Os três
+  primeiros da tabela aparecem na barra de ação de quem está lutando.
+- **Janela de punição** (`config.yml → punicao`): enquanto o chefe avisa um golpe (`area`,
+  `sopro` ou `mythic` com `aviso_ticks`), ele fica parado e leva 50% a mais de dano.
+- **Chefe com corpo do MythicMobs**: `mob: "mythic:Illfang"`. O mob nasce pelo MythicMobs, com o
+  modelo do ModelEngine e as animações de lá. Vida, fases, sala, recompensas e Last Attack
+  continuam os deste plugin; equipamento, escala e velocidade passam a ser os do mob do Mythic.
+- **Golpes do MythicMobs**: `{ tipo: mythic, skill: Illfang_Nodachi, aviso_skill:
+  Illfang_Aviso, aviso_ticks: 30, recarga: 12 }`. O plugin toca a skill de aviso, espera o aviso
+  e solta a skill do golpe. Funciona também num chefe do Minecraft, se o MythicMobs estiver ligado.
+- **Estado nas variáveis do mob**: a cada mudança o plugin grava `boss_state` (`PHASE_1`,
+  `PHASE_2`…, `TELEGRAPH`, `HEAVY_ATTACK`), `boss_phase` (1, 2…) e `boss_attack` (o golpe, ou
+  vazio). No YAML do Mythic:
+
+  ```yaml
+  Skills:
+    - skill{s=Illfang_AuraFase3} @self ~onTimer:20 ?variableEquals{var=boss_state;value=PHASE_3}
+    - state{s=aviso} @self ~onTimer:5 ?variableEquals{var=boss_state;value=TELEGRAPH}
+  ```
+
+Do BossAI ficaram de fora a máquina de estados configurável (as fases daqui são por vida), o
+recuo, o anti-kite e a amarra por região do WorldGuard (a sala do chefe já faz esse papel).
 
 ## Extras (etapas 18 e 19)
 

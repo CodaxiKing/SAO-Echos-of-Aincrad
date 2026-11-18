@@ -12,6 +12,27 @@ sala:
   # Depois de uma derrota dos jogadores (ou do tempo acabar), o chefe só volta após este tempo.
   recarga_derrota_segundos: 60
 
+# Ameaça: o chefe ataca quem gerou mais ameaça (dano), não quem está mais perto. É o que
+# deixa um tanque segurar o chefe e o grupo fazer o "switch".
+ameaca:
+  ativo: true
+  # Ameaça por ponto de dano causado ao chefe.
+  por_dano: 1.0
+  # Quem fica sem acertar por mais que a carência perde este % da ameaça por segundo.
+  perda_por_segundo: 2.5
+  carencia_segundos: 3
+  # Para roubar o alvo é preciso ter mais ameaça que a do alvo atual vezes isto.
+  margem_de_troca: 1.15
+  # Mostra os três primeiros da tabela na barra de ação de quem está lutando.
+  painel: true
+
+# Janela de punição: enquanto o chefe avisa um golpe (área, sopro ou skill do MythicMobs com
+# aviso_ticks), ele leva dano a mais.
+punicao:
+  multiplicador: 1.5      # 1 = desligado
+  # O chefe fica parado durante o aviso.
+  congelar_no_aviso: true
+
 abuso:
   # Lutador sem andar nem acertar o chefe por este tempo não recebe recompensa nem conta como
   # participante (volta a contar se se mexer antes do fim). 0 = desligado.

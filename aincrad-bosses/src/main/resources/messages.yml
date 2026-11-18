@@ -45,6 +45,10 @@ luta:
   last_attack: "<gold>★ Last Attack: <white><jogador>"
   seu_dano: "<gray>Seu dano: <white><dano></white> (<pct>%)."
   seu_dano_pouco: "<gray>Seu dano: <white><dano></white> (<pct>%) — abaixo de <minimo>%, sem recompensa."
+  ameaca: "<gray>Ameaça: <linha>"
+  ameaca_voce: "<yellow><bold><nome></bold> <pct>%</yellow>"
+  ameaca_outro: "<white><nome> <gray><pct>%"
+  punicao: "<gold>⚡ <bold>Punição!</bold> <yellow>+<pct>% de dano"
   ausente_aviso: "<yellow>Mexa-se ou ataque: parado você fica sem recompensa."
   ausente: "<red>Ausente: sem recompensa até voltar a lutar."
   voltou_fora: "<yellow>Você saiu do servidor durante a luta contra <white><chefe></white> e não pode voltar para a sala."
@@ -88,6 +92,7 @@ guia:
     salto: "Salta e causa dano ao cair"
     furia: "Fúria: mais dano por alguns segundos"
     sopro: "Sopro em cone: dano e paralisia"
+    mythic: "Golpe especial: ataque enquanto ele avisa"
 
 masmorra:
   descricao: "Dungeons escondidas: criar, definir o baú, trancar, dar chave e mapa"

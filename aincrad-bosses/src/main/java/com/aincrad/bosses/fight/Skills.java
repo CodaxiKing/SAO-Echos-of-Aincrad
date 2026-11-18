@@ -45,7 +45,7 @@ final class Skills {
 
     void tick(BossFight f) {
         long now = fights.now();
-        Player target = fights.nearest(f);
+        Player target = fights.target(f);
         if (target == null || now < f.nextSkill) {
             return;
         }
@@ -71,7 +71,11 @@ final class Skills {
         if (!s.label().isBlank() && s.type() != BossDef.SkillType.LACAIOS) {
             fights.say(f, Messages.parse(s.label(), Messages.vars("chefe", f.def.name(), "alvo", target.getName())));
         }
+        if (s.type() == BossDef.SkillType.AREA || s.type() == BossDef.SkillType.SOPRO) {
+            fights.telegraph(f, s.warnTicks(), s.type().name().toLowerCase(java.util.Locale.ROOT), true);
+        }
         switch (s.type()) {
+            case MYTHIC -> mythic(f, s);
             case INVESTIDA -> charge(f, s, target);
             case AREA -> area(f, s, target.getLocation());
             case LACAIOS -> minions(f, s);
@@ -80,6 +84,29 @@ final class Skills {
             case FURIA -> fury(f, s);
             case SOPRO -> breath(f, s, target);
         }
+    }
+
+    /**
+     * Golpe do MythicMobs: toca a skill de aviso (se houver), espera {@code aviso_ticks} com o
+     * chefe parado e a janela de punição aberta, e então solta a skill do golpe. O dano e os
+     * efeitos são os da skill do Mythic.
+     */
+    private void mythic(BossFight f, BossDef.Skill s) {
+        MythicLink link = fights.mythic();
+        if (!link.available()) {
+            plugin.getLogger().warning("Chefe " + f.def.id() + ": a habilidade mythic \"" + s.mob() + "\" precisa do MythicMobs ligado.");
+            return;
+        }
+        int warn = s.warnTicks();
+        fights.telegraph(f, warn, s.mob(), false);
+        link.cast(f.entity, s.warnSkill());
+        later(f, warn, () -> {
+            fights.publish(f, "HEAVY_ATTACK", s.mob());
+            if (!link.cast(f.entity, s.mob())) {
+                plugin.getLogger().warning("Chefe " + f.def.id() + ": o MythicMobs não conhece a skill \"" + s.mob() + "\".");
+            }
+            later(f, 20, () -> fights.publish(f, "PHASE_" + (f.phase + 1), ""));
+        });
     }
 
     /** A luta ainda é a mesma e o chefe está vivo? (as habilidades têm partes atrasadas) */
