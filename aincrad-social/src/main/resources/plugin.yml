@@ -4,7 +4,7 @@ main: com.aincrad.social.AincradSocialPlugin
 api-version: '1.21'
 description: Amigos, party, guilda, duelos e mensagens no estilo SAO (integra com o menu do AincradUI).
 authors: [CodaxiKing]
-softdepend: [AincradCore, AincradUI, Vault, AincradEconomy, AincradFloors, AincradQuests, AincradRPG, AincradReputation]
+softdepend: [AincradCore, AincradUI, ItemsAdder, Vault, AincradEconomy, AincradFloors, AincradQuests, AincradRPG, AincradReputation]
 
 commands:
   amigo:

@@ -19,11 +19,16 @@ public final class PartyService {
 
     /** Uma party. O primeiro de {@code members} não é necessariamente o líder. */
     public static final class Party {
-        private final UUID id = UUID.randomUUID();
+        private final UUID id;
         private UUID leader;
         private final Set<UUID> members = new LinkedHashSet<>();
 
         Party(UUID leader) {
+            this(UUID.randomUUID(), leader);
+        }
+
+        Party(UUID id, UUID leader) {
+            this.id = id;
             this.leader = leader;
             members.add(leader);
         }
@@ -241,6 +246,60 @@ public final class PartyService {
         }
         p.members.clear();
         return all;
+    }
+
+    // ------------------------------------------------------------------ rede
+
+    /** "líder|m1,m2": o estado de uma party em texto, para comparar e mandar aos outros servidores. */
+    public static String encode(UUID leader, List<UUID> members) {
+        StringBuilder sb = new StringBuilder(leader.toString()).append('|');
+        for (int i = 0; i < members.size(); i++) {
+            sb.append(i == 0 ? "" : ",").append(members.get(i));
+        }
+        return sb.toString();
+    }
+
+    /** Todas as parties (id → estado em texto). */
+    public Map<UUID, String> snapshot() {
+        Map<UUID, String> out = new HashMap<>();
+        for (Party p : new LinkedHashSet<>(byMember.values())) {
+            out.put(p.id, encode(p.leader, p.members()));
+        }
+        return out;
+    }
+
+    /** Põe aqui uma party como outro servidor a descreveu (cria ou troca). */
+    public void apply(UUID id, UUID leader, List<UUID> members) {
+        remove(id);
+        Party p = new Party(id, leader);
+        // A ordem dos membros é a de quem mandou (o líder não vai para a frente): os dois
+        // servidores ficam com o mesmo estado e não há o que reenviar.
+        p.members.clear();
+        for (UUID m : members) {
+            Party other = byMember.get(m);
+            if (other != null) {
+                // Quem estava em outra party aqui saiu dela lá.
+                other.members.remove(m);
+            }
+            p.members.add(m);
+            byMember.put(m, p);
+            invites.remove(m);
+        }
+        if (!p.members.contains(leader)) {
+            p.leader = p.members.iterator().next();
+        }
+    }
+
+    /** Tira a party (acabou em outro servidor). */
+    public void remove(UUID id) {
+        for (Party p : new LinkedHashSet<>(byMember.values())) {
+            if (p.id.equals(id)) {
+                for (UUID m : p.members) {
+                    byMember.remove(m, p);
+                }
+                p.members.clear();
+            }
+        }
     }
 
     /** Todas as parties ativas (para depuração e testes). */

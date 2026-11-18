@@ -167,6 +167,12 @@ public final class SocialActions {
         switch (r) {
             case SENT -> {
                 Player t = Names.online(target);
+                if (t == null && plugin.partyNet() != null && plugin.partyNet().onlineElsewhere(target)) {
+                    // Está em outro servidor da rede: o convite vai até lá.
+                    plugin.partyNet().sendInvite(p, target);
+                    msg().send(p, "party.convite_enviado", who(tn));
+                    return true;
+                }
                 if (t == null) {
                     plugin.parties().decline(target, p.getUniqueId());
                     msg().send(p, "geral.jogador_nao_encontrado", who(tn));
@@ -185,6 +191,13 @@ public final class SocialActions {
             case ALREADY_INVITED -> msg().send(p, "party.ja_convidado", who(tn));
         }
         return r == PartyService.InviteResult.SENT;
+    }
+
+    /** Mostra a um jogador deste servidor o convite que veio de outro. */
+    public void showInvite(Player t, String fromName) {
+        notifyPlayer(t, msg().get("party.convite_recebido", who(fromName),
+                        Placeholder.unparsed("segundos", String.valueOf(plugin.settings().inviteSeconds)))
+                .append(buttons("/party aceitar " + fromName, "/party recusar " + fromName)));
     }
 
     public boolean acceptInvite(Player p, UUID from) {
@@ -298,6 +311,9 @@ public final class SocialActions {
             if (o != null) {
                 o.sendMessage(line);
             }
+        }
+        if (plugin.partyNet() != null) {
+            plugin.partyNet().chat(party.id(), line);
         }
         plugin.getLogger().info("[Party] " + p.getName() + ": " + text);
     }

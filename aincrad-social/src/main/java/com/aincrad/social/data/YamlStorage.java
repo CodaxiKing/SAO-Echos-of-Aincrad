@@ -110,6 +110,16 @@ public final class YamlStorage implements Storage {
     }
 
     @Override
+    public void publish(String channel, String payload) {
+        // sem rede
+    }
+
+    @Override
+    public void subscribe(String channel, Consumer<String> handler) {
+        // sem rede
+    }
+
+    @Override
     public void publishChat(Collection<UUID> guilds, Component line) {
         // sem rede
     }

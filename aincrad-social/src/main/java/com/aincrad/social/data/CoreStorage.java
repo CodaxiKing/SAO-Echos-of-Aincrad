@@ -37,7 +37,8 @@ import java.util.logging.Logger;
  * <ul>
  *   <li>Amigos, pedidos, caixa de entrada e nomes: uma linha por item; só o que mudou é gravado.</li>
  *   <li>Guildas: um documento por guilda, com versão. Se dois servidores mudam a mesma guilda no
- *       mesmo instante, vale a primeira gravação; o outro servidor relê a guilda do banco.</li>
+ *       mesmo instante, vale a primeira gravação; o outro servidor relê a guilda do banco — menos o
+ *       tesouro: o Col que entrou ou saiu ali é somado de novo depois de reler.</li>
  *   <li>Cofre: os itens ficam fora do documento, e só um servidor por vez abre o cofre de uma
  *       guilda (trava com prazo, renovada enquanto o cofre está aberto).</li>
  * </ul>
@@ -130,6 +131,8 @@ public final class CoreStorage implements Storage {
     private final Map<UUID, String> savedGuilds = new HashMap<>();
     private final Map<UUID, Long> versions = new HashMap<>();
     private final Map<UUID, long[]> savedPlayers = new HashMap<>();
+    /** O tesouro de cada guilda na última versão confirmada no banco. */
+    private final Map<UUID, Long> confirmedTreasury = new HashMap<>();
     /** Cofres que este servidor tem abertos. */
     private final Set<UUID> heldVaults = ConcurrentHashMap.newKeySet();
     private final Map<UUID, String> pendingVaults = new LinkedHashMap<>();
@@ -263,6 +266,7 @@ public final class CoreStorage implements Storage {
                     GuildStore.replace(guilds, g);
                     savedGuilds.put(id, GuildStore.encode(g, false));
                     versions.put(id, Long.parseLong(row[2]));
+                    confirmedTreasury.put(id, g.treasury());
                 } catch (RuntimeException e) {
                     log.warning("Guilda " + row[0] + " ignorada (dados inválidos): " + e.getMessage());
                 }
@@ -511,6 +515,7 @@ public final class CoreStorage implements Storage {
                 continue;
             }
             long version = versions.getOrDefault(id, 0L);
+            long treasury = g.treasury();
             savedGuilds.put(id, body);
             versions.put(id, version + 1);
             io(c -> {
@@ -529,8 +534,11 @@ public final class CoreStorage implements Storage {
                     log.warning("A guilda " + id + " foi mudada em outro servidor ao mesmo tempo: a mudança feita em \""
                             + server + "\" foi descartada e a guilda relida do banco.");
                     net.main(() -> reloadGuild(id));
-                } else if (notify) {
-                    net.publish(CH_GUILD, id.toString());
+                } else {
+                    net.main(() -> confirmedTreasury.put(id, treasury));
+                    if (notify) {
+                        net.publish(CH_GUILD, id.toString());
+                    }
                 }
             });
         }
@@ -538,6 +546,7 @@ public final class CoreStorage implements Storage {
             if (!alive.contains(id)) {
                 savedGuilds.remove(id);
                 versions.remove(id);
+                confirmedTreasury.remove(id);
                 io(c -> {
                     Database.update(c, "DELETE FROM social_guilds WHERE id = ?", id.toString());
                     Database.update(c, "DELETE FROM social_vaults WHERE guild = ?", id.toString());
@@ -600,9 +609,12 @@ public final class CoreStorage implements Storage {
                 if (old != null) {
                     affected.addAll(old.members().keySet());
                 }
+                // Col que entrou ou saiu do tesouro aqui e ainda não chegou ao banco: não se perde.
+                long pending = old == null ? 0 : old.treasury() - confirmedTreasury.getOrDefault(id, old.treasury());
                 if (rows.isEmpty()) {
                     savedGuilds.remove(id);
                     versions.remove(id);
+                    confirmedTreasury.remove(id);
                     if (old != null) {
                         GuildStore.drop(guilds, id);
                         host.guildRemoved(id);
@@ -613,7 +625,12 @@ public final class CoreStorage implements Storage {
                         GuildStore.replace(guilds, g);
                         savedGuilds.put(id, GuildStore.encode(g, false));
                         versions.put(id, Long.parseLong(rows.get(0)[1]));
+                        confirmedTreasury.put(id, g.treasury());
                         affected.addAll(g.members().keySet());
+                        if (pending != 0) {
+                            GuildStore.addTreasury(g, pending);
+                            saveGuildsSoon();
+                        }
                     } catch (RuntimeException e) {
                         log.warning("Guilda " + id + " veio inválida do banco: " + e.getMessage());
                     }
@@ -737,6 +754,18 @@ public final class CoreStorage implements Storage {
     }
 
     // ------------------------------------------------------------------ chat e desligar
+
+    @Override
+    public void publish(String channel, String payload) {
+        if (!closed) {
+            net.publish(channel, payload);
+        }
+    }
+
+    @Override
+    public void subscribe(String channel, Consumer<String> handler) {
+        net.subscribe(channel, handler);
+    }
 
     @Override
     public void publishChat(Collection<UUID> guildIds, Component line) {

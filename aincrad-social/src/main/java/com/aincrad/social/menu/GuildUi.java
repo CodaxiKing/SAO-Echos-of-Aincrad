@@ -144,7 +144,7 @@ final class GuildUi {
     private UiList hub(Player p, Guild guild) {
         UUID me = p.getUniqueId();
         UiList list = UiList.of(msg().get("menu_guilda.titulo", g(guild),
-                Placeholder.unparsed("emblema", guild.emblem()), Placeholder.unparsed("nivel", String.valueOf(guild.level()))));
+                Placeholder.unparsed("emblema", plugin.hooks().emblem(guild.emblem())), Placeholder.unparsed("nivel", String.valueOf(guild.level()))));
         list.row(row("under_icons/friends", "membros", msg().get("menu_guilda.membros_detalhe",
                 Placeholder.unparsed("membros", String.valueOf(guild.size())),
                 Placeholder.unparsed("vagas", String.valueOf(svc().slots(guild)))), pl -> openMembers(pl)));
@@ -419,7 +419,7 @@ final class GuildUi {
                         msg().send(pl, "guilda.erro.invalid");
                     }
                 }, Placeholder.unparsed("max", String.valueOf(svc().rules().maxTaxPercent())))));
-        list.row(row("under_icons/skills", "emblema", Component.text(guild.emblem()), this::openEmblems));
+        list.row(row("under_icons/skills", "emblema", Component.text(plugin.hooks().emblem(guild.emblem())), this::openEmblems));
         list.row(row("under_icons/equipment", "cores", Component.text(guild.color1() + " " + guild.color2()), pl ->
                 ask(pl, "menu_guilda.digite_cores", v -> {
                     String[] c = v.trim().split("\\s+");

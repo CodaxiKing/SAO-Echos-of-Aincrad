@@ -48,6 +48,19 @@ public final class AincradEconomyAPI {
         return h == null ? null : h.owner();
     }
 
+    /** O preço da casa à venda onde está o lugar; -1 se não há casa ali ou se ela já tem dono. */
+    public static long getHousePrice(org.bukkit.Location location) {
+        com.aincrad.economy.house.House h = houses == null || location == null ? null : houses.at(location);
+        return h == null || !h.forSale() ? -1 : h.price();
+    }
+
+    /** Compra, para o jogador, a casa onde ele está: cobra dele e avisa, como o /casa comprar. */
+    public static void buyHouse(Player player) {
+        if (houses != null) {
+            houses.buy(player);
+        }
+    }
+
     /**
      * Abre (ou fecha) as casas de {@code owner} deste servidor para {@code member}: portas, baús e blocos.
      *

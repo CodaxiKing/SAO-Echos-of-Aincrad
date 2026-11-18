@@ -234,7 +234,7 @@ class CoreStorageTest {
     }
 
     @Test
-    void doisServidoresMudandoAMesmaGuildaValeAPrimeiraGravacao() throws Exception {
+    void depositosAoMesmoTempoEmDoisServidoresNaoSePerdem() throws Exception {
         Server lobby = new Server("lobby").load();
         Server andar = new Server("andar1").load();
         lobby.guilds.create(asuna, "Cavaleiros do Juramento", "KoB", null, 5000);
@@ -242,7 +242,7 @@ class CoreStorageTest {
         lobby.storage.saveGuildsSoon();
         settle();
 
-        // Os dois mexem antes de saber um do outro.
+        // Os dois depositam antes de saber um do outro.
         lobby.guilds.deposit(asuna, "Asuna", 100);
         andar.guilds.deposit(asuna, "Asuna", 999);
         lobby.storage.flushGuilds(false); // grava, mas o aviso "se perde"
@@ -250,15 +250,23 @@ class CoreStorageTest {
         andar.storage.flushGuilds(true);
         settle();
 
-        // O andar 1 chegou depois: a mudança dele foi descartada e ele releu a do lobby.
-        assertEquals(100, lobby.guilds.get(id).treasury());
-        assertEquals(100, andar.guilds.get(id).treasury());
+        // O andar 1 chegou depois: releu a guilda do lobby e somou de novo o depósito dele.
+        assertEquals(1099, andar.guilds.get(id).treasury());
+        assertEquals(1099, lobby.guilds.get(id).treasury());
 
-        // Depois de reler, o andar 1 volta a gravar normalmente.
+        // Um saque no lobby enquanto o andar 1 deposita: os dois valem.
+        lobby.guilds.withdraw(asuna, "Asuna", 99);
         andar.guilds.deposit(asuna, "Asuna", 50);
-        andar.storage.saveGuildsSoon();
+        lobby.storage.flushGuilds(false);
+        lobby.storage.await();
+        andar.storage.flushGuilds(true);
         settle();
-        assertEquals(150, lobby.guilds.get(id).treasury());
+        assertEquals(1050, lobby.guilds.get(id).treasury());
+        assertEquals(1050, andar.guilds.get(id).treasury());
+
+        // Um servidor que liga depois lê o mesmo total do banco.
+        Server novo = new Server("andar2").load();
+        assertEquals(1050, novo.guilds.get(id).treasury());
     }
 
     @Test

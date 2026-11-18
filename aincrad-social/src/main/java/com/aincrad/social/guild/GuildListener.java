@@ -90,6 +90,23 @@ public final class GuildListener implements Listener {
         });
     }
 
+    /** A chave da sede comprada acompanha quem entra e quem sai da guilda. */
+    @EventHandler
+    public void onGuildJoin(com.aincrad.social.api.event.GuildJoinEvent event) {
+        Guild g = svc().get(event.guildId());
+        if (g != null) {
+            plugin.guildManager().houseKey(g, event.player(), true);
+        }
+    }
+
+    @EventHandler
+    public void onGuildLeave(com.aincrad.social.api.event.GuildLeaveEvent event) {
+        Guild g = svc().get(event.guildId());
+        if (g != null) {
+            plugin.guildManager().houseKey(g, event.player(), false);
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onFriendlyFire(EntityDamageByEntityEvent event) {
         if (plugin.guildConfig().friendlyFire || !(event.getEntity() instanceof Player victim)) {

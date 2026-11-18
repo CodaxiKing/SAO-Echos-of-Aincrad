@@ -27,6 +27,7 @@ tag:
 palavras_bloqueadas: []
 
 # Emblemas que o líder pode escolher (aparecem antes do nome na barra de vida e no chat).
+# Um emblema pode ser uma imagem do ItemsAdder: "ia:namespace:id" (um font_image dele).
 emblemas: ["⚔", "✦", "☠", "♛", "❖", "✚", "☾", "✿", "⚑", "♞"]
 
 recruta_dias: 3

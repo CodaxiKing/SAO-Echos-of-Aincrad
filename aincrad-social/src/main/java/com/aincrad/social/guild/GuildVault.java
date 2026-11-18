@@ -100,6 +100,11 @@ public final class GuildVault implements Listener {
 
     // ------------------------------------------------------------------ abrir e salvar
 
+    /** O cofre desta guilda está aberto neste servidor? */
+    public boolean isOpen(UUID guildId) {
+        return open.containsKey(guildId);
+    }
+
     public boolean canOpen(Player p) {
         return svc().has(p.getUniqueId(), GuildPerm.DEPOSITAR) || svc().has(p.getUniqueId(), GuildPerm.RETIRAR_COFRE);
     }

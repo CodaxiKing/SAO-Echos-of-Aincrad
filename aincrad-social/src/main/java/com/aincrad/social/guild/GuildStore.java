@@ -154,6 +154,11 @@ public final class GuildStore {
         return read(id, c);
     }
 
+    /** Soma (ou tira) Col do tesouro, sem deixar negativo. */
+    public static void addTreasury(Guild g, long delta) {
+        g.treasury = Math.max(0, g.treasury + delta);
+    }
+
     /** Põe (ou troca) a guilda no serviço. */
     public static void replace(GuildService service, Guild g) {
         service.replace(g);

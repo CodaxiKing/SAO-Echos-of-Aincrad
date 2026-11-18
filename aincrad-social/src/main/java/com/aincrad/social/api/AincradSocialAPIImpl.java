@@ -32,7 +32,7 @@ public final class AincradSocialAPIImpl implements AincradSocialAPI {
         if (g == null) {
             return null;
         }
-        return new GuildInfo(g.id(), g.name(), g.tag(), g.emblem(), g.level(), g.rankOf(player).name(),
+        return new GuildInfo(g.id(), g.name(), g.tag(), plugin.hooks().emblem(g.emblem()), g.level(), g.rankOf(player).name(),
                 plugin.guildManager().isRed(g));
     }
 

@@ -56,6 +56,12 @@ public interface Storage {
      */
     void exclusive(String name, Consumer<Boolean> run);
 
+    /** Avisa os outros servidores da rede (num servidor só, não faz nada). */
+    void publish(String channel, String payload);
+
+    /** Recebe os avisos dos outros servidores, na thread principal. */
+    void subscribe(String channel, Consumer<String> handler);
+
     /** Repassa uma linha de chat de guilda (ou de aliança) aos membros que estão em outros servidores. */
     void publishChat(Collection<UUID> guilds, Component line);
 }

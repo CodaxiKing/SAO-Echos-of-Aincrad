@@ -202,6 +202,8 @@ public final class GuildCommands implements CommandExecutor, TabCompleter {
             case "casa" -> {
                 if (args.length > 1 && args[1].equalsIgnoreCase("definir")) {
                     gm().setHome(p);
+                } else if (args.length > 1 && args[1].equalsIgnoreCase("comprar")) {
+                    gm().buyHome(p);
                 } else {
                     gm().home(p);
                 }
@@ -253,7 +255,7 @@ public final class GuildCommands implements CommandExecutor, TabCompleter {
         }
         TagResolver t = TagResolver.resolver(
                 Placeholder.unparsed("guilda", g.name()), Placeholder.unparsed("tag", g.tag()),
-                Placeholder.unparsed("emblema", g.emblem()),
+                Placeholder.unparsed("emblema", plugin.hooks().emblem(g.emblem())),
                 Placeholder.unparsed("lider", leader == null ? "—" : plugin.names().name(leader)),
                 Placeholder.unparsed("nivel", String.valueOf(g.level())), Placeholder.unparsed("xp", String.valueOf(g.xp())),
                 Placeholder.unparsed("membros", String.valueOf(g.size())), Placeholder.unparsed("vagas", String.valueOf(svc().slots(g))),
@@ -445,7 +447,7 @@ public final class GuildCommands implements CommandExecutor, TabCompleter {
                 case "convidar", "expulsar", "promover", "rebaixar", "lider" -> filter(players(), args[1]);
                 case "aceitar", "recusar", "candidatar", "info" -> filter(tags(), args[1]);
                 case "tesouro" -> filter(List.of("depositar", "sacar"), args[1]);
-                case "casa" -> filter(List.of("definir"), args[1]);
+                case "casa" -> filter(List.of("definir", "comprar"), args[1]);
                 case "alianca" -> filter(List.of("propor", "aceitar", "desfazer"), args[1]);
                 case "candidaturas" -> filter(List.of("aceitar", "recusar"), args[1]);
                 case "config" -> filter(List.of("recrutamento", "taxa", "cores", "emblema", "tag", "permissao"), args[1]);

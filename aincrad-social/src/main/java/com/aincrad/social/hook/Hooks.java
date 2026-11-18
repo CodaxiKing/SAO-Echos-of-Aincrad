@@ -181,6 +181,52 @@ public final class Hooks {
         return r != null && String.valueOf(r).equalsIgnoreCase("RED");
     }
 
+    // ------------------------------------------------------------------ casas do AincradEconomy
+
+    /** O preço da casa à venda onde está o lugar; -1 se não há casa à venda ali (ou sem o AincradEconomy). */
+    public long housePrice(org.bukkit.Location l) {
+        Object r = vault ? null : call(economy, "getHousePrice", new Class<?>[]{org.bukkit.Location.class}, l);
+        return r instanceof Number n ? n.longValue() : -1;
+    }
+
+    /** Compra, para o jogador, a casa onde ele está (o AincradEconomy cobra e avisa). */
+    public void buyHouse(Player p) {
+        if (!vault) {
+            call(economy, "buyHouse", new Class<?>[]{Player.class}, p);
+        }
+    }
+
+    /** Abre (ou fecha) as casas de {@code owner} para {@code member}. */
+    public void houseAccess(java.util.UUID owner, java.util.UUID member, boolean allow) {
+        if (!vault) {
+            call(economy, "setHouseAccess", new Class<?>[]{java.util.UUID.class, java.util.UUID.class, boolean.class}, owner, member, allow);
+        }
+    }
+
+    // ------------------------------------------------------------------ emblema como imagem
+
+    /**
+     * O emblema como aparece no nome. "ia:namespace:id" é uma imagem de fonte do ItemsAdder
+     * (font_images), que vira o caractere dela; qualquer outra coisa é o próprio texto.
+     */
+    public String emblem(String raw) {
+        if (raw == null || !raw.toLowerCase(java.util.Locale.ROOT).startsWith("ia:")) {
+            return raw == null ? "" : raw;
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("ItemsAdder")) {
+            try {
+                Class<?> c = Class.forName("dev.lone.itemsadder.api.FontImages.FontImageWrapper");
+                Object image = c.getConstructor(String.class).newInstance(raw.substring(3));
+                if (Boolean.TRUE.equals(c.getMethod("exists").invoke(image))) {
+                    return String.valueOf(c.getMethod("getString").invoke(image));
+                }
+            } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+                // cai no símbolo de reserva
+            }
+        }
+        return "⚔";
+    }
+
     /** O lugar é zona segura (cidade ou vila) do AincradFloors? Sem ele, nunca: não há como ir até um amigo. */
     public boolean safeZone(org.bukkit.Location l) {
         return Boolean.TRUE.equals(call(floors, "isSafeZone", new Class<?>[]{org.bukkit.Location.class}, l));

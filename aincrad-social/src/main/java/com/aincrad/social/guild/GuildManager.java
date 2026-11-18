@@ -164,7 +164,7 @@ public final class GuildManager {
             return null;
         }
         TextColor c = isRed(g) ? RED : TextColor.fromHexString(g.color2());
-        return Component.text(g.emblem() + " ", c == null ? NamedTextColor.GOLD : c);
+        return Component.text(hooks().emblem(g.emblem()) + " ", c == null ? NamedTextColor.GOLD : c);
     }
 
     /** Tag na lista de jogadores e acima da cabeça (time do placar principal). */
@@ -436,13 +436,32 @@ public final class GuildManager {
     }
 
     public boolean disband(Player p) {
-        Guild g = svc().disband(p.getUniqueId());
-        if (g == null) {
-            act(p, svc().guildOf(p.getUniqueId()) == null ? GuildService.ActResult.NO_GUILD : GuildService.ActResult.NO_PERMISSION);
+        Guild mine = svc().guildOf(p.getUniqueId());
+        if (mine == null || !svc().has(p.getUniqueId(), GuildPerm.LIDERANCA)) {
+            act(p, mine == null ? GuildService.ActResult.NO_GUILD : GuildService.ActResult.NO_PERMISSION);
             return false;
         }
-        disbanded(g, p);
-        changed();
+        // Em rede, a guilda só acaba com o cofre nas mãos deste servidor: assim os itens não se
+        // duplicam nem somem se alguém o tiver aberto em outro.
+        UUID id = mine.id();
+        plugin.storage().lockVault(id, (ok, data) -> {
+            if (!ok) {
+                msg().send(p, "guilda.cofre_ocupado");
+                return;
+            }
+            Guild now = svc().get(id);
+            if (now != null && data != null && !plugin.guildVault().isOpen(id)) {
+                svc().setVaultData(now, data);
+            }
+            Guild g = svc().disband(p.getUniqueId());
+            if (g == null) {
+                plugin.storage().unlockVault(id, now == null ? "" : now.vaultData());
+                return;
+            }
+            disbanded(g, p);
+            plugin.storage().unlockVault(id, "");
+            changed();
+        });
         return true;
     }
 
@@ -542,6 +561,59 @@ public final class GuildManager {
         Location l = p.getLocation();
         String s = l.getWorld().getName() + "," + l.getX() + "," + l.getY() + "," + l.getZ() + "," + l.getYaw() + "," + l.getPitch();
         return edit(p, svc().setHome(p.getUniqueId(), s), "guilda.casa_definida");
+    }
+
+    /**
+     * Compra, com o tesouro, a casa do AincradEconomy onde o líder está, e faz dela a sede: o
+     * Col sai do tesouro, a casa fica no nome do líder e abre para todos os membros.
+     */
+    public boolean buyHome(Player p) {
+        Guild g = svc().guildOf(p.getUniqueId());
+        if (g == null || !svc().has(p.getUniqueId(), GuildPerm.LIDERANCA)) {
+            act(p, g == null ? GuildService.ActResult.NO_GUILD : GuildService.ActResult.NO_PERMISSION);
+            return false;
+        }
+        long price = hooks().housePrice(p.getLocation());
+        if (price < 0) {
+            msg().send(p, "guilda.casa_nao_a_venda");
+            return false;
+        }
+        if (price > g.treasury()) {
+            msg().send(p, "guilda.casa_tesouro_curto", Placeholder.unparsed("valor", String.valueOf(price)),
+                    Placeholder.unparsed("tesouro", String.valueOf(g.treasury())));
+            return false;
+        }
+        GuildService.ActResult home = svc().setHome(p.getUniqueId(), homeText(p.getLocation()));
+        if (home != GuildService.ActResult.OK) {
+            act(p, home);
+            return false;
+        }
+        if (svc().withdraw(p.getUniqueId(), p.getName(), price) != GuildService.ActResult.OK || !hooks().deposit(p, price, "Casa da guilda")) {
+            act(p, GuildService.ActResult.NOT_ENOUGH);
+            return false;
+        }
+        // O AincradEconomy cobra do líder (que acabou de receber do tesouro) e passa a casa para ele.
+        hooks().buyHouse(p);
+        for (UUID m : g.members().keySet()) {
+            if (!m.equals(p.getUniqueId())) {
+                hooks().houseAccess(p.getUniqueId(), m, true);
+            }
+        }
+        tellGuild(g, null, "guilda.casa_comprada", who(p.getName()), Placeholder.unparsed("valor", String.valueOf(price)));
+        changed();
+        return true;
+    }
+
+    /** A sede é uma casa comprada? Então quem entra ou sai da guilda ganha ou perde a chave. */
+    public void houseKey(Guild g, UUID member, boolean allow) {
+        UUID leader = g.leader();
+        if (leader != null && !leader.equals(member) && g.home() != null) {
+            hooks().houseAccess(leader, member, allow);
+        }
+    }
+
+    private static String homeText(Location l) {
+        return l.getWorld().getName() + "," + l.getX() + "," + l.getY() + "," + l.getZ() + "," + l.getYaw() + "," + l.getPitch();
     }
 
     static Location parseHome(String s) {

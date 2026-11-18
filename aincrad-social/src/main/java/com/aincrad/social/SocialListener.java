@@ -29,6 +29,9 @@ public final class SocialListener implements Listener {
         Player p = event.getPlayer();
         plugin.store().rememberName(p.getUniqueId(), p.getName());
         plugin.saveSoon();
+        if (plugin.partyNet() != null) {
+            plugin.partyNet().joined(p);
+        }
         // Espera um pouco para não se misturar com as mensagens de entrada do servidor.
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!p.isOnline()) {
@@ -50,7 +53,12 @@ public final class SocialListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         Player p = event.getPlayer();
         announce(p, "amigo.saiu");
-        plugin.actions().leave(p.getUniqueId(), p.getName(), false);
+        if (plugin.partyNet() != null) {
+            // Em rede, sair deste servidor pode ser só trocar de servidor: a party espera.
+            plugin.partyNet().quit(p);
+        } else {
+            plugin.actions().leave(p.getUniqueId(), p.getName(), false);
+        }
     }
 
     private void announce(Player p, String key) {

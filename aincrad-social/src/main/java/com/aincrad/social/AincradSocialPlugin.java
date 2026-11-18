@@ -54,6 +54,7 @@ public final class AincradSocialPlugin extends JavaPlugin {
     private Hooks hooks;
     private DuelManager duels;
     private PartyRewards partyRewards;
+    private com.aincrad.social.party.PartyNet partyNet;
 
     @Override
     public void onEnable() {
@@ -115,6 +116,10 @@ public final class AincradSocialPlugin extends JavaPlugin {
             duelCmd.setTabCompleter(dc);
         }
         Bukkit.getScheduler().runTaskTimer(this, duels::tick, 10L, 10L);
+        if (storage.network()) {
+            partyNet = new com.aincrad.social.party.PartyNet(this);
+            partyNet.start();
+        }
         getServer().getServicesManager().register(AincradSocialAPI.class, new AincradSocialAPIImpl(this), this, ServicePriority.Normal);
         // Economia, andares, quests e reputação: procurados depois que todos os plugins ligaram.
         Bukkit.getScheduler().runTask(this, () -> {
@@ -271,6 +276,11 @@ public final class AincradSocialPlugin extends JavaPlugin {
 
     public GuildVault guildVault() {
         return guildVault;
+    }
+
+    /** A party na rede; null num servidor só (dados em arquivo). */
+    public com.aincrad.social.party.PartyNet partyNet() {
+        return partyNet;
     }
 
     public DuelManager duels() {
