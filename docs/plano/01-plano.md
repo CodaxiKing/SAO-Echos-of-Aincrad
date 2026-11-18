@@ -548,6 +548,8 @@ Estado em 18/11/2026. O AincradAdmin (etapas 28–30), o AincradSkills (etapas 3
 
 O AincradReputation (etapas 26–27) já tem código, na pasta `aincrad-reputation/`; como o AincradLife, ainda não foi testado num servidor de verdade.
 
+A quarta leva (etapas 39 a 43) também tem código, sem teste em servidor: o Monumento da Vida no AincradReputation, o dia do anúncio e o fim de jogo no AincradFloors (`deathgame.yml`), os chefes de campo e de evento (`roaming.yml`, com o Nicholas) e os informantes no AincradBosses. Os pacotes de conteúdo por andar (A1, A2…) continuam por fazer.
+
 Fora das etapas, o AincradRPG ganhou os **mobs por região** (`spawns.yml`): cada região do core pode ter a sua lista de mobs, do Minecraft ou do MythicMobs, com level e peso. É a base dos mobs de cada pacote de andar (A1, A2…).
 
 **O que cada um dos três traz**

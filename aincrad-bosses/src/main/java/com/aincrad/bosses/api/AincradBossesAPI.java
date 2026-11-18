@@ -73,6 +73,25 @@ public final class AincradBossesAPI {
         return new RaidInfo(r.id(), r.boss(), r.leader(), r.leaderName(), r.at(), List.copyOf(members));
     }
 
+    private static com.aincrad.bosses.fight.InformantService informants;
+
+    /** Chamado pelo plugin ao ligar. */
+    public static void informants(com.aincrad.bosses.fight.InformantService service) {
+        informants = service;
+    }
+
+    /** Abre a loja do informante para o jogador (para um NPC de outro plugin chamar). */
+    public static void openInformant(Player player) {
+        if (informants != null) {
+            informants.shop(player);
+        }
+    }
+
+    /** O jogador tem a página do guia desta fase (índice a partir de 0)? */
+    public static boolean hasGuidePage(Player player, String boss, int phase) {
+        return informants != null && informants.owns(player, boss, phase);
+    }
+
     public static AincradBossesAPI instance() {
         return INSTANCE;
     }

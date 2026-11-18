@@ -1,0 +1,79 @@
+# ============================================================
+#  Chefes de campo e de evento. Os campos são os mesmos de andar1.yml.
+#  Onde e quando cada um aparece fica em roaming.yml.
+#  Sem sala, o tempo limite e o "reaparece_horas" não valem para eles.
+#  O item "cristal:<tipo>" vem do AincradItems (crystals.yml).
+# ============================================================
+
+# Chefe de campo de exemplo: fica nos campos do andar 1 e volta a cada 6 horas.
+lobo_alfa:
+  andar: 1
+  nome: "Lobo Alfa"
+  level: 6
+  mob: WOLF
+  vida: 220
+  dano: 6
+  armadura: 2
+  velocidade: 0.34
+  resistencia_empurrao: 0.4
+  escala: 1.8
+  intro_segundos: 2
+  anti_cristal: false
+  fases:
+    - vida: 100
+      nome: "À espreita"
+      habilidades:
+        - { tipo: investida, recarga: 10, dano: 7, raio: 2.5 }
+    - vida: 40
+      nome: "A matilha"
+      mensagem: "<red><chefe> uiva, e a matilha responde!"
+      velocidade_x: 1.2
+      habilidades:
+        - { tipo: lacaios, recarga: 25, mob: WOLF, quantidade: 3, level: 3, nome: "Lobo da Matilha" }
+        - { tipo: investida, recarga: 8, dano: 8, raio: 2.5 }
+  recompensas:
+    dano_minimo_pct: 5
+    xp: 250
+    col: 150
+    itens:
+      - { item: LEATHER, quantidade: 6 }
+      - { item: BONE, quantidade: 8 }
+
+# Chefe de evento: Nicholas, o Renegado. Aparece na noite de Natal e dá o Cristal de
+# Ressurreição a quem der o Last Attack.
+nicholas:
+  andar: 35
+  nome: "Nicholas the Renegade"
+  level: 45
+  mob: IRON_GOLEM
+  vida: 4000
+  dano: 16
+  armadura: 10
+  velocidade: 0.26
+  resistencia_empurrao: 0.9
+  escala: 1.5
+  equipamento:
+    mao: NETHERITE_AXE
+  intro_segundos: 6
+  anti_cristal: true
+  fases:
+    - vida: 100
+      nome: "O saco de presentes"
+      habilidades:
+        - { tipo: area, recarga: 12, dano: 14, raio: 5, aviso_ticks: 30 }
+        - { tipo: projetil, recarga: 9, dano: 10, mob: bola_de_fogo }
+    - vida: 50
+      nome: "O machado"
+      mensagem: "<dark_red><chefe> larga o saco e ergue o machado!"
+      dano_x: 1.25
+      habilidades:
+        - { tipo: investida, recarga: 10, dano: 16, raio: 3 }
+        - { tipo: salto, recarga: 14, dano: 16, raio: 5 }
+        - { tipo: furia, recarga: 30, segundos: 8, multiplicador: 1.5, nome: "<dark_red>Os sinos de <chefe> tocam mais alto!" }
+  recompensas:
+    dano_minimo_pct: 3
+    xp: 5000
+    col: 3000
+    last_attack: "cristal:ressurreicao"
+    itens:
+      - { item: DIAMOND, quantidade: 6 }

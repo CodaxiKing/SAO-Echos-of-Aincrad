@@ -49,7 +49,8 @@ public final class NpcService implements Listener {
     private static final double SEE = 32;
 
     /** Um NPC do arquivo. */
-    public record Npc(String id, String name, String world, double x, double y, double z, float yaw, String type, String greeting) {
+    public record Npc(String id, String name, String world, double x, double y, double z, float yaw, String type, String greeting,
+                      String command) {
     }
 
     /** As entidades de um NPC que está no mundo agora. */
@@ -95,7 +96,8 @@ public final class NpcService implements Listener {
                     continue;
                 }
                 npcs.put(id, new Npc(id, s.getString("nome", id), s.getString("mundo"), s.getDouble("x"), s.getDouble("y"),
-                        s.getDouble("z"), (float) s.getDouble("yaw"), s.getString("tipo", "VILLAGER"), s.getString("fala", "")));
+                        s.getDouble("z"), (float) s.getDouble("yaw"), s.getString("tipo", "VILLAGER"), s.getString("fala", ""),
+                        s.getString("comando", "")));
             }
         }
         for (Npc n : npcs.values()) {
@@ -118,6 +120,7 @@ public final class NpcService implements Listener {
             y.set(p + "yaw", (double) n.yaw());
             y.set(p + "tipo", n.type());
             y.set(p + "fala", n.greeting());
+            y.set(p + "comando", n.command());
         }
         try {
             y.save(file);
@@ -131,7 +134,7 @@ public final class NpcService implements Listener {
         Npc old = npcs.get(id);
         Npc n = new Npc(id, name != null ? name : old != null ? old.name() : id, at.getWorld().getName(), at.getX(), at.getY(), at.getZ(),
                 at.getYaw(), type != null ? type.toUpperCase(Locale.ROOT) : old != null ? old.type() : "VILLAGER",
-                old != null ? old.greeting() : "");
+                old != null ? old.greeting() : "", old != null ? old.command() : "");
         npcs.put(id, n);
         save();
         remove(bodies.remove(id));
@@ -144,7 +147,19 @@ public final class NpcService implements Listener {
         if (n == null) {
             return false;
         }
-        npcs.put(id, new Npc(n.id(), n.name(), n.world(), n.x(), n.y(), n.z(), n.yaw(), n.type(), greeting));
+        npcs.put(id, new Npc(n.id(), n.name(), n.world(), n.x(), n.y(), n.z(), n.yaw(), n.type(), greeting, n.command()));
+        save();
+        return true;
+    }
+
+    /** O comando que o jogador roda ao clicar no NPC (sem a barra), ou vazio. */
+    public boolean setCommand(String id, String command) {
+        Npc n = npcs.get(id);
+        if (n == null) {
+            return false;
+        }
+        String c = command == null ? "" : command.startsWith("/") ? command.substring(1) : command;
+        npcs.put(id, new Npc(n.id(), n.name(), n.world(), n.x(), n.y(), n.z(), n.yaw(), n.type(), n.greeting(), c));
         save();
         return true;
     }
@@ -291,6 +306,10 @@ public final class NpcService implements Listener {
         if (event.getHand() == EquipmentSlot.HAND && n != null) {
             Component name = Messages.parse(n.name());
             quests.talk(event.getPlayer(), id, name, n.greeting());
+            if (!n.command().isBlank()) {
+                // O NPC também é o balcão de outra coisa (o informante dos chefes, uma loja).
+                event.getPlayer().performCommand(n.command());
+            }
         }
     }
 

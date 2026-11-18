@@ -259,7 +259,7 @@ public final class AincradQuestsPlugin extends JavaPlugin implements Listener {
 
         @Override
         public String usage() {
-            return "npc criar <id> <nome>|mover <id>|fala <id> <texto>|remover <id>|listar";
+            return "npc criar <id> <nome>|mover <id>|fala <id> <texto>|comando <id> <comando>|remover <id>|listar";
         }
 
         @Override
@@ -305,6 +305,14 @@ public final class AincradQuestsPlugin extends JavaPlugin implements Listener {
                     msg.send(sender, "admin.npc_fala", Messages.vars("id", id));
                     log(sender, "npc.fala", id);
                 }
+                case "comando" -> {
+                    if (id == null || !npcs.setCommand(id, rest == null || rest.equalsIgnoreCase("nenhum") ? "" : rest)) {
+                        msg.send(sender, "admin.uso_npc");
+                        return;
+                    }
+                    msg.send(sender, "admin.npc_comando", Messages.vars("id", id));
+                    log(sender, "npc.comando", id + " " + (rest == null ? "" : rest));
+                }
                 case "remover" -> {
                     if (id == null || !npcs.delete(id)) {
                         msg.send(sender, "admin.uso_npc");
@@ -320,7 +328,7 @@ public final class AincradQuestsPlugin extends JavaPlugin implements Listener {
         @Override
         public List<String> complete(CommandSender sender, String[] args) {
             return filter(switch (args.length) {
-                case 1 -> List.of("criar", "mover", "fala", "remover", "listar");
+                case 1 -> List.of("criar", "mover", "fala", "comando", "remover", "listar");
                 case 2 -> args[0].equalsIgnoreCase("criar") ? List.of() : new ArrayList<>(npcs.all().keySet());
                 default -> List.of();
             }, args);

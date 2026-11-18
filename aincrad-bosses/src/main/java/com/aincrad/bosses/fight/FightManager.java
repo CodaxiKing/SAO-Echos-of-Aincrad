@@ -248,6 +248,25 @@ public final class FightManager implements Listener {
         return fights.containsKey(def.id());
     }
 
+    /**
+     * Faz um chefe de campo ou de evento aparecer solto. Quem chegar perto entra na luta; ele não
+     * some por falta de jogadores e não libera andar.
+     *
+     * @param despawnAt quando some, em milissegundos (0 = não some)
+     * @return false se já há uma luta deste chefe ou ele não pôde nascer
+     */
+    public boolean summonRoaming(BossDef def, Location where, long despawnAt) {
+        if (fights.containsKey(def.id())) {
+            return false;
+        }
+        BossFight f = new BossFight(def, null, where.clone(), newBar(def), tick);
+        f.roaming = true;
+        f.despawnAt = despawnAt;
+        fights.put(def.id(), f);
+        begin(f);
+        return fights.containsKey(def.id());
+    }
+
     private BossBar newBar(BossDef def) {
         return BossBar.bossBar(Component.text(def.name()), 0f, BossBar.Color.RED, BossBar.Overlay.NOTCHED_10);
     }
@@ -437,6 +456,15 @@ public final class FightManager implements Listener {
             end(f, BossFightEndEvent.Reason.RESET);
             return;
         }
+        if (f.roaming) {
+            // Chefe de campo: quem chega perto entra na luta (menos quem deslogou no meio dela).
+            for (Player p : playersIn(f)) {
+                if (!f.quit.contains(p.getUniqueId()) && f.fighters.add(p.getUniqueId())) {
+                    f.started.add(p.getUniqueId());
+                    f.lastActive.put(p.getUniqueId(), tick);
+                }
+            }
+        }
         // Quem morreu, saiu do servidor ou da sala não luta mais (e não volta).
         f.fighters.removeIf(id -> {
             Player p = Bukkit.getPlayer(id);
@@ -456,13 +484,21 @@ public final class FightManager implements Listener {
                 }
             }
         }
-        if (f.fighters.isEmpty()) {
-            end(f, BossFightEndEvent.Reason.DERROTA);
-            return;
-        }
-        if (f.def.timeLimitSeconds() > 0 && elapsed >= f.def.timeLimitSeconds() * 20L) {
-            end(f, BossFightEndEvent.Reason.TEMPO);
-            return;
+        if (f.roaming) {
+            // Fica no campo mesmo sem ninguém; o de evento some quando a janela dele acaba.
+            if (f.despawnAt > 0 && System.currentTimeMillis() >= f.despawnAt) {
+                end(f, BossFightEndEvent.Reason.TEMPO);
+                return;
+            }
+        } else {
+            if (f.fighters.isEmpty()) {
+                end(f, BossFightEndEvent.Reason.DERROTA);
+                return;
+            }
+            if (f.def.timeLimitSeconds() > 0 && elapsed >= f.def.timeLimitSeconds() * 20L) {
+                end(f, BossFightEndEvent.Reason.TEMPO);
+                return;
+            }
         }
         if (!f.inArena(f.entity.getLocation())) {
             f.entity.teleport(f.spawn);
@@ -477,7 +513,9 @@ public final class FightManager implements Listener {
         f.bar.progress((float) Math.max(0, Math.min(1, f.entity.getHealth() / max)));
         f.bar.name(msg.get("luta.barra", vars(f)));
         showBar(f);
-        skills.tick(f);
+        if (!f.fighters.isEmpty()) {
+            skills.tick(f);
+        }
     }
 
     private TagResolver vars(BossFight f) {
@@ -610,7 +648,8 @@ public final class FightManager implements Listener {
         // Proteção contra abuso: quem deslogou ou ficou parado não conta como participante.
         eligible.removeIf(id -> f.quit.contains(id) || idle(f, id));
         UUID last = killer != null ? killer.getUniqueId() : f.ledger.lastAttacker();
-        boolean first = !states.defeated(def.id());
+        // Chefe de campo ou de evento não tem "primeira vitória": não libera andar nem entra no estado dos andares.
+        boolean first = !f.roaming && !states.defeated(def.id());
 
         Map<UUID, List<ItemStack>> items = new LinkedHashMap<>();
         Map<UUID, Long> xp = new LinkedHashMap<>();
@@ -682,8 +721,10 @@ public final class FightManager implements Listener {
                     "dano", Math.round(f.ledger.of(id)), "pct", Math.round(share), "minimo", Math.round(rw.minDamagePercent())));
         }
 
-        states.recordKill(def.id(), System.currentTimeMillis(), lastName, String.join(", ", names))
-                .thenRun(() -> AincradCore.get().runSync(() -> AincradCore.get().publish(BUS_STATE, def.id())));
+        if (!f.roaming) {
+            states.recordKill(def.id(), System.currentTimeMillis(), lastName, String.join(", ", names))
+                    .thenRun(() -> AincradCore.get().runSync(() -> AincradCore.get().publish(BUS_STATE, def.id())));
+        }
         plugin.getServer().getPluginManager().callEvent(new BossDefeatEvent(def.id(), def.name(), def.floor(), f.entity, last, eligible,
                 f.ledger.all(), items, xp, col, lastItem, first));
         hooks.recordBossKill(eligible, def.floor(), last);

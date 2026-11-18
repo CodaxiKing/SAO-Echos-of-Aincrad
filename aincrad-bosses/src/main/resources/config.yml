@@ -34,3 +34,19 @@ labirinto:
   limite: 6
   # Segundos entre um nascimento e outro, por zona.
   intervalo_segundos: 8
+
+# Informantes: o guia de estratégia (/chefe guia) é vendido em páginas, uma por fase.
+# Quem estava na luta quando a fase apareceu ganha a página; os outros compram.
+informantes:
+  # false = o guia volta a ser aberto a todos.
+  ativo: true
+  # /chefe informante e /chefe comprar só funcionam em zona segura (cidade).
+  so_na_cidade: true
+  # Preço em Col de uma página: base + por andar acima do primeiro + por fase depois da primeira.
+  # Sem o AincradEconomy as páginas saem de graça.
+  preco_base: 200
+  preco_por_andar: 50
+  preco_por_fase: 100
+  # /chefe pagina copia uma página sua num item (gasta 1 papel) para vender a outro jogador.
+  # A cópia custa esta fração do preço da página.
+  taxa_de_copia: 0.25

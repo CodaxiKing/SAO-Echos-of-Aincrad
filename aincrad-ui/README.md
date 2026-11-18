@@ -181,6 +181,12 @@ e chama por reflexão `registerPackFolder(Plugin, File)` e
 `play(String efeito, Location local, double raio, Map<String,String> variaveis)`. O efeito de
 estilhaços tem o id de `morte.efeito_estilhacos` (padrão `aincrad_estilhacos`).
 
+### Jogo da morte
+
+`setDeathGame(true)` na API faz a entrada de logout **sumir do menu** (e bloqueia o logout pelo
+menu). Quem liga é o dia do anúncio do AincradFloors; o `logout.modo_death_game` do `ui.yml`
+continua valendo por conta própria. `isDeathGame()` diz se está ligado.
+
 ## Decisões tomadas (não definidas no plano)
 
 - `/aincrad ui` funciona por redirecionamento para `/aincradui`, para não disputar `/aincrad` com o Floors.

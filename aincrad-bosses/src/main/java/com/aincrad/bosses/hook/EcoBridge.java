@@ -9,6 +9,10 @@ final class EcoBridge {
     private EcoBridge() {
     }
 
+    static boolean withdraw(Player p, long amount, String reason) {
+        return AincradEconomyAPI.has(p, amount) && AincradEconomyAPI.withdraw(p, amount, reason);
+    }
+
     static boolean deposit(Player p, long amount) {
         return AincradEconomyAPI.deposit(p, amount, "chefe");
     }

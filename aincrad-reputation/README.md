@@ -74,6 +74,21 @@ Cada conquista é liberada por um acontecimento de outro plugin Aincrad:
 - Cumprido o tempo, é levado à chegada do andar 1 (ou ao spawn do mundo) e volta **laranja** por
   24 h. As mortes causadas continuam contando.
 
+## Monumento da Vida (etapa 39)
+
+O nome de **todos os jogadores que já entraram**, na ordem em que entraram. Quando o jogador morre,
+o nome é **riscado**, com a data e a causa: monstro, chefe, jogador, queda ou outra causa (com o
+nome do mob, do chefe ou do jogador). Fica no banco do core, então vale para a rede inteira.
+
+- **Mural**: `/aincrad monumento definir` põe o mural onde você está, virado para onde você olha.
+  É um texto no ar que mostra `monumento.nomes_por_pagina` nomes por vez e passa as páginas a cada
+  10 segundos. Não é salvo com o mapa: o plugin o põe de volta, então não duplica.
+- **`/monumento [busca]`**: a mesma lista em menu, com a data de entrada e, para os riscados, a
+  data e a causa. A busca acha pelo pedaço do nome.
+- O nome é riscado na **primeira** morte; as seguintes só contam. Se o servidor não tiver morte
+  permanente, o monumento vira a lista de quem já morreu alguma vez.
+- Numa luta de chefe, morrer para um lacaio ou para o fogo dele conta como "chefe".
+
 ## Comandos
 
 | Comando | O que faz | Permissão |
@@ -81,6 +96,8 @@ Cada conquista é liberada por um acontecimento de outro plugin Aincrad:
 | `/titulos` | Escolhe o título em uso | todos |
 | `/conquistas` | Lista as conquistas | todos |
 | `/reputacao [jogador]` | Cor do cursor, tempo, mortes, título | todos |
+| `/monumento [busca]` | O Monumento da Vida em menu | todos |
+| `/aincrad monumento definir` | Põe o mural onde você está | `aincrad.admin` |
 | `/aincrad prisao definir` | Define a prisão com a seleção da varinha | `aincrad.admin` |
 | `/aincrad reputacao limpar <jogador>` | Cursor verde, sem mortes, fora da prisão | `aincrad.admin` |
 | `/aincrad titulo dar <jogador> <título>` | Dá um título avulso | `aincrad.admin` |
@@ -101,7 +118,7 @@ ferirem sem mudar de cor. **Enquanto ele não chamar, um duelo deixa o atacante 
 
 ## Banco
 
-`rep_players` (título em uso, laranja até, vermelho até, mortes, preso até), `rep_achievements`
+`rep_monument` (o Monumento da Vida), `rep_players` (título em uso, laranja até, vermelho até, mortes, preso até), `rep_achievements`
 (conquistas e os títulos que liberaram) e `rep_firsts` (quem foi o primeiro em cada coisa). Tudo no
 banco do core, então vale para a rede.
 

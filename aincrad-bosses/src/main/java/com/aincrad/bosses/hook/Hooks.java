@@ -64,6 +64,23 @@ public final class Hooks {
         }
     }
 
+    public boolean hasEconomy() {
+        return economy;
+    }
+
+    /** Cobra Col do jogador. False se ele não tem o bastante ou não há economia. */
+    public boolean takeCol(Player p, long amount, String reason) {
+        if (!economy || amount <= 0) {
+            return amount <= 0;
+        }
+        try {
+            return EcoBridge.withdraw(p, amount, reason);
+        } catch (LinkageError | RuntimeException e) {
+            log.warning("AincradEconomy incompatível (cobrança): " + e);
+            return false;
+        }
+    }
+
     /** Dá level a um mob (lacaios, labirinto). Sem o RPG, aumenta a vida 12% por level. */
     public void setMobLevel(LivingEntity e, int level) {
         if (rpg) {
@@ -112,6 +129,18 @@ public final class Hooks {
                 return it;
             } catch (LinkageError | RuntimeException e) {
                 log.warning("AincradRPG incompatível (item " + spec + "): " + e);
+                return null;
+            }
+        }
+        if (spec.toLowerCase(Locale.ROOT).startsWith("cristal:")) {
+            // Cristal do AincradItems (ele liga depois deste plugin: vai por reflexão).
+            try {
+                Object it = Class.forName("com.aincrad.items.api.AincradItemsAPI", true,
+                                org.bukkit.Bukkit.getPluginManager().getPlugin("AincradItems").getClass().getClassLoader())
+                        .getMethod("createCrystal", String.class, int.class).invoke(null, spec.substring(8), amount);
+                return it instanceof ItemStack stack ? stack : null;
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                log.warning("AincradItems ausente ou incompatível (item " + spec + "): " + e);
                 return null;
             }
         }

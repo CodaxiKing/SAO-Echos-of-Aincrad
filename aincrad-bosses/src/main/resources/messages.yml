@@ -1,6 +1,33 @@
 # ============================================================
 #  AincradBosses — mensagens (MiniMessage)
 # ============================================================
+informante:
+  uso: "<gray>Uso: <white>/chefe comprar <id> <fase></white> ou <white>/chefe pagina <id> <fase></white> <gray>(a fase é o número: 1, 2, 3...)"
+  desligado: "<gray>Os informantes estão desligados: o guia é aberto a todos em <white>/chefe guia <id></white>."
+  so_na_cidade: "<red>Os informantes só atendem nas cidades."
+  menu: "<dark_gray>Informante"
+  item: "<yellow><chefe> <gray>— fase <n>"
+  item_andar: "<dark_gray>Andar <andar> · Lv. <level>"
+  item_preco: "<gray>Preço: <gold><preco> Col <dark_gray>(clique para comprar)"
+  nada: "<gray>O informante não tem nada de novo para você."
+  desconhecida: "<gray>Ninguém viu a fase <n> de <white><chefe></white> ainda: nem o informante sabe."
+  ja_tem: "<gray>Você já tem a página da fase <n> de <white><chefe></white>."
+  sem_col: "<red>Faltam Col: custa <white><preco></white>."
+  comprou: "<green>Você comprou a página da fase <white><n></white> de <white><chefe></white> por <gold><preco> Col</gold>. <gray>Veja em <white>/chefe guia</white>."
+  viu: "<aqua>Você viu a fase <white><n></white> de <white><chefe></white>: a página do guia é sua."
+  nao_tem: "<red>Você não tem a página da fase <n> de <white><chefe></white>."
+  sem_papel: "<red>Você precisa de 1 papel para copiar a página."
+  copiou: "<green>Página da fase <white><n></white> de <white><chefe></white> copiada <gray>(taxa: <preco> Col). Dê ou venda a outro jogador."
+  pagina_nome: "<yellow>Guia: <white><chefe></white> — fase <n>"
+  pagina_lore: "<gray>Escrita por <white><jogador>"
+  pagina_usar: "<dark_gray>Botão direito para aprender"
+  pagina_invalida: "<red>Esta página fala de um chefe que não existe mais."
+  aprendeu: "<green>Você aprendeu a fase <white><n></white> de <white><chefe></white>. <gray>Veja em <white>/chefe guia</white>."
+
+campo:
+  apareceu: "<red><bold>Um chefe de campo apareceu:</bold> <white><chefe></white>."
+  evento_apareceu: "<gold><bold><chefe></bold> <yellow>apareceu em <white><regiao></white>. Ele some quando o tempo acabar."
+
 luta:
   nome: "<red><bold><chefe></bold> <gray>Lv.<level>"
   lacaio: "<gray>[<yellow>Lv.<level></yellow>]</gray> <white><nome>"
@@ -23,7 +50,14 @@ luta:
   voltou_fora: "<yellow>Você saiu do servidor durante a luta contra <white><chefe></white> e não pode voltar para a sala."
 
 guia:
-  uso: "<gray>Uso: <white>/chefe guia <id></white>. Chefes: <white><chefes>"
+  uso: "<gray>Uso: <white>/chefe guia <id></white>, <white>/chefe informante</white>, <white>/chefe comprar <id> <fase></white>, <white>/chefe pagina <id> <fase></white>. Chefes: <white><chefes>"
+  fase_a_venda:
+    - "<dark_red><bold>Fase <n>"
+    - ""
+    - "<dark_gray>Você não tem esta página."
+    - "<black>Um informante a vende por <dark_green><preco> Col</dark_green>."
+    - ""
+    - "<dark_gray>/chefe informante"
   capa:
     - "<dark_red><bold><chefe>"
     - "<dark_gray>Lv. <level> · Andar <andar>"

@@ -58,6 +58,7 @@ NPCs próprios e simples: uma entidade parada que não se fere, com nome.
 | `/aincrad npc criar <id> <nome>` | Cria o NPC onde você está (o nome aceita cores MiniMessage) |
 | `/aincrad npc mover <id>` | Traz o NPC para onde você está |
 | `/aincrad npc fala <id> <texto>` | O que ele diz ao ser clicado |
+| `/aincrad npc comando <id> <comando>` | O jogador roda o comando ao clicar (`nenhum` tira). Ex.: `chefe informante` faz do NPC um informante dos chefes |
 | `/aincrad npc remover <id>` · `listar` | Remove · lista |
 
 - Ficam em `npcs.yml`. O tipo de entidade (`tipo: VILLAGER`) pode ser trocado no arquivo.

@@ -57,6 +57,57 @@ Last Attack, liberação do próximo andar e o labirinto. Precisa do **AincradCo
 - **Sala anti-cristal**: `anti_cristal: true` no chefe (padrão) e `AincradBossesAPI.isCrystalBlocked(Location)`
   para o AincradItems.
 
+## Chefes de campo e de evento (etapa 41)
+
+Chefes fora das salas. São chefes comuns de `bosses/*.yml`; onde e quando aparecem fica em
+`roaming.yml`. **Nenhum libera andar**, e não entram no estado dos andares.
+
+```yaml
+campo:
+  lobo_alfa:
+    regiao: campos_andar1     # região do core
+    intervalo_horas: 6        # volta 6 h depois de derrotado
+evento:
+  nicholas:
+    regiao: floresta_andar35
+    data: "12-24"             # MM-DD
+    hora: "23:00"
+    duracao_minutos: 120      # some quando a janela acaba
+```
+
+- Aparecem soltos, no meio da região (ou em `local: "mundo,x,y,z"`), só com um jogador a até 40
+  blocos. Quem chega depois **entra na luta**; o chefe não some por falta de jogadores.
+- O **de campo** volta `intervalo_horas` depois de derrotado. O **de evento** aparece uma vez por
+  ano na janela marcada, o servidor é avisado, e some quando ela acaba; derrotado, só no ano seguinte.
+- O estado fica no banco (`boss_roaming`): vale para a rede e sobrevive ao reinício.
+- `bosses/campo_e_evento.yml` traz dois exemplos: o **Lobo Alfa** (campo) e o **Nicholas the
+  Renegade** (evento), que dá o Cristal de Ressurreição a quem der o Last Attack
+  (`last_attack: "cristal:ressurreicao"` — o item `cristal:<tipo>` vem do AincradItems).
+- O arquivo `roaming.yml` vem vazio: nada aparece sem o dono querer. Em servidores que já tinham a
+  pasta `bosses/`, o `campo_e_evento.yml` não é copiado sozinho.
+- A data do evento é fixa na config até existir o calendário do AincradWorld (etapa 57).
+
+## Informantes (etapa 42)
+
+O guia de estratégia (`/chefe guia <id>`) passa a ser **vendido em páginas**, uma por fase.
+
+| Comando | O que faz |
+|---|---|
+| `/chefe guia <id>` | O livro: só as páginas que o jogador tem aparecem; as outras mostram o preço |
+| `/chefe informante` | A loja: as páginas que o servidor já descobriu e o jogador não tem |
+| `/chefe comprar <id> <fase>` | Compra uma página (a fase é o número: 1, 2, 3...) |
+| `/chefe pagina <id> <fase>` | Copia uma página sua num item, para vender ou dar a outro jogador |
+
+- **Quem estava na luta quando a fase apareceu ganha a página** de graça.
+- O informante só vende o que o servidor já viu: uma fase a que ninguém chegou nem ele sabe.
+- O informante só atende em zona segura (`informantes.so_na_cidade`). Para ser um NPC, crie um no
+  AincradQuests e use `/aincrad npc comando <id> chefe informante`.
+- Preço: `preco_base` + `preco_por_andar` × (andar − 1) + `preco_por_fase` × (fase − 1). Sem o
+  AincradEconomy as páginas saem de graça.
+- **Entre jogadores**: `/chefe pagina` gasta 1 papel e uma taxa (`taxa_de_copia`, 25% do preço) e
+  gera um item. Quem recebe usa com o botão direito e aprende a página; o item é gasto.
+- `informantes.ativo: false` devolve o guia aberto a todos.
+
 ## Como montar a sala de um chefe
 
 1. Em um canto da sala: `/aincrad chefe sala illfang canto1`; no canto oposto: `canto2`

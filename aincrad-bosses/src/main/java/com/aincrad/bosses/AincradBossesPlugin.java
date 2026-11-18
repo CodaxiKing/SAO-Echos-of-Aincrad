@@ -37,6 +37,9 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
     private BossStateStore states;
     private GuideStore guide;
     private RaidService raids;
+    private ConfigFile roamingFile;
+    private com.aincrad.bosses.fight.InformantService informants;
+    private com.aincrad.bosses.fight.RoamingService roaming;
 
     @Override
     public void onEnable() {
@@ -48,6 +51,8 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
             core.database().migrate("bosses", BossStateStore.MIGRATIONS);
             core.database().migrate("bosses_guide", GuideStore.MIGRATIONS);
             core.database().migrate("bosses_raids", RaidService.MIGRATIONS);
+            core.database().migrate("bosses_roaming", com.aincrad.bosses.fight.RoamingService.MIGRATIONS);
+            core.database().migrate("bosses_pages", com.aincrad.bosses.fight.InformantService.MIGRATIONS);
             states.loadBlocking();
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradBosses não vai ligar: " + e.getMessage());
@@ -78,7 +83,12 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         BossEditor editor = new BossEditor(this, fights, hooks, () -> fights.registry(loadBosses()));
         commands.editor(editor);
         getServer().getPluginManager().registerEvents(editor, this);
-        command("chefe", new GuideCommand(fights, guide));
+        informants = new com.aincrad.bosses.fight.InformantService(this, msg, fights, guide, hooks, core.database());
+        informants.reload(config);
+        getServer().getPluginManager().registerEvents(informants, this);
+        getServer().getOnlinePlayers().forEach(pl -> informants.load(pl.getUniqueId()));
+        AincradBossesAPI.informants(informants);
+        command("chefe", new GuideCommand(fights, guide, informants));
         command("raid", new RaidCommand(fights, raids));
         core.subscribe(RaidService.BUS, m -> {
             if (!core.server().equals(m.origin())) {
@@ -86,6 +96,17 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
             }
         });
         getServer().getScheduler().runTaskTimer(this, raids::tick, 100L, 400L);
+        roamingFile = core.config(this, "roaming.yml");
+        roaming = new com.aincrad.bosses.fight.RoamingService(this, msg, fights, core.database());
+        roaming.reload(roamingFile);
+        try {
+            roaming.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler o estado dos chefes de campo: " + e.getMessage());
+        }
+        getServer().getPluginManager().registerEvents(roaming, this);
+        getServer().getScheduler().runTaskTimer(this, roaming::tick, 200L, 200L);
+        getServer().getScheduler().runTaskTimer(this, roaming::refresh, 1200L, 1200L);
         core.commands().register(this, commands.boss());
         core.commands().register(this, commands.maze());
         core.subscribe(FightManager.BUS_STATE, m -> {
@@ -116,6 +137,7 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         File folder = new File(getDataFolder(), "bosses");
         if (!folder.isDirectory()) {
             saveResource("bosses/andar1.yml", false);
+            saveResource("bosses/campo_e_evento.yml", false);
         }
         BossRegistry reg = BossRegistry.load(folder);
         reg.errors().forEach(e -> getLogger().warning("bosses/" + e));
@@ -142,6 +164,9 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         hooks.detect();
         // Lutas em andamento continuam com o chefe como estava; o YAML novo vale na próxima.
         fights.registry(loadBosses());
+        roamingFile.reload();
+        informants.reload(config);
+        roaming.reload(roamingFile);
         rooms.load();
         maze.load();
         states.reloadAsync();

@@ -57,6 +57,10 @@ public final class BossFight {
     final Set<UUID> viewers = new HashSet<>();
     boolean doorClosed;
     boolean over;
+    /** Chefe de campo ou de evento: solto, quem chega entra na luta, e não libera andar. */
+    boolean roaming;
+    /** Chefe de evento: quando some, em milissegundos (0 = não some). */
+    long despawnAt;
 
     BossFight(BossDef def, RoomStore.Room room, Location spawn, BossBar bar, long now) {
         this.def = def;
@@ -76,6 +80,10 @@ public final class BossFight {
 
     public LivingEntity entity() {
         return entity;
+    }
+
+    public boolean roaming() {
+        return roaming;
     }
 
     public boolean isFighter(Player p) {

@@ -1,0 +1,34 @@
+# ============================================================
+#  Chefes de campo e de evento
+#  São chefes comuns de bosses/*.yml, mas fora das salas: aparecem
+#  soltos numa região, quem chega perto entra na luta, e NENHUM
+#  libera andar.
+#
+#  Eles só aparecem com um jogador a até 40 blocos do ponto.
+#
+#  chefe:   id do chefe em bosses/*.yml (padrão: a própria chave)
+#  regiao:  região do core (/aincrad regiao criar <nome>)
+#  local:   "mundo,x,y,z" — onde nasce (padrão: o meio da região)
+#  avisar:  avisa quando aparece (padrão: true)
+#
+#  campo:   intervalo_horas — tempo para voltar depois de derrotado
+#  evento:  data (MM-DD), hora (HH:MM) e duracao_minutos. Aparece
+#           uma vez por ano nessa janela e some quando ela acaba.
+#           Derrotado, só volta no ano seguinte.
+# ============================================================
+campo: {}
+evento: {}
+
+# Exemplo (os chefes estão em bosses/campo_e_evento.yml):
+#
+# campo:
+#   lobo_alfa:
+#     regiao: campos_andar1
+#     intervalo_horas: 6
+#
+# evento:
+#   nicholas:
+#     regiao: floresta_andar35
+#     data: "12-24"
+#     hora: "23:00"
+#     duracao_minutos: 120

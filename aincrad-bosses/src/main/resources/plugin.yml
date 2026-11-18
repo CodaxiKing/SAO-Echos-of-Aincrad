@@ -10,7 +10,7 @@ softdepend: [AincradRPG, AincradEconomy, AincradSocial]
 commands:
   chefe:
     description: Guia de estratégia dos chefes (o que o servidor já descobriu).
-    usage: /chefe guia <id>
+    usage: /chefe guia <id> | informante | comprar <id> <fase> | pagina <id> <fase>
     aliases: [boss]
     permission: aincrad.bosses.guia
   raid:

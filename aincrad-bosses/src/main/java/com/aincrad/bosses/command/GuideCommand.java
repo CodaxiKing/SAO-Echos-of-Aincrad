@@ -26,11 +26,13 @@ public final class GuideCommand implements TabExecutor {
     private final FightManager fights;
     private final GuideStore guides;
     private final Messages msg;
+    private final com.aincrad.bosses.fight.InformantService informants;
 
-    public GuideCommand(FightManager fights, GuideStore guides) {
+    public GuideCommand(FightManager fights, GuideStore guides, com.aincrad.bosses.fight.InformantService informants) {
         this.fights = fights;
         this.guides = guides;
         this.msg = fights.messages();
+        this.informants = informants;
     }
 
     @Override
@@ -39,7 +41,24 @@ public final class GuideCommand implements TabExecutor {
             msg.send(sender, "geral.so_jogador");
             return true;
         }
-        if (args.length < 2 || !args[0].equalsIgnoreCase("guia")) {
+        String sub = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+        if (sub.equals("informante")) {
+            informants.shop(p);
+            return true;
+        }
+        if ((sub.equals("comprar") || sub.equals("pagina")) && args.length >= 3) {
+            BossDef target = fights.registry().get(args[1]);
+            int phase = target == null ? -1 : com.aincrad.bosses.model.InformantRules.phaseIndex(args[2], target.phases().size());
+            if (target == null || phase < 0) {
+                msg.send(p, "informante.uso");
+            } else if (sub.equals("comprar")) {
+                informants.buy(p, target, phase);
+            } else {
+                informants.copy(p, target, phase);
+            }
+            return true;
+        }
+        if (args.length < 2 || !sub.equals("guia")) {
             List<String> ids = new ArrayList<>();
             fights.registry().all().forEach(d -> ids.add(d.id()));
             msg.send(p, "guia.uso", Messages.vars("chefes", ids.isEmpty() ? "—" : String.join(", ", ids)));
@@ -50,7 +69,7 @@ public final class GuideCommand implements TabExecutor {
             msg.send(p, "admin.chefe_desconhecido", Messages.vars("id", args[1]));
             return true;
         }
-        p.openBook(book(def, guides.get(def.id())));
+        p.openBook(book(def, guides.get(def.id()), p));
         return true;
     }
 
@@ -59,7 +78,7 @@ public final class GuideCommand implements TabExecutor {
     }
 
     /** Monta o livro: capa com os números e uma página por fase (as não vistas ficam como "???"). */
-    Book book(BossDef def, GuideData g) {
+    Book book(BossDef def, GuideData g, Player reader) {
         List<Component> pages = new ArrayList<>();
         var boss = Messages.vars("chefe", def.name(), "level", def.level(), "andar", def.floor(),
                 "tentativas", g.attempts(), "fase", g.attempts() == 0 ? 0 : g.bestPhase() + 1, "fases", def.phases().size(),
@@ -69,8 +88,10 @@ public final class GuideCommand implements TabExecutor {
             BossDef.Phase ph = def.phases().get(i);
             var vars = Messages.vars("n", i + 1, "nome", ph.name().isBlank() ? "—" : ph.name(), "vida", Math.round(ph.at()),
                     "dano", Math.round(ph.damageTimes() * 100), "velocidade", Math.round(ph.speedTimes() * 100));
-            if (!g.phaseSeen(i)) {
-                pages.add(page(msg.list("guia.fase_oculta", vars)));
+            var view = informants.view(reader, def, g, i);
+            if (view != com.aincrad.bosses.model.InformantRules.View.ABERTA) {
+                // Fase que ninguém viu, ou que o jogador ainda não comprou do informante.
+                pages.add(page(informants.closedPage(def, i, view)));
                 continue;
             }
             List<Component> lines = new ArrayList<>(msg.list("guia.fase", vars));
@@ -88,7 +109,7 @@ public final class GuideCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
-            return List.of("guia");
+            return List.of("guia", "informante", "comprar", "pagina");
         }
         List<String> out = new ArrayList<>();
         if (args.length == 2) {

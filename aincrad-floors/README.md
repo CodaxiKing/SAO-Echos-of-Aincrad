@@ -73,6 +73,42 @@ Placeholders (com o PlaceholderAPI): `%aincrad_frontline%`, `%aincrad_floor_atua
 `floor_state` (andar, liberado, data, participantes), `player_floors` (jogador, andar, visitou,
 acesso) e `floor_gates` (bloco → andar). Criadas pelas migrações do core.
 
+## O jogo da morte (etapas 40 e 43)
+
+Tudo em `deathgame.yml`. O estado fica no banco (`floor_flags`) e vale para a rede.
+
+**O dia do anúncio** — `/aincrad anuncio iniciar` (uma vez; `repetir` toca de novo, `desfazer`
+volta atrás, `estado` mostra em que pé está):
+
+1. Todos os jogadores online, em todos os servidores, são levados à chegada do andar 1.
+2. O céu de cada um vai para o fim da tarde e as falas de `anuncio.falas` passam em sequência
+   (título, subtítulo, chat e som, cada uma no seu segundo).
+3. No fim, **o logout some do menu do AincradUI** e fica assim até o jogo ser vencido.
+4. Quem entra depois vê `anuncio.falas_curtas`, uma vez.
+
+As falas que vêm no arquivo são um ponto de partida: escreva o discurso do seu servidor. Com o
+AincradEffects, os efeitos `aincrad_anuncio`, `aincrad_anuncio_curto` e `aincrad_vitoria` tocam
+junto, se existirem (o plugin não os traz prontos).
+
+**Fim de jogo** — quando o chefe do `fim.andar_final` cai (0 = o último andar do `floors.yml`; no
+anime, 75), o andar seguinte não é liberado e:
+
+1. A vitória é anunciada na rede, com as falas de `fim.falas`.
+2. Saem os créditos: quem participou da última luta e quem sobreviveu (os nomes não riscados do
+   Monumento da Vida do AincradReputation, quando ele está instalado).
+3. Vale o `fim.ao_vencer`, que é escolha do dono:
+
+| `ao_vencer` | O que acontece |
+|---|---|
+| `continuar` (padrão) | O mundo segue aberto e o logout volta |
+| `reiniciar` | Nova temporada: os andares acima do 1 voltam a ser bloqueados e o anúncio pode ser refeito. **Level, itens e Col não são apagados** |
+| `fechar` | Depois de `fechar_depois_minutos`, só quem tem `aincrad.admin` entra |
+
+`/aincrad fim declarar` declara a vitória à mão (para testar), `desfazer` volta atrás.
+Liberar um andar com `/aincrad andar liberar` não dispara o fim de jogo: só a vitória sobre o chefe.
+
+API: `AincradFloorsAPI.isDeathGame()` e `isGameWon()`.
+
 ## Compilar
 
 ```bash
