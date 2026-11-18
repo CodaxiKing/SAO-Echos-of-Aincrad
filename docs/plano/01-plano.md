@@ -536,6 +536,17 @@ Terceira leva. Começa depois da etapa 30.
 | 37 | aincrad-quests | Motor de quests, objetivos, recompensas, NPCs com diálogo | A quest de exemplo "matar 5 lobos" é aceita, concluída e paga XP e Col |
 | 38 | aincrad-quests | Diárias, quest de party, diário no menu, rastreio no HUD, README | A diária renova no dia seguinte; o progresso de party conta para todos os membros |
 
+## O que ainda falta
+
+Estado em 17/11/2026. Estes quatro plugins ainda não têm código; a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
+
+| Etapas | Plugin | O que é |
+| --- | --- | --- |
+| 26–27 | AincradReputation | Conquistas, títulos, cor do cursor (verde, laranja, vermelho), bloqueio nas cidades, prisão, PvP por andar |
+| 28–30 | AincradAdmin | Registro das ações de admin, Discord por webhook, ranking em site, backup e restauração, `/aincrad status` |
+| 34–36 | AincradSkills | Proficiência por arma, Sword Skills ativas e passivas, atalhos, skill única |
+| 37–38 | AincradQuests | Motor de quests, NPCs com diálogo, diárias, quest de party, diário no menu |
+
 ## Testes e entrega
 
 A entrega final são catorze .jar (o core e os treze plugins) que funcionam juntos numa rede de teste com Velocity, dois servidores Paper 1.21.11, MySQL, LuckPerms e Geyser + Floodgate, com configs de exemplo e um README em português em cada pasta.
