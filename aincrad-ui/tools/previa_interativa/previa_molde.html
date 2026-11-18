@@ -1,0 +1,336 @@
+<title>Interface do Aincrad</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: uma "tela de jogo" 16:9 no centro, com as abas em cima e os controles da cena embaixo.
+   Um mundo visual só (a tela do jogo), sempre escuro. */
+:root {
+  color-scheme: dark;
+  --bg: #10151c;
+  --panel: #18202b;
+  --line: #2a3644;
+  --fg: #e6ebf1;
+  --muted: #93a0b0;
+  --accent: #eba601;
+  --ink: #3c3c3c;
+  --ink-soft: #70767e;
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sao: "SAO UI", "Inter", system-ui, sans-serif;
+}
+@font-face { font-family: "SAO UI"; src: url(/*FONTE*/) format("truetype"); font-display: swap; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 15px; line-height: 1.5;
+  padding-block: 28px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 18px; }
+h1 { font-family: var(--font-sao); font-weight: 400; font-size: 40px; letter-spacing: .02em; margin: 0; line-height: 1.1; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0; max-width: 65ch; }
+.tabs, .controls { display: flex; flex-wrap: wrap; gap: 8px; }
+button {
+  font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  padding: 8px 14px; cursor: pointer;
+}
+button:hover { border-color: var(--muted); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #1a1300; font-weight: 600; }
+.controls-label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; align-self: center; margin-right: 4px; }
+
+/* A tela: desenhada em 1600x900 e encolhida para caber. */
+.frame { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; border-radius: 8px; border: 1px solid var(--line); background: #0b0f14; }
+.stage {
+  position: absolute; left: 0; top: 0; width: 1600px; height: 900px; transform-origin: 0 0;
+  background: linear-gradient(#3b5f98 0%, #6b93c2 61.9%, #486a48 62%, #2c4630 100%);
+  font-family: var(--font-sao); color: #fff; user-select: none;
+}
+.stage::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 140px rgba(0,0,0,.55); pointer-events: none; }
+.abs { position: absolute; }
+.art { position: absolute; background-repeat: no-repeat; background-size: 100% 100%; }
+/*ARTES*/
+/*MASCARAS*/
+.fill, .minifill { position: absolute; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; transition: clip-path .25s linear, background-color .25s; }
+.scene[hidden] { display: none; }
+
+/* HUD */
+.hud-name { left: 51px; top: 36px; font-size: 26px; color: var(--ink); }
+.hud-num { left: 334px; top: 56px; font-size: 17px; color: var(--ink); }
+.party-name { font-size: 18px; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+
+/* Menu */
+.row { position: absolute; width: 260px; height: 68px; cursor: pointer; }
+.row .bg { inset: 0; }
+.row .ic { left: 8px; top: 7px; width: 54px; height: 54px; }
+.row .tx { position: absolute; left: 74px; top: 20px; font-size: 22px; color: var(--ink); }
+.row:hover .tx, .row.on .tx { color: #fff; }
+.gicon { position: absolute; width: 100px; height: 100px; cursor: pointer; border: 0; padding: 0; background-color: transparent; border-radius: 50%; }
+.cursor { width: 34px; height: 34px; pointer-events: none; }
+
+/* Combate */
+.plate { background: #dce0e6; color: var(--ink); }
+.toast { position: absolute; width: 280px; height: 73px; }
+.toast .t1 { position: absolute; left: 78px; top: 14px; font-size: 22px; color: var(--ink); }
+.toast .t2 { position: absolute; left: 78px; top: 42px; font-size: 14px; color: var(--ink-soft); }
+.skill { position: absolute; width: 84px; height: 84px; transition: filter .2s; }
+.skill.cool { filter: brightness(.5); }
+.skill-bar { position: absolute; height: 8px; width: 84px; background: rgba(14,18,22,.7); }
+.skill-bar i { display: block; height: 100%; background: #3fa9f5; width: 100%; }
+.skill-bar.cool i { background: #f5a623; }
+.skill-name { position: absolute; width: 84px; text-align: center; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.banner { position: absolute; left: 50%; top: 380px; transform: translateX(-50%); background-repeat: no-repeat; background-size: 100% 100%; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.banner.show { opacity: 1; }
+
+/* Janelas */
+.win-title { position: absolute; width: 100%; text-align: center; color: var(--ink); }
+.win-text { position: absolute; width: 100%; text-align: center; color: var(--ink); padding: 0 30px; box-sizing: border-box; }
+.rbtn { position: absolute; border: 0; padding: 0; border-radius: 50%; background-color: transparent; cursor: pointer; }
+.rbtn-label { position: absolute; text-align: center; font-size: 16px; color: var(--ink); }
+.notes { color: var(--muted); font-size: 14px; display: grid; gap: 6px; margin: 0; padding-left: 18px; max-width: 75ch; }
+.notes strong { color: var(--fg); font-weight: 600; }
+.status { min-height: 1.5em; color: var(--accent); font-size: 14px; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .fill, .minifill, .banner, .skill { transition: none; } }
+</style>
+
+<div class="wrap">
+  <h1>Interface do Aincrad</h1>
+  <p class="lede">Uma simulação no navegador de como a interface fica com as artes do resource pack. Clique nos ícones, nas linhas do menu e nos botões embaixo da tela.</p>
+
+  <div class="tabs" role="tablist" aria-label="Cenas">
+    <button id="tab-menu" role="tab" aria-selected="true" data-scene="menu">Menu</button>
+    <button id="tab-combate" role="tab" aria-selected="false" data-scene="combate">Combate</button>
+    <button id="tab-janelas" role="tab" aria-selected="false" data-scene="janelas">Janelas</button>
+  </div>
+
+  <div class="frame" id="frame">
+    <div class="stage" id="stage">
+      <!-- HUD de vida: sempre na tela -->
+      <div class="art a-frame" style="left:24px;top:22px;width:461px;height:59.5px"></div>
+      <div class="fill" id="hp" style="left:24px;top:22px;width:461px;height:59.5px;background-color:#7bd23a"></div>
+      <div class="abs hud-name">Kirito</div>
+      <div class="abs hud-num" id="hpnum">20/20  LV 12</div>
+      <div class="art a-mini" style="left:52px;top:94px;width:154px;height:20px"></div>
+      <div class="minifill" style="left:52px;top:94px;width:154px;height:20px;background-color:#7bd23a;clip-path:inset(0 12% 0 0)"></div>
+      <div class="abs party-name" style="left:212px;top:92px">Asuna</div>
+      <div class="art a-mini" style="left:52px;top:122px;width:154px;height:20px"></div>
+      <div class="minifill" style="left:52px;top:122px;width:154px;height:20px;background-color:#e8413c;clip-path:inset(0 78% 0 0)"></div>
+      <div class="abs party-name" style="left:212px;top:120px">Klein</div>
+
+      <!-- CENA: menu -->
+      <div class="scene" id="scene-menu">
+        <div class="art a-profile_panel" style="left:150px;top:215px;width:400px;height:470px"></div>
+        <div class="abs" style="left:150px;top:228px;width:400px;text-align:center;font-size:28px;color:var(--ink)">Kirito</div>
+        <div class="art a-arrow_right" style="left:566px;top:428px;width:44px;height:44px"></div>
+        <div id="groups"></div>
+        <div class="art a-arrow_right" id="garrow" style="left:756px;top:218px;width:44px;height:44px"></div>
+        <div id="rows"></div>
+      </div>
+
+      <!-- CENA: combate -->
+      <div class="scene" id="scene-combate" hidden>
+        <div class="abs" style="left:590px;top:90px;width:420px;height:36px;background:rgba(14,18,22,.45)"></div>
+        <div class="abs" style="left:632px;top:90px;font-size:28px">O</div>
+        <div class="abs" style="left:792px;top:90px;font-size:28px;color:#f5a623">N</div>
+        <div class="abs" style="left:952px;top:90px;font-size:28px">L</div>
+        <div class="abs" style="left:742px;top:122px;width:12px;height:5px;background:#5be37d"></div>
+        <div class="abs" style="right:58px;top:24px;font-size:30px">21:47</div>
+        <div class="abs" style="right:58px;top:60px;font-size:18px;color:#d8dee4">primavera, dia 12</div>
+
+        <div class="abs plate" style="left:620px;top:146px;width:360px;height:38px"></div>
+        <div class="abs" id="tsq" style="left:636px;top:155px;width:20px;height:20px;background:#b01325"></div>
+        <div class="abs" style="left:668px;top:150px;font-size:24px;color:var(--ink)">Illfang the Kobold Lord</div>
+        <div id="bossbars"></div>
+
+        <div class="toast" style="left:1296px;top:110px"><div class="art a-row_bg" style="inset:0"></div><div class="art a-u_items" style="left:8px;top:8px;width:57px;height:57px"></div><div class="t1">Item recebido</div><div class="t2">Anneal Blade</div></div>
+        <div class="toast" style="left:1296px;top:190px"><div class="art a-row_bg" style="inset:0"></div><div class="art a-u_skills" style="left:8px;top:8px;width:57px;height:57px"></div><div class="t1">Level</div><div class="t2">12</div></div>
+
+        <div id="skills"></div>
+        <div class="banner" id="banner"></div>
+      </div>
+
+      <!-- CENA: janelas -->
+      <div class="scene" id="scene-janelas" hidden>
+        <div class="abs" id="alert" style="left:230px;top:250px;width:480px;height:343px">
+          <div class="art a-window_alert" style="inset:0"></div>
+          <div class="win-title" style="top:24px;font-size:34px">Confirmar</div>
+          <div class="win-text" id="alert-text" style="top:122px;font-size:22px">Asuna desafiou você para um duelo.</div>
+          <div class="win-text" style="top:160px;font-size:18px;color:var(--ink-soft)">Modo: primeiro golpe</div>
+          <button class="rbtn art a-b_yes" id="alert-yes" aria-label="Aceitar" style="left:83px;top:238px;width:84px;height:84px"></button>
+          <button class="rbtn art a-b_no" id="alert-no" aria-label="Recusar" style="left:313px;top:238px;width:84px;height:84px"></button>
+        </div>
+        <div class="abs" style="left:890px;top:170px;width:440px;height:516px">
+          <div class="art a-window_blank" style="inset:0"></div>
+          <div class="win-title" style="top:20px;font-size:30px">Quantas vezes?</div>
+          <div class="win-text" id="amount" style="top:128px;font-size:76px;color:#2896c8">12</div>
+          <div class="win-text" style="top:228px;font-size:20px;color:var(--ink-soft)">de 1 a 256</div>
+          <div id="steps"></div>
+          <button class="rbtn art a-b_yes" id="amount-ok" aria-label="Confirmar quantidade" style="left:184px;top:384px;width:72px;height:72px"></button>
+          <div class="rbtn-label" style="left:170px;top:460px;width:100px">Confirmar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="status" id="status" aria-live="polite"></p>
+  <div class="controls" id="controls-combate" hidden>
+    <span class="controls-label">Testar</span>
+    <button id="c-dano">Levar dano</button>
+    <button id="c-cura">Curar</button>
+    <button id="c-chefe">Bater no chefe</button>
+    <button id="c-skill">Usar skill</button>
+    <button id="c-cidade">Bater em alguém na cidade</button>
+    <button id="c-duelo">Começar duelo</button>
+  </div>
+
+  <ul class="notes">
+    <li><strong>O que é.</strong> Uma montagem no navegador com os arquivos de arte do plugin. Não é o jogo rodando.</li>
+    <li><strong>Menu e janelas.</strong> No jogo eles flutuam no mundo, na frente do jogador, e o cursor segue o olhar. As proporções aqui são aproximadas.</li>
+    <li><strong>Textos da HUD.</strong> No jogo, o nome, a vida, os avisos e as recargas saem numa fonte mais simples que a daqui; a fonte do SAO é a dos menus.</li>
+    <li><strong>Sem arte própria.</strong> A bússola, o relógio e a placa do nome do alvo são texto e retângulos: o pack não tem imagem para eles.</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $("stage"), frame = $("frame");
+  function fit() { stage.style.transform = "scale(" + (frame.clientWidth / 1600) + ")"; }
+  if (window.ResizeObserver) { new ResizeObserver(fit).observe(frame); }
+  window.addEventListener("resize", fit); fit();
+
+  function say(text) { $("status").textContent = text; }
+  function el(cls, style, parent) { var d = document.createElement("div"); d.className = cls; d.style.cssText = style; parent.appendChild(d); return d; }
+
+  // ---------------------------------------------------------------- abas
+  var scenes = ["menu", "combate", "janelas"];
+  function show(name) {
+    scenes.forEach(function (s) {
+      $("scene-" + s).hidden = s !== name;
+      $("tab-" + s).setAttribute("aria-selected", s === name ? "true" : "false");
+    });
+    $("controls-combate").hidden = name !== "combate";
+    say(name === "menu" ? "Clique num ícone da coluna para trocar o grupo; passe o mouse nas linhas."
+      : name === "combate" ? "Use os botões embaixo da tela." : "Clique nos botões das janelas.");
+  }
+  scenes.forEach(function (s) { $("tab-" + s).addEventListener("click", function () { show(s); }); });
+
+  // ---------------------------------------------------------------- menu
+  var groups = [
+    { id: "profile", nome: "Perfil", rows: [["items", "Itens"], ["equipment", "Equipamento"], ["skills", "Skills"], ["player", "Status"], ["player", "Títulos"], ["quests", "Conquistas"]] },
+    { id: "party", nome: "Party", rows: [["player", "Party"], ["friends", "Amigos"], ["guild", "Guilda"], ["call", "Duelos"], ["dungeon", "Raids"]] },
+    { id: "message", nome: "Mensagens", rows: [["quests", "Caixa"], ["call", "Escrever"], ["help", "Jornal"]] },
+    { id: "map", nome: "Mapa", rows: [["map", "Mapa"], ["quests", "Quests"], ["items", "Leilão"]] },
+    { id: "config", nome: "Configurações", rows: [["options", "Opções"], ["help", "Ajuda"], ["logout", "Logout"]] }
+  ];
+  var current = 0;
+  function drawMenu() {
+    var g = $("groups"), r = $("rows");
+    g.innerHTML = ""; r.innerHTML = "";
+    groups.forEach(function (grp, i) {
+      var b = document.createElement("button");
+      b.className = "gicon art a-g_" + grp.id + (i === current ? "_on" : "");
+      b.style.cssText = "left:640px;top:" + (190 + i * 112) + "px";
+      b.setAttribute("aria-label", grp.nome);
+      b.addEventListener("click", function () { current = i; drawMenu(); say("Grupo: " + grp.nome); });
+      g.appendChild(b);
+    });
+    $("garrow").style.top = (218 + current * 112) + "px";
+    var top = Math.max(150, 240 + current * 112 - groups[current].rows.length * 38);
+    groups[current].rows.forEach(function (row, i) {
+      var d = el("row", "left:820px;top:" + (top + i * 76) + "px", r);
+      var bg = el("art a-row_bg bg", "", d), ic = el("art a-u_" + row[0] + " ic", "", d);
+      var tx = el("tx", "", d); tx.textContent = row[1];
+      d.addEventListener("mouseenter", function () { bg.className = "art a-row_bg_on bg"; ic.className = "art a-u_" + row[0] + "_on ic"; });
+      d.addEventListener("mouseleave", function () { bg.className = "art a-row_bg bg"; ic.className = "art a-u_" + row[0] + " ic"; });
+      d.addEventListener("click", function () {
+        if (row[1] === "Logout") { $("alert-text").textContent = "Sair do servidor?"; show("janelas"); say("O Logout pede confirmação na janela de alerta."); }
+        else { say("No jogo, “" + row[1] + "” abre a lista correspondente por cima do menu."); }
+      });
+    });
+  }
+  drawMenu();
+
+  // ---------------------------------------------------------------- combate
+  var hp = 20, boss = 0.62, bannerTimer = null;
+  function hpColor(r) { return r > 0.5 ? "#7bd23a" : r > 0.25 ? "#f0c83c" : "#e53b4b"; }
+  function drawHp() {
+    var r = hp / 20, bar = $("hp");
+    // A barra ocupa de 236 a 716 px dos 744 da moldura.
+    var right = 100 - (236 + 480 * r) / 744 * 100;
+    bar.style.clipPath = "inset(0 " + right + "% 0 0)";
+    bar.style.backgroundColor = hpColor(r);
+    $("hpnum").textContent = hp + "/20  LV 12";
+  }
+  function drawBoss() {
+    var box = $("bossbars"); box.innerHTML = "";
+    var left = boss * 4;
+    for (var b = 0; b < 4; b++) {
+      var part = Math.max(0, Math.min(1, left - (3 - b))), y = 196 + b * 30;
+      el("art a-mini", "left:620px;top:" + y + "px;width:360px;height:46px", box);
+      var f = el("minifill", "left:620px;top:" + y + "px;width:360px;height:46px;background-color:#c81e32", box);
+      f.style.clipPath = "inset(0 " + (100 - (4 + 240 * part) / 248 * 100) + "% 0 0)";
+    }
+  }
+  var skills = [["skill_1", "Slant", 0], ["skill_2", "Vertical", 0], ["skill_4", "Horizontal", 0]];
+  function drawSkills() {
+    var box = $("skills"); box.innerHTML = "";
+    skills.forEach(function (s, i) {
+      var x = 1296 + i * 96, cool = s[2] > 0;
+      el("art a-" + s[0] + " skill" + (cool ? " cool" : ""), "left:" + x + "px;top:716px", box);
+      var bar = el("skill-bar" + (cool ? " cool" : ""), "left:" + x + "px;top:804px", box);
+      var fill = document.createElement("i"); fill.style.width = (100 - s[2] * 100) + "%"; bar.appendChild(fill);
+      var n = el("skill-name", "left:" + x + "px;top:816px", box); n.textContent = s[1];
+    });
+  }
+  function banner(id, w, h) {
+    var b = $("banner");
+    b.className = "banner a-f_" + id + " show"; b.style.width = w + "px"; b.style.height = h + "px";
+    clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(function () { b.className = "banner a-f_" + id; }, 2000);
+  }
+  $("c-dano").addEventListener("click", function () {
+    var before = hp / 20; hp = Math.max(1, hp - 4); drawHp();
+    if (hp / 20 <= 0.25 && before > 0.25) { banner("warning", 430, 181); say("Vida crítica: a faixa WARNING aparece uma vez, quando a vida entra no vermelho."); }
+    else { say("Vida: " + hp + "/20. A barra fica amarela abaixo de 50% e vermelha abaixo de 25%."); }
+  });
+  $("c-cura").addEventListener("click", function () { hp = 20; drawHp(); say("Vida cheia."); });
+  $("c-chefe").addEventListener("click", function () {
+    boss = boss <= 0.05 ? 1 : Math.max(0, boss - 0.13); drawBoss();
+    say(boss === 1 ? "Chefe de novo com a vida cheia." : "Chefe com " + Math.round(boss * 100) + "% da vida: as barras esvaziam de cima para baixo.");
+  });
+  $("c-skill").addEventListener("click", function () {
+    var i = skills.findIndex(function (s) { return s[2] === 0; });
+    if (i < 0) { say("Todas as skills estão recarregando."); return; }
+    skills[i][2] = 1; drawSkills(); say(skills[i][1] + " usada: o ícone apaga e a barra enche até a skill voltar.");
+    var t = setInterval(function () {
+      skills[i][2] = Math.max(0, skills[i][2] - 0.05); drawSkills();
+      if (skills[i][2] === 0) { clearInterval(t); }
+    }, 150);
+  });
+  $("c-cidade").addEventListener("click", function () { banner("immortal", 430, 181); say("Golpe barrado pela zona segura: aparece Immortal Object, como no anime."); });
+  $("c-duelo").addEventListener("click", function () { banner("duel", 284, 216); say("Começo do duelo: o losango VS aparece para os dois jogadores."); });
+  drawHp(); drawBoss(); drawSkills();
+
+  // ---------------------------------------------------------------- janelas
+  function hoverArt(btn, base) {
+    btn.addEventListener("mouseenter", function () { btn.className = "rbtn art a-" + base + "_on"; });
+    btn.addEventListener("mouseleave", function () { btn.className = "rbtn art a-" + base; });
+  }
+  hoverArt($("alert-yes"), "b_yes"); hoverArt($("alert-no"), "b_no"); hoverArt($("amount-ok"), "b_yes");
+  $("alert-yes").addEventListener("click", function () { say("Aceito. No jogo a janela fecha e a ação acontece."); });
+  $("alert-no").addEventListener("click", function () { say("Recusado. No jogo a janela fecha e volta para a tela anterior."); });
+  var amount = 12;
+  [[-100, 18], [-10, 72], [-1, 126], [1, 270], [10, 324], [100, 378]].forEach(function (p) {
+    var art = p[0] < 0 ? "b_minus" : "b_plus";
+    var b = document.createElement("button");
+    b.className = "rbtn art a-" + art; b.style.cssText = "left:" + p[1] + "px;top:395px;width:50px;height:50px";
+    b.setAttribute("aria-label", (p[0] > 0 ? "Mais " : "Menos ") + Math.abs(p[0]));
+    hoverArt(b, art);
+    b.addEventListener("click", function () { amount = Math.max(1, Math.min(256, amount + p[0])); $("amount").textContent = amount; });
+    $("steps").appendChild(b);
+    var l = el("rbtn-label", "left:" + (p[1] - 10) + "px;top:448px;width:70px", $("steps")); l.textContent = (p[0] > 0 ? "+" : "") + p[0];
+  });
+  $("amount-ok").addEventListener("click", function () { say("Quantidade confirmada: " + amount + "."); });
+
+  show("menu");
+})();
+</script>
