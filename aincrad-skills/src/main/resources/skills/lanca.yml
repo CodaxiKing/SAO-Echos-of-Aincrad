@@ -1,0 +1,43 @@
+# Sword Skills — lança. Os campos estão explicados em espada.yml.
+estocada:
+  nome: "Thrust"
+  descricao: "Uma estocada longa que atravessa a fila."
+  arma: lanca
+  proficiencia: 0
+  dano: 1.4
+  golpes: 1
+  alcance: 5
+  forma: linha
+  recarga: 5
+  pausa: 0.5
+  icone: TRIDENT
+  particula: CRIT
+
+giro_de_lanca:
+  nome: "Helical Twice"
+  descricao: "Dois giros com a lança, afastando quem está em volta."
+  arma: lanca
+  proficiencia: 100
+  dano: 1.1
+  golpes: 2
+  alcance: 4
+  forma: area
+  recarga: 9
+  pausa: 0.7
+  intervalo_golpes: 6
+  icone: TRIDENT
+
+perfuracao_tripla:
+  nome: "Triple Pierce"
+  descricao: "Três estocadas seguidas na linha à frente."
+  arma: lanca
+  proficiencia: 250
+  dano: 1.2
+  golpes: 3
+  alcance: 5.5
+  forma: linha
+  recarga: 13
+  pausa: 0.9
+  intervalo_golpes: 4
+  icone: TRIDENT
+  particula: CRIT

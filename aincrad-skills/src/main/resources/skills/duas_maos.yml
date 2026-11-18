@@ -1,0 +1,43 @@
+# Sword Skills — espada de duas mãos. Os campos estão explicados em espada.yml.
+avalanche:
+  nome: "Avalanche"
+  descricao: "Um golpe de cima para baixo com o peso todo da lâmina."
+  arma: duas_maos
+  proficiencia: 0
+  dano: 2.0
+  golpes: 1
+  alcance: 4
+  forma: alvo
+  recarga: 7
+  pausa: 0.9
+  avanco: 2
+  icone: NETHERITE_SWORD
+  particula: CRIT
+
+ciclone:
+  nome: "Cyclone"
+  descricao: "Um giro largo que acerta todos em volta."
+  arma: duas_maos
+  proficiencia: 100
+  dano: 1.6
+  golpes: 1
+  alcance: 4
+  forma: area
+  recarga: 10
+  pausa: 1.0
+  icone: NETHERITE_SWORD
+
+golpe_do_abismo:
+  nome: "Calamity Disaster"
+  descricao: "Três golpes pesados que varrem a frente."
+  arma: duas_maos
+  proficiencia: 250
+  dano: 1.5
+  golpes: 3
+  alcance: 4.5
+  forma: linha
+  recarga: 16
+  pausa: 1.2
+  intervalo_golpes: 8
+  icone: NETHERITE_SWORD
+  particula: CRIT

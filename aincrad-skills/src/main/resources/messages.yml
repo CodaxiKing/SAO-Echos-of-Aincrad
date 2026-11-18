@@ -1,0 +1,104 @@
+# ============================================================
+#  AincradSkills — mensagens (MiniMessage)
+# ============================================================
+armas:
+  espada: "Espada"
+  florete: "Florete"
+  adaga: "Adaga"
+  machado: "Machado"
+  lanca: "Lança"
+  duas_maos: "Espada de duas mãos"
+  duas_espadas: "Duas Espadas"
+
+skill:
+  usou: "<aqua><bold><skill>"
+  recarga: "<gray><skill>: <white><tempo>s</white> de recarga"
+  arma: "<red><skill> precisa de: <white><arma>"
+  proficiencia: "<red><skill> exige proficiência <white><valor>"
+  zona_segura: "<gray>Sword Skills não saem em zona segura."
+  unica: "<red>Essa é uma skill única, e não é sua."
+  carregando: "<gray>Suas skills ainda estão carregando."
+  uso: "<gray>Uso: <white>/skill <1 a 4></white> usa a skill do atalho. Equipe em <white>/skills</white>."
+
+proficiencia:
+  subiu: "<gray><arma> <white><valor>"
+  marco: "<gold>Proficiência em <white><arma></white>: <yellow><valor></yellow>."
+
+atalho:
+  item: "<yellow>[<tecla>]</yellow> <white><skill>"
+  separador: "  <dark_gray>|  "
+  item_nome: "<aqua>Sword Skills"
+  item_lore:
+    - "<gray>Botão direito: escolher uma skill equipada."
+  recebeu: "<green>Você recebeu o item de atalho das skills."
+  menu: "<dark_gray>Sword Skills"
+  vazio: "<gray>Nenhuma skill equipada. Use <white>/skills</white>."
+
+menu:
+  titulo: "<dark_gray>Skills (ativas <ativas>, passivas <passivas>)"
+  proficiencia: "<gold><arma> <white><valor><gray>/<maximo>"
+  skill: "<aqua><skill>"
+  skill_bloqueada: "<gray><skill>"
+  passiva: "<light_purple><skill>"
+  descricao: "<gray><descricao>"
+  dados: "<dark_gray><arma> · prof. <proficiencia> · dano x<dano> · <golpes> golpe(s) · alcance <alcance> · recarga <recarga>s · pausa <pausa>s"
+  equipada: "<green>Equipada no atalho <atalho> <gray>(clique para tirar)"
+  clique_equipar: "<yellow>Clique para equipar"
+  falta_proficiencia: "<red>Exige proficiência <valor>"
+  passiva_ligada: "<green>Equipada <gray>(clique para tirar)"
+  equipou: "<green><white><skill></white> equipada no atalho <white><atalho></white>."
+  equipou_passiva: "<green>Passiva <white><skill></white> equipada."
+  desequipou: "<gray><white><skill></white> saiu dos seus espaços."
+  bloqueada: "<red><skill> exige proficiência <white><valor></white> em <white><arma></white>."
+  sem_espaco: "<red>Você só tem <white><espacos></white> espaço(s). Tire uma skill antes, ou suba de level."
+
+passivas:
+  cura_em_batalha:
+    nome: "Cura em Batalha"
+    descricao: "Recupera vida aos poucos, em batalha ou fora dela."
+  aparar:
+    nome: "Aparar"
+    descricao: "Com a arma na mão, chance de anular um golpe que vem de frente."
+  busca:
+    nome: "Busca"
+    descricao: "Marca os monstros próximos. Só você vê."
+  rastreio:
+    nome: "Rastreio"
+    descricao: "Olhe para um alvo e use /rastrear para segui-lo."
+  arremesso:
+    nome: "Arremesso de Lâminas"
+    descricao: "Botão direito com uma lâmina de arremesso na mão."
+
+passiva:
+  aparou: "<aqua>Aparado!"
+  rastro: "<yellow><seta></yellow> <white><alvo></white> <gray><distancia>m"
+  rastro_perdido: "<gray>Você perdeu o rastro."
+  rastro_marcado: "<green>Você está rastreando <white><alvo></white>."
+  rastro_parou: "<gray>Você parou de rastrear."
+  rastro_sem_alvo: "<gray>Olhe para um alvo a até 40 blocos e use <white>/rastrear</white>."
+  sem_rastreio: "<red>Equipe a passiva <white>Rastreio</white> em <white>/skills</white>."
+
+unica:
+  nomes:
+    duas_espadas: "Duas Espadas"
+  anuncio: "<gold>A skill única <yellow><skill></yellow> encontrou um dono: <white><jogador></white>."
+  teste_prepare: "<gold>Teste de reação: agache-se <white>só quando</white> o aviso aparecer. Quem se agachar antes está fora."
+  teste_agora: "<red><bold>AGORA!"
+  teste_agora_sub: "<gray>Agache-se"
+  teste_queimou: "<red>Cedo demais: você está fora desta rodada."
+  teste_ninguem: "<gray>Ninguém reagiu a tempo. O teste acabou sem dono."
+
+admin:
+  descricao: "Skills: dar proficiência, skill única e teste de reação"
+  uso: "<gray>Uso: <white>/aincrad skill dar <jogador> <arma> <valor></white>, <white>unica <jogador> [id]</white>, <white>unica_limpar [id]</white>, <white>teste</white>, <white>lista"
+  uso_dar: "<gray>Uso: <white>/aincrad skill dar <jogador> <arma> <0 a 1000></white> <gray>(o jogador precisa estar online)"
+  uso_unica: "<gray>Uso: <white>/aincrad skill unica <jogador> [id]</white> <gray>(o jogador precisa estar online)"
+  dado: "<green>Proficiência de <white><jogador></white> em <white><arma></white>: <white><valor></white>."
+  unica_dada: "<green>A skill única <white><skill></white> agora é de <white><jogador></white>."
+  unica_tem_dono: "<red>A skill única <white><skill></white> já tem dono: <white><jogador></white>."
+  unica_limpa: "<green>A skill única <white><skill></white> está sem dono."
+  unica_sem_dono: "<gray>A skill única <white><skill></white> já estava sem dono."
+  teste_comecou: "<green>Teste de reação começado."
+  teste_nao: "<red>Duas Espadas já tem dono, ou há um teste em andamento."
+  lista: "<gold><qtd> skills: <gray><skills>"
+  erro: "<red>skills/<erro>"

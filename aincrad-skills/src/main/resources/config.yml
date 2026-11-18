@@ -1,0 +1,74 @@
+# ============================================================
+#  AincradSkills — Sword Skills
+#  As skills ativas ficam na pasta skills/ (um arquivo por arma).
+# ============================================================
+
+# Como o plugin reconhece o tipo de uma arma. O nome do item vale mais que o
+# material: uma IRON_SWORD chamada "Florete de Ferro" é um florete.
+# Em "materiais", *_AXE vale por qualquer material que termine em _AXE.
+armas:
+  espada:
+    nomes: []
+    materiais: ["*_SWORD"]
+  florete:
+    nomes: [florete, rapieira]
+    materiais: []
+  adaga:
+    nomes: [adaga, punhal, faca]
+    materiais: []
+  machado:
+    nomes: [machado]
+    materiais: ["*_AXE"]
+  lanca:
+    nomes: [lança, lanca, alabarda]
+    materiais: [TRIDENT]
+  duas_maos:
+    nomes: ["duas mãos", "duas maos", montante, espadão]
+    materiais: [MACE]
+
+proficiencia:
+  # Chance de um golpe render 1 ponto (de 0 a 1000). Cai conforme a proficiência sobe,
+  # até a chance mínima.
+  chance_por_golpe: 0.5
+  chance_minima: 0.05
+  # Cada ponto aumenta o dano das skills da arma: 0.0005 = +50% com 1000.
+  bonus_de_dano_por_ponto: 0.0005
+
+# Skills equipadas ao mesmo tempo, por level do AincradRPG (level: espaços).
+# Sem o AincradRPG, todos os espaços ficam liberados.
+espacos:
+  ativas:
+    1: 2
+    10: 3
+    25: 4
+  passivas:
+    1: 1
+    15: 2
+    30: 3
+
+ativacao:
+  # Troca de mão (F) com a arma na mão mostra os atalhos; a tecla da hotbar usa a skill.
+  # Agachado, a troca de mão acontece normalmente.
+  troca_de_mao: true
+  # O item de /skills atalho (para o Bedrock): botão direito abre as skills equipadas.
+  item_de_atalho: NETHER_STAR
+
+# Skills não saem nas zonas seguras do AincradFloors.
+bloquear_em_zona_segura: true
+
+passivas:
+  cura_em_batalha:
+    intervalo: 10     # segundos
+    vida: 1.0         # meio coração = 1.0
+  aparar:
+    chance: 0.2
+    recarga: 3        # segundos
+  busca:
+    raio: 24
+  rastreio:
+    alcance: 120
+    duracao: 120      # segundos
+  arremesso:
+    material: IRON_NUGGET
+    dano: 4
+    recarga: 1

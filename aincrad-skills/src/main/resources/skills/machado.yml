@@ -1,0 +1,41 @@
+# Sword Skills — machado. Os campos estão explicados em espada.yml.
+redemoinho:
+  nome: "Whirlwind"
+  descricao: "Um giro que acerta todos em volta."
+  arma: machado
+  proficiencia: 0
+  dano: 1.3
+  golpes: 1
+  alcance: 3
+  forma: area
+  recarga: 7
+  pausa: 0.6
+  icone: IRON_AXE
+
+golpe_esmagador:
+  nome: "Smash"
+  descricao: "Um golpe pesado de cima para baixo."
+  arma: machado
+  proficiencia: 100
+  dano: 2.2
+  golpes: 1
+  alcance: 3.5
+  forma: alvo
+  recarga: 9
+  pausa: 0.8
+  icone: IRON_AXE
+  particula: CRIT
+
+tornado_duplo:
+  nome: "Double Cleave"
+  descricao: "Dois giros seguidos em volta."
+  arma: machado
+  proficiencia: 250
+  dano: 1.5
+  golpes: 2
+  alcance: 3.5
+  forma: area
+  recarga: 14
+  pausa: 1.0
+  intervalo_golpes: 8
+  icone: DIAMOND_AXE

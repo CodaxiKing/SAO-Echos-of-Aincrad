@@ -1,0 +1,57 @@
+# ============================================================
+#  Sword Skills — espada de uma mão
+#
+#  arma:          espada, florete, adaga, machado, lanca, duas_maos, duas_espadas
+#  proficiencia:  mínima na arma para equipar e usar (0 a 1000)
+#  dano:          multiplicador do dano de ataque do jogador, por golpe
+#  golpes:        número de golpes
+#  alcance:       em blocos
+#  forma:         alvo (quem está na mira), linha (todos à frente), area (todos em volta)
+#  recarga:       segundos até poder usar de novo
+#  pausa:         segundos travado depois do último golpe, como no anime
+#  intervalo_golpes: ticks entre um golpe e outro (20 ticks = 1 segundo)
+#  avanco:        blocos que o jogador avança ao usar
+#  icone, particula, som: aparência (material, partícula e som do Minecraft)
+#  unica:         id da skill única exigida (só o dono dela vê e usa)
+# ============================================================
+corte_inclinado:
+  nome: "Slant"
+  descricao: "Um corte diagonal. A primeira skill de todo espadachim."
+  arma: espada
+  proficiencia: 0
+  dano: 1.6
+  golpes: 1
+  alcance: 3.5
+  forma: alvo
+  recarga: 5
+  pausa: 0.4
+  icone: IRON_SWORD
+
+arco_vertical:
+  nome: "Vertical Arc"
+  descricao: "Dois cortes em V."
+  arma: espada
+  proficiencia: 100
+  dano: 1.3
+  golpes: 2
+  alcance: 3.5
+  forma: alvo
+  recarga: 9
+  pausa: 0.6
+  intervalo_golpes: 5
+  icone: IRON_SWORD
+
+investida_sonica:
+  nome: "Sonic Leap"
+  descricao: "Um salto para a frente que termina num corte de cima para baixo."
+  arma: espada
+  proficiencia: 250
+  dano: 2.4
+  golpes: 1
+  alcance: 5
+  forma: linha
+  recarga: 12
+  pausa: 0.8
+  avanco: 4
+  icone: DIAMOND_SWORD
+  particula: CRIT

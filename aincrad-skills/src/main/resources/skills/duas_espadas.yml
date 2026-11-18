@@ -1,0 +1,50 @@
+# Sword Skills — Duas Espadas (skill única). Só o dono vê e usa, com uma espada em cada mão.
+# Os campos estão explicados em espada.yml.
+circular_duplo:
+  nome: "Double Circular"
+  descricao: "Uma investida com a espada da direita e um corte com a da esquerda."
+  arma: duas_espadas
+  unica: duas_espadas
+  proficiencia: 0
+  dano: 1.6
+  golpes: 2
+  alcance: 4
+  forma: alvo
+  recarga: 8
+  pausa: 0.5
+  intervalo_golpes: 4
+  avanco: 3
+  icone: DIAMOND_SWORD
+  particula: END_ROD
+
+explosao_estelar:
+  nome: "Starburst Stream"
+  descricao: "Dezesseis golpes seguidos."
+  arma: duas_espadas
+  unica: duas_espadas
+  proficiencia: 200
+  dano: 0.8
+  golpes: 16
+  alcance: 4
+  forma: alvo
+  recarga: 45
+  pausa: 2.0
+  intervalo_golpes: 3
+  icone: NETHERITE_SWORD
+  particula: END_ROD
+
+eclipse:
+  nome: "The Eclipse"
+  descricao: "Vinte e sete golpes. A skill mais longa de Duas Espadas."
+  arma: duas_espadas
+  unica: duas_espadas
+  proficiencia: 600
+  dano: 0.8
+  golpes: 27
+  alcance: 4
+  forma: alvo
+  recarga: 120
+  pausa: 3.0
+  intervalo_golpes: 3
+  icone: NETHERITE_SWORD
+  particula: END_ROD

@@ -1,0 +1,44 @@
+# Sword Skills — florete. Os campos estão explicados em espada.yml.
+linear:
+  nome: "Linear"
+  descricao: "Uma estocada reta, rápida demais para ver."
+  arma: florete
+  proficiencia: 0
+  dano: 1.5
+  golpes: 1
+  alcance: 4
+  forma: alvo
+  recarga: 4
+  pausa: 0.3
+  icone: IRON_SWORD
+  particula: CRIT
+
+ferrao_paralelo:
+  nome: "Parallel Sting"
+  descricao: "Duas estocadas seguidas."
+  arma: florete
+  proficiencia: 100
+  dano: 1.2
+  golpes: 2
+  alcance: 4
+  forma: alvo
+  recarga: 8
+  pausa: 0.5
+  intervalo_golpes: 3
+  icone: IRON_SWORD
+  particula: CRIT
+
+estrela_cadente:
+  nome: "Shooting Star"
+  descricao: "Uma investida que atravessa tudo no caminho."
+  arma: florete
+  proficiencia: 250
+  dano: 2.2
+  golpes: 1
+  alcance: 6
+  forma: linha
+  recarga: 12
+  pausa: 0.7
+  avanco: 5
+  icone: DIAMOND_SWORD
+  particula: END_ROD

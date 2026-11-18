@@ -1,0 +1,42 @@
+# Sword Skills — adaga. Os campos estão explicados em espada.yml.
+mordida_rapida:
+  nome: "Rapid Bite"
+  descricao: "Um avanço curto com um corte."
+  arma: adaga
+  proficiencia: 0
+  dano: 1.4
+  golpes: 1
+  alcance: 3
+  forma: alvo
+  recarga: 3.5
+  pausa: 0.25
+  avanco: 2
+  icone: IRON_SWORD
+
+mordida_lateral:
+  nome: "Side Bite"
+  descricao: "Dois cortes de um lado para o outro."
+  arma: adaga
+  proficiencia: 100
+  dano: 1.1
+  golpes: 2
+  alcance: 3
+  forma: alvo
+  recarga: 6
+  pausa: 0.4
+  intervalo_golpes: 3
+  icone: IRON_SWORD
+
+fio_cruzado:
+  nome: "Fad Edge"
+  descricao: "Quatro cortes em sequência."
+  arma: adaga
+  proficiencia: 250
+  dano: 0.9
+  golpes: 4
+  alcance: 3
+  forma: alvo
+  recarga: 10
+  pausa: 0.6
+  intervalo_golpes: 3
+  icone: DIAMOND_SWORD

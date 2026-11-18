@@ -1,0 +1,15 @@
+name: AincradSkills
+version: '${version}'
+main: com.aincrad.skills.AincradSkillsPlugin
+api-version: '1.21'
+description: Proficiência por arma, Sword Skills ativas e passivas e a skill única do Aincrad.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [AincradRPG, AincradFloors]
+
+# Os comandos de jogador (/skills, /skill, /rastrear) são registrados pelo plugin ao ligar.
+
+permissions:
+  aincrad.admin:
+    description: Comandos de administração do Aincrad (/aincrad skill).
+    default: op
