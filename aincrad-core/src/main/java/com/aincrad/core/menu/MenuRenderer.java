@@ -24,4 +24,17 @@ public interface MenuRenderer {
     }
 
     void open(Player player, Menu menu);
+
+    /**
+     * Mostra uma confirmação sim/não com a janela própria deste renderizador (a do AincradUI, com
+     * os botões de aceitar e recusar do SAO). Por padrão não tem: o core monta um menu comum.
+     *
+     * @param yes roda se o jogador aceita
+     * @param no  roda se ele recusa; pode ser null
+     * @return true se a janela foi aberta
+     */
+    default boolean confirm(Player player, net.kyori.adventure.text.Component question,
+                            java.util.function.Consumer<Player> yes, java.util.function.Consumer<Player> no) {
+        return false;
+    }
 }

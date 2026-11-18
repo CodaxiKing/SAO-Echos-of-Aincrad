@@ -224,6 +224,8 @@ menu tem imagem no pack.
   descrição inteira (preço, prazo, requisitos) aparece num quadro ao lado da linha em que o cursor
   está. Todos os menus de jogador dos plugins Aincrad são flutuantes; os editores de admin e as
   telas de pôr e tirar item (troca, cofre da guilda, baú do casamento) continuam como baú.
+- **Confirmações**: toda confirmação sim/não dos plugins Aincrad (`menus().confirm` do core) abre a
+  janela de alerta do SAO, com a pergunta e os botões redondos de aceitar e recusar.
 - **Linha de rastreio**: `setTrackerProvider` põe uma linha de texto embaixo da barra de vida; o
   AincradQuests mostra ali a quest rastreada.
 - **Entradas do menu**: Quests (AincradQuests), Status (AincradRPG), party, amigos e guilda

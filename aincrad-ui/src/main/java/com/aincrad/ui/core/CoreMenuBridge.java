@@ -72,6 +72,17 @@ public final class CoreMenuBridge implements MenuRenderer {
         }
     }
 
+    /** A confirmação do core vira a janela de alerta do SAO, para quem tem o resource pack. */
+    @Override
+    public boolean confirm(Player player, Component question, java.util.function.Consumer<Player> yes,
+                           java.util.function.Consumer<Player> no) {
+        if (!plugin.packStatus().hasPack(player)) {
+            return false;
+        }
+        ui.openConfirm(player, question, yes == null ? null : yes::accept, no == null ? null : no::accept);
+        return true;
+    }
+
     private void click(Player p, Menu.Button b) {
         if (b.closeOnClick()) {
             ui.closeMenu(p);

@@ -59,8 +59,18 @@ public final class MenuService {
         renderers.get(0).open(p, menu);
     }
 
-    /** Confirmação sim/não. */
+    /**
+     * Confirmação sim/não. Com o AincradUI e o resource pack, é a janela de alerta do SAO, com os
+     * botões de aceitar e recusar; sem eles, um menu de baú com os dois botões.
+     */
     public void confirm(Player p, Component question, Consumer<Player> yes, Consumer<Player> no) {
+        List<MenuRenderer> sorted = new ArrayList<>(renderers);
+        sorted.sort(Comparator.comparingInt(MenuRenderer::priority).reversed());
+        for (MenuRenderer r : sorted) {
+            if (r.confirm(p, question, yes, no)) {
+                return;
+            }
+        }
         Menu m = Menu.of(question).rows(3)
                 .item(Menu.Button.of(new ItemStack(Material.PAPER), question, null))
                 .button(Menu.Button.of(new ItemStack(Material.LIME_WOOL), msg.get("menu.confirmar"), yes).closing())
