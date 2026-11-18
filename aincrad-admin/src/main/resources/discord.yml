@@ -1,0 +1,29 @@
+# ============================================================
+#  Discord por webhook (sem bot)
+#  No Discord: Configurações do canal > Integrações > Webhooks >
+#  Novo webhook > Copiar URL do webhook. Cole abaixo.
+#
+#  O endereço do webhook é um segredo: quem o tem publica no seu
+#  canal. Ele fica só neste arquivo; o plugin nunca o mostra em
+#  mensagem nem no console. (Atenção: este arquivo entra no backup.)
+# ============================================================
+ativo: false
+
+webhooks:
+  # Usado pelos tipos que ficarem em branco abaixo.
+  padrao: ""
+  andar: ""
+  chefe: ""
+  raid: ""
+  conquista: ""
+
+# Texto de cada tipo (Markdown do Discord). Deixe em branco para não publicar o tipo.
+mensagens:
+  # <andar> <nome> <participantes>
+  andar: ":unlock: **O andar <andar> foi liberado!** <nome>"
+  # <chefe> <andar> <last_attack> <top> <participantes> <primeira>
+  chefe: ":crossed_swords: **<chefe>** (andar <andar>) foi derrotado — <primeira>, <participantes> jogadores.\nLast Attack: **<last_attack>**\nMaiores danos: <top>"
+  # <chefe> <andar> <lider> <data>
+  raid: ":calendar: Raid contra **<chefe>** (andar <andar>) marcada por **<lider>** para <data>."
+  # <jogador> <conquista> <titulo>
+  conquista: ":trophy: **<jogador>** conseguiu a conquista **<conquista>**."

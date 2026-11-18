@@ -5,6 +5,7 @@ api-version: '1.21'
 description: Ferramentas do dono do servidor Aincrad - registro das ações de administração, backup e estado da rede.
 authors: [CodaxiKing]
 depend: [AincradCore]
+softdepend: [AincradFloors, AincradBosses, AincradReputation]
 
 permissions:
   aincrad.admin:

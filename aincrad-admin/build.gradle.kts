@@ -14,6 +14,10 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     // Obrigatório (depend): config, mensagens, banco, comandos e o AincradAdminActionEvent vêm do core.
     compileOnly("com.aincrad:aincrad-core:0.1.0")
+    // Opcionais (softdepend): só as classes de evento e de API.
+    compileOnly("com.aincrad:aincrad-floors:0.1.0")
+    compileOnly("com.aincrad:aincrad-bosses:0.1.0")
+    compileOnly("com.aincrad:aincrad-reputation:0.1.0")
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     // O teste do backup tira uma cópia de um SQLite de verdade.

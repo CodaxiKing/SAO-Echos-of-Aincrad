@@ -15,7 +15,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-items/` | **AincradItems** — cristais de cura, antídoto, teleporte, ressurreição e gravação | pronto (etapas 20–21) |
 | `aincrad-life/` | **AincradLife** — profissões (proficiência, aprender antes de fazer, árvore), bancadas 3D com painel, culinária, pesca, ferreiro, alquimia, encomendas, barracas, familiares, casamento e estalagens | base pronta (etapa 22), as quatro profissões da etapa 23 e as encomendas, as barracas, os familiares e o casamento: etapas 22 a 25 com código, sem teste em servidor |
 | `aincrad-reputation/` | **AincradReputation** — conquistas, títulos, cor do cursor, cidades fechadas, prisão e PvP por andar | código pronto (etapas 26–27), sem teste em servidor |
-| `aincrad-admin/` | **AincradAdmin** — registro das ações de administração (`/aincrad log`), backup diário com restauração e `/aincrad status` | etapas 28 e 30 com código, sem teste em servidor; falta a etapa 29 (Discord e ranking em site) |
+| `aincrad-admin/` | **AincradAdmin** — registro das ações de administração (`/aincrad log`), Discord por webhook, ranking em site, backup diário com restauração e `/aincrad status` | etapas 28–30 com código, sem teste em servidor |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | pronto (etapas 10–13): motor geral e integração com andares e chefes |
 
 ## Plano

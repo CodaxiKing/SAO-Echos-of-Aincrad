@@ -538,7 +538,7 @@ Terceira leva. Começa depois da etapa 30.
 
 ## O que ainda falta
 
-Estado em 18/11/2026. Destes três plugins, só o AincradAdmin tem código (pasta `aincrad-admin/`): as etapas 28 (registro e `/aincrad log`) e 30 (backup, restauração e `/aincrad status`) estão feitas, e falta a 29 (Discord e ranking em site); a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
+Estado em 18/11/2026. O AincradAdmin (etapas 28–30) já tem código, na pasta `aincrad-admin/`, sem teste em servidor; a descrição de cada um está na seção dele, mais acima, e os critérios de pronto estão nas tabelas de etapas.
 
 | Etapas | Plugin | O que é |
 | --- | --- | --- |

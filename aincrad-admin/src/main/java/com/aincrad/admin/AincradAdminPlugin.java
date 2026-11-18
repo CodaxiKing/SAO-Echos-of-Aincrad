@@ -1,5 +1,8 @@
 package com.aincrad.admin;
 
+import com.aincrad.admin.hook.BossesHook;
+import com.aincrad.admin.hook.FloorsHook;
+import com.aincrad.admin.hook.ReputationHook;
 import com.aincrad.admin.model.BackupRules;
 import com.aincrad.admin.model.LogRules.Entry;
 import com.aincrad.admin.model.LogRules.Filter;
@@ -24,12 +27,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
  * AincradAdmin: ferramentas do dono. Não muda o jogo — registra as ações de administração dos
  * outros plugins Aincrad (etapa 28), faz o backup diário e mostra o estado da rede (etapa 30).
- * Discord e ranking em site vêm na etapa 29.
+ * Publica no Discord por webhook e serve o ranking num site pequeno (etapa 29).
  */
 public final class AincradAdminPlugin extends JavaPlugin implements Listener {
 
@@ -41,6 +45,9 @@ public final class AincradAdminPlugin extends JavaPlugin implements Listener {
     private Messages msg;
     private LogService log;
     private BackupService backups;
+    private ConfigFile discordFile;
+    private DiscordService discord;
+    private RankingService ranking;
     private int perPage;
     private int keepDays;
     private DateTimeFormatter date;
@@ -57,7 +64,9 @@ public final class AincradAdminPlugin extends JavaPlugin implements Listener {
         msg = core.messages(this);
         config = core.config(this, "config.yml");
         try {
-            core.database().migrate("admin", LogService.MIGRATIONS);
+            List<String> steps = new ArrayList<>(LogService.MIGRATIONS);
+            steps.addAll(RankingService.MIGRATIONS);
+            core.database().migrate("admin", steps);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradAdmin não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -65,6 +74,13 @@ public final class AincradAdminPlugin extends JavaPlugin implements Listener {
         }
         log = new LogService(this, core.database());
         backups = new BackupService(this);
+        discordFile = core.config(this, "discord.yml");
+        discord = new DiscordService(this);
+        ranking = new RankingService(this, core.database());
+        // Os eventos dos outros plugins: cada ouvinte só entra se o plugin dele está ligado.
+        hook("AincradFloors", () -> new FloorsHook(ranking, discord));
+        hook("AincradBosses", () -> new BossesHook(ranking, discord));
+        hook("AincradReputation", () -> new ReputationHook(discord));
         settings();
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(log, this);
@@ -77,6 +93,26 @@ public final class AincradAdminPlugin extends JavaPlugin implements Listener {
         // Limpa o que passou do prazo ao ligar e a cada seis horas.
         long sixHours = 6L * 60 * 60 * 20;
         getServer().getScheduler().runTaskTimer(this, () -> log.purge(keepDays), 200L, sixHours);
+        long every = config.integer("site.atualizar_segundos", 60, 10, 3600) * 20L;
+        getServer().getScheduler().runTaskTimer(this, ranking::refresh, 100L, every);
+    }
+
+    private void hook(String name, Supplier<Listener> listener) {
+        if (!getServer().getPluginManager().isPluginEnabled(name)) {
+            return;
+        }
+        try {
+            getServer().getPluginManager().registerEvents(listener.get(), this);
+        } catch (LinkageError e) {
+            getLogger().warning(name + " incompatível: o Discord e o ranking não recebem os eventos dele (" + e + ").");
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        if (ranking != null) {
+            ranking.stop();
+        }
     }
 
     private void settings() {
@@ -97,13 +133,18 @@ public final class AincradAdminPlugin extends JavaPlugin implements Listener {
             at = LocalTime.of(4, 0);
         }
         backups.settings(config.bool("backup.diario", true), at, config.integer("backup.guardar_dias", 14, 0, 3650));
+        discord.reload(discordFile);
+        ranking.site(config.bool("site.ativo", false), config.string("site.endereco", "0.0.0.0"),
+                config.integer("site.porta", 8085, 1, 65535), config.string("site.titulo", "Aincrad — Ranking"));
     }
 
     @EventHandler
     public void onReload(AincradReloadEvent event) {
         msg.reload();
         config.reload();
+        discordFile.reload();
         settings();
+        ranking.refresh();
         event.reloaded(getName());
     }
 

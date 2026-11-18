@@ -17,3 +17,13 @@ backup:
   hora: "04:00"
   # Apaga os backups com mais de tantos dias. 0 = guarda para sempre.
   guardar_dias: 14
+
+# Ranking em site: uma página e os mesmos dados em JSON (/api/ranking). Só leitura.
+# A porta precisa estar liberada na hospedagem. Ela fica só aqui: o plugin não a mostra no console.
+site:
+  ativo: false
+  endereco: "0.0.0.0"
+  porta: 8085
+  titulo: "Aincrad — Ranking"
+  # De quanto em quanto tempo o ranking é relido do banco.
+  atualizar_segundos: 60
