@@ -378,8 +378,8 @@ public final class SpawnService implements Listener {
             return;
         }
         for (Map.Entry<String, String> en : e.extra().equipment().entrySet()) {
-            org.bukkit.Material m = org.bukkit.Material.matchMaterial(en.getValue());
-            if (m == null || (!m.isItem() && !m.isAir())) {
+            org.bukkit.inventory.ItemStack worn = en.getValue().equalsIgnoreCase("AIR") ? new org.bukkit.inventory.ItemStack(org.bukkit.Material.AIR) : itemOf(en.getValue(), 1);
+            if (worn == null) {
                 warn(where, "equipamento." + en.getKey() + ": '" + en.getValue() + "' não é um item");
                 continue;
             }
@@ -391,14 +391,17 @@ public final class SpawnService implements Listener {
                 case "pernas" -> org.bukkit.inventory.EquipmentSlot.LEGS;
                 default -> org.bukkit.inventory.EquipmentSlot.FEET;
             };
-            eq.setItem(slot, new org.bukkit.inventory.ItemStack(m));
+            eq.setItem(slot, worn);
             eq.setDropChance(slot, 0f); // o que ele veste não cai; os drops são os da lista
         }
     }
 
-    /** O item de um drop: MATERIAL, rpg:&lt;id&gt; ou life:&lt;ingrediente&gt;. Null se não existe. */
-    private org.bukkit.inventory.ItemStack item(String spec, int amount) {
+    /** O item de um drop ou do equipamento: MATERIAL, rpg:&lt;id&gt;, life:&lt;ingrediente&gt; ou ia:&lt;namespace:id&gt;. Null se não existe. */
+    public org.bukkit.inventory.ItemStack itemOf(String spec, int amount) {
         String lower = spec.toLowerCase(java.util.Locale.ROOT);
+        if (lower.startsWith("ia:")) {
+            return Packs.itemsAdderItem(spec.substring(3), amount);
+        }
         if (lower.startsWith("life:")) {
             return Conditions.lifeIngredient(spec.substring(5), amount);
         }
@@ -437,7 +440,7 @@ public final class SpawnService implements Listener {
                 if (rnd.nextDouble() >= d.chance()) {
                     continue;
                 }
-                org.bukkit.inventory.ItemStack it = item(d.item(), d.min() >= d.max() ? d.min() : rnd.nextInt(d.min(), d.max() + 1));
+                org.bukkit.inventory.ItemStack it = itemOf(d.item(), d.min() >= d.max() ? d.min() : rnd.nextInt(d.min(), d.max() + 1));
                 if (it == null) {
                     warn(region, "o drop '" + d.item() + "' não existe (o plugin dele está ligado?)");
                 } else {

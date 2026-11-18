@@ -176,6 +176,41 @@ public final class SpawnEdit {
         return true;
     }
 
+    /** O equipamento da linha (espaço → item), numa cópia que pode ser alterada. */
+    public static Map<String, Object> equipment(Map<String, Object> line) {
+        Map<String, Object> out = new LinkedHashMap<>();
+        if (line.get("equipamento") instanceof Map<?, ?> m) {
+            m.forEach((k, v) -> out.put(String.valueOf(k), v));
+        }
+        return out;
+    }
+
+    /** Os drops da linha, numa cópia que pode ser alterada. */
+    public static List<Map<String, Object>> drops(Map<String, Object> line) {
+        List<Map<String, Object>> out = new ArrayList<>();
+        if (line.get("drops") instanceof List<?> list) {
+            for (Object o : list) {
+                if (o instanceof Map<?, ?> m) {
+                    Map<String, Object> copy = new LinkedHashMap<>();
+                    m.forEach((k, v) -> copy.put(String.valueOf(k), v));
+                    out.add(copy);
+                }
+            }
+        }
+        return out;
+    }
+
+    /** A chance de um drop, de 0 a 1 (1 quando não está escrita). */
+    public static double chance(Map<String, Object> drop) {
+        return drop.get("chance") instanceof Number n ? n.doubleValue() : 1.0;
+    }
+
+    /** A quantidade de um drop como {mín, máx}. */
+    public static int[] amount(Map<String, Object> drop) {
+        int[] a = SpawnRules.levels(drop.get("quantidade"));
+        return a == null || a[0] < 1 ? new int[]{1, 1} : a;
+    }
+
     /** O level de uma linha como {mín, máx}; {1, 1} se não tem ou está inválido. */
     public static int[] level(Map<String, Object> line) {
         int[] lv = SpawnRules.levels(line.get("level"));

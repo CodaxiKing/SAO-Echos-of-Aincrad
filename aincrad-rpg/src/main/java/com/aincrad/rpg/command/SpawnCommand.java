@@ -49,7 +49,10 @@ public final class SpawnCommand implements SubCommand {
     private final SpawnService spawns;
     private final ConfigFile file;
 
-    public SpawnCommand(Plugin plugin, Messages msg, SpawnService spawns, ConfigFile file) {
+    private final com.aincrad.rpg.item.ItemService items;
+
+    public SpawnCommand(Plugin plugin, Messages msg, SpawnService spawns, ConfigFile file, com.aincrad.rpg.item.ItemService items) {
+        this.items = items;
         this.plugin = plugin;
         this.msg = msg;
         this.spawns = spawns;
@@ -106,6 +109,19 @@ public final class SpawnCommand implements SubCommand {
             create(pl, fresh, false, exact);
             openRegion(pl, fresh);
         }, "regiao", fresh));
+        // Um item renomeado na bigorna (uma etiqueta, por exemplo) dá o nome da área.
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        Component custom = hand.hasItemMeta() ? hand.getItemMeta().displayName() : null;
+        if (custom != null) {
+            String typed = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(custom)
+                    .toLowerCase(Locale.ROOT).trim().replaceAll("[^a-z0-9_]+", "_").replaceAll("^_+|_+$", "");
+            if (Region.validName(typed) && AincradCore.get().regions().get(typed) == null) {
+                menu.item(button(Material.NAME_TAG, "nome_da_etiqueta", pl -> {
+                    create(pl, typed, false, exact);
+                    openRegion(pl, typed);
+                }, "regiao", typed));
+            }
+        }
         // Áreas que já têm mobs no arquivo (um pacote de andar, por exemplo) mas não estão no mapa.
         var sec = current().getConfigurationSection("regioes");
         if (sec != null) {
@@ -544,6 +560,18 @@ public final class SpawnCommand implements SubCommand {
     /** Escolher o tipo de um mob novo. */
     private void openPicker(Player p, String region) {
         Menu menu = Menu.of(msg.get("spawn.menu.titulo_escolher")).rows(6);
+        // Os mobs do MythicMobs vêm primeiro: é por eles que entram os modelos 3D.
+        for (String mm : com.aincrad.rpg.mob.Packs.mythicMobs()) {
+            menu.item(button(Material.DRAGON_HEAD, "mob_mythic", pl -> {
+                int[] index = {-1};
+                edit(pl, y -> (index[0] = SpawnEdit.addMob(y, region, "mythic:" + mm, 1, 1, 1)) >= 0);
+                if (index[0] >= 0) {
+                    openMob(pl, region, index[0]);
+                } else {
+                    openRegion(pl, region);
+                }
+            }, "mob", mm));
+        }
         for (EntityType t : EntityType.values()) {
             if (!t.isSpawnable() || !t.isAlive() || egg(t.name()) == Material.NAME_TAG) {
                 continue;
@@ -596,6 +624,26 @@ public final class SpawnCommand implements SubCommand {
             boolean angry = Boolean.TRUE.equals(l.get("agressivo"));
             menu.item(button(Material.BONE, angry ? "agressivo_sim" : "agressivo_nao", pl -> mobChange(pl, region, index, "agressivo", angry ? null : Boolean.TRUE)));
         }
+        boolean mythic = mob.toLowerCase(Locale.ROOT).startsWith("mythic:");
+        menu.item(button(Material.CHEST, "drops", pl -> openDrops(pl, region, index), "qtd", SpawnEdit.drops(l).size()));
+        if (!mythic) {
+            // Nome, equipamento e modelo de um mob do MythicMobs vêm do arquivo dele.
+            menu.item(button(Material.NAME_TAG, "nome_da_mao", pl -> {
+                ItemStack hand = pl.getInventory().getItemInMainHand();
+                Component custom = hand.hasItemMeta() ? hand.getItemMeta().displayName() : null;
+                if (custom == null) {
+                    msg.send(pl, "spawn.sem_nome_na_mao");
+                    openMob(pl, region, index);
+                } else {
+                    mobChange(pl, region, index, "nome", net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().serialize(custom));
+                }
+            }, "nome", String.valueOf(l.getOrDefault("nome", "—"))));
+            if (l.containsKey("nome")) {
+                menu.item(button(Material.SHEARS, "nome_tirar", pl -> mobChange(pl, region, index, "nome", null)));
+            }
+            menu.item(button(Material.IRON_CHESTPLATE, "equipamento", pl -> openEquipment(pl, region, index), "qtd", SpawnEdit.equipment(l).size()));
+            menu.item(button(Material.ARMOR_STAND, "modelo", pl -> openModels(pl, region, index), "modelo", String.valueOf(l.getOrDefault("modelo", "—"))));
+        }
         menu.button(button(Material.SPAWNER, "testar", pl -> {
             SpawnRules.MobRef ref = SpawnRules.MobRef.parse(mob);
             if (ref != null) {
@@ -607,6 +655,184 @@ public final class SpawnCommand implements SubCommand {
             openRegion(pl, region);
         }));
         menu.button(button(Material.ARROW, "voltar", pl -> openRegion(pl, region)));
+        open(p, menu);
+    }
+
+    // ------------------------------------------------------------------ item na mão
+
+    /** Como o item da mão é escrito no arquivo: rpg:&lt;id&gt;, ia:&lt;namespace:id&gt; ou o material. Null = mão vazia. */
+    private String specOf(ItemStack hand) {
+        if (hand == null || hand.getType().isAir()) {
+            return null;
+        }
+        String rpgId = items.id(hand);
+        if (rpgId != null) {
+            return "rpg:" + rpgId;
+        }
+        String ia = com.aincrad.rpg.mob.Packs.itemsAdderId(hand);
+        return ia != null ? "ia:" + ia : hand.getType().name();
+    }
+
+    /** O ícone de um item do arquivo; papel se o item não existe (plugin desligado, id errado). */
+    private ItemStack iconOf(String spec) {
+        ItemStack it = spawns.itemOf(spec, 1);
+        return it == null || it.getType().isAir() ? new ItemStack(Material.PAPER) : it.clone();
+    }
+
+    // ------------------------------------------------------------------ equipamento
+
+    private static final Material[] SLOT_ICONS = {Material.IRON_SWORD, Material.SHIELD, Material.IRON_HELMET,
+            Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS};
+
+    /** O equipamento do mob: clicar num espaço põe nele o item que o admin tem na mão (mão vazia tira). */
+    private void openEquipment(Player p, String region, int index) {
+        List<Map<String, Object>> lines = SpawnEdit.lines(current(), region);
+        if (index < 0 || index >= lines.size()) {
+            openRegion(p, region);
+            return;
+        }
+        Map<String, Object> eq = SpawnEdit.equipment(lines.get(index));
+        Menu menu = Menu.of(msg.get("spawn.menu.titulo_equipamento")).rows(3);
+        for (int i = 0; i < SpawnRules.SLOTS.size(); i++) {
+            String slot = SpawnRules.SLOTS.get(i);
+            Object now = eq.get(slot);
+            ItemStack icon = now == null ? icon(SLOT_ICONS[i]) : iconOf(now.toString());
+            menu.item(Menu.Button.of(icon, msg.get("spawn.menu.espaco_" + slot, Messages.vars("item", now == null ? "—" : now.toString())), pl -> {
+                String spec = specOf(pl.getInventory().getItemInMainHand());
+                Map<String, Object> next = SpawnEdit.equipment(SpawnEdit.lines(current(), region).get(index));
+                if (spec == null) {
+                    next.remove(slot);
+                } else {
+                    next.put(slot, spec);
+                }
+                edit(pl, y -> SpawnEdit.set(y, region, index, "equipamento", next.isEmpty() ? null : next));
+                openEquipment(pl, region, index);
+            }).lore(msg.list("spawn.menu.espaco_lore")));
+        }
+        menu.button(button(Material.ARMOR_STAND, "copiar_de_mim", pl -> {
+            org.bukkit.inventory.PlayerInventory inv = pl.getInventory();
+            ItemStack[] worn = {inv.getItemInMainHand(), inv.getItemInOffHand(), inv.getHelmet(), inv.getChestplate(), inv.getLeggings(), inv.getBoots()};
+            Map<String, Object> next = new java.util.LinkedHashMap<>();
+            for (int i = 0; i < worn.length; i++) {
+                String spec = specOf(worn[i]);
+                if (spec != null) {
+                    next.put(SpawnRules.SLOTS.get(i), spec);
+                }
+            }
+            edit(pl, y -> SpawnEdit.set(y, region, index, "equipamento", next.isEmpty() ? null : next));
+            openEquipment(pl, region, index);
+        }));
+        menu.button(button(Material.ARROW, "voltar", pl -> openMob(pl, region, index)));
+        open(p, menu);
+    }
+
+    // ------------------------------------------------------------------ modelo (ModelEngine)
+
+    private void openModels(Player p, String region, int index) {
+        Menu menu = Menu.of(msg.get("spawn.menu.titulo_modelo")).rows(6);
+        List<String> models = com.aincrad.rpg.mob.Packs.models();
+        for (String model : models) {
+            menu.item(button(Material.ARMOR_STAND, "modelo_item", pl -> mobChange(pl, region, index, "modelo", model), "modelo", model));
+        }
+        if (models.isEmpty()) {
+            menu.item(button(Material.BARRIER, "modelo_nenhum_carregado", pl -> { }));
+        }
+        menu.button(button(Material.SHEARS, "modelo_tirar", pl -> mobChange(pl, region, index, "modelo", null)));
+        menu.button(button(Material.ARROW, "voltar", pl -> openMob(pl, region, index)));
+        open(p, menu);
+    }
+
+    // ------------------------------------------------------------------ drops
+
+    private static final double[] CHANCES = {0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0};
+
+    private static String percent(double chance) {
+        double pct = chance * 100;
+        return (pct == Math.rint(pct) ? String.valueOf((long) pct) : String.valueOf(pct)) + "%";
+    }
+
+    private void saveDrops(Player p, String region, int index, List<Map<String, Object>> drops) {
+        edit(p, y -> SpawnEdit.set(y, region, index, "drops", drops.isEmpty() ? null : drops));
+    }
+
+    /** Os drops do mob. "Adicionar" usa o item que o admin tem na mão. */
+    private void openDrops(Player p, String region, int index) {
+        List<Map<String, Object>> lines = SpawnEdit.lines(current(), region);
+        if (index < 0 || index >= lines.size()) {
+            openRegion(p, region);
+            return;
+        }
+        List<Map<String, Object>> drops = SpawnEdit.drops(lines.get(index));
+        Menu menu = Menu.of(msg.get("spawn.menu.titulo_drops")).rows(4);
+        for (int i = 0; i < drops.size(); i++) {
+            Map<String, Object> d = drops.get(i);
+            int di = i;
+            int[] amount = SpawnEdit.amount(d);
+            String spec = String.valueOf(d.get("item"));
+            menu.item(Menu.Button.of(iconOf(spec), msg.get("spawn.menu.drop", Messages.vars("item", spec)), pl -> openDrop(pl, region, index, di))
+                    .lore(msg.list("spawn.menu.drop_lore", Messages.vars("chance", percent(SpawnEdit.chance(d)),
+                            "quantidade", String.valueOf(SpawnEdit.levelValue(amount[0], amount[1]))))));
+        }
+        menu.button(button(Material.HOPPER, "drop_da_mao", pl -> {
+            ItemStack hand = pl.getInventory().getItemInMainHand();
+            String spec = specOf(hand);
+            if (spec == null) {
+                msg.send(pl, "spawn.mao_vazia");
+                openDrops(pl, region, index);
+                return;
+            }
+            List<Map<String, Object>> next = SpawnEdit.drops(SpawnEdit.lines(current(), region).get(index));
+            Map<String, Object> d = new java.util.LinkedHashMap<>();
+            d.put("item", spec);
+            d.put("chance", 1.0);
+            d.put("quantidade", hand.getAmount());
+            next.add(d);
+            saveDrops(pl, region, index, next);
+            openDrop(pl, region, index, next.size() - 1);
+        }));
+        menu.button(button(Material.ARROW, "voltar", pl -> openMob(pl, region, index)));
+        open(p, menu);
+    }
+
+    /** Um drop: a chance (clicando na porcentagem), a quantidade e tirar. */
+    private void openDrop(Player p, String region, int index, int drop) {
+        List<Map<String, Object>> lines = SpawnEdit.lines(current(), region);
+        List<Map<String, Object>> drops = index < 0 || index >= lines.size() ? List.of() : SpawnEdit.drops(lines.get(index));
+        if (drop < 0 || drop >= drops.size()) {
+            openDrops(p, region, index);
+            return;
+        }
+        Map<String, Object> d = drops.get(drop);
+        String spec = String.valueOf(d.get("item"));
+        double now = SpawnEdit.chance(d);
+        int[] amount = SpawnEdit.amount(d);
+        Menu menu = Menu.of(msg.get("spawn.menu.titulo_drop", Messages.vars("item", spec))).rows(3);
+        for (double c : CHANCES) {
+            boolean current = Math.abs(c - now) < 1e-9;
+            menu.item(button(current ? Material.LIME_DYE : Material.GRAY_DYE, "drop_chance", pl -> {
+                d.put("chance", c);
+                saveDrops(pl, region, index, drops);
+                openDrop(pl, region, index, drop);
+            }, "chance", percent(c)));
+        }
+        int[][] steps = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        String[] keys = {"qtd_min_menos", "qtd_min_mais", "qtd_max_menos", "qtd_max_mais"};
+        for (int i = 0; i < steps.length; i++) {
+            int[] to = SpawnEdit.shift(amount, steps[i][0], steps[i][1]);
+            to[0] = Math.min(64, to[0]);
+            to[1] = Math.min(64, to[1]);
+            menu.item(button(steps[i][0] + steps[i][1] < 0 ? Material.RED_DYE : Material.LIME_DYE, keys[i], pl -> {
+                d.put("quantidade", SpawnEdit.levelValue(to[0], to[1]));
+                saveDrops(pl, region, index, drops);
+                openDrop(pl, region, index, drop);
+            }, "min", amount[0], "max", amount[1]));
+        }
+        menu.button(button(Material.BARRIER, "drop_tirar", pl -> {
+            drops.remove(drop);
+            saveDrops(pl, region, index, drops);
+            openDrops(pl, region, index);
+        }));
+        menu.button(button(Material.ARROW, "voltar", pl -> openDrops(pl, region, index)));
         open(p, menu);
     }
 

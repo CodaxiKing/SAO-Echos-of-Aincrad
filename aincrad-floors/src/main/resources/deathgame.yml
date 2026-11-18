@@ -18,7 +18,7 @@ anuncio:
   falas:
     - { em: 0,  titulo: "<red>Atenção, jogadores", subtitulo: "<gray>Bem-vindos ao meu mundo", som: "minecraft:block.bell.use" }
     - { em: 6,  chat: "<red>O botão de logout sumiu do menu. Não é um defeito: é assim que este jogo foi feito." }
-    - { em: 12, chat: "<red>Não há como sair por conta própria. E, neste mundo, a morte é para valer." }
+    - { em: 12, chat: "<red>Não há como sair por conta própria. Quem cai volta, mas o castelo cobra: XP, a cor do cursor, o nome no Monumento." }
     - { em: 18, titulo: "<red>Só há uma saída", subtitulo: "<gray>Vencer o chefe do andar final" }
     - { em: 24, chat: "<gray>O jogo começou. Boa sorte.", som: "minecraft:entity.wither.spawn" }
   # Para quem entra no servidor depois do anúncio (uma vez por jogador).
@@ -26,13 +26,15 @@ anuncio:
     - { em: 0, titulo: "<red>Você está preso neste mundo", subtitulo: "<gray>O logout sumiu. A saída é vencer o andar final." }
 
 fim:
-  # O andar cujo chefe encerra o jogo. 0 = o último andar do floors.yml. No anime: 75.
-  andar_final: 0
+  # O andar cujo chefe encerra o jogo. 0 = o último andar do floors.yml. No anime o jogo acaba no 75;
+  # este servidor vai até o topo do castelo.
+  andar_final: 100
   # O que fazer com o mundo depois da vitória:
   #   continuar  o mundo segue aberto e o logout volta
   #   reiniciar  nova temporada: os andares voltam a ser bloqueados e o anúncio pode ser refeito
   #              (level, itens e Col não são apagados)
   #   fechar     depois de "fechar_depois_minutos", só os admins entram
+  # Decisão deste servidor: o mundo continua.
   ao_vencer: continuar
   fechar_depois_minutos: 30
   # Quantos nomes aparecem em cada lista dos créditos.

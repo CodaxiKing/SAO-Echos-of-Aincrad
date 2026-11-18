@@ -58,13 +58,13 @@ prisao:
   selecao: "<red>Marque os dois cantos da prisão com a varinha (<white>/aincrad varinha</white>) e fique dentro dela ao dar o comando."
 
 monumento:
-  titulo: "<gold><bold>Monumento da Vida</bold> <gray><vivos> vivos · <mortos> riscados <dark_gray>(<pagina>/<paginas>)"
+  titulo: "<gold><bold>Monumento da Vida</bold> <gray><vivos> invictos · <mortos> já caíram <dark_gray>(<pagina>/<paginas>)"
   vivo: "<white><jogador>"
-  riscado: "<dark_gray><st><jogador></st> <gray><data> · <causa>"
-  menu: "<dark_gray>Monumento (<vivos> vivos, <mortos> riscados)"
+  riscado: "<gray><jogador> <dark_gray>caiu em <data> · <causa>"
+  menu: "<dark_gray>Monumento (<vivos> invictos, <mortos> já caíram)"
   entrou: "<gray>Entrou em <white><data>"
-  morreu: "<red>Riscado em <white><data></white>: <causa>"
-  mortes: "<dark_gray>Mortes: <mortes>"
+  morreu: "<red>Primeira queda em <white><data></white>: <causa>"
+  mortes: "<dark_gray>Quedas: <mortes>"
   ninguem: "<gray>Nenhum nome com esse texto no monumento."
   causa:
     mob: "monstro"

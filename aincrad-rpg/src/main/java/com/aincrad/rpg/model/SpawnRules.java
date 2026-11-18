@@ -49,7 +49,8 @@ public final class SpawnRules {
     /**
      * Um item que o mob solta ao ser morto por um jogador.
      *
-     * @param item   MATERIAL, {@code rpg:<id>} (items.yml) ou {@code life:<ingrediente>} (AincradLife)
+     * @param item   MATERIAL, {@code rpg:<id>} (items.yml), {@code life:<ingrediente>} (AincradLife)
+     *               ou {@code ia:<namespace:id>} (ItemsAdder)
      * @param chance de 0 a 1
      */
     public record Drop(String item, double chance, int min, int max) {
@@ -269,7 +270,7 @@ public final class SpawnRules {
                     errors.add(where + ": 'equipamento." + slot + "' inválido (use " + String.join(", ", SLOTS) + ")");
                     return null;
                 }
-                equipment.put(slot, item.toUpperCase(Locale.ROOT));
+                equipment.put(slot, item.contains(":") ? item : item.toUpperCase(Locale.ROOT));
             }
         }
         List<Drop> drops = new ArrayList<>();
