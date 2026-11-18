@@ -22,6 +22,8 @@ import java.sql.SQLException;
 public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
 
     private ConfigFile config;
+    private ConfigFile gameFile;
+    private DeathGameService game;
     private Messages msg;
     private FloorService floors;
 
@@ -32,7 +34,9 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
         config = core.config(this, "config.yml");
         FloorStore store = new FloorStore(core.database());
         try {
-            core.database().migrate("floors", FloorStore.MIGRATIONS);
+            java.util.List<String> steps = new java.util.ArrayList<>(FloorStore.MIGRATIONS);
+            steps.addAll(DeathGameService.MIGRATIONS);
+            core.database().migrate("floors", steps);
             store.loadBlocking();
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradFloors não vai ligar: " + e.getMessage());
@@ -59,6 +63,22 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
         }
         core.commands().register(this, commands.floorAdmin());
         core.commands().register(this, commands.gateAdmin());
+        gameFile = core.config(this, "deathgame.yml");
+        game = new DeathGameService(this, msg, floors, gameFile);
+        try {
+            game.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler o estado do jogo da morte: " + e.getMessage());
+        }
+        pm.registerEvents(game, this);
+        core.commands().register(this, new com.aincrad.floors.command.DeathGameCommand(msg, game, false));
+        core.commands().register(this, new com.aincrad.floors.command.DeathGameCommand(msg, game, true));
+        core.subscribe(DeathGameService.BUS, game::onBus);
+        getServer().getScheduler().runTask(this, game::applyUi);
+        getServer().getScheduler().runTaskTimer(this, () -> {
+            game.refresh();
+            game.tick();
+        }, 1200L, 1200L);
         core.subscribe(FloorService.BUS_STATE, floors::onState);
         core.subscribe(FloorService.BUS_UNLOCK, floors::onUnlockAnnounce);
 
@@ -76,6 +96,7 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
         }
 
         AincradFloorsAPI.init(floors);
+        AincradFloorsAPI.game(game);
         getServer().getServicesManager().register(AincradFloorsAPI.class, AincradFloorsAPI.instance(), this, ServicePriority.Normal);
         if (pm.getPlugin("PlaceholderAPI") != null) {
             try {
@@ -90,6 +111,7 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         AincradFloorsAPI.init(null);
+        AincradFloorsAPI.game(null);
         getServer().getServicesManager().unregisterAll(this);
     }
 
@@ -99,6 +121,8 @@ public final class AincradFloorsPlugin extends JavaPlugin implements Listener {
         config.reload();
         floors.reload();
         floors.store().reloadAsync();
+        gameFile.reload();
+        game.refresh();
         event.reloaded(getName());
     }
 }

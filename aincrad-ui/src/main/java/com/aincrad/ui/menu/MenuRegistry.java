@@ -35,6 +35,12 @@ public final class MenuRegistry {
     private final Map<String, Group> groups = new LinkedHashMap<>();
     private final Map<String, Entry> entries = new LinkedHashMap<>();
     private final Map<String, ApiEntry> api = new ConcurrentHashMap<>();
+    private final java.util.function.BooleanSupplier deathGame;
+
+    /** @param deathGame com o jogo da morte valendo, a entrada de logout some do menu */
+    public MenuRegistry(java.util.function.BooleanSupplier deathGame) {
+        this.deathGame = deathGame;
+    }
 
     public void load(YamlConfiguration cfg) {
         groups.clear();
@@ -92,9 +98,10 @@ public final class MenuRegistry {
             return List.of();
         }
         List<Entry> out = new ArrayList<>();
+        boolean hideLogout = deathGame.getAsBoolean();
         for (String id : g.entries()) {
             Entry e = resolve(id);
-            if (e != null) {
+            if (e != null && !(hideLogout && "logout".equals(e.action()))) {
                 out.add(e);
             }
         }

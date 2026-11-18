@@ -302,7 +302,7 @@ public final class Screens {
     }
 
     private void logout(Player p, MenuSession s) {
-        if (plugin.settings().logoutDeathGame) {
+        if (plugin.deathGame()) {
             msg().send(p, "logout.death_game");
             return;
         }

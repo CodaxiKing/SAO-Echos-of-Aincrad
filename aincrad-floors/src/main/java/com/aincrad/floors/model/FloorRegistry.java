@@ -115,6 +115,15 @@ public final class FloorRegistry {
         return Collections.unmodifiableCollection(floors.values());
     }
 
+    /** O número do andar mais alto do arquivo (0 se não há nenhum). */
+    public int lastFloor() {
+        int max = 0;
+        for (Floor f : all()) {
+            max = Math.max(max, f.number());
+        }
+        return max;
+    }
+
     public int size() {
         return floors.size();
     }

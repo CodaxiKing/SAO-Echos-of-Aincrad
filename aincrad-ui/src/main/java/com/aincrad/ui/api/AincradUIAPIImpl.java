@@ -122,4 +122,14 @@ public final class AincradUIAPIImpl implements AincradUIAPI {
     public FlatApi flat() {
         return plugin.flat();
     }
+
+    @Override
+    public void setDeathGame(boolean ativo) {
+        plugin.deathGame(ativo);
+    }
+
+    @Override
+    public boolean isDeathGame() {
+        return plugin.deathGame();
+    }
 }

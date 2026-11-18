@@ -21,6 +21,7 @@ public final class AincradFloorsAPI {
 
     private static final AincradFloorsAPI INSTANCE = new AincradFloorsAPI();
     private static FloorService floors;
+    private static com.aincrad.floors.DeathGameService game;
 
     private AincradFloorsAPI() {
     }
@@ -75,7 +76,26 @@ public final class AincradFloorsAPI {
      * @return true se liberou agora (false: já estava, não existe ou foi cancelado)
      */
     public static boolean unlockFloor(int floor, Collection<UUID> participants) {
+        // O chefe do andar anterior caiu. Se era o andar final, o jogo acaba aqui e nada é liberado.
+        if (game != null && game.cleared(floor - 1, participants == null ? List.of() : participants)) {
+            return false;
+        }
         return floors != null && floors.unlock(floor, participants == null ? List.of() : participants) == FloorService.UnlockResult.OK;
+    }
+
+    /** Chamado pelo plugin ao ligar (e com null ao desligar). */
+    public static void game(com.aincrad.floors.DeathGameService service) {
+        game = service;
+    }
+
+    /** O dia do anúncio já aconteceu e o jogo ainda não foi vencido (o logout está escondido). */
+    public static boolean isDeathGame() {
+        return game != null && game.deathGame();
+    }
+
+    /** O chefe do andar final já caiu. */
+    public static boolean isGameWon() {
+        return game != null && game.ended();
     }
 
     public static boolean lockFloor(int floor) {

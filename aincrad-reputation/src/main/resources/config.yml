@@ -56,3 +56,9 @@ nome:
   #   auto — só quando o AincradSocial não está no servidor (ele usa o mesmo lugar para a tag da guilda)
   #   sim  — sempre      nao — nunca
   sobre_a_cabeca: auto
+
+# Monumento da Vida: o mural com o nome de todos os jogadores, riscado quando morrem.
+# O lugar é definido com /aincrad monumento definir.
+monumento:
+  # Quantos nomes o mural mostra por vez (as páginas passam a cada 10 segundos).
+  nomes_por_pagina: 16

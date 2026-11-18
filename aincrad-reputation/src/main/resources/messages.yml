@@ -57,7 +57,26 @@ prisao:
   definida: "<green>Prisão definida. Os presos aparecem onde você está."
   selecao: "<red>Marque os dois cantos da prisão com a varinha (<white>/aincrad varinha</white>) e fique dentro dela ao dar o comando."
 
+monumento:
+  titulo: "<gold><bold>Monumento da Vida</bold> <gray><vivos> vivos · <mortos> riscados <dark_gray>(<pagina>/<paginas>)"
+  vivo: "<white><jogador>"
+  riscado: "<dark_gray><st><jogador></st> <gray><data> · <causa>"
+  menu: "<dark_gray>Monumento (<vivos> vivos, <mortos> riscados)"
+  entrou: "<gray>Entrou em <white><data>"
+  morreu: "<red>Riscado em <white><data></white>: <causa>"
+  mortes: "<dark_gray>Mortes: <mortes>"
+  ninguem: "<gray>Nenhum nome com esse texto no monumento."
+  causa:
+    mob: "monstro"
+    chefe: "chefe"
+    jogador: "jogador"
+    queda: "queda"
+    outro: "outra causa"
+
 admin:
+  descricao_monumento: "Monumento da Vida: definir onde fica o mural"
+  uso_monumento: "<gray>Uso: <white>/aincrad monumento definir</white> <gray>(o mural aparece onde você está, virado para onde você olha)"
+  monumento_definido: "<green>Mural do Monumento da Vida definido."
   offline: "<red>Jogador não encontrado online."
   descricao_prisao: "Prisão: definir com a seleção da varinha"
   descricao_reputacao: "Reputação: limpar a cor do cursor de um jogador"

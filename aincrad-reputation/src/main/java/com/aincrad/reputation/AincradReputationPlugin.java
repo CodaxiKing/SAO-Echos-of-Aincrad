@@ -42,6 +42,7 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
     private Messages msg;
     private ReputationService reputation;
     private CursorService cursor;
+    private MonumentService monument;
     private final List<String> commands = new ArrayList<>();
 
     @Override
@@ -50,7 +51,9 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
         msg = core.messages(this);
         config = core.config(this, "config.yml");
         try {
-            core.database().migrate("reputation", ReputationService.MIGRATIONS);
+            List<String> steps = new ArrayList<>(ReputationService.MIGRATIONS);
+            steps.addAll(MonumentService.MIGRATIONS);
+            core.database().migrate("reputation", steps);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradReputation não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -63,6 +66,11 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(reputation, this);
         getServer().getPluginManager().registerEvents(cursor, this);
+        monument = new MonumentService(this, core.database(), msg, hooks);
+        monument.load(config.integer("monumento.nomes_por_pagina", 16, 4, 40));
+        getServer().getPluginManager().registerEvents(monument, this);
+        getServer().getScheduler().runTaskTimer(this, monument::tick, 100L, 200L);
+        getServer().getScheduler().runTaskTimer(this, monument::refresh, 1200L, 1200L);
 
         // As conquistas vêm dos eventos dos outros plugins: cada ouvinte só entra se o plugin dele está ligado.
         List<String> on = new ArrayList<>();
@@ -84,6 +92,46 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
                 msg.send(sender, "admin.offline");
             } else {
                 reputation.describe(sender, target);
+            }
+        });
+        command("monumento", List.of("monumentodavida"), (sender, args) ->
+                player(sender, p -> monument.menu(p, args.length == 0 ? null : args[0])));
+        core.commands().register(this, new SubCommand() {
+            @Override
+            public String name() {
+                return "monumento";
+            }
+
+            @Override
+            public String permission() {
+                return "aincrad.admin";
+            }
+
+            @Override
+            public String usage() {
+                return "monumento definir";
+            }
+
+            @Override
+            public Component description() {
+                return msg.get("admin.descricao_monumento");
+            }
+
+            @Override
+            public void execute(CommandSender sender, String[] args) {
+                if (!(sender instanceof Player p) || args.length == 0 || !args[0].equalsIgnoreCase("definir")) {
+                    msg.send(sender, "admin.uso_monumento");
+                    return;
+                }
+                monument.define(p);
+                msg.send(sender, "admin.monumento_definido");
+                log(sender, "monumento.definir", p.getWorld().getName() + " " + p.getLocation().getBlockX() + " "
+                        + p.getLocation().getBlockY() + " " + p.getLocation().getBlockZ());
+            }
+
+            @Override
+            public List<String> complete(CommandSender sender, String[] args) {
+                return args.length == 1 ? List.of("definir") : List.of();
             }
         });
         core.commands().register(this, prisonCommand());
@@ -258,6 +306,7 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
         msg.reload();
         config.reload();
         reputation.load();
+        monument.load(config.integer("monumento.nomes_por_pagina", 16, 4, 40));
         event.reloaded(getName());
     }
 
@@ -265,6 +314,9 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
     public void onDisable() {
         if (reputation != null) {
             reputation.shutdown();
+        }
+        if (monument != null) {
+            monument.removeBoard();
         }
         var known = getServer().getCommandMap().getKnownCommands();
         for (String name : commands) {

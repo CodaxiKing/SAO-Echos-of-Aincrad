@@ -32,6 +32,18 @@ public final class Hooks {
         }
     }
 
+    /** O id do chefe contra quem o jogador está lutando (null sem o AincradBosses, ou fora de luta). */
+    public String bossFight(org.bukkit.entity.Player p) {
+        if (!has("AincradBosses")) {
+            return null;
+        }
+        try {
+            return BossesBridge.fight(p);
+        } catch (LinkageError | RuntimeException e) {
+            return null;
+        }
+    }
+
     /** O andar do lugar (0 sem o AincradFloors, ou fora de qualquer andar). */
     public int floorAt(Location l) {
         if (!has("AincradFloors") || l == null) {

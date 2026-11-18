@@ -30,7 +30,8 @@ public final class AincradUIPlugin extends JavaPlugin {
     private UiSettings settings;
     private Messages messages;
     private GlyphRegistry glyphs;
-    private final MenuRegistry menu = new MenuRegistry();
+    private final MenuRegistry menu = new MenuRegistry(this::deathGame);
+    private volatile boolean deathGame;
     private EffectsBridge effects;
     private PackService pack;
     private PackStatusTracker packStatus;
@@ -132,6 +133,15 @@ public final class AincradUIPlugin extends JavaPlugin {
 
     public UiSettings settings() {
         return settings;
+    }
+
+    /** O jogo da morte está valendo: pelo ui.yml ou porque outro plugin ligou pela API. */
+    public boolean deathGame() {
+        return deathGame || (settings != null && settings.logoutDeathGame);
+    }
+
+    public void deathGame(boolean on) {
+        deathGame = on;
     }
 
     public Messages messages() {

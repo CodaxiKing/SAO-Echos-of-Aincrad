@@ -1,0 +1,43 @@
+# ============================================================
+#  O jogo da morte
+#  1. O dia do anúncio:  /aincrad anuncio iniciar   (uma vez)
+#  2. O fim de jogo:     quando o chefe do andar final cai
+#
+#  As falas são suas: escreva o discurso do seu servidor. Cada fala
+#  aparece no segundo "em" e pode ter titulo, subtitulo, chat e som.
+#  Com o AincradEffects, os efeitos "aincrad_anuncio",
+#  "aincrad_anuncio_curto" e "aincrad_vitoria" tocam junto, se existirem.
+# ============================================================
+anuncio:
+  # Leva todos para a chegada do andar 1 (a praça da Cidade do Início).
+  levar_para_a_praca: true
+  # A hora do céu durante o discurso, só para o jogador (13000 = fim da tarde; -1 = não mexe).
+  ceu: 13000
+  # Segundos entre a última fala e o fim (quando o logout some).
+  pausa_final: 4
+  falas:
+    - { em: 0,  titulo: "<red>Atenção, jogadores", subtitulo: "<gray>Bem-vindos ao meu mundo", som: "minecraft:block.bell.use" }
+    - { em: 6,  chat: "<red>O botão de logout sumiu do menu. Não é um defeito: é assim que este jogo foi feito." }
+    - { em: 12, chat: "<red>Não há como sair por conta própria. E, neste mundo, a morte é para valer." }
+    - { em: 18, titulo: "<red>Só há uma saída", subtitulo: "<gray>Vencer o chefe do andar final" }
+    - { em: 24, chat: "<gray>O jogo começou. Boa sorte.", som: "minecraft:entity.wither.spawn" }
+  # Para quem entra no servidor depois do anúncio (uma vez por jogador).
+  falas_curtas:
+    - { em: 0, titulo: "<red>Você está preso neste mundo", subtitulo: "<gray>O logout sumiu. A saída é vencer o andar final." }
+
+fim:
+  # O andar cujo chefe encerra o jogo. 0 = o último andar do floors.yml. No anime: 75.
+  andar_final: 0
+  # O que fazer com o mundo depois da vitória:
+  #   continuar  o mundo segue aberto e o logout volta
+  #   reiniciar  nova temporada: os andares voltam a ser bloqueados e o anúncio pode ser refeito
+  #              (level, itens e Col não são apagados)
+  #   fechar     depois de "fechar_depois_minutos", só os admins entram
+  ao_vencer: continuar
+  fechar_depois_minutos: 30
+  # Quantos nomes aparecem em cada lista dos créditos.
+  creditos_maximo: 60
+  pausa_final: 3
+  falas:
+    - { em: 0, titulo: "<gold>O jogo foi vencido", subtitulo: "<gray>O chefe do andar final caiu", som: "minecraft:ui.toast.challenge_complete" }
+    - { em: 6, chat: "<gold>Todos os jogadores que restam serão desconectados em segurança. Parabéns." }

@@ -76,4 +76,13 @@ public interface AincradUIAPI {
 
     /** Telas planas: desenhadas direto na tela, com cursor (como a loja). */
     FlatApi flat();
+
+    /**
+     * Liga ou desliga o jogo da morte: com ele ligado o logout some do menu. Vale até o servidor
+     * reiniciar; quem liga (o dia do anúncio do AincradFloors) chama de novo ao ligar.
+     * O {@code logout.modo_death_game} do ui.yml continua valendo por conta própria.
+     */
+    void setDeathGame(boolean ativo);
+
+    boolean isDeathGame();
 }
