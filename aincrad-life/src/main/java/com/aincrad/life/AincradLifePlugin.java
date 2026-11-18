@@ -84,6 +84,7 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
     private OrderService orders;
     private PetService pets;
     private MarriageService marriages;
+    private com.aincrad.life.escort.EscortService escorts;
     private final List<String> uiEntries = new ArrayList<>();
     private LifeCommands commands;
     private final List<Listener> moduleListeners = new ArrayList<>();
@@ -109,6 +110,7 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             core.database().migrate("life_stalls", StallService.MIGRATIONS);
             core.database().migrate("life_pets", PetService.MIGRATIONS);
             core.database().migrate("life_marriage", MarriageService.MIGRATIONS);
+            core.database().migrate("life_escort", com.aincrad.life.escort.EscortService.MIGRATIONS);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradLife não vai ligar: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -264,6 +266,20 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
             command("familiar", List.of("familiares", "pet"), pets::command);
             core.commands().register(this, commands.pet(pets));
         }
+        if (on("escolta")) {
+            // Contratos de escolta: precisam do AincradEconomy (o Col fica em custódia até a chegada).
+            escorts = new com.aincrad.life.escort.EscortService(this, msg, config, hooks);
+            if (hooks.hasEconomy()) {
+                try {
+                    escorts.recover();
+                } catch (SQLException e) {
+                    getLogger().warning("Não foi possível conferir os contratos de escolta interrompidos: " + e.getMessage());
+                }
+            }
+            listen(escorts);
+            moduleTasks.add(getServer().getScheduler().runTaskTimer(this, escorts::tick, 100L, 100L));
+            command("escolta", List.of("escoltar"), escorts::command);
+        }
         if (on("casamento")) {
             marriages = new MarriageService(this, msg, config, hooks);
             marriages.load();
@@ -412,6 +428,10 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         uiEntries.clear();
         if (marriages != null) {
             marriages.shutdown();
+        }
+        if (escorts != null) {
+            escorts.shutdown();
+            escorts = null;
         }
         if (panels != null) {
             panels.closeAll();

@@ -17,6 +17,8 @@ modulos:
   estalagens: true
   familiares: true
   casamento: true
+  # Contratos de escolta (/escolta). Precisa do AincradEconomy.
+  escolta: true
 
 estacoes:
   # Modelos 3D das bancadas (do resource pack). "auto" usa os modelos só quando o AincradEffects
@@ -442,3 +444,12 @@ sem_economia:
 rede:
   # Canal para trocar o jogador de servidor (quarto em outro servidor da rede).
   canal: "BungeeCord"
+
+# Contratos de escolta: um jogador paga outro para chegar vivo a uma região.
+escolta:
+  # Valor mínimo, em Col.
+  minimo: 50
+  # O escolta precisa estar a até tantos blocos do cliente para aceitar e na chegada.
+  distancia_maxima: 32
+  # Depois disto o contrato acaba: o Col volta e o escolta fica com uma falha.
+  tempo_maximo_minutos: 60

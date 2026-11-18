@@ -434,6 +434,26 @@ Um familiar é um mob pequeno domado que acompanha o dono. Um por jogador.
 
 `/casal` abre o menu com tudo isso.
 
+## Contratos de escolta (`config.yml → escolta`)
+
+Um jogador paga outro para chegar vivo a um lugar. Precisa do AincradEconomy. Etapa 48 do plano.
+
+| Comando | O que faz |
+|---|---|
+| `/escolta pedir <jogador> <região> <valor>` | Propõe o contrato; o Col sai do saldo e fica em custódia |
+| `/escolta aceitar` · `recusar` | O escolta responde (em até 1 minuto, perto do cliente) |
+| `/escolta cancelar` | O cliente desiste: o Col volta, sem falha para o escolta |
+| `/escolta desistir` | O escolta desiste: o Col volta e ele fica com uma falha |
+| `/escolta info [jogador]` | O histórico do escolta: concluídas, falhas e taxa de sucesso |
+
+- O destino é uma **região do core** (`/aincrad regiao criar`).
+- O escolta **recebe quando o cliente entra vivo na região, com ele a até `distancia_maxima`
+  blocos**. Se o cliente chega sozinho, o contrato espera o escolta chegar perto.
+- Se o **cliente morre**, o escolta morre ou sai, ou o tempo acaba (`tempo_maximo_minutos`), o Col
+  volta ao cliente e o escolta fica com uma **falha** no histórico — é a reputação dele.
+- Um contrato por jogador de cada vez, e os dois no mesmo servidor. Se o servidor cai no meio, o
+  Col volta ao cliente quando ele liga de novo.
+
 ## Menu do AincradUI
 
 Com o AincradUI no servidor, o AincradLife põe quatro entradas no menu dele: Profissões,
