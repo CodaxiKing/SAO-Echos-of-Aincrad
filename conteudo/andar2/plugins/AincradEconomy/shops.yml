@@ -1,0 +1,138 @@
+# ============================================================
+#  Lojas de NPC — ANDARES 1 e 2
+#  Pacote de conteúdo: copie para plugins/AincradEconomy/shops.yml.
+#
+#  Ligue cada loja a um bloco ou NPC olhando para ele:
+#    /aincrad loja criar <id>   (bloco)     /aincrad loja npc <id>   (entidade)
+#  item: material do Minecraft, ou "rpg:<id>" / "rpg:<id>:<raridade>" (items.yml do AincradRPG)
+#  compra: preço para o jogador comprar (sem = não vende)
+#  venda: quanto a loja paga ao jogador (sem = não compra)
+#  quantidade: quantos vêm por compra
+# ============================================================
+lojas:
+
+  # ---------------------------------------------------------- Cidade do Início
+  mercador_inicio:
+    titulo: "<dark_gray>Mercador — Cidade do Início"
+    itens:
+      - { item: BREAD, nome: "Pão", quantidade: 4, compra: 20, venda: 2 }
+      - { item: COOKED_PORKCHOP, nome: "Carne de Javali Assada", quantidade: 2, compra: 30 }
+      - { item: TORCH, nome: "Tocha", quantidade: 8, compra: 16 }
+      - { item: ARROW, nome: "Flecha", quantidade: 16, compra: 40 }
+      # O que os mobs dos campos soltam: é assim que o jogador novo junta os primeiros Col.
+      - { item: PORKCHOP, nome: "Carne de Javali", venda: 3 }
+      - { item: LEATHER, nome: "Couro", venda: 6 }
+      - { item: BONE, nome: "Osso", venda: 2 }
+      - { item: RABBIT_HIDE, nome: "Pele de Coelho", venda: 4 }
+      - { item: STRING, nome: "Linha", venda: 3 }
+      - { item: VINE, nome: "Cipó de Nepent", venda: 2 }
+  ferreiro_inicio:
+    titulo: "<dark_gray>Ferreiro — Cidade do Início"
+    itens:
+      - { item: "rpg:espada_pequena:comum", compra: 150 }
+      - { item: "rpg:adaga_de_ferro:comum", compra: 140 }
+      - { item: "rpg:florete_de_treino:comum", compra: 260 }
+      - { item: "rpg:machado_de_lenhador:comum", compra: 280 }
+      - { item: "rpg:lanca_curta:comum", compra: 280 }
+      - { item: "rpg:escudo_de_madeira:comum", compra: 120 }
+      - { item: IRON_NUGGET, nome: "Pepita de Ferro", venda: 2 }
+      - { item: IRON_INGOT, nome: "Barra de Ferro", compra: 60, venda: 15 }
+      - { item: COAL, nome: "Carvão", compra: 12, venda: 3 }
+  armeiro_inicio:
+    titulo: "<dark_gray>Armeiro — Cidade do Início"
+    itens:
+      - { item: "rpg:capuz_de_couro:comum", compra: 110 }
+      - { item: "rpg:casaco_couro:comum", compra: 320 }
+      - { item: "rpg:calcas_de_couro:comum", compra: 220 }
+      - { item: "rpg:botas_de_couro:comum", compra: 110 }
+  pescador_inicio:
+    titulo: "<dark_gray>Pescador — Cidade do Início"
+    itens:
+      - { item: FISHING_ROD, nome: "Vara Simples", compra: 90 }
+      - { item: WHEAT_SEEDS, nome: "Minhoca", quantidade: 8, compra: 24 }
+      - { item: COD, nome: "Peixe", venda: 5 }
+      - { item: SALMON, nome: "Salmão", venda: 8 }
+
+  # ---------------------------------------------------------- Horunka
+  mercador_horunka:
+    titulo: "<dark_gray>Mercador — Horunka"
+    itens:
+      - { item: BREAD, nome: "Pão", quantidade: 4, compra: 20 }
+      - { item: RABBIT_STEW, nome: "Ensopado da Vila", compra: 45 }
+      - { item: TORCH, nome: "Tocha", quantidade: 8, compra: 16 }
+      - { item: "rpg:espada_de_bronze:comum", compra: 620 }
+      - { item: "rpg:montante_de_ferro:comum", compra: 900 }
+      - { item: LEATHER, nome: "Couro", venda: 6 }
+      - { item: SPIDER_EYE, nome: "Olho de Aranha", venda: 8 }
+
+  # ---------------------------------------------------------- Tolbana
+  ferreiro_tolbana:
+    titulo: "<dark_gray>Ferreiro — Tolbana"
+    itens:
+      - { item: "rpg:adaga_do_cacador:comum", compra: 950 }
+      - { item: "rpg:florete_do_vento:comum", compra: 1400 }
+      - { item: "rpg:lanca_de_ferro:comum", compra: 1300 }
+      - { item: "rpg:broquel_de_ferro:comum", compra: 800 }
+      - { item: "rpg:elmo_kobold:comum", compra: 900 }
+      - { item: "rpg:cota_de_malha:comum", compra: 1800 }
+      - { item: IRON_NUGGET, nome: "Pepita de Ferro", venda: 2 }
+      - { item: IRON_INGOT, nome: "Barra de Ferro", compra: 60, venda: 15 }
+      - { item: RAW_IRON, nome: "Ferro Bruto", venda: 10 }
+  mercador_tolbana:
+    titulo: "<dark_gray>Mercador — Tolbana"
+    itens:
+      - { item: BREAD, nome: "Pão", quantidade: 4, compra: 20 }
+      - { item: COOKED_PORKCHOP, nome: "Carne de Javali Assada", quantidade: 2, compra: 30 }
+      - { item: TORCH, nome: "Tocha", quantidade: 8, compra: 16 }
+      - { item: ARROW, nome: "Flecha", quantidade: 16, compra: 40, venda: 1 }
+      - { item: FLINT, nome: "Pederneira", venda: 3 }
+
+  # ============================================================ ANDAR 2
+
+  # ---------------------------------------------------------- Urbus
+  mercador_urbus:
+    titulo: "<dark_gray>Mercador — Urbus"
+    itens:
+      - { item: BREAD, nome: "Pão", quantidade: 4, compra: 20 }
+      - { item: COOKED_BEEF, nome: "Bife de Boi do Planalto", quantidade: 2, compra: 40 }
+      - { item: TORCH, nome: "Tocha", quantidade: 8, compra: 16 }
+      - { item: ARROW, nome: "Flecha", quantidade: 16, compra: 40 }
+      - { item: BEEF, nome: "Carne de Boi", venda: 5 }
+      - { item: LEATHER, nome: "Couro", venda: 6 }
+      - { item: PHANTOM_MEMBRANE, nome: "Asa de Vespa", venda: 12 }
+      - { item: FEATHER, nome: "Pena", venda: 2 }
+  ferreiro_urbus:
+    titulo: "<dark_gray>Ferreiro — Urbus"
+    itens:
+      - { item: "rpg:espada_de_aco:comum", compra: 3200 }
+      - { item: "rpg:adaga_taurina:comum", compra: 2900 }
+      - { item: "rpg:florete_de_prata:comum", compra: 3800 }
+      - { item: "rpg:lanca_de_guerra:comum", compra: 3900 }
+      - { item: "rpg:escudo_de_aco:comum", compra: 2600 }
+      - { item: IRON_INGOT, nome: "Barra de Ferro", compra: 60, venda: 15 }
+      - { item: GOLD_NUGGET, nome: "Pepita de Ouro", venda: 4 }
+      - { item: GOLD_INGOT, nome: "Barra de Ouro", venda: 40 }
+  armeiro_urbus:
+    titulo: "<dark_gray>Armeiro — Urbus"
+    itens:
+      - { item: "rpg:couraca_de_couro_de_boi:comum", compra: 2400 }
+      - { item: "rpg:elmo_de_ferro:comum", compra: 2600 }
+      - { item: "rpg:botas_de_ferro:comum", compra: 2400 }
+
+  # ---------------------------------------------------------- Taran
+  ferreiro_taran:
+    titulo: "<dark_gray>Ferreiro — Taran"
+    itens:
+      - { item: "rpg:montante_de_aco:comum", compra: 5200 }
+      - { item: "rpg:peitoral_de_ferro:comum", compra: 5600 }
+      - { item: "rpg:grevas_de_ferro:comum", compra: 4200 }
+      - { item: IRON_INGOT, nome: "Barra de Ferro", compra: 60, venda: 15 }
+      - { item: IRON_NUGGET, nome: "Pepita de Ferro", venda: 2 }
+  mercador_taran:
+    titulo: "<dark_gray>Mercador — Taran"
+    itens:
+      - { item: BREAD, nome: "Pão", quantidade: 4, compra: 20 }
+      - { item: COOKED_BEEF, nome: "Bife de Boi do Planalto", quantidade: 2, compra: 40 }
+      - { item: TORCH, nome: "Tocha", quantidade: 8, compra: 16 }
+      - { item: STRING, nome: "Linha", venda: 3 }
+      - { item: SPIDER_EYE, nome: "Olho de Aranha", venda: 8 }

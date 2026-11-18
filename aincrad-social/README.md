@@ -188,8 +188,10 @@ as travas sabem de quem é a vez.
 - **Desfazer a guilda**: só com o cofre nas mãos do servidor onde o líder está. Com o cofre aberto
   em outro, o líder vê o aviso e tenta de novo.
 
-**Continua por servidor**, mesmo com o banco: os convites de guilda ainda não respondidos, os
-duelos e o limite diário de retiradas do cofre de cada membro. As outras mudanças feitas ao mesmo
+- **Convites de guilda**: vão junto com a guilda. Quem está em outro servidor é avisado lá e aceita lá.
+- **Amigos**: quem entra na rede por outro servidor é anunciado aos amigos (trocar de servidor não conta).
+
+**Continua por servidor**, mesmo com o banco: o limite diário de retiradas do cofre de cada membro. As outras mudanças feitas ao mesmo
 tempo na mesma guilda (cargos, opções) continuam valendo a primeira gravação.
 
 **Em arquivo**: gravado 5 s depois de cada mudança (fora da thread principal) e ao desligar, com
@@ -198,7 +200,6 @@ troca atômica do arquivo.
 ## Ficou para depois
 
 - Emblema como imagem do pack (hoje é um símbolo de texto) e banner da guilda (nível 5).
-- Aviso de amigo entrando ou saindo em outro servidor da rede.
 - O dono do drop (`por_vez`, `lider`) nunca perde a posse: se ele não pegar, o item some no tempo
   normal do Minecraft sem ficar livre para os outros.
 

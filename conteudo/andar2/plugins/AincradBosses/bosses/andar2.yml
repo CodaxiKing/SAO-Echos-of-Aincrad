@@ -1,0 +1,102 @@
+# ============================================================
+#  Chefes do ANDAR 2
+#  Pacote de conteúdo: copie para plugins/AincradBosses/bosses/andar2.yml.
+#
+#  Asterius the Taurus King, o chefe do andar, e o Bullbous Bow, o chefe de campo da pradaria.
+#  Como no anime, a luta começa contra o General e o Coronel; o Rei entra depois.
+#  Pensado para um grupo de 8 a 12 jogadores de level 18 a 20.
+# ============================================================
+asterius:
+  andar: 2
+  nome: "Asterius the Taurus King"
+  level: 20
+  mob: RAVAGER
+  vida: 1600
+  dano: 13
+  armadura: 9
+  velocidade: 0.26
+  resistencia_empurrao: 0.9
+  escala: 1.3
+  intro_segundos: 6
+  tempo_limite_segundos: 1200
+  anti_cristal: true
+  reaparece_horas: 8
+  fases:
+    - vida: 100
+      nome: "O General e o Coronel"
+      habilidades:
+        - { tipo: lacaios, recarga: 60, mob: IRON_GOLEM, quantidade: 1, level: 18, nome: "Baran the General Taurus" }
+        - { tipo: lacaios, recarga: 45, mob: ZOMBIE, quantidade: 2, level: 17, nome: "Nato the Colonel Taurus" }
+        - { tipo: area, recarga: 12, dano: 12, raio: 4.5, aviso_ticks: 30 }
+    - vida: 70
+      nome: "O Rei desce do trono"
+      mensagem: "<red><chefe> desce do trono e o chão treme!"
+      habilidades:
+        - { tipo: area, recarga: 10, dano: 14, raio: 5, aviso_ticks: 28 }
+        - { tipo: investida, recarga: 12, dano: 15, raio: 3.5 }
+        - { tipo: lacaios, recarga: 50, mob: ZOMBIE, quantidade: 2, level: 18, nome: "Nato the Colonel Taurus" }
+    - vida: 40
+      nome: "Sopro do Rei"
+      mensagem: "<dark_red><chefe> enche o peito: o sopro dele paralisa!"
+      dano_x: 1.15
+      habilidades:
+        - { tipo: projetil, recarga: 7, dano: 12, mob: bola_de_fogo }
+        - { tipo: investida, recarga: 10, dano: 16, raio: 3.5 }
+        - { tipo: area, recarga: 9, dano: 15, raio: 5, aviso_ticks: 25 }
+    - vida: 15
+      nome: "Fúria do touro"
+      mensagem: "<dark_red><chefe> baixa os chifres!"
+      dano_x: 1.3
+      velocidade_x: 1.3
+      habilidades:
+        - { tipo: investida, recarga: 7, dano: 18, raio: 4 }
+        - { tipo: salto, recarga: 11, dano: 17, raio: 5 }
+        - { tipo: furia, recarga: 25, segundos: 8, multiplicador: 1.5, nome: "<dark_red>Os olhos de <chefe> ardem em vermelho!" }
+  recompensas:
+    dano_minimo_pct: 4
+    xp: 2400
+    col: 1500
+    # Só para quem deu o golpe final: a coroa do Rei.
+    last_attack: "rpg:coroa_do_rei_taurus:lendario"
+    itens:
+      - { item: IRON_INGOT, quantidade: 24 }
+      - { item: GOLD_INGOT, quantidade: 8 }
+      - { item: GOLDEN_APPLE, quantidade: 6 }
+      - { item: "rpg:machado_taurino:raro", quantidade: 1 }
+      - { item: "rpg:peitoral_de_ferro:raro", quantidade: 1 }
+      - { item: "rpg:espada_de_aco:epico", quantidade: 1 }
+
+# Chefe de campo: pasta na Pradaria de Marome e volta 8 horas depois de derrotado (roaming.yml).
+bullbous_bow:
+  andar: 2
+  nome: "Bullbous Bow"
+  level: 14
+  mob: RAVAGER
+  vida: 520
+  dano: 10
+  armadura: 5
+  velocidade: 0.3
+  resistencia_empurrao: 0.7
+  escala: 1.1
+  intro_segundos: 2
+  anti_cristal: false
+  fases:
+    - vida: 100
+      nome: "Pastando"
+      habilidades:
+        - { tipo: investida, recarga: 10, dano: 11, raio: 3 }
+    - vida: 45
+      nome: "Estouro"
+      mensagem: "<red><chefe> escava o chão e dispara!"
+      velocidade_x: 1.25
+      habilidades:
+        - { tipo: investida, recarga: 7, dano: 13, raio: 3 }
+        - { tipo: area, recarga: 12, dano: 11, raio: 4, aviso_ticks: 25 }
+  recompensas:
+    dano_minimo_pct: 5
+    xp: 700
+    col: 400
+    itens:
+      - { item: LEATHER, quantidade: 10 }
+      - { item: BEEF, quantidade: 12 }
+      - { item: "rpg:couraca_de_couro_de_boi:raro", quantidade: 1 }

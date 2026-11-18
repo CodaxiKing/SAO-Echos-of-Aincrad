@@ -1,0 +1,358 @@
+# ============================================================
+#  Itens — ANDARES 1 e 2
+#  Pacote de conteúdo: copie para plugins/AincradRPG/items.yml.
+#
+#  Cada bônus tem uma faixa [mín, máx]; o valor sorteado é multiplicado pela raridade
+#  (config.yml → raridades).
+#  Bônus: dano, vida, armadura, resistencia, velocidade_ataque (%), velocidade (%)
+#  Bônus de combate (em %): critico, dano_critico, roubo_vida, esquiva, aparar
+#  slot: MAINHAND, OFFHAND, HEAD, CHEST, LEGS, FEET
+#  drop (opcional): chance por abate de mob com level na faixa.
+#
+#  O nome escolhe o tipo de arma das Sword Skills (config.yml do AincradSkills):
+#  "Adaga", "Florete", "Lança", "Montante" e "Machado" no nome; o resto das espadas é "espada".
+# ============================================================
+itens:
+
+  # ---------------------------------------------------------- espadas de uma mão
+  espada_pequena:
+    material: IRON_SWORD
+    nome: "Small Sword"
+    level_minimo: 1
+    slot: MAINHAND
+    bonus:
+      dano: [1, 2]
+    drop: { chance: 0.02, level_mob: [1, 5] }
+  espada_de_bronze:
+    material: GOLDEN_SWORD
+    nome: "Bronze Sword"
+    level_minimo: 3
+    slot: MAINHAND
+    bonus:
+      dano: [2, 3]
+      critico: [0, 2]
+    drop: { chance: 0.01, level_mob: [3, 7] }
+  # A recompensa da quest "O remédio secreto da floresta". Também cai, muito raramente.
+  anneal_blade:
+    material: IRON_SWORD
+    nome: "Anneal Blade"
+    level_minimo: 5
+    slot: MAINHAND
+    bonus:
+      dano: [3, 5]
+      velocidade_ataque: [0, 6]
+      critico: [2, 5]
+      aparar: [0, 4]
+    drop: { chance: 0.003, level_mob: [5, 10] }
+
+  # ---------------------------------------------------------- adagas
+  adaga_de_ferro:
+    material: IRON_SWORD
+    nome: "Adaga de Ferro"
+    level_minimo: 1
+    slot: MAINHAND
+    bonus:
+      dano: [1, 1]
+      velocidade_ataque: [6, 12]
+    drop: { chance: 0.015, level_mob: [1, 5] }
+  adaga_do_cacador:
+    material: IRON_SWORD
+    nome: "Adaga do Caçador"
+    level_minimo: 4
+    slot: MAINHAND
+    bonus:
+      dano: [2, 3]
+      velocidade_ataque: [8, 14]
+      critico: [3, 6]
+    drop: { chance: 0.008, level_mob: [4, 8] }
+
+  # ---------------------------------------------------------- floretes
+  florete_de_treino:
+    material: IRON_SWORD
+    nome: "Florete de Treino"
+    level_minimo: 2
+    slot: MAINHAND
+    bonus:
+      dano: [1, 2]
+      velocidade_ataque: [4, 8]
+    drop: { chance: 0.012, level_mob: [2, 6] }
+  florete_do_vento:
+    material: IRON_SWORD
+    nome: "Florete do Vento"
+    level_minimo: 5
+    slot: MAINHAND
+    bonus:
+      dano: [2, 4]
+      velocidade_ataque: [6, 12]
+      esquiva: [1, 3]
+    drop: { chance: 0.004, level_mob: [5, 10] }
+
+  # ---------------------------------------------------------- machados
+  machado_de_lenhador:
+    material: IRON_AXE
+    nome: "Machado de Lenhador"
+    level_minimo: 2
+    slot: MAINHAND
+    bonus:
+      dano: [2, 3]
+    drop: { chance: 0.012, level_mob: [2, 6] }
+  # Só cai dos Sentinelas do topo do labirinto (spawns.yml).
+  machado_kobold:
+    material: IRON_AXE
+    nome: "Machado de Guerra Kobold"
+    level_minimo: 6
+    slot: MAINHAND
+    bonus:
+      dano: [4, 6]
+      dano_critico: [5, 10]
+
+  # ---------------------------------------------------------- lanças
+  lanca_curta:
+    material: TRIDENT
+    nome: "Lança Curta"
+    level_minimo: 2
+    slot: MAINHAND
+    bonus:
+      dano: [1, 3]
+    drop: { chance: 0.01, level_mob: [2, 6] }
+  lanca_de_ferro:
+    material: TRIDENT
+    nome: "Lança de Ferro"
+    level_minimo: 5
+    slot: MAINHAND
+    bonus:
+      dano: [3, 4]
+      aparar: [2, 5]
+    drop: { chance: 0.006, level_mob: [5, 10] }
+
+  # ---------------------------------------------------------- duas mãos
+  montante_de_ferro:
+    material: IRON_SWORD
+    nome: "Montante de Ferro"
+    level_minimo: 4
+    slot: MAINHAND
+    bonus:
+      dano: [3, 5]
+    drop: { chance: 0.006, level_mob: [4, 9] }
+
+  # ---------------------------------------------------------- escudos
+  escudo_de_madeira:
+    material: SHIELD
+    nome: "Escudo de Madeira"
+    level_minimo: 1
+    slot: OFFHAND
+    bonus:
+      armadura: [1, 1]
+      aparar: [2, 4]
+    drop: { chance: 0.01, level_mob: [1, 5] }
+  broquel_de_ferro:
+    material: SHIELD
+    nome: "Broquel de Ferro"
+    level_minimo: 5
+    slot: OFFHAND
+    bonus:
+      armadura: [1, 2]
+      aparar: [4, 8]
+    drop: { chance: 0.006, level_mob: [5, 10] }
+
+  # ---------------------------------------------------------- armaduras
+  capuz_de_couro:
+    material: LEATHER_HELMET
+    nome: "Capuz de Couro"
+    level_minimo: 1
+    slot: HEAD
+    bonus:
+      vida: [1, 2]
+    drop: { chance: 0.012, level_mob: [1, 5] }
+  casaco_couro:
+    material: LEATHER_CHESTPLATE
+    nome: "Casaco de Couro"
+    level_minimo: 3
+    slot: CHEST
+    bonus:
+      vida: [2, 4]
+      armadura: [0, 1]
+      esquiva: [1, 3]
+    drop: { chance: 0.01, level_mob: [2, 8] }
+  calcas_de_couro:
+    material: LEATHER_LEGGINGS
+    nome: "Calças de Couro"
+    level_minimo: 2
+    slot: LEGS
+    bonus:
+      vida: [1, 3]
+    drop: { chance: 0.01, level_mob: [2, 6] }
+  botas_de_couro:
+    material: LEATHER_BOOTS
+    nome: "Botas de Couro"
+    level_minimo: 1
+    slot: FEET
+    bonus:
+      velocidade: [1, 3]
+      esquiva: [0, 2]
+    drop: { chance: 0.012, level_mob: [1, 5] }
+  elmo_kobold:
+    material: CHAINMAIL_HELMET
+    nome: "Elmo Kobold"
+    level_minimo: 6
+    slot: HEAD
+    bonus:
+      vida: [1, 2]
+      armadura: [1, 2]
+    drop: { chance: 0.008, level_mob: [6, 10] }
+  cota_de_malha:
+    material: CHAINMAIL_CHESTPLATE
+    nome: "Cota de Malha"
+    level_minimo: 6
+    slot: CHEST
+    bonus:
+      vida: [3, 5]
+      armadura: [2, 3]
+    drop: { chance: 0.005, level_mob: [6, 10] }
+
+  # O bônus de Last Attack do Illfang (bosses/andar1.yml). Não cai de mob nenhum.
+  casaco_da_meia_noite:
+    material: LEATHER_CHESTPLATE
+    nome: "Coat of Midnight"
+    level_minimo: 8
+    slot: CHEST
+    bonus:
+      vida: [5, 7]
+      armadura: [2, 3]
+      esquiva: [4, 6]
+      velocidade: [2, 4]
+
+  # ============================================================ ANDAR 2 (level 10 a 20)
+
+  espada_de_aco:
+    material: IRON_SWORD
+    nome: "Steel Sword"
+    level_minimo: 10
+    slot: MAINHAND
+    bonus:
+      dano: [5, 7]
+      critico: [2, 4]
+    drop: { chance: 0.008, level_mob: [10, 16] }
+  # A recompensa da quest "A rocha do eremita".
+  lamina_do_eremita:
+    material: IRON_SWORD
+    nome: "Lâmina do Eremita"
+    level_minimo: 13
+    slot: MAINHAND
+    bonus:
+      dano: [6, 8]
+      velocidade_ataque: [4, 8]
+      aparar: [3, 6]
+  adaga_taurina:
+    material: IRON_SWORD
+    nome: "Adaga de Chifre"
+    level_minimo: 11
+    slot: MAINHAND
+    bonus:
+      dano: [3, 5]
+      velocidade_ataque: [10, 16]
+      critico: [4, 8]
+    drop: { chance: 0.006, level_mob: [11, 17] }
+  florete_de_prata:
+    material: IRON_SWORD
+    nome: "Florete de Prata"
+    level_minimo: 12
+    slot: MAINHAND
+    bonus:
+      dano: [4, 6]
+      velocidade_ataque: [8, 14]
+      esquiva: [2, 4]
+    drop: { chance: 0.004, level_mob: [12, 19] }
+  # Só cai dos Taurus Ironguards do labirinto (spawns.yml).
+  machado_taurino:
+    material: IRON_AXE
+    nome: "Machado Taurino"
+    level_minimo: 16
+    slot: MAINHAND
+    bonus:
+      dano: [8, 11]
+      dano_critico: [8, 14]
+  lanca_de_guerra:
+    material: TRIDENT
+    nome: "Lança de Guerra"
+    level_minimo: 13
+    slot: MAINHAND
+    bonus:
+      dano: [6, 8]
+      aparar: [3, 6]
+    drop: { chance: 0.005, level_mob: [13, 19] }
+  montante_de_aco:
+    material: IRON_SWORD
+    nome: "Montante de Aço"
+    level_minimo: 14
+    slot: MAINHAND
+    bonus:
+      dano: [8, 10]
+    drop: { chance: 0.004, level_mob: [14, 19] }
+  escudo_de_aco:
+    material: SHIELD
+    nome: "Escudo de Aço"
+    level_minimo: 12
+    slot: OFFHAND
+    bonus:
+      armadura: [2, 3]
+      aparar: [6, 10]
+    drop: { chance: 0.005, level_mob: [12, 19] }
+  elmo_de_ferro:
+    material: IRON_HELMET
+    nome: "Elmo de Ferro"
+    level_minimo: 11
+    slot: HEAD
+    bonus:
+      vida: [2, 3]
+      armadura: [2, 3]
+    drop: { chance: 0.006, level_mob: [11, 17] }
+  peitoral_de_ferro:
+    material: IRON_CHESTPLATE
+    nome: "Peitoral de Ferro"
+    level_minimo: 13
+    slot: CHEST
+    bonus:
+      vida: [5, 8]
+      armadura: [4, 6]
+    drop: { chance: 0.004, level_mob: [13, 19] }
+  grevas_de_ferro:
+    material: IRON_LEGGINGS
+    nome: "Grevas de Ferro"
+    level_minimo: 12
+    slot: LEGS
+    bonus:
+      vida: [3, 5]
+      armadura: [3, 4]
+    drop: { chance: 0.005, level_mob: [12, 18] }
+  botas_de_ferro:
+    material: IRON_BOOTS
+    nome: "Botas de Ferro"
+    level_minimo: 11
+    slot: FEET
+    bonus:
+      armadura: [1, 2]
+      velocidade: [1, 3]
+    drop: { chance: 0.006, level_mob: [11, 17] }
+  couraca_de_couro_de_boi:
+    material: LEATHER_CHESTPLATE
+    nome: "Couraça de Couro de Boi"
+    level_minimo: 10
+    slot: CHEST
+    bonus:
+      vida: [4, 6]
+      armadura: [1, 2]
+      esquiva: [3, 5]
+    drop: { chance: 0.006, level_mob: [10, 16] }
+
+  # O bônus de Last Attack do Asterius (bosses/andar2.yml). Não cai de mob nenhum.
+  coroa_do_rei_taurus:
+    material: GOLDEN_HELMET
+    nome: "Crown of the Taurus King"
+    level_minimo: 18
+    slot: HEAD
+    bonus:
+      vida: [6, 8]
+      armadura: [3, 4]
+      dano: [1, 2]
+      resistencia: [1, 2]

@@ -1,0 +1,228 @@
+# ============================================================
+#  Quests do ANDAR 1
+#  Pacote de conteúdo: copie para plugins/AincradQuests/quests/andar1.yml
+#  e APAGUE o quests/exemplo.yml (as quests dele pedem um NPC "guarda" que este pacote não usa).
+#
+#  A história leva o jogador da praça da Cidade do Início até a sala do Illfang:
+#    Cidade do Início → Campos do Oeste → Horunka → Floresta → Tolbana → Labirinto → Chefe
+#
+#  NPCs que precisam existir (/aincrad npc criar <id> <nome>):
+#    instrutor, guarda_inicio, curtidor, estalajadeiro, pescador   (Cidade do Início)
+#    mae_de_agatha                                                (Horunka)
+#    diabel                                                       (Tolbana)
+#  Regiões usadas em "chegar": horunka, tolbana, labirinto_andar1
+#  Os alvos de "matar" são os "id" das linhas do spawns.yml do AincradRPG.
+# ============================================================
+
+# ---------------------------------------------------------------- história
+
+primeiro_dia:
+  nome: "O primeiro dia"
+  descricao: "O instrutor da praça ensina o básico a quem acabou de chegar."
+  tipo: historia
+  npc: instrutor
+  etapas:
+    - { tipo: matar, alvo: javali_frenetico, quantidade: 3, texto: "Derrote 3 Frenzy Boars nos Campos do Oeste" }
+    - { tipo: falar, npc: instrutor, texto: "Volte ao instrutor" }
+  recompensas:
+    xp: 40
+    col: 60
+    itens: ["BREAD 4"]
+
+caca_aos_javalis:
+  nome: "Caça aos javalis"
+  descricao: "A estalagem precisa de carne, e os javalis estão por toda parte."
+  tipo: historia
+  npc: estalajadeiro
+  requisitos:
+    quest: primeiro_dia
+  etapas:
+    - { tipo: matar, alvo: javali_frenetico, quantidade: 8, texto: "Derrote 8 Frenzy Boars" }
+    - { tipo: entregar, item: PORKCHOP, quantidade: 5, texto: "Leve 5 carnes de javali ao estalajadeiro" }
+  recompensas:
+    xp: 90
+    col: 90
+    itens: ["COOKED_PORKCHOP 4"]
+
+lobos_na_estrada:
+  nome: "Lobos na estrada"
+  descricao: "Depois que escurece, os lobos atacam quem sai pelo portão."
+  tipo: historia
+  npc: guarda_inicio
+  requisitos:
+    quest: primeiro_dia
+    level: 2
+  etapas:
+    - { tipo: matar, alvo: lobo_terrivel, quantidade: 6, texto: "Derrote 6 Dire Wolves (saem à noite nos campos)" }
+  recompensas:
+    xp: 140
+    col: 110
+
+peles_para_o_curtidor:
+  nome: "Peles para o curtidor"
+  descricao: "O curtidor troca um casaco por couro suficiente para fazer três."
+  tipo: historia
+  npc: curtidor
+  requisitos:
+    quest: lobos_na_estrada
+  etapas:
+    - { tipo: coletar, item: LEATHER, quantidade: 6, texto: "Consiga 6 couros" }
+    - { tipo: entregar, item: LEATHER, quantidade: 6, texto: "Leve os 6 couros ao curtidor" }
+  recompensas:
+    xp: 120
+    col: 60
+    itens: ["rpg:casaco_couro"]
+
+caminho_para_horunka:
+  nome: "O caminho para Horunka"
+  descricao: "O guarda fala de uma vila na beira da floresta, a noroeste, onde vendem espadas melhores."
+  tipo: historia
+  npc: guarda_inicio
+  requisitos:
+    quest: lobos_na_estrada
+    level: 3
+  etapas:
+    - { tipo: chegar, regiao: horunka, texto: "Chegue à vila de Horunka" }
+    - { tipo: falar, npc: mae_de_agatha, texto: "Fale com a mulher da casa no fim da rua" }
+  recompensas:
+    xp: 150
+    col: 80
+
+# A quest da Anneal Blade. O óvulo cai, com sorte, dos Little Nepents da floresta.
+remedio_secreto_da_floresta:
+  nome: "O remédio secreto da floresta"
+  descricao: "A filha dela está doente, e o remédio pede o óvulo de um Little Nepent."
+  tipo: historia
+  npc: mae_de_agatha
+  requisitos:
+    quest: caminho_para_horunka
+  etapas:
+    - { tipo: matar, alvo: little_nepent, quantidade: 10, texto: "Derrote Little Nepents na Floresta de Horunka" }
+    - { tipo: coletar, item: SPORE_BLOSSOM, quantidade: 1, texto: "Encontre um Óvulo de Little Nepent" }
+    - { tipo: entregar, item: SPORE_BLOSSOM, quantidade: 1, texto: "Leve o óvulo à mãe da Agatha" }
+  recompensas:
+    xp: 400
+    col: 150
+    itens: ["rpg:anneal_blade"]
+
+estrada_para_tolbana:
+  nome: "A estrada para Tolbana"
+  descricao: "Dizem que os primeiros jogadores já acharam a torre do labirinto, perto de Tolbana."
+  tipo: historia
+  npc: mae_de_agatha
+  requisitos:
+    quest: caminho_para_horunka
+    level: 5
+  etapas:
+    - { tipo: chegar, regiao: tolbana, texto: "Atravesse a planície até Tolbana" }
+    - { tipo: falar, npc: diabel, texto: "Procure o cavaleiro de cabelo azul na praça" }
+  recompensas:
+    xp: 220
+    col: 120
+
+batedores_do_labirinto:
+  nome: "Batedores do labirinto"
+  descricao: "Diabel quer saber o que há dentro da torre antes de chamar todo mundo."
+  tipo: historia
+  party: true
+  npc: diabel
+  requisitos:
+    quest: estrada_para_tolbana
+    level: 6
+  etapas:
+    - { tipo: chegar, regiao: labirinto_andar1, texto: "Entre no labirinto" }
+    - { tipo: matar, alvo: kobold_soldado, quantidade: 12, texto: "Derrote 12 Ruin Kobold Troopers" }
+    - { tipo: falar, npc: diabel, texto: "Conte a Diabel o que viu" }
+  recompensas:
+    xp: 500
+    col: 300
+    itens: ["rpg:broquel_de_ferro"]
+
+a_porta_do_chefe:
+  nome: "A porta do chefe"
+  descricao: "No topo da torre, os Sentinelas guardam uma porta dupla enorme."
+  tipo: historia
+  party: true
+  npc: diabel
+  requisitos:
+    quest: batedores_do_labirinto
+    level: 8
+  etapas:
+    - { tipo: matar, alvo: kobold_sentinela, quantidade: 8, texto: "Derrote 8 Ruin Kobold Sentinels no topo do labirinto" }
+    - { tipo: falar, npc: diabel, texto: "Volte para a reunião em Tolbana" }
+  recompensas:
+    xp: 650
+    col: 400
+
+o_senhor_dos_kobolds:
+  nome: "O senhor dos kobolds"
+  descricao: "A reunião acabou. Falta abrir a porta."
+  tipo: historia
+  party: true
+  npc: diabel
+  requisitos:
+    quest: a_porta_do_chefe
+  etapas:
+    - { tipo: chefe, alvo: illfang, texto: "Derrote Illfang the Kobold Lord" }
+  recompensas:
+    xp: 1000
+    col: 800
+    itens: ["GOLDEN_APPLE 2"]
+
+# ---------------------------------------------------------------- diárias
+
+ronda_dos_campos:
+  nome: "Ronda dos campos"
+  descricao: "Mantenha os campos limpos. Vale para a party inteira."
+  tipo: diaria
+  party: true
+  npc: guarda_inicio
+  requisitos:
+    quest: primeiro_dia
+  etapas:
+    - { tipo: matar, quantidade: 15, texto: "Derrote 15 monstros" }
+  recompensas:
+    xp: 80
+    col: 60
+
+carne_para_a_estalagem:
+  nome: "Carne para a estalagem"
+  descricao: "O ensopado da noite não se faz sozinho."
+  tipo: diaria
+  npc: estalajadeiro
+  requisitos:
+    quest: caca_aos_javalis
+  etapas:
+    - { tipo: entregar, item: PORKCHOP, quantidade: 8, texto: "Leve 8 carnes de javali ao estalajadeiro" }
+  recompensas:
+    xp: 70
+    col: 70
+
+peixe_fresco:
+  nome: "Peixe fresco"
+  descricao: "O pescador paga bem por quem ajuda a encher o barril."
+  tipo: diaria
+  npc: pescador
+  etapas:
+    - { tipo: pescar, quantidade: 3, texto: "Pesque 3 peixes" }
+  recompensas:
+    xp: 60
+    col: 80
+
+# ---------------------------------------------------------------- semanal
+
+limpeza_do_labirinto:
+  nome: "Limpeza do labirinto"
+  descricao: "Quanto menos kobolds na torre, mais gente chega viva à porta."
+  tipo: semanal
+  party: true
+  npc: diabel
+  requisitos:
+    quest: batedores_do_labirinto
+  etapas:
+    - { tipo: matar, alvo: kobold_soldado, quantidade: 40, texto: "Derrote 40 Ruin Kobold Troopers" }
+    - { tipo: matar, alvo: kobold_sentinela, quantidade: 10, texto: "Derrote 10 Ruin Kobold Sentinels" }
+  recompensas:
+    xp: 900
+    col: 600
+    itens: ["IRON_INGOT 6"]

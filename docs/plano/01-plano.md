@@ -538,7 +538,7 @@ Terceira leva. Começa depois da etapa 30.
 
 ## O que ainda falta
 
-Estado em 18/11/2026. **Todas as etapas numeradas do plano (0 a 59) têm código.** Os quinze projetos compilam sem avisos e os 347 testes de regras passam. **Nada, da etapa 22 em diante, foi testado num servidor de verdade** — nem com um banco MySQL, nem com o MythicMobs, o ModelEngine ou um webhook do Discord de verdade. É o que falta fazer antes de abrir o servidor.
+Estado em 18/11/2026. **Todas as etapas numeradas do plano (0 a 59) têm código.** Os duelos saíram do AincradSocial e viraram o AincradDuels. Os dezesseis projetos compilam sem avisos e os 347 testes de regras passam. **Nada, da etapa 22 em diante, foi testado num servidor de verdade** — nem com um banco MySQL, nem com o MythicMobs, o ModelEngine ou um webhook do Discord de verdade. É o que falta fazer antes de abrir o servidor.
 
 O que entrou por último, por plugin:
 
@@ -558,7 +558,7 @@ O que entrou por último, por plugin:
 **O que continua por fazer**
 
 1. **Testar num servidor.** Cada README diz o que o plugin faz e termina com o que ficou diferente do plano. As ligações feitas por reflexão (MythicMobs, ModelEngine, AincradUI, AincradSocial, AincradEffects, AincradItems) são as que mais precisam de teste.
-2. **Os pacotes de conteúdo por andar (A1, A2…).** O A1 está em `conteudo/andar1`: cinco regiões de mobs, 21 itens, sete lojas, o Illfang com quatro barras e 14 quests, com o guia para montar o mapa. Carrega sem erro nos testes, mas ainda não foi jogado: falta equilibrar, e faltam as receitas, os projetos de forja e as fórmulas próprios do andar. O mapa é construído pelo dono. Os andares 2 em diante ainda não existem.
+2. **Os pacotes de conteúdo por andar (A1, A2…).** O A1 está em `conteudo/andar1` e o A2 em `conteudo/andar2` (que já soma o A1): regiões de mobs, itens, lojas, o chefe do andar com um chefe de campo, e as quests, cada um com o guia para montar o mapa. Carregam sem erro nos testes, mas nenhum foi jogado: falta equilibrar, e faltam as receitas, os projetos de forja e as fórmulas próprios de cada andar. O mapa é construído pelo dono. Os andares 3 a 100 ainda não existem.
 3. **Decisões tomadas** (18/11/2026): o servidor **não tem morte permanente** (o Monumento da Vida separa quem nunca caiu de quem já caiu), o andar final é o **100** e, depois da vitória, **o mundo continua**. Os modelos 3D entram pelo **ItemsAdder**, pelo **ModelEngine** e pelo **MythicMobs**.
 4. **O que as etapas deixaram de diferente do plano**, anotado no README de cada plugin. Os principais: as chaves e os mapas de dungeon ficaram no AincradBosses, não no AincradItems; a base escondida das guildas de crime é um raio em volta de um ponto, no AincradReputation; as guildas vão para o banco como um documento por guilda, e não nas sete tabelas do plano. Nas árvores do AincradLife todos os nós têm efeito, mas alguns foram interpretados (a lista está no README dele).
 5. **Equilíbrio.** Os números (dano das skills, preços, chances, multiplicadores da noite) são pontos de partida. O dia e noite e o clima mexem em mobs e drops do servidor inteiro: o plano os deixa para depois do andar 1 jogado, e dá para desligar os dois.

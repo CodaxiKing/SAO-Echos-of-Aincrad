@@ -27,7 +27,11 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 Os plugins dão os sistemas; o conteúdo de cada andar vem em pacotes de arquivos de configuração.
 
 - [conteudo/andar1](conteudo/andar1/README.md) — o andar 1: mobs, itens, lojas, Illfang e as quests,
-  com o guia para montar o mapa. Carrega sem erro nos testes; ainda não foi jogado.
+  com o guia para montar o mapa.
+- [conteudo/andar2](conteudo/andar2/README.md) — o andar 2 (Urbus, os Taurus, Asterius), **somado ao
+  andar 1**: quem instala este não precisa do outro.
+
+Os dois carregam sem erro nos testes; nenhum foi jogado.
 
 ## Plano
 
@@ -39,7 +43,7 @@ O plano de desenvolvimento (cópia do documento em https://claude.ai/artifact/A2
 
 ## Compilar
 
-Em cada pasta (o `aincrad-social` compila junto com o `aincrad-ui` e o `aincrad-core`, de quem usa as APIs):
+Em cada pasta (cada projeto puxa os vizinhos de que usa a API):
 
 ```bash
 ./gradlew build
