@@ -1,12 +1,17 @@
 # AincradAdmin
 
-Ferramentas do dono do servidor. Não muda o jogo: **registra as ações de administração** dos outros
-plugins Aincrad — quem fez, quando, o quê e em qual servidor. Etapa 28 do plano.
+Ferramentas do dono do servidor. Não muda o jogo:
+
+- **registra as ações de administração** dos outros plugins Aincrad — quem fez, quando, o quê e em
+  qual servidor (etapa 28);
+- faz o **backup diário** das configs, dos dados e do banco SQLite, e **restaura** uma data (etapa 30);
+- mostra o **estado da rede** em `/aincrad status` (etapa 30).
 
 Precisa do **AincradCore**. Não depende de nenhum outro plugin: os outros disparam o
 `AincradAdminActionEvent` do core, e este plugin só ouve.
 
-> Compila e passa nos testes de regras, mas **ainda não foi testado num servidor de verdade**.
+> Compila e passa nos testes — o de backup faz a ida e a volta em disco com um SQLite de verdade —,
+> mas **ainda não foi testado num servidor de verdade**.
 
 ## O que entra no registro
 
@@ -21,11 +26,12 @@ Toda ação que um plugin Aincrad anuncia com o `AincradAdminActionEvent`. Hoje:
 | `items` | dar cristal |
 | `life` | comandos de admin das profissões |
 | `reputation` | definir prisão, limpar reputação, dar título e conquista |
+| `admin` | backup feito à mão e restauração pedida |
 
 Cada linha guarda a data, o autor (jogador ou console), o plugin, a ação (`andar.liberar`), o
 detalhe (`andar 5`) e o nome do servidor. Fica no banco do core, então vale para a rede inteira.
 
-## Comando
+## Registro: `/aincrad log`
 
 | Comando | O que faz | Permissão |
 |---|---|---|
@@ -36,6 +42,50 @@ detalhe (`andar 5`) e o nome do servidor. Fica no banco do core, então vale par
 
 Um número no fim é sempre a página: `/aincrad log 2`, `/aincrad log Kirito 2`.
 
+As linhas mais velhas que `registro.guardar_dias` são apagadas ao ligar e a cada seis horas.
+
+## Backup: `/aincrad backup`
+
+| Comando | O que faz |
+|---|---|
+| `/aincrad backup agora` | Faz um backup já |
+| `/aincrad backup listar` | Os backups guardados, com tamanho e motivo |
+| `/aincrad backup restaurar <data>` | Restaura um backup (pede confirmação) |
+
+**O que entra**: os `.yml`, `.yaml` e `.json` da pasta de cada plugin Aincrad (menos o resource
+pack gerado e caches) e uma cópia consistente do banco **SQLite**, tirada com o banco em uso. Fica
+em `plugins/AincradAdmin/backups/<dia>_<hora>/`, por exemplo `2026-11-18_0400`.
+
+**Quando**: uma vez por dia, na primeira vez que o servidor está ligado depois de `backup.hora`, se
+ainda não há backup daquele dia. Os com mais de `backup.guardar_dias` (14) são apagados.
+
+**Restaurar**:
+
+1. Só com o servidor **sem jogadores** (na prática, pelo console).
+2. `/aincrad backup restaurar 2026-11-18` — só o dia vale pelo backup mais novo daquele dia; o nome
+   inteiro (`2026-11-18_0400`) escolhe um. O plugin mostra o que vai voltar.
+3. Repita com `confirmar` no fim, em até 1 minuto.
+4. O plugin faz um backup do estado atual (restaurar o backup errado também tem volta), marca a
+   restauração e **desliga o servidor**.
+5. Ao ligar de novo, os arquivos voltam ao lugar **antes de qualquer plugin ligar** — por isso
+   nenhum plugin grava por cima o que tinha na memória.
+
+Limites:
+
+- **MySQL não entra.** Com o banco em MySQL, o backup guarda só os arquivos; faça o backup do banco
+  pelo próprio MySQL (`mysqldump`). O comando avisa.
+- A restauração põe os arquivos do backup por cima dos atuais; um arquivo criado **depois** do
+  backup não é apagado.
+- O `config.yml` do core entra no backup, com a senha do MySQL que estiver nele. A pasta de backups
+  merece o mesmo cuidado que a pasta de plugins.
+- Não é um backup do mapa: os mundos ficam de fora.
+
+## Estado: `/aincrad status`
+
+Mostra o nome do servidor e o tipo de banco; cada plugin Aincrad com a versão (ligado, desligado ou
+não instalado); as integrações opcionais (Vault, PlaceholderAPI, floodgate, LuckPerms, MythicMobs,
+ModelEngine) e quais plugins as usam; o último backup; e o tamanho do `.zip` do resource pack.
+
 ## Config (`config.yml`)
 
 ```yaml
@@ -44,9 +94,12 @@ registro:
   por_pagina: 10
   console: true        # também escreve cada ação no console
   formato_data: "dd/MM/yyyy HH:mm"
-```
 
-As linhas mais velhas que `guardar_dias` são apagadas ao ligar e a cada seis horas.
+backup:
+  diario: true
+  hora: "04:00"
+  guardar_dias: 14     # 0 = para sempre
+```
 
 ## Banco
 
@@ -57,7 +110,6 @@ do core.
 
 - **Entrega de item raro** no registro: o plano pede, mas nenhum plugin anuncia isso ainda.
 - **Etapa 29**: Discord por webhook e ranking em site.
-- **Etapa 30**: backup, restauração e `/aincrad status`.
 
 ## Compilar
 

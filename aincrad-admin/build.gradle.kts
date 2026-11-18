@@ -16,6 +16,8 @@ dependencies {
     compileOnly("com.aincrad:aincrad-core:0.1.0")
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    // O teste do backup tira uma cópia de um SQLite de verdade.
+    testImplementation("org.xerial:sqlite-jdbc:3.49.1.0")
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

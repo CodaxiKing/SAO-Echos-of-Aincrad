@@ -2,11 +2,11 @@ name: AincradAdmin
 version: '${version}'
 main: com.aincrad.admin.AincradAdminPlugin
 api-version: '1.21'
-description: Ferramentas do dono do servidor Aincrad - registro das ações de administração.
+description: Ferramentas do dono do servidor Aincrad - registro das ações de administração, backup e estado da rede.
 authors: [CodaxiKing]
 depend: [AincradCore]
 
 permissions:
   aincrad.admin:
-    description: Comandos de administração do Aincrad (/aincrad log).
+    description: Comandos de administração do Aincrad (/aincrad log, backup, status).
     default: op

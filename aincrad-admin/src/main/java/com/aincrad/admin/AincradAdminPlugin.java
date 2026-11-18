@@ -1,5 +1,6 @@
 package com.aincrad.admin;
 
+import com.aincrad.admin.model.BackupRules;
 import com.aincrad.admin.model.LogRules.Entry;
 import com.aincrad.admin.model.LogRules.Filter;
 import com.aincrad.core.AincradCore;
@@ -17,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,20 +28,28 @@ import java.util.logging.Level;
 
 /**
  * AincradAdmin: ferramentas do dono. Não muda o jogo — registra as ações de administração dos
- * outros plugins Aincrad (etapa 28). Discord, ranking em site e backup vêm nas etapas 29 e 30.
+ * outros plugins Aincrad (etapa 28), faz o backup diário e mostra o estado da rede (etapa 30).
+ * Discord e ranking em site vêm na etapa 29.
  */
 public final class AincradAdminPlugin extends JavaPlugin implements Listener {
 
     private static final String DEFAULT_DATE = "dd/MM/yyyy HH:mm";
     /** Os nomes curtos que os plugins usam no evento, para o Tab. */
-    private static final List<String> PLUGINS = List.of("floors", "rpg", "economy", "bosses", "items", "life", "reputation");
+    private static final List<String> PLUGINS = List.of("floors", "rpg", "economy", "bosses", "items", "life", "reputation", "admin");
 
     private ConfigFile config;
     private Messages msg;
     private LogService log;
+    private BackupService backups;
     private int perPage;
     private int keepDays;
     private DateTimeFormatter date;
+
+    /** Antes de qualquer plugin ligar: uma restauração pedida volta os arquivos ao lugar. */
+    @Override
+    public void onLoad() {
+        BackupService.applyPending(this);
+    }
 
     @Override
     public void onEnable() {
@@ -54,10 +64,15 @@ public final class AincradAdminPlugin extends JavaPlugin implements Listener {
             return;
         }
         log = new LogService(this, core.database());
+        backups = new BackupService(this);
         settings();
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(log, this);
         core.commands().register(this, new LogCommand());
+        core.commands().register(this, new BackupCommand(this, msg, backups));
+        core.commands().register(this, new StatusCommand(msg, backups));
+        // O backup do dia: confere a cada minuto se já passou da hora.
+        getServer().getScheduler().runTaskTimer(this, backups::tick, 600L, 1200L);
 
         // Limpa o que passou do prazo ao ligar e a cada seis horas.
         long sixHours = 6L * 60 * 60 * 20;
@@ -75,6 +90,13 @@ public final class AincradAdminPlugin extends JavaPlugin implements Listener {
             getLogger().warning("config.yml: registro.formato_data inválido ('" + pattern + "'), usando " + DEFAULT_DATE);
             date = DateTimeFormatter.ofPattern(DEFAULT_DATE).withZone(ZoneId.systemDefault());
         }
+        String hour = config.string("backup.hora", "04:00");
+        LocalTime at = BackupRules.time(hour);
+        if (at == null) {
+            getLogger().warning("config.yml: backup.hora inválida ('" + hour + "'), usando 04:00");
+            at = LocalTime.of(4, 0);
+        }
+        backups.settings(config.bool("backup.diario", true), at, config.integer("backup.guardar_dias", 14, 0, 3650));
     }
 
     @EventHandler
