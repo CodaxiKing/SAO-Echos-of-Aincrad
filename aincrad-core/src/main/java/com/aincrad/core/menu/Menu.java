@@ -26,18 +26,37 @@ public final class Menu {
      * Um item clicável. {@code lore} são as linhas embaixo do nome; {@code action} null = só mostra.
      * {@code closeOnClick}: fecha o menu antes de rodar a ação.
      */
-    public record Button(ItemStack icon, Component name, List<Component> lore, Consumer<Player> action, boolean closeOnClick) {
+    public record Button(ItemStack icon, Component name, List<Component> lore, Consumer<Player> action, boolean closeOnClick,
+                         String category, java.util.Map<String, Double> sorts) {
 
         public static Button of(ItemStack icon, Component name, Consumer<Player> action) {
-            return new Button(icon, name, List.of(), action, false);
+            return new Button(icon, name, List.of(), action, false, null, java.util.Map.of());
         }
 
         public Button lore(List<Component> lines) {
-            return new Button(icon, name, List.copyOf(lines), action, closeOnClick);
+            return new Button(icon, name, List.copyOf(lines), action, closeOnClick, category, sorts);
         }
 
         public Button closing() {
-            return new Button(icon, name, lore, action, true);
+            return new Button(icon, name, lore, action, true, category, sorts);
+        }
+
+        /**
+         * A aba deste item (ex.: "Comprar", "Vender"). Com mais de uma categoria no menu, a
+         * interface flutuante ganha um botão de filtro; no baú, nada muda.
+         */
+        public Button category(String name) {
+            return new Button(icon, name(), lore, action, closeOnClick, name, sorts);
+        }
+
+        /**
+         * Um valor para ordenar a lista (ex.: {@code sort("Preço", 120)}). A interface flutuante
+         * ganha um botão de ordem com cada nome usado no menu; no baú, nada muda.
+         */
+        public Button sort(String key, double value) {
+            java.util.Map<String, Double> m = new java.util.LinkedHashMap<>(sorts);
+            m.put(key, value);
+            return new Button(icon, name, lore, action, closeOnClick, category, java.util.Collections.unmodifiableMap(m));
         }
     }
 

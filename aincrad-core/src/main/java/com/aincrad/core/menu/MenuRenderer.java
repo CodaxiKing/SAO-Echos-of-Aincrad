@@ -37,4 +37,15 @@ public interface MenuRenderer {
                             java.util.function.Consumer<Player> yes, java.util.function.Consumer<Player> no) {
         return false;
     }
+
+    /**
+     * Mostra a janela de escolher uma quantidade (− e +) deste renderizador. Por padrão não tem:
+     * o core monta um menu comum com os mesmos botões.
+     *
+     * @return true se a janela foi aberta
+     */
+    default boolean amount(Player player, net.kyori.adventure.text.Component title, long min, long max, long start, long step,
+                           java.util.function.Consumer<Long> chosen) {
+        return false;
+    }
 }

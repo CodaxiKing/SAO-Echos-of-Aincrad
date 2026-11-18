@@ -58,6 +58,18 @@ public interface AincradUIAPI {
      */
     void openWindow(Player player, Component titulo, java.util.List<Component> linhas, java.util.List<UiList.Button> botoes);
 
+    /**
+     * Janela para escolher uma quantidade sem digitar: −10, −1, +1, +10 (vezes {@code passo}) e
+     * confirmar. Abre por cima da tela atual; agachar cancela.
+     */
+    void openAmount(Player player, Component titulo, long min, long max, long inicial, long passo, java.util.function.LongConsumer escolhido);
+
+    /**
+     * Aviso que aparece no canto da tela e some sozinho (item recebido, quest atualizada...).
+     * Quem está sem a HUD em barras recebe no action bar.
+     */
+    void toast(Player player, Component titulo, Component detalhe);
+
     /** Volta uma tela (fecha o menu se for a primeira). */
     void back(Player player);
 

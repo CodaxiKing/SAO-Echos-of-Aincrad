@@ -75,6 +75,8 @@ public final class AincradCorePlugin extends JavaPlugin implements Listener {
 
         ChestMenuRenderer chest = new ChestMenuRenderer(this, coreMessages);
         menus = new MenuService(chest, coreMessages);
+        // Quem joga no Bedrock recebe formulários nativos no lugar do baú.
+        menus.register(new com.aincrad.core.menu.BedrockMenuRenderer(this));
         profiles = new ProfileService(this, database);
         profiles.loadOnlineSync();
 

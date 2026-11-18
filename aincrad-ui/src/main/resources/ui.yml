@@ -22,6 +22,9 @@ menu:
   fechar_ao_levar_dano: true
   # Mostra o painel de perfil (silhueta com o equipamento) à esquerda da coluna de ícones.
   painel_perfil: true
+  # Convite de party e desafio de duelo abrem a janela de aceitar/recusar na frente do jogador
+  # (só se ele não está com um menu aberto). false deixa só o aviso no chat.
+  janela_de_convite: true
 
 hud:
   ativo: true
@@ -36,6 +39,28 @@ hud:
     hotbar_redonda: true
     # Esconde corações, fome, armadura e a barra de XP do Minecraft (a HUD já mostra).
     esconder_vanilla: true
+  # O que vem a seguir só aparece na HUD em barras (estilo: barras), para quem tem o pack.
+  # Alvo: nome e vida do mob em que o jogador bateu ou que ele mira, no alto da tela. O nome sai
+  # na cor do cursor (rosa claro = bem mais fraco que o jogador; carmesim = bem mais forte), pelo
+  # level do AincradRPG.
+  alvo:
+    ativo: true
+    # Até que distância o olhar pega um alvo.
+    distancia: 20
+    # Alvos com esta vida máxima ou mais são chefes: a vida aparece em várias barras.
+    chefe_vida: 300
+    chefe_barras: 4
+  # Hora do servidor e data (a estação do AincradWorld, se instalado) no canto de cima.
+  relogio: true
+  # Faixa com N, S, L, O no alto da tela, e um ponto para cada membro da party.
+  bussola: true
+  # Recarga das Sword Skills equipadas, no canto de baixo (precisa do AincradSkills).
+  recargas: true
+  # Avisos que aparecem no canto e somem: item recebido, level, quest concluída, conquista.
+  avisos:
+    ativo: true
+    itens: true
+    segundos: 4
   # De quantos em quantos ticks a barra é atualizada (20 ticks = 1 s).
   intervalo_ticks: 4
   # Segmentos da barra para quem está SEM o pack (com o pack, são as 20 fatias da arte).

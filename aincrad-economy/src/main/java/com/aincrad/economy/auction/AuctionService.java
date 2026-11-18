@@ -183,12 +183,20 @@ public final class AuctionService {
                 }
                 AincradCore.get().menus().confirm(pl, msg.get("leilao.confirmar", eco.col(l.price()),
                         Placeholder.component("item", name(it))), yes -> buy(yes, l), no -> openMarket(no));
-            }).lore(lore));
+            }).lore(lore)
+                    // Abas e ordem (na interface flutuante).
+                    .category(plain(l.seller().equals(p.getUniqueId()) ? "leilao.aba_meus" : "leilao.aba_venda"))
+                    .sort(plain("leilao.ordem_preco"), l.price())
+                    .sort(plain("leilao.ordem_tempo"), l.expires()));
         }
         menu.button(Menu.Button.of(ItemBuilder.of(Material.CHEST).build(), msg.get("leilao.botao_retirar"), this::openMailbox));
         menu.button(Menu.Button.of(ItemBuilder.of(Material.SUNFLOWER).build(), msg.get("leilao.botao_atualizar"), pl -> openMarket(pl)));
         menu.button(Menu.Button.of(ItemBuilder.of(Material.OAK_DOOR).build(), msg.get("leilao.fechar"), pl -> { }).closing());
         AincradCore.get().menus().open(p, menu);
+    }
+
+    private String plain(String key) {
+        return net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(msg.get(key));
     }
 
     private void buy(Player p, Listing l) {

@@ -1,5 +1,7 @@
 package com.aincrad.economy.trade;
 
+import com.aincrad.core.AincradCore;
+import net.kyori.adventure.text.Component;
 import com.aincrad.core.message.Messages;
 import com.aincrad.core.util.ItemBuilder;
 import com.aincrad.economy.EconomyService;
@@ -121,7 +123,11 @@ public final class TradeService implements Listener {
     }
 
     private void open(Player a, Player b) {
-        TradeSession s = new TradeSession(a, b, msg.get("troca.titulo", Messages.vars("a", a.getName(), "b", b.getName())));
+        Component plainTitle = msg.get("troca.titulo", Messages.vars("a", a.getName(), "b", b.getName()));
+        // O inventário é um só para os dois: o fundo da interface entra quando os dois o veem.
+        Component ta = AincradCore.get().ui().chestTitle(a, plainTitle, 6);
+        Component tb = AincradCore.get().ui().chestTitle(b, plainTitle, 6);
+        TradeSession s = new TradeSession(a, b, !ta.equals(plainTitle) && !tb.equals(plainTitle) ? ta : plainTitle);
         sessions.put(a.getUniqueId(), s);
         sessions.put(b.getUniqueId(), s);
         ItemStack sep = ItemBuilder.of(Material.GRAY_STAINED_GLASS_PANE).name(msg.get("troca.separador")).build();

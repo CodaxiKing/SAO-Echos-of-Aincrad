@@ -490,7 +490,8 @@ public final class ReputationService implements Listener {
             }
             if (keys.isEmpty()) {
                 menu.item(Menu.Button.of(new ItemStack(Material.GRAY_DYE), msg.get("conquista.item_falta", Messages.vars("conquista", clean(d.name()))),
-                        pl -> { }).lore(List.of(msg.get("conquista.descricao", Messages.vars("descricao", clean(d.description()))))));
+                        pl -> { }).lore(List.of(msg.get("conquista.descricao", Messages.vars("descricao", clean(d.description())))))
+                        .category(plainText("conquista.aba_falta")));
                 continue;
             }
             for (String k : keys) {
@@ -507,10 +508,14 @@ public final class ReputationService implements Listener {
                     lore.add(msg.get("conquista.libera", Messages.vars("titulo", title)));
                 }
                 menu.item(Menu.Button.of(new ItemStack(Material.LIME_DYE), msg.get("conquista.item_tem", Messages.vars("conquista", Def.fill(d.name(), floor))),
-                        pl -> { }).lore(lore));
+                        pl -> { }).lore(lore).category(plainText("conquista.aba_tem")));
             }
         }
         AincradCore.get().menus().open(p, menu);
+    }
+
+    private String plainText(String key) {
+        return net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(msg.get(key));
     }
 
     private static String clean(String text) {

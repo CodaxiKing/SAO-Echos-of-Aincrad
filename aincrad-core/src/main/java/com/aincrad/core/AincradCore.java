@@ -38,6 +38,7 @@ public final class AincradCore {
 
     private final AincradCorePlugin plugin;
     private final Map<String, Messages> messages = new ConcurrentHashMap<>();
+    private final com.aincrad.core.ui.UiService ui = new com.aincrad.core.ui.UiService();
 
     AincradCore(AincradCorePlugin plugin) {
         this.plugin = plugin;
@@ -98,6 +99,11 @@ public final class AincradCore {
 
     public MenuService menus() {
         return plugin.menus();
+    }
+
+    /** O que os plugins pedem à interface do jogador (o AincradUI, se instalado). */
+    public com.aincrad.core.ui.UiService ui() {
+        return ui;
     }
 
     public ProfileService profiles() {

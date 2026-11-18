@@ -298,11 +298,12 @@ final class GuildUi {
                     Placeholder.unparsed("valor", e.detail().isEmpty() ? String.valueOf(e.amount()) : e.detail())));
         }
         List<UiList.Button> buttons = new ArrayList<>();
+        // Sem digitar: a janela de quantidade, de 100 em 100 Col.
         buttons.add(new UiList.Button("buttons/plus", msg().get("menu_guilda.depositar"), pl ->
-                ask(pl, "menu_guilda.digite_valor", v -> amount(pl, v, true))));
+                ui.openAmount(pl, msg().get("menu_guilda.depositar"), 100, 10_000_000, 100, 100, v -> gm().deposit(pl, v))));
         if (svc().has(p.getUniqueId(), GuildPerm.TESOURO)) {
             buttons.add(new UiList.Button("buttons/minus", msg().get("menu_guilda.sacar"), pl ->
-                    ask(pl, "menu_guilda.digite_valor", v -> amount(pl, v, false))));
+                    ui.openAmount(pl, msg().get("menu_guilda.sacar"), 100, 10_000_000, 100, 100, v -> gm().withdraw(pl, v))));
         }
         buttons.add(back());
         ui.openWindow(p, msg().get("menu_guilda.tesouro_titulo"), lines, buttons);

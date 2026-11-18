@@ -21,6 +21,12 @@ pagar:
   falhou: "<red>O pagamento não foi feito."
 
 loja:
+  aba_comprar: "Comprar"
+  aba_vender: "Vender"
+  ordem_preco: "Preço"
+  comprar_qtd: "<green>Comprar outra quantidade"
+  vender_qtd: "<gold>Vender outra quantidade"
+  qtd_titulo: "<dark_gray>Quantas vezes?"
   comprar_lore: "<gray>Comprar: <yellow><col></yellow> <dark_gray>(<qtd>x)"
   vender_lore: "<gray>Vender: <yellow><col></yellow> <dark_gray>(<qtd>x)"
   clique_lore: "<yellow>Clique para negociar"
@@ -77,6 +83,11 @@ troca:
   separador: " "
 
 leilao:
+  entrada: "<white>Leilão"
+  aba_venda: "À venda"
+  aba_meus: "Meus anúncios"
+  ordem_preco: "Preço"
+  ordem_tempo: "Termina antes"
   uso: "<gray>Uso: <white>/leilao</white>, <white>/leilao vender <preço> [horas]</white> (item da mão), <white>/leilao retirar"
   titulo: "<dark_gray>Leilão"
   retirar_titulo: "<dark_gray>Caixa de retirada"

@@ -66,6 +66,7 @@ public final class AincradBossesPlugin extends JavaPlugin implements Listener {
         maze = new MazeService(this, config, hooks);
         guide = new GuideStore(core.database());
         raids = new RaidService(this, fights, config, core.database());
+        core.ui().menuEntry("raid", "under_icons/dungeon", msg.get("raid.entrada"), "party", pl -> raids.openBoard(pl));
         try {
             guide.loadBlocking();
             raids.loadBlocking();

@@ -84,6 +84,7 @@ public final class SkillEngine implements Listener {
 
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
     private final Map<UUID, Long> frozen = new HashMap<>();
+    private final Map<UUID, Long> frozenFor = new HashMap<>();
     private final Map<UUID, Long> armed = new HashMap<>();
     private final Set<UUID> casting = new HashSet<>();
 
@@ -180,6 +181,16 @@ public final class SkillEngine implements Listener {
     public boolean frozen(Player p) {
         Long until = frozen.get(p.getUniqueId());
         return until != null && until > System.currentTimeMillis();
+    }
+
+    /** Quanto falta da pausa depois da skill, de 0 (livre) a 1 (acabou de usar). Para a HUD. */
+    public double pauseLeft(Player p) {
+        Long until = frozen.get(p.getUniqueId());
+        Long total = frozenFor.get(p.getUniqueId());
+        if (until == null || total == null || total <= 0) {
+            return 0;
+        }
+        return Math.max(0, Math.min(1, (until - System.currentTimeMillis()) / (double) total));
     }
 
     public long cooldown(Player p, String skill) {
@@ -291,6 +302,7 @@ public final class SkillEngine implements Listener {
                 // A pausa depois do uso: travado, sem atacar nem usar outra skill.
                 if (complete && def.freezeMs() > 0 && p.isOnline()) {
                     frozen.put(id, System.currentTimeMillis() + def.freezeMs());
+                    frozenFor.put(id, def.freezeMs());
                     int ticks = (int) Math.max(1, def.freezeMs() / 50);
                     p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, ticks, 6, false, false, false));
                 }

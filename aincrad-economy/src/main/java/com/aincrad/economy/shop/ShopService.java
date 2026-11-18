@@ -245,7 +245,10 @@ public final class ShopService implements Listener {
                 lore.add(msg.get("loja.vender_lore", eco.col(o.sell()), Messages.vars("qtd", 1)));
             }
             lore.add(msg.get("loja.clique_lore"));
-            menu.item(Menu.Button.of(icon, name(icon), pl -> detail(pl, shop, o)).lore(lore));
+            // Abas e ordem (na interface flutuante): o que a loja vende, o que ela compra, e por preço.
+            menu.item(Menu.Button.of(icon, name(icon), pl -> detail(pl, shop, o)).lore(lore)
+                    .category(plain(o.buy() >= 0 ? "loja.aba_comprar" : "loja.aba_vender"))
+                    .sort(plain("loja.ordem_preco"), o.buy() >= 0 ? o.buy() : o.sell()));
         }
         menu.button(Menu.Button.of(ItemBuilder.of(Material.OAK_DOOR).build(), msg.get("loja.fechar"), pl -> { }).closing());
         AincradCore.get().menus().open(p, menu);
@@ -276,6 +279,16 @@ public final class ShopService implements Listener {
                         }));
             }
         }
+        if (o.buy() >= 0) {
+            int most = Math.max(1, icon.getMaxStackSize() / o.amount()) * 4;
+            if (most > 1) {
+                menu.item(Menu.Button.of(ItemBuilder.of(Material.LIME_DYE).amount(2).build(), msg.get("loja.comprar_qtd"), pl ->
+                        AincradCore.get().menus().amount(pl, msg.get("loja.qtd_titulo"), 1, most, 1, 1, n -> {
+                            buy(pl, o, n.intValue());
+                            detail(pl, shop, o);
+                        })));
+            }
+        }
         if (o.sell() >= 0) {
             int have = count(p, o);
             menu.item(Menu.Button.of(ItemBuilder.of(Material.GOLD_NUGGET).build(),
@@ -283,6 +296,13 @@ public final class ShopService implements Listener {
                         sell(pl, o, 1);
                         detail(pl, shop, o);
                     }));
+            if (have > 2) {
+                menu.item(Menu.Button.of(ItemBuilder.of(Material.GOLD_NUGGET).amount(2).build(), msg.get("loja.vender_qtd"), pl ->
+                        AincradCore.get().menus().amount(pl, msg.get("loja.qtd_titulo"), 1, count(pl, o), 1, 1, n -> {
+                            sell(pl, o, Math.min(n.intValue(), count(pl, o)));
+                            detail(pl, shop, o);
+                        })));
+            }
             if (have > 1) {
                 menu.item(Menu.Button.of(ItemBuilder.of(Material.GOLD_INGOT).build(),
                         msg.get("loja.vender_tudo", eco.col(o.sell() * have), Messages.vars("qtd", have)), pl -> {
@@ -293,6 +313,11 @@ public final class ShopService implements Listener {
         }
         menu.button(Menu.Button.of(ItemBuilder.of(Material.ARROW).build(), msg.get("loja.voltar"), pl -> open(pl, shop.id())));
         AincradCore.get().menus().open(p, menu);
+    }
+
+    /** O texto de uma mensagem sem formatação, para os nomes de aba e de ordem. */
+    private String plain(String key) {
+        return net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(msg.get(key));
     }
 
     Component name(ItemStack it) {

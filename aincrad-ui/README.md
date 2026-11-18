@@ -97,6 +97,45 @@ Limites (por ser fonte, não shader):
 (`FlatEngineTest`) geram um pack de verdade, simulam o desenho do jogo (`FlatPreview`) e conferem
 as posições no pixel; as prévias ficam em `build/preview/`.
 
+## O que a HUD em barras mostra além da vida
+
+Tudo aqui é da HUD em barras (`hud.estilo: barras`), para quem tem o pack, e cada peça liga e
+desliga no `ui.yml`. A prévia `build/preview/hud_completa.png`, gerada pelos testes, mostra tudo junto.
+
+- **Alvo** (`hud.alvo`): no alto da tela, o nome e a vida do mob em que o jogador bateu (ou que
+  bateu nele) nos últimos segundos; sem isso, do que ele mira. O quadrado ao lado do nome e as
+  barras saem na **cor do cursor**, pela diferença de level do AincradRPG: rosa claro (10 levels
+  ou mais abaixo do jogador), rosa, vermelho (até 2 de diferença), vermelho escuro e carmesim
+  (7 ou mais acima). Alvos com `chefe_vida` de vida máxima ou mais mostram `chefe_barras` barras,
+  que esvaziam de cima para baixo.
+- **Bússola** (`hud.bussola`): a faixa com N, S, L e O no alto, e um traço verde para cada colega
+  de party que está à frente (até 70° para cada lado).
+- **Relógio** (`hud.relogio`): a hora do servidor e, embaixo, a estação e o dia do AincradWorld
+  (sem ele, o dia e o mês).
+- **Avisos** (`hud.avisos`): janelinhas no canto direito que somem sozinhas, até três de cada vez —
+  item recebido, level novo (AincradRPG), quest concluída (AincradQuests) e conquista
+  (AincradReputation). Quem está sem a HUD em barras recebe no action bar.
+- **Recargas** (`hud.recargas`): as Sword Skills equipadas, no canto de baixo, com a barra
+  enchendo conforme a recarga passa. A barra azul da HUD mostra a pausa depois da skill (cheia =
+  livre); sem o AincradSkills, continua mostrando a fome.
+- **Posição por jogador**: em Opções, os botões − e + puxam a HUD para a esquerda ou para a
+  direita de 8 em 8 pixels (as duas bordas andam juntas). A posição certa depende da resolução e
+  da escala de interface de cada um, e fica guardada no jogador.
+
+## Janelas
+
+- **Confirmação**: a janela com a pergunta e os botões redondos de aceitar e recusar. Toda
+  confirmação dos plugins Aincrad passa por ela.
+- **Convites** (`menu.janela_de_convite`): convite de party e desafio de duelo abrem a mesma
+  janela na frente do jogador, se ele não está com um menu aberto. O aviso no chat continua.
+- **Quantidade**: para escolher um número sem digitar — o valor no meio, −100, −10, −1 à esquerda,
+  +1, +10, +100 à direita (vezes o passo) e o botão de confirmar. A loja (comprar e vender várias
+  vezes) e o tesouro da guilda (depositar e sacar) usam.
+- **Listas com abas e ordem**: quando um menu dos outros plugins tem categorias ou valores para
+  ordenar, a lista ganha os botões **Filtro** e **Ordem**, que giram entre as opções. A loja tem
+  as abas Comprar e Vender e ordena por preço; o leilão tem À venda e Meus anúncios e ordena por
+  preço ou por quem termina antes; as conquistas têm Conquistadas e Faltam.
+
 ## Como funciona
 
 - **Abrir**: agachar + clique esquerdo com a mão vazia, ou `/menu`.
@@ -141,6 +180,9 @@ as posições no pixel; as prévias ficam em `build/preview/`.
 redireciona `/aincrad ui ...` para ele, com ou sem o AincradFloors instalado.
 
 ## API para outros plugins
+
+Novos: `openAmount(jogador, título, mín, máx, inicial, passo, escolhido)`, `toast(jogador, título,
+detalhe)` e `UiList.Row.lore(linhas)` (a descrição inteira, mostrada ao lado da linha em foco).
 
 Além das entradas do menu, outros plugins montam telas SAO com listas, janelas e confirmações, e
 podem mostrar membros de party embaixo da barra de vida (o AincradSocial usa tudo isso):
@@ -201,9 +243,13 @@ continua valendo por conta própria. `isDeathGame()` diz se está ligado.
 ## Ficou para depois
 
 - Modelo 3D da barra de vida (health_bar.glb, Sockona, CC BY 4.0): precisa de conversão.
-- Quests, mapa e skills: aparecem com cadeado até um plugin registrar (party, amigos, guilda e
-  mensagens já são ligados pelo AincradSocial).
-- Relógio e data no canto de baixo (como no SAO Utils).
+- Troca entre jogadores no formato do anime (dois lados flutuando): hoje a troca é o baú, com a
+  janela branca do SAO de fundo quando os dois têm o pack. O cofre da guilda e o baú do casamento
+  continuam com a cara do Minecraft (são inventários de vários donos e de 3 linhas).
+- Alvo, bússola, relógio, avisos e recargas na HUD do estilo `sao` (a moldura do anime): só a HUD
+  em barras tem.
+- Marcador da quest na bússola (ela mostra só os colegas de party) e a posição vertical da HUD
+  por jogador (só a horizontal muda).
 - Menu desenhado na tela (2D) com shaders próprios, como alternativa ao menu no mundo.
 
 ## Desenvolvimento
@@ -229,4 +275,9 @@ menu tem imagem no pack.
 - **Linha de rastreio**: `setTrackerProvider` põe uma linha de texto embaixo da barra de vida; o
   AincradQuests mostra ali a quest rastreada.
 - **Entradas do menu**: Quests (AincradQuests), Status (AincradRPG), party, amigos e guilda
-  (AincradSocial), Mapa (AincradFloors).
+  (AincradSocial), Mapa (AincradFloors), Skills (AincradSkills), Duelos (AincradDuels), Raids
+  (AincradBosses), Títulos e Conquistas (AincradReputation), Leilão (AincradEconomy) e Jornal
+  (AincradWorld).
+- **Pelo AincradCore** (`AincradCore.get().ui()`): os plugins pedem a entrada no menu, o aviso na
+  tela, a janela de convite, as recargas e o fundo de um baú sem depender do AincradUI. Sem ele,
+  cada pedido tem uma saída simples (action bar, título comum) ou não faz nada.

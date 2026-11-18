@@ -72,6 +72,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
             }
         }
         AuctionService auction = new AuctionService(this, eco, core.database());
+        core.ui().menuEntry("leilao", "under_icons/items", core.messages(this).get("leilao.entrada"), "mapa", pl -> pl.performCommand("leilao"));
         HouseService houses = new HouseService(this, eco, core.database());
         AincradEconomyAPI.houses(houses);
         try {

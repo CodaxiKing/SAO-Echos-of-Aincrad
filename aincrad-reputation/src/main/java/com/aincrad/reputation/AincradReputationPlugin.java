@@ -67,6 +67,8 @@ public final class AincradReputationPlugin extends JavaPlugin implements Listene
         }
         Hooks hooks = new Hooks(this);
         reputation = new ReputationService(this, msg, config);
+        core.ui().menuEntry("titulos", "under_icons/player", msg.get("titulo.entrada"), "perfil", pl -> reputation.titlesMenu(pl));
+        core.ui().menuEntry("conquistas", "under_icons/quests", msg.get("conquista.entrada"), "perfil", pl -> reputation.achievementsMenu(pl));
         reputation.load();
         cursor = new CursorService(this, msg, config, hooks, reputation);
         getServer().getPluginManager().registerEvents(this, this);

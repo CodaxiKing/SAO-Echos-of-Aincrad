@@ -182,6 +182,7 @@ public final class SocialActions {
                 notifyPlayer(t, msg().get("party.convite_recebido", who(p.getName()),
                                 Placeholder.unparsed("segundos", String.valueOf(plugin.settings().inviteSeconds)))
                         .append(buttons("/party aceitar " + p.getName(), "/party recusar " + p.getName())));
+                promptInvite(t, p.getName());
             }
             case SELF -> msg().send(p, "party.si_mesmo");
             case NOT_LEADER -> msg().send(p, "party.nao_lider");
@@ -198,6 +199,23 @@ public final class SocialActions {
         notifyPlayer(t, msg().get("party.convite_recebido", who(fromName),
                         Placeholder.unparsed("segundos", String.valueOf(plugin.settings().inviteSeconds)))
                 .append(buttons("/party aceitar " + fromName, "/party recusar " + fromName)));
+    }
+
+    /**
+     * Com a interface (AincradUI, pelo AincradCore), o convite abre a janela de aceitar ou recusar
+     * na frente do convidado. O aviso do chat fica, para quem está com um menu aberto.
+     */
+    private void promptInvite(Player t, String fromName) {
+        if (!org.bukkit.Bukkit.getPluginManager().isPluginEnabled("AincradCore")) {
+            return;
+        }
+        try {
+            CorePrompt.show(t, msg().get("party.convite_recebido", who(fromName),
+                    Placeholder.unparsed("segundos", String.valueOf(plugin.settings().inviteSeconds))),
+                    "party aceitar " + fromName, "party recusar " + fromName);
+        } catch (LinkageError | RuntimeException e) {
+            // core antigo ou sem a interface: o convite do chat já foi mostrado
+        }
     }
 
     public boolean acceptInvite(Player p, UUID from) {

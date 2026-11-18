@@ -70,6 +70,7 @@ placar:
   ranking_vazio: "<gray>Ninguém venceu um duelo ainda."
 
 menu:
+  entrada: "<white>Duelos"
   titulo: "<dark_gray>Duelar com quem?"
   titulo_modo: "<dark_gray>Modo do duelo"
   titulo_aposta: "<dark_gray>Aposta"

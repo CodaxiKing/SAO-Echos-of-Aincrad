@@ -135,6 +135,7 @@ reuniao:
     raid_passou: "<red>A hora dessa raid já passou."
 
 raid:
+  entrada: "<white>Raids"
   uso: "<gray>Uso: <white>/raid</white> (quadro), <white>/raid criar <chefe> <dd/MM> <HH:mm> [tanques] [danos] [suportes]</white>, <white>entrar <n> <tanque|dano|suporte></white>, <white>sair <n></white>, <white>cancelar <n></white>, <white>reuniao <n></white>, <white>informados <n>"
   titulo: "<dark_gray>Quadro de raid"
   vazio: "<gray>Nenhuma raid marcada. Use /raid criar."

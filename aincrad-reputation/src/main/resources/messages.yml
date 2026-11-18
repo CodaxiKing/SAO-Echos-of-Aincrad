@@ -2,6 +2,9 @@
 #  AincradReputation — mensagens (MiniMessage)
 # ============================================================
 conquista:
+  entrada: "<white>Conquistas"
+  aba_tem: "Conquistadas"
+  aba_falta: "Faltam"
   titulo: "<gold><bold>Conquista!"
   titulo_sub: "<yellow><conquista>"
   ganhou: "<gold>Conquista: <white><conquista></white>."
@@ -14,6 +17,7 @@ conquista:
   libera: "<gray>Título: <yellow><titulo>"
 
 titulo:
+  entrada: "<white>Títulos"
   # Como o título aparece antes do nome.
   formato: "<gray>[<gold><titulo><gray>] "
   nenhum: "<gray>Você ainda não tem títulos. Eles vêm das conquistas (<white>/conquistas</white>)."

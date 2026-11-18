@@ -45,6 +45,7 @@ class FlatEngineTest {
         atlas.texturesRoot(new File(pack, "assets/aincrad/textures"));
         prepare(d -> FlatHud.paint(d, FlatHud.sample(3), -232));
         prepare(FlatEngineTest::sampleScreen);
+        prepare(d -> FlatOverlay.paint(d, FlatOverlay.sample(), 232));
         atlas.write(pack);
     }
 
@@ -133,6 +134,38 @@ class FlatEngineTest {
         assertTrue(names.contains("food_empty_hunger.png"));
         assertTrue(names.contains("experience_bar_progress.png"));
         assertEquals(4 + 40 + 3 + 6 + 3 + 2, names.size());
+    }
+
+    /** O alvo, a bússola, o relógio, os avisos e as recargas: tudo o que desenham foi preparado. */
+    @Test
+    void camadaExtraDaHud() throws IOException {
+        FlatPreview preview = new FlatPreview(pack, atlas);
+        FlatOverlay.Data chefe = new FlatOverlay.Data(new FlatOverlay.Target("Illfang the Kobold Lord", 0.62, 0xB01325, 4),
+                List.of(new FlatOverlay.Toast("Item recebido", "Anneal Blade"), new FlatOverlay.Toast("Level", "12")),
+                List.of(new FlatOverlay.Cooldown("Slant", 0), new FlatOverlay.Cooldown("Vertical", 0.4), new FlatOverlay.Cooldown("Horizontal", 1)),
+                "21:47", "primavera, dia 12", 170f,
+                List.of(new FlatOverlay.Marker(-35, 0x5BE37D), new FlatOverlay.Marker(20, 0x5BE37D), new FlatOverlay.Marker(120, 0x5BE37D)));
+        FlatHud.Data vida = new FlatHud.Data("Kirito", 14, 20, 0.7, 0x7BD23A, 17, 20, "120 / 283", 3,
+                List.of(new FlatHud.Member("Asuna", 0.9, 0x7BD23A)));
+        // Em qualquer posição da HUD (o jogador a desloca nas Opções) e com qualquer câmera.
+        for (int dx : new int[]{0, 40, -24}) {
+            for (float yaw : new float[]{-180f, -90f, 0f, 45f, 179f}) {
+                FlatOverlay.Data v = new FlatOverlay.Data(chefe.target(), chefe.toasts(), chefe.cooldowns(), chefe.clock(), chefe.date(), yaw, chefe.markers());
+                Component line = paint(d -> {
+                    FlatHud.paint(d, vida, -232 + dx);
+                    FlatOverlay.paint(d, v, 232 - dx);
+                });
+                assertEquals(0, preview.advance(line));
+            }
+        }
+        // Um mob comum (uma barra), sem bússola nem relógio.
+        paint(d -> FlatOverlay.paint(d, new FlatOverlay.Data(new FlatOverlay.Target("Frenzy Boar", 1, 0xF7C6D0, 1), List.of(), List.of(),
+                null, null, null, List.of()), 232));
+        Component tudo = paint(d -> {
+            FlatHud.paint(d, vida, -232);
+            FlatOverlay.paint(d, chefe, 232);
+        });
+        ImageIO.write(preview.render(tudo, 480, 270, 3, 0x40506A), "png", new File("build/preview/hud_completa.png"));
     }
 
     @Test

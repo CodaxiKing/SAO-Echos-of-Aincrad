@@ -87,6 +87,7 @@ public final class FlatManager implements Listener, FlatApi {
     private final Map<UUID, Session> sessions = new HashMap<>();
     private final NamespacedKey freezeKey;
     private Function<Player, int[]> energy;
+    private Function<Player, java.util.List<FlatOverlay.Cooldown>> cooldowns;
     private BukkitTask task;
     private BukkitTask rebuild;
     private long tick;
@@ -125,6 +126,7 @@ public final class FlatManager implements Listener, FlatApi {
     public void prepareBuiltins() {
         FlatHud.resetHooks();
         prepareLayer(d -> FlatHud.paint(d, FlatHud.sample(plugin.settings().hudPartyMax), -plugin.settings().flatHudX));
+        prepareLayer(d -> FlatOverlay.paint(d, FlatOverlay.sample(), plugin.settings().flatHudX));
         FlatCanvas c = new FlatCanvas(atlas, true, 0, 0);
         for (int y = MIN_Y; y <= MAX_Y; y++) {
             c.icon(0, y, CURSOR_SIZE, CURSOR);
@@ -170,6 +172,23 @@ public final class FlatManager implements Listener, FlatApi {
     @Override
     public void setEnergyProvider(Function<Player, int[]> provider) {
         this.energy = provider;
+    }
+
+    /** As recargas mostradas na HUD (as Sword Skills equipadas). */
+    public void setCooldownProvider(Function<Player, java.util.List<FlatOverlay.Cooldown>> provider) {
+        this.cooldowns = provider;
+    }
+
+    public java.util.List<FlatOverlay.Cooldown> cooldowns(Player p) {
+        if (cooldowns == null) {
+            return java.util.List.of();
+        }
+        try {
+            java.util.List<FlatOverlay.Cooldown> out = cooldowns.apply(p);
+            return out == null ? java.util.List.of() : out;
+        } catch (RuntimeException e) {
+            return java.util.List.of();
+        }
     }
 
     /** {atual, máximo} da barra azul: o provedor registrado ou a fome. */
@@ -368,7 +387,7 @@ public final class FlatManager implements Listener, FlatApi {
     }
 
     /** Diferença de ângulo no caminho mais curto (-180 a 180). */
-    static float angleDelta(float from, float to) {
+    public static float angleDelta(float from, float to) {
         float d = (to - from) % 360f;
         if (d > 180f) {
             d -= 360f;

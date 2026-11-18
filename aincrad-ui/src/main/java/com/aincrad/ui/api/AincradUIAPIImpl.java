@@ -94,6 +94,35 @@ public final class AincradUIAPIImpl implements AincradUIAPI {
     }
 
     @Override
+    public void openAmount(Player player, Component titulo, long min, long max, long inicial, long passo,
+                           java.util.function.LongConsumer escolhido) {
+        long lo = Math.min(min, max);
+        long hi = Math.max(min, max);
+        long step = Math.max(1, passo);
+        boolean wasOpen = plugin.sessions().isOpen(player);
+        plugin.sessions().open(player, amountScreen(titulo, lo, hi, Math.max(lo, Math.min(hi, inicial)), step, wasOpen, escolhido));
+    }
+
+    private com.aincrad.ui.screen.Screen amountScreen(Component titulo, long lo, long hi, long value, long step, boolean wasOpen,
+                                                      java.util.function.LongConsumer escolhido) {
+        return plugin.screens().amount(titulo, lo, hi, value, step, (p, next) -> {
+            MenuSession session = plugin.sessions().get(p);
+            if (session != null) {
+                // Troca a janela pela mesma com o valor novo, sem empilhar.
+                session.replace(amountScreen(titulo, lo, hi, next, step, wasOpen, escolhido));
+            }
+        }, (p, s) -> {
+            leaveConfirm(p, wasOpen);
+            escolhido.accept(value);
+        });
+    }
+
+    @Override
+    public void toast(Player player, Component titulo, Component detalhe) {
+        plugin.toasts().show(player, titulo, detalhe);
+    }
+
+    @Override
     public void back(Player player) {
         plugin.sessions().back(player);
     }

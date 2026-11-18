@@ -102,12 +102,15 @@ opcoes:
     - "<aqua><bold>Opções"
     - "<gray>Modo do menu: <white><modo>"
     - "<gray>HUD de vida: <white><hud>"
+    - "<gray>Posição da HUD: <white><posicao>"
   modo_cursor: "cursor"
   modo_bau: "baú"
   ligado: "ligada"
   desligado: "desligada"
   botao_modo: "<white>Trocar modo do menu"
   botao_hud: "<white>Ligar/desligar HUD"
+  botao_hud_esquerda: "<white>HUD para a esquerda"
+  botao_hud_direita: "<white>HUD para a direita"
   modo_alterado: "<green>Modo do menu: <white><modo></white>."
   sem_pack: "<yellow>Sem o resource pack o menu usa o modo baú."
 
@@ -145,3 +148,20 @@ admin:
   teste_sim: "<green>Você escolheu SIM."
   teste_nao: "<red>Você escolheu NÃO."
   teste_pergunta: "<white>Esta é uma janela de teste. Confirmar?"
+
+avisos:
+  item: "Item recebido"
+  level: "Level"
+  quest: "Quest concluída"
+  conquista: "Conquista"
+
+lista:
+  filtro: "<white>Filtro: <valor>"
+  ordem: "<white>Ordem: <valor>"
+  todos: "todos"
+  padrao: "padrão"
+
+quantidade:
+  valor: "<aqua><bold><valor>"
+  faixa: "<gray>de <white><min></white> a <white><max></white>"
+  confirmar: "<green>Confirmar"

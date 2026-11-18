@@ -78,6 +78,7 @@ public final class AincradDuelsPlugin extends JavaPlugin implements Listener {
             scores.load(p.getUniqueId(), s -> { });
             duels.claim(p);
         }
+        AincradCore.get().ui().menuEntry("duelos", "under_icons/call", msg.get("menu.entrada"), "party", pl -> pl.performCommand("duelo"));
         Command cmd = new Command("duelo", "", "/duelo", List.of("duel", "duelar", "duelos")) {
             @Override
             public boolean execute(CommandSender sender, String label, String[] args) {

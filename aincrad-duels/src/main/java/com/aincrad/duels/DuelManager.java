@@ -154,6 +154,11 @@ public final class DuelManager implements Listener {
                         .append(Component.text("  "))
                         .append(msg.get("botao_recusar").clickEvent(ClickEvent.runCommand("/duelo recusar " + from.getName()))));
                 to.playSound(to.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.2f);
+                // Com a interface, o desafio abre a janela de aceitar ou recusar na frente do desafiado
+                // (o aviso do chat fica, para quem está com um menu aberto ou sem o resource pack).
+                UUID challenger = from.getUniqueId();
+                AincradCore.get().ui().prompt(to, msg.get(m.lethal() ? "recebido_total" : "recebido", Messages.vars("jogador", from.getName(),
+                        "modo", modeName(m), "segundos", ttl, "aposta", bet)), pl -> accept(pl, challenger), pl -> decline(pl, challenger));
             }
         }
     }

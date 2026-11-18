@@ -4,6 +4,7 @@ import com.aincrad.ui.AincradUIPlugin;
 import com.aincrad.ui.api.PartyHudProvider;
 import com.aincrad.ui.config.UiSettings;
 import com.aincrad.ui.flat.FlatHud;
+import com.aincrad.ui.flat.FlatOverlay;
 import com.aincrad.ui.glyph.Glyph;
 import com.aincrad.ui.glyph.LineBuilder;
 import com.aincrad.ui.glyph.SpaceFont;
@@ -119,7 +120,13 @@ public final class HealthHud implements Listener {
             int[] energy = plugin.flat().energy(p);
             FlatHud.Data data = new FlatHud.Data(p.getName(), (int) Math.ceil(health), (int) Math.round(max), ratio,
                     colorOf(state, blinkOff).value(), energy[0], energy[1], FlatHud.xpText(p), FlatHud.level(p), partyData(p, st));
-            plugin.flat().hud(p, plugin.flat().paint(d -> FlatHud.paint(d, data, -st.flatHudX)));
+            // Cada jogador acerta a posição nas Opções: as duas bordas andam juntas, para dentro ou para fora.
+            int dx = plugin.prefs().hudDx(p);
+            FlatOverlay.Data extra = overlay(p, st);
+            plugin.flat().hud(p, plugin.flat().paint(d -> {
+                FlatHud.paint(d, data, -st.flatHudX + dx);
+                FlatOverlay.paint(d, extra, st.flatHudX - dx);
+            }));
             alert(p, state, st);
             updateTracker(p);
             return;
@@ -213,6 +220,79 @@ public final class HealthHud implements Listener {
             lastAlert.put(p.getUniqueId(), now);
             plugin.sounds().play(p, UiSound.CRITICAL);
         }
+    }
+
+    private static final java.time.format.DateTimeFormatter CLOCK = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+    private static final java.time.format.DateTimeFormatter DATE = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
+
+    /** O alvo, os avisos, as recargas, o relógio e a bússola de um jogador. */
+    private FlatOverlay.Data overlay(Player p, UiSettings st) {
+        FlatOverlay.Target target = st.targetEnabled ? plugin.targets().of(p, st) : null;
+        List<FlatOverlay.Cooldown> cds = st.cooldownsEnabled ? plugin.flat().cooldowns(p) : List.of();
+        String clock = null;
+        String date = null;
+        if (st.clockEnabled) {
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            clock = now.format(CLOCK);
+            date = worldDate();
+            if (date == null) {
+                date = now.format(DATE);
+            }
+        }
+        Float yaw = null;
+        List<FlatOverlay.Marker> markers = new ArrayList<>();
+        if (st.compassEnabled) {
+            yaw = p.getLocation().getYaw();
+            for (Player m : partyOf(p, st)) {
+                if (!m.getWorld().equals(p.getWorld()) || m.isDead()) {
+                    continue;
+                }
+                double dx = m.getLocation().getX() - p.getLocation().getX();
+                double dz = m.getLocation().getZ() - p.getLocation().getZ();
+                // O yaw que aponta para o colega, e quanto ele está fora da frente do jogador.
+                float bearing = (float) Math.toDegrees(Math.atan2(-dx, dz));
+                markers.add(new FlatOverlay.Marker(com.aincrad.ui.flat.FlatManager.angleDelta(yaw, bearing), 0x5BE37D));
+            }
+        }
+        return new FlatOverlay.Data(target, plugin.toasts().active(p), cds, clock, date, yaw, markers);
+    }
+
+    private boolean worldLooked;
+    private java.lang.reflect.Method worldSeason;
+    private java.lang.reflect.Method worldDay;
+
+    /** "primavera, dia 12" pelo calendário do AincradWorld (opcional, por reflexão); null sem ele. */
+    private String worldDate() {
+        if (!worldLooked) {
+            worldLooked = true;
+            org.bukkit.plugin.Plugin world = plugin.getServer().getPluginManager().getPlugin("AincradWorld");
+            if (world != null && world.isEnabled()) {
+                try {
+                    Class<?> api = Class.forName("com.aincrad.world.api.AincradWorldAPI", true, world.getClass().getClassLoader());
+                    worldSeason = api.getMethod("getSeason");
+                    worldDay = api.getMethod("getSeasonDay");
+                } catch (ReflectiveOperationException | LinkageError e) {
+                    worldSeason = null;
+                }
+            }
+        }
+        if (worldSeason == null) {
+            return null;
+        }
+        try {
+            Object season = worldSeason.invoke(null);
+            Object day = worldDay.invoke(null);
+            return season == null || String.valueOf(season).isEmpty() ? null : season + ", dia " + day;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            worldSeason = null;
+            return null;
+        }
+    }
+
+    /** Depois de um reload, procura os outros plugins de novo. */
+    public void resetHooks() {
+        worldLooked = false;
+        worldSeason = null;
     }
 
     /** Membros da party para a HUD em barras. */

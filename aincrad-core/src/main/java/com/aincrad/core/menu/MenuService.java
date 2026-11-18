@@ -60,6 +60,40 @@ public final class MenuService {
     }
 
     /**
+     * Escolher uma quantidade sem digitar: −10, −1, +1, +10 (vezes {@code step}) e confirmar.
+     * Com o AincradUI é uma janela do SAO; sem ele, um menu de baú com os mesmos botões.
+     *
+     * @param chosen roda com o valor quando o jogador confirma
+     */
+    public void amount(Player p, Component title, long min, long max, long start, long step, Consumer<Long> chosen) {
+        long lo = Math.min(min, max);
+        long hi = Math.max(min, max);
+        long st = Math.max(1, step);
+        long value = Math.max(lo, Math.min(hi, start));
+        List<MenuRenderer> sorted = new ArrayList<>(renderers);
+        sorted.sort(Comparator.comparingInt(MenuRenderer::priority).reversed());
+        for (MenuRenderer r : sorted) {
+            if (r.amount(p, title, lo, hi, value, st, chosen)) {
+                return;
+            }
+        }
+        amountMenu(p, title, lo, hi, value, st, chosen);
+    }
+
+    private void amountMenu(Player p, Component title, long lo, long hi, long value, long st, Consumer<Long> chosen) {
+        Menu m = Menu.of(title).rows(3)
+                .item(Menu.Button.of(new ItemStack(Material.PAPER), Component.text(String.valueOf(value)), null));
+        long[] deltas = {-10 * st, -st, st, 10 * st};
+        for (long d : deltas) {
+            long next = Math.max(lo, Math.min(hi, value + d));
+            m.button(Menu.Button.of(new ItemStack(d < 0 ? Material.RED_STAINED_GLASS_PANE : Material.LIME_STAINED_GLASS_PANE),
+                    Component.text((d > 0 ? "+" : "") + d), pl -> amountMenu(pl, title, lo, hi, next, st, chosen)));
+        }
+        m.button(Menu.Button.of(new ItemStack(Material.LIME_WOOL), msg.get("menu.confirmar"), pl -> chosen.accept(value)).closing());
+        open(p, m);
+    }
+
+    /**
      * Confirmação sim/não. Com o AincradUI e o resource pack, é a janela de alerta do SAO, com os
      * botões de aceitar e recusar; sem eles, um menu de baú com os dois botões.
      */

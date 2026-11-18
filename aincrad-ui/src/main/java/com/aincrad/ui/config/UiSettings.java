@@ -65,6 +65,19 @@ public final class UiSettings {
 
     /** HUD em barras (desenhada pelas telas planas) no lugar da moldura do anime. */
     public final boolean hudFlat;
+    /** Alvo no alto da tela. */
+    public final boolean targetEnabled;
+    public final int targetRange;
+    public final double targetBossHealth;
+    public final int targetBossBars;
+    public final boolean clockEnabled;
+    public final boolean compassEnabled;
+    public final boolean cooldownsEnabled;
+    public final boolean toastsEnabled;
+    public final boolean toastItems;
+    public final int toastSeconds;
+    /** Convites e desafios abrem a janela de aceitar/recusar. */
+    public final boolean promptsEnabled;
     public final int flatHudX;
     public final boolean flatHotbar;
     public final boolean flatHideVanilla;
@@ -122,6 +135,17 @@ public final class UiSettings {
         packAssumeLoaded = c.getBoolean("pack.assumir_carregado", false);
         hudFlat = "barras".equalsIgnoreCase(c.getString("hud.estilo", "barras"));
         flatHudX = c.getInt("hud.barras.deslocamento_x", 232);
+        targetEnabled = c.getBoolean("hud.alvo.ativo", true);
+        targetRange = Math.max(4, Math.min(48, c.getInt("hud.alvo.distancia", 20)));
+        targetBossHealth = c.getDouble("hud.alvo.chefe_vida", 300);
+        targetBossBars = Math.max(1, Math.min(8, c.getInt("hud.alvo.chefe_barras", 4)));
+        clockEnabled = c.getBoolean("hud.relogio", true);
+        compassEnabled = c.getBoolean("hud.bussola", true);
+        cooldownsEnabled = c.getBoolean("hud.recargas", true);
+        toastsEnabled = c.getBoolean("hud.avisos.ativo", true);
+        toastItems = c.getBoolean("hud.avisos.itens", true);
+        toastSeconds = Math.max(1, Math.min(15, c.getInt("hud.avisos.segundos", 4)));
+        promptsEnabled = c.getBoolean("menu.janela_de_convite", true);
         flatHotbar = c.getBoolean("hud.barras.hotbar_redonda", true);
         flatHideVanilla = c.getBoolean("hud.barras.esconder_vanilla", true);
         flatEnabled = c.getBoolean("tela_plana.ativo", true);

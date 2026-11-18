@@ -74,6 +74,22 @@ public final class ChestRenderer implements Renderer {
         }
     }
 
+    /**
+     * O título de um baú de 6 linhas com a janela branca do SAO de fundo, para as telas de pôr e
+     * tirar item dos outros plugins (troca, cofre da guilda). Sem a arte, o próprio título.
+     */
+    public static Component skinned(AincradUIPlugin plugin, Component title) {
+        Glyph bg = plugin.glyphs().get("window_bau");
+        if (bg == null || !bg.present()) {
+            return title;
+        }
+        return Component.empty()
+                .append(SpaceFont.component(-TITLE_OFFSET))
+                .append(bg.component(NamedTextColor.WHITE))
+                .append(SpaceFont.component(-bg.advance() + TITLE_OFFSET))
+                .append(title);
+    }
+
     private Component title(Screen s, boolean pack) {
         Glyph bg = s.chestBackground() == null ? null : plugin.glyphs().get(s.chestBackground());
         if (!pack || bg == null || !bg.present()) {

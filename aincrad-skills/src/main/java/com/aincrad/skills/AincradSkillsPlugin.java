@@ -91,6 +91,26 @@ public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
         getServer().getScheduler().runTaskTimer(this, passives::tick, 20L, 20L);
         getServer().getScheduler().runTaskTimer(this, unique::refresh, 1200L, 1200L);
 
+        // Interface (AincradUI, pelo core): a entrada Skills do menu, a barra azul com a pausa
+        // depois da skill e a recarga de cada skill equipada.
+        core.ui().menuEntry("skills", "under_icons/skills", msg.get("atalho.menu"), "perfil", this::openMenu);
+        core.ui().energy(p -> new double[]{Math.round(100 * (1 - engine.pauseLeft(p))), 100});
+        core.ui().skillBars(p -> {
+            List<com.aincrad.core.ui.UiService.Bar> bars = new java.util.ArrayList<>();
+            SkillStore.Data d = store.data(p);
+            if (d == null) {
+                return bars;
+            }
+            for (int slot = 0; slot < SkillRules.ACTIVE_SLOTS; slot++) {
+                com.aincrad.skills.model.SkillDef def = d.active(slot) == null ? null : engine.skill(d.active(slot));
+                if (def != null) {
+                    bars.add(new com.aincrad.core.ui.UiService.Bar(def.name(),
+                            def.cooldownMs() <= 0 ? 0 : Math.min(1, engine.cooldown(p, def.id()) / (double) def.cooldownMs())));
+                }
+            }
+            return bars;
+        });
+
         command("skills", List.of("habilidades"), this::skillsCommand);
         command("skill", List.of(), this::castCommand);
         command("rastrear", List.of(), (s, a) -> {

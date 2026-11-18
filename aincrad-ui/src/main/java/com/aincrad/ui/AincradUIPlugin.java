@@ -40,6 +40,8 @@ public final class AincradUIPlugin extends JavaPlugin {
     private SessionManager sessions;
     private Screens screens;
     private HealthHud hud;
+    private com.aincrad.ui.hud.TargetTracker targets;
+    private com.aincrad.ui.hud.ToastService toasts;
     private FlatManager flat;
     private DeathEffects deathEffects;
 
@@ -52,6 +54,8 @@ public final class AincradUIPlugin extends JavaPlugin {
         sessions = new SessionManager(this);
         screens = new Screens(this);
         hud = new HealthHud(this);
+        targets = new com.aincrad.ui.hud.TargetTracker();
+        toasts = new com.aincrad.ui.hud.ToastService(this);
         flat = new FlatManager(this);
         deathEffects = new DeathEffects(this);
 
@@ -62,6 +66,8 @@ public final class AincradUIPlugin extends JavaPlugin {
         pm.registerEvents(new MenuListener(this), this);
         pm.registerEvents(new CommandRedirectListener(), this);
         pm.registerEvents(hud, this);
+        pm.registerEvents(targets, this);
+        pm.registerEvents(toasts, this);
         pm.registerEvents(flat, this);
         pm.registerEvents(deathEffects, this);
 
@@ -89,6 +95,12 @@ public final class AincradUIPlugin extends JavaPlugin {
         sessions.start();
         flat.start();
         hud.start();
+        // No primeiro tick todos os plugins já ligaram: os avisos passam a ouvir os eventos deles.
+        getServer().getScheduler().runTask(this, () -> {
+            targets.resetHooks();
+            hud.resetHooks();
+            toasts.hookPlugins();
+        });
         getLogger().info("AincradUI ligado: " + glyphs.presentCount() + " glifos, pack " + pack.mode()
                 + (effects.available() ? " (AincradEffects encontrado)" : " (sem AincradEffects)"));
     }
@@ -202,6 +214,14 @@ public final class AincradUIPlugin extends JavaPlugin {
 
     public Screens screens() {
         return screens;
+    }
+
+    public com.aincrad.ui.hud.TargetTracker targets() {
+        return targets;
+    }
+
+    public com.aincrad.ui.hud.ToastService toasts() {
+        return toasts;
     }
 
     public HealthHud hud() {

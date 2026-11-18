@@ -51,6 +51,7 @@ public final class AincradWorldPlugin extends JavaPlugin implements Listener {
         }
         Hooks hooks = new Hooks();
         news = new NewsService(this, core.database(), msg, hooks);
+        core.ui().menuEntry("jornal", "under_icons/help", msg.get("jornal.entrada"), "mensagens", pl -> news.list(pl));
         seasons = new SeasonsService(this, core.database(), msg, hooks, news);
         night = new NightService(this, msg, hooks);
         settings();

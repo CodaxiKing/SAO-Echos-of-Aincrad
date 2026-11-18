@@ -474,35 +474,95 @@ public final class Screens {
         return s;
     }
 
+    /**
+     * Janela de quantidade: o valor no meio, três botões de menos à esquerda, três de mais à
+     * direita (1, 10 e 100 vezes o passo) e o de confirmar no centro.
+     */
+    public Screen amount(Component title, long lo, long hi, long value, long step, java.util.function.ObjLongConsumer<Player> changed,
+                         ElementAction confirm) {
+        double sc = sc();
+        Screen s = window("quantidade", title).info(13, Material.PAPER);
+        body(s, List.of(
+                msg().get("quantidade.valor", Placeholder.unparsed("valor", String.valueOf(value))),
+                msg().get("quantidade.faixa", Placeholder.unparsed("min", String.valueOf(lo)), Placeholder.unparsed("max", String.valueOf(hi)))),
+                0.5 * sc);
+        long[] deltas = {-100 * step, -10 * step, -step, step, 10 * step, 100 * step};
+        double[] xs = {-0.51, -0.36, -0.21, 0.21, 0.36, 0.51};
+        int[] slots = {28, 29, 30, 32, 33, 34};
+        for (int i = 0; i < deltas.length; i++) {
+            long d = deltas[i];
+            long next = Math.max(lo, Math.min(hi, value + d));
+            String glyph = d < 0 ? "buttons/minus" : "buttons/plus";
+            s.add(new ScreenElement("passo:" + i)
+                    .glyph(glyph, onOf(glyph))
+                    .label(Component.text((d > 0 ? "+" : "") + d))
+                    .at(xs[i] * sc, buttonsY(), 0.15 * sc)
+                    .slot(slots[i])
+                    .fallback(d < 0 ? Material.RED_STAINED_GLASS_PANE : Material.LIME_STAINED_GLASS_PANE)
+                    .action((pl, ss) -> changed.accept(pl, next)));
+        }
+        s.add(new ScreenElement("confirmar")
+                .glyph("buttons/yes", onOf("buttons/yes"))
+                .label(msg().get("quantidade.confirmar"))
+                .at(0, buttonsY(), 0.22 * sc)
+                .slot(31)
+                .fallback(Material.LIME_WOOL)
+                .action(confirm));
+        return s;
+    }
+
     public Screen options(Player p) {
         double sc = sc();
         DrawMode mode = plugin.prefs().mode(p);
         boolean hud = plugin.prefs().hud(p);
         TagResolver tags = TagResolver.resolver(
                 Placeholder.component("modo", msg().get(mode == DrawMode.CURSOR ? "opcoes.modo_cursor" : "opcoes.modo_bau")),
-                Placeholder.component("hud", msg().get(hud ? "opcoes.ligado" : "opcoes.desligado")));
+                Placeholder.component("hud", msg().get(hud ? "opcoes.ligado" : "opcoes.desligado")),
+                Placeholder.unparsed("posicao", String.valueOf(plugin.prefs().hudDx(p))));
         Screen s = window("opcoes", msg().get("opcoes.titulo")).info(13, Material.REPEATER);
         body(s, msg().list("opcoes.linhas", tags), 0.45 * sc);
         s.add(new ScreenElement("modo")
                 .glyph("buttons/list", onOf("buttons/list"))
                 .label(msg().get("opcoes.botao_modo"))
-                .at(-0.3 * sc, buttonsY(), 0.22 * sc)
+                .at(-0.44 * sc, buttonsY(), 0.2 * sc)
                 .slot(29)
                 .fallback(Material.COMPASS)
                 .action((pl, ss) -> toggleMode(pl)));
+        // A posição certa da HUD depende da resolução e da escala de interface de cada jogador.
+        s.add(new ScreenElement("hud_esq")
+                .glyph("buttons/minus", onOf("buttons/minus"))
+                .label(msg().get("opcoes.botao_hud_esquerda"))
+                .at(0, buttonsY(), 0.2 * sc)
+                .slot(31)
+                .fallback(Material.SPECTRAL_ARROW)
+                .action((pl, ss) -> moveHud(pl, ss, -8)));
+        s.add(new ScreenElement("hud_dir")
+                .glyph("buttons/plus", onOf("buttons/plus"))
+                .label(msg().get("opcoes.botao_hud_direita"))
+                .at(0.22 * sc, buttonsY(), 0.2 * sc)
+                .slot(32)
+                .fallback(Material.ARROW)
+                .action((pl, ss) -> moveHud(pl, ss, 8)));
         s.add(new ScreenElement("hud")
                 .glyph(hud ? "buttons/minus" : "buttons/plus", onOf(hud ? "buttons/minus" : "buttons/plus"))
                 .label(msg().get("opcoes.botao_hud"))
-                .at(0, buttonsY(), 0.22 * sc)
-                .slot(31)
+                .at(-0.22 * sc, buttonsY(), 0.2 * sc)
+                .slot(30)
                 .fallback(Material.REDSTONE)
                 .action((pl, ss) -> {
                     plugin.prefs().setHud(pl, !plugin.prefs().hud(pl));
                     plugin.hud().update(pl);
                     ss.replace(options(pl));
                 }));
-        s.add(backButton(0.3, 33));
+        s.add(backButton(0.44, 33));
         return s;
+    }
+
+    /** Puxa a HUD em barras para a direita (para o centro da tela) ou para a esquerda. */
+    private void moveHud(Player p, MenuSession session, int delta) {
+        plugin.prefs().setHudDx(p, plugin.prefs().hudDx(p) + delta);
+        plugin.hud().update(p);
+        session.replace(options(p));
     }
 
     private void toggleMode(Player p) {
