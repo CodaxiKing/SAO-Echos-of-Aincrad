@@ -36,8 +36,15 @@ Os pacotes dos próximos andares vão **somar** nestes mesmos arquivos (`items.y
 
 ## 1. Regiões
 
-Marque os dois cantos com `/aincrad varinha` e crie com `/aincrad regiao criar <nome>`.
 Os nomes precisam ser exatamente estes.
+
+- **Zonas seguras** (as três primeiras): marque os dois cantos com `/aincrad varinha` e crie com
+  `/aincrad regiao criar <nome>`.
+- **Áreas de mobs** (as outras cinco): `/aincrad spawn varinha`, marque os dois cantos e use
+  `/aincrad spawn criar <nome>`. Como o nome já está no `spawns.yml` do pacote, os mobs começam a
+  nascer na hora. No labirinto use `/aincrad spawn criar <nome> exato`, para a parte de baixo e o
+  topo não se misturarem.
+- Para ajustar level, peso ou quantidade depois, sem abrir o arquivo: `/aincrad spawn`.
 
 | Região | O que é | Level dos mobs |
 |---|---|---|
@@ -52,7 +59,7 @@ Os nomes precisam ser exatamente estes.
 
 - As regiões de mobs não podem se sobrepor às zonas seguras nem umas às outras.
 - A sala do chefe fica **fora** das duas regiões do labirinto, senão os kobolds nascem dentro dela.
-- Depois de criar: `/aincrad reload` e confira com `/aincrad rpg spawns`.
+- Confira com `/aincrad spawn lista` e, parado num lugar, com `/aincrad spawn aqui`.
 
 ## 2. Andar e portal
 

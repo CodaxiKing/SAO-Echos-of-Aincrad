@@ -51,6 +51,38 @@ mensagens.
 
 ## Mobs por região (`spawns.yml`)
 
+### Pelo jogo, sem abrir o arquivo (`/aincrad spawn`)
+
+1. `/aincrad spawn varinha` — clique esquerdo num canto da área e direito no canto oposto.
+2. `/aincrad spawn criar campos_oeste` — marca a área (do fundo ao topo do mundo) e a põe na lista
+   de mobs. As bordas aparecem em partículas por 15 s. Com `exato` no fim, a altura é a dos dois
+   cliques: use para separar os andares de um labirinto.
+3. `/aincrad spawn mob campos_oeste PIG 1-2 5` — mob, level (`3` ou `2-4`) e peso (opcional).
+4. `/aincrad spawn` — abre o **menu**: as áreas, os mobs de cada uma, botões de level mínimo e
+   máximo, peso, período (sempre, dia, noite), máximo de mobs vivos, "criar um aqui para ver" e tirar.
+
+Cada mudança é gravada no `spawns.yml` e vale na hora, sem `/aincrad reload`.
+
+| Comando | O que faz |
+|---|---|
+| `/aincrad spawn` | Menu das áreas e dos mobs |
+| `/aincrad spawn varinha` | Entrega a varinha de marcar |
+| `/aincrad spawn criar <nome> [exato]` | Marca a área e a põe na lista de mobs |
+| `/aincrad spawn area <nome> [exato]` | Refaz os limites de uma área que já existe |
+| `/aincrad spawn mob <área> <mob> <level> [peso]` | Põe um mob (`ZOMBIE` ou `mythic:Nome`) |
+| `/aincrad spawn level <área> <mob> <3 ou 2-4>` | Muda o level |
+| `/aincrad spawn peso <área> <mob> <n>` | Muda a chance em relação aos outros |
+| `/aincrad spawn nome <área> <mob> <texto>` | Nome sobre o mob (`nenhum` tira) |
+| `/aincrad spawn periodo <área> <mob> <dia\|noite\|sempre>` | Quando nasce |
+| `/aincrad spawn maximo <área> <n>` | Mobs vivos ao mesmo tempo |
+| `/aincrad spawn remover <área> [mob]` | Tira um mob, ou todos os mobs da área |
+| `/aincrad spawn ver <área>` · `aqui` · `lista` | Mostra as bordas · em que áreas você está · todas as áreas |
+
+`<mob>` nos comandos é o `id` da linha (o menu e o `lista` mostram). Equipamento e drops continuam
+no arquivo. Permissão: `aincrad.rpg.admin`.
+
+### Pelo arquivo
+
 Para os campos terem os mobs deles — o javali e o lobo do andar 1, por exemplo:
 
 1. **Marque a região**: `/aincrad varinha`, clique esquerdo num canto e direito no outro, e

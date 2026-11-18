@@ -98,6 +98,7 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(rares, this);
         rares.reload(rareFile);
         core.commands().register(this, new AdminCommand(rpg, items, spawns, rares));
+        core.commands().register(this, new com.aincrad.rpg.command.SpawnCommand(this, msg, spawns, spawnFile));
         AincradRPGAPI.init(rpg, mobService, items, status);
         getServer().getServicesManager().register(AincradRPGAPI.class, AincradRPGAPI.instance(), this, ServicePriority.Normal);
 
