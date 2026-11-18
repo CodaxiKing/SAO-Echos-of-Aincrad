@@ -203,6 +203,11 @@ public final class SmithService implements Listener {
         return professions.modifier(p, Profession.FERREIRO, key);
     }
 
+    /** Um número dos efeitos da árvore (config.yml → ferreiro.arvore). */
+    double treeValue(String key, double def) {
+        return config.decimal("ferreiro.arvore." + key, def, 0, 100);
+    }
+
     Settings settings() {
         String f = "ferreiro.forja.";
         String a = "ferreiro.aprimoramento.";
@@ -286,12 +291,20 @@ public final class SmithService implements Listener {
 
     /** Pó de têmpera (feito pelo alquimista): com ele no inventário, o ferreiro tem mais tempo na têmpera. */
     public ItemStack temperPowder(int amount) {
+        return temperPowder(amount, 0);
+    }
+
+    /** @param stronger quanto este pó alarga a mais a janela (0.5 = +50%; a árvore do alquimista) */
+    public ItemStack temperPowder(int amount, double stronger) {
         ItemStack it = new ItemStack(Material.SUGAR, Math.max(1, Math.min(64, amount)));
         ItemMeta meta = it.getItemMeta();
         meta.displayName(msg.get("forja.po_nome"));
         meta.lore(msg.list("forja.po_lore"));
         meta.setEnchantmentGlintOverride(true);
         meta.getPersistentDataContainer().set(keyPowder, PersistentDataType.BYTE, (byte) 1);
+        if (stronger > 0) {
+            meta.getPersistentDataContainer().set(new org.bukkit.NamespacedKey(plugin, "po_forca"), PersistentDataType.DOUBLE, stronger);
+        }
         it.setItemMeta(meta);
         return it;
     }
@@ -300,8 +313,9 @@ public final class SmithService implements Listener {
     double takeTemperPowder(Player p) {
         for (ItemStack it : p.getInventory().getStorageContents()) {
             if (it != null && it.hasItemMeta() && it.getItemMeta().getPersistentDataContainer().has(keyPowder)) {
+                double stronger = it.getItemMeta().getPersistentDataContainer().getOrDefault(new org.bukkit.NamespacedKey(plugin, "po_forca"), PersistentDataType.DOUBLE, 0.0);
                 it.setAmount(it.getAmount() - 1);
-                return config.decimal("ferreiro.forja.tempera.po_de_tempera", 1.0, 0, 10);
+                return config.decimal("ferreiro.forja.tempera.po_de_tempera", 1.0, 0, 10) * (1 + stronger);
             }
         }
         return 0;
@@ -538,6 +552,14 @@ public final class SmithService implements Listener {
             msg.send(p, ForgedItems.workable(it) ? "forja.reparo_inteiro" : "forja.item_na_outra_mao");
             return;
         }
+        // Itens épicos e lendários só o Restaurador sabe reparar.
+        String rpgRarity = hooks.rpgRarity(it);
+        boolean fine = forged.quality(it) >= config.integer("ferreiro.reparo.qualidade_fina", 75, 0, 100)
+                || "epico".equals(rpgRarity) || "lendario".equals(rpgRarity);
+        if (fine && mod(p, "desbloqueia_reparo_epico") < 1) {
+            msg.send(p, "forja.reparo_so_restaurador");
+            return;
+        }
         ForgeMath.RepairCost cost = repairCost(p, it);
         Material unit = repairMaterial(it.getType());
         ItemStack snapshot = it.clone();
@@ -563,7 +585,22 @@ public final class SmithService implements Listener {
             yes.getInventory().removeItem(new ItemStack(unit, cost.units()));
             ItemMeta meta = now.getItemMeta();
             ((Damageable) meta).setDamage(0);
+            // Restaurador: o reparo deixa o item mais resistente do que era (uma vez por item).
+            double more = mod(yes, "restaura_maximo");
+            if (more > 0 && !forged.marked(now, "restaurado")) {
+                Damageable d = (Damageable) meta;
+                int current = d.hasMaxDamage() ? d.getMaxDamage() : now.getType().getMaxDurability();
+                d.setMaxDamage((int) Math.round(current * (1 + more)));
+            }
             now.setItemMeta(meta);
+            if (more > 0) {
+                forged.mark(now, "restaurado");
+            }
+            // Renascer: um item reparado por este mestre nunca mais quebra de vez.
+            if (mod(yes, "tecnica_renascer") >= 1 && !forged.marked(now, "renascer")) {
+                forged.mark(now, "renascer");
+                msg.send(yes, "forja.tecnica_renascer");
+            }
             yes.getInventory().setItemInOffHand(now);
             professions.practice(yes, Profession.FERREIRO, config.integer("ferreiro.reparo.dificuldade", 100, 0, 1000), true);
             yes.playSound(yes.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1.1f);
@@ -581,7 +618,7 @@ public final class SmithService implements Listener {
         }
         int before = max - damage(it);
         int after = before - event.getDamage();
-        if (after <= 0 && !config.bool("ferreiro.reparo.quebra_em_zero", true)) {
+        if (after <= 0 && (!config.bool("ferreiro.reparo.quebra_em_zero", true) || forged.marked(it, "renascer"))) {
             // Fica com 1 de durabilidade em vez de quebrar.
             if (before <= 1) {
                 event.setCancelled(true);
@@ -595,6 +632,24 @@ public final class SmithService implements Listener {
         if (before > max * warn && after <= max * warn && after > 0) {
             msg.actionBar(event.getPlayer(), "forja.durabilidade_baixa");
             event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.4f, 1.6f);
+        }
+    }
+
+    /** A esquiva das couraças com a Segunda Pele: a soma das peças vestidas, até o limite da config. */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onDodge(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player victim)) {
+            return;
+        }
+        double dodge = 0;
+        for (ItemStack piece : victim.getInventory().getArmorContents()) {
+            dodge += forged.dodge(piece);
+        }
+        dodge = Math.min(dodge, config.decimal("ferreiro.arvore.esquiva_maxima", 20, 0, 100));
+        if (dodge > 0 && ThreadLocalRandom.current().nextDouble() * 100 < dodge) {
+            event.setCancelled(true);
+            msg.actionBar(victim, "forja.esquivou");
+            victim.playSound(victim.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f, 1.6f);
         }
     }
 
@@ -633,6 +688,9 @@ public final class SmithService implements Listener {
         String path = settings().upPath();
         if (level >= 5 && !path.isEmpty() && !path.equalsIgnoreCase(TreeDef.pathOf(professions.owned(p, Profession.FERREIRO)))) {
             return "forja.up_caminho";
+        }
+        if (level >= 5 && mod(p, "desbloqueia_aprimoramento_alto") < 1) {
+            return "forja.up_no";
         }
         return null;
     }

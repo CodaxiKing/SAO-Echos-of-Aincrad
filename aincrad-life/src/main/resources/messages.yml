@@ -39,6 +39,13 @@ menu:
   fechar: "<gray>Fechar"
 
 saber:
+  falta_no: "<red>Para aprender <white><nome></white>, compre antes na árvore o nó <white><no></white>. O item não foi gasto."
+  catalisador_nome: "<light_purple>Catalisador Universal"
+  catalisador_lore:
+    - "<gray>Segure na outra mão ao terminar um trabalho"
+    - "<gray>em qualquer profissão: o resultado sai melhor."
+    - "<dark_gray>É gasto ao ser usado."
+  catalisador_usado: "<light_purple>O Catalisador Universal reagiu com o seu trabalho."
   item_nome: "<light_purple><nome>"
   item_lore:
     - "<gray><categoria> <dark_gray>· <gray><profissao>"
@@ -133,6 +140,18 @@ painel:
   batida_ruim: "<red>Fora do tempo ou do ponto. <white>(ruim)"
 
 cozinha:
+  buff_nectar: "<aqua><prato>: <efeito> <gray>(não tirou o buff da sua comida)"
+  buff_compartilhado: "<aqua>O festim de <white><jogador></white> alcançou você: <white><prato></white>."
+  perk_despensa_sobrou: "<gray>A conserva rendeu mais uma refeição."
+  perk:
+    ragu: "<gold>Ragu: <gray>o buff dura uma hora"
+    banquete_real: "<gold>Banquete Real: <gray>dois buffs ao mesmo tempo"
+    regeneracao: "<gray>Dá também um pouco de regeneração"
+    compartilha: "<gray>Alcança quem está perto de quem come"
+    nectar: "<gold>Néctar: <gray>não ocupa o lugar do buff de comida"
+    despensa: "<gold>Despensa: <gray>pode ser comida duas vezes"
+    rancho: "<gold>Rancho: <gray>clique para comer na hora, mesmo em combate"
+    pao_do_viajante: "<gold>Pão do Viajante: <gray>tira a fome por um dia"
   titulo: "<gold><bold>Bancada de cozinha"
   categoria: "Receita"
   categoria_panela: "Receita de panela"
@@ -222,6 +241,20 @@ cozinha:
   prato_dado: "<green><white><nome></white> entregue a <white><jogador></white>."
 
 pesca:
+  tecnica_arpao: "<gold>Arpão: <white>o peixe veio sem luta."
+  tecnica_naufragio: "<gold>Naufrágio: <white>há um baú na linha."
+  tecnica_pesca_do_dia: "<gold>Pesca do Dia: <white>o primeiro peixe de hoje foi vendido pelo dobro."
+  pegou_bau: "<gold>Você pescou um baú: <white><qtd></white> item(ns)."
+  pegou_material: "<aqua>Veio um material na linha: <white><qtd></white>."
+  pegou_veio: "<gold>Veio: <white>a pescaria de material rendeu o triplo (<qtd>)."
+  iscas_lista: "<gray>Iscas que você sabe fazer (e o peixe que cada uma pede): <white><iscas></white>. <gray>Uso: <white>/pesca isca <id></white> com o peixe na mão."
+  isca_desconhecida: "<red>Não existe a isca <white><isca></white>."
+  isca_recusa_no: "<red>Você ainda não sabe fazer <white><isca></white>: falta o nó da árvore que a libera."
+  isca_recusa_peixe: "<red>Para fazer <white><isca></white>, segure na mão um peixe <white><raridade></white> ou melhor."
+  isca_feita: "<green>Você fez <white><qtd></white> × <white><isca></white>."
+  mergulho_espera: "<gray>Ainda sem fôlego para mergulhar de novo"
+  mergulho_nada: "<gray>Nada por aqui"
+  mergulho_pegou: "<green>Você pegou na mão: <white><peixe></white> <gray>(<tamanho> cm)."
   uso: "<gray>Uso: <white>/pesca</white> (seu registro), <white>/pesca torneio ranking [andar]</white>, <white>/pesca torneio entrar [andar]"
   zona:
     raso: "Raso"
@@ -297,6 +330,13 @@ pesca:
     encerrando: "<yellow>Encerrando o torneio desta semana e pagando os prêmios."
 
 forja:
+  tecnica_golpe_de_mestre: "<gold>Golpe de Mestre: <white>a batida saiu perfeita."
+  tecnica_martelada: "<gold>Martelada Esmagadora: <white>a última batida valeu por três."
+  tecnica_fio_lendario: "<gold>Fio Lendário: <white>esta afiação não tem como falhar."
+  tecnica_renascer: "<gold>Renascer: <white>este item nunca mais quebra de vez."
+  reparo_so_restaurador: "<red>Um item épico ou lendário só um Restaurador sabe reparar."
+  up_no: "<red>Acima de +5, compre antes na árvore o nó que libera o aprimoramento alto."
+  esquivou: "<green>A couraça desviou o golpe"
   martelo: "Martelo de Ferreiro"
   martelo_nome: "<gold>Martelo de Ferreiro"
   martelo_lore:
@@ -361,6 +401,8 @@ forja:
     vida: "<gray>Forja: <white>+<valor></white> de vida"
     empurrao: "<gray>Forja: <white>+<valor></white> de empurrão"
     critico: "<gray>Forja: <white><valor>%</white> de golpe crítico"
+    esquiva: "<gray>Segunda Pele: <white><valor>%</white> de esquiva"
+    velocidade: "<gray>Couraça leve: <white>+<valor>%</white> de velocidade"
     durabilidade: "<gray>Forja: <white>+<valor>%</white> de durabilidade"
   lore_nivel: "<yellow><atributo> +<nivel>"
   lore_qualidade: "<gray>Qualidade: <white><qualidade>%"
@@ -451,6 +493,16 @@ forja:
   item_dado: "<green><qtd>x <white><nome></white> para <white><jogador></white>."
 
 alquimia:
+  bebeu_elixir: "<gold>Elixir — <nome>: <white>+<vida></white> de vida na hora"
+  cristal_poupado: "<green>O cristal bruto não foi gasto."
+  cristal_puro_lore: "<gold>Cristal puro: <gray>metade da recarga"
+  tecnica_catalisador: "<gold>Catalisador: <white>o insumo perfeito rendeu um Catalisador Universal."
+  marca:
+    elixir: "<gold>Elixir: <gray>cura na hora"
+    rapido: "<gray>Clique para aplicar na arma, sem beber"
+    peconha: "<gold>Peçonha: <gray>o veneno entra um nível mais forte"
+    fio_de_fogo: "<gold>Fio de Fogo: <gray>queima também quem está em volta do alvo"
+    tempestade: "<gold>Tempestade: <gray>o frasco se divide em três"
   titulo: "<light_purple><bold>Mesa de alquimia"
   categoria:
     cura: "Poção de cura"

@@ -54,6 +54,34 @@ public final class Hooks {
         }
     }
 
+    /**
+     * Dá cristais puros: a recarga deles é multiplicada por {@code factor}.
+     *
+     * @return false sem o AincradItems, com tipo desconhecido ou numa versão sem cristal puro
+     */
+    public boolean givePureCrystal(Player p, String type, int amount, double factor, net.kyori.adventure.text.Component loreLine) {
+        Plugin items = Bukkit.getPluginManager().getPlugin("AincradItems");
+        if (items == null || !items.isEnabled()) {
+            return false;
+        }
+        try {
+            Class<?> api = items.getClass().getClassLoader().loadClass("com.aincrad.items.api.AincradItemsAPI");
+            if (!(api.getMethod("createCrystal", String.class, int.class).invoke(null, type, amount) instanceof ItemStack it)) {
+                return false;
+            }
+            api.getMethod("setCooldownFactor", ItemStack.class, double.class).invoke(null, it, factor);
+            org.bukkit.inventory.meta.ItemMeta meta = it.getItemMeta();
+            java.util.List<net.kyori.adventure.text.Component> lore = meta.lore() == null ? new java.util.ArrayList<>() : new java.util.ArrayList<>(meta.lore());
+            lore.add(loreLine);
+            meta.lore(lore);
+            it.setItemMeta(meta);
+            p.getInventory().addItem(it).values().forEach(rest -> p.getWorld().dropItemNaturally(p.getLocation(), rest));
+            return true;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
+        }
+    }
+
     public boolean hasEffects() {
         return Bukkit.getPluginManager().isPluginEnabled("AincradEffects");
     }

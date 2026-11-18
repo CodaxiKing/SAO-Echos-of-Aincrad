@@ -130,6 +130,20 @@ public final class ForgeMath {
             return real;
         }
 
+        /**
+         * Repete o efeito de uma batida boa ou perfeita na qualidade, sem contar outra batida
+         * (a Martelada Esmagadora: a última vale por três). Batida ruim não é repetida.
+         */
+        public void amplify(StationPanel.Hit real, int times) {
+            double step = 50.0 / needed;
+            if (real == StationPanel.Hit.PERFEITA) {
+                quality += step * times;
+            } else if (real == StationPanel.Hit.BOA) {
+                quality += step / 3 * times;
+            }
+            quality = Math.max(0, Math.min(100, quality));
+        }
+
         /** Perde qualidade (ex.: têmpera atrasada). */
         public void lose(double points) {
             quality = Math.max(0, quality - points);

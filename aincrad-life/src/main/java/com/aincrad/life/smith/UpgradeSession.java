@@ -207,6 +207,12 @@ final class UpgradeSession implements SmithService.Session {
         }
         int level = forged.level(item, upgrade);
         double chance = chance(materials, perfects);
+        // Fio Lendário (Afiador): uma vez por arma, a afiação dá certo com certeza.
+        if (upgrade == Upgrade.AFIACAO && service.mod(player, "tecnica_fio_lendario") >= 1 && !forged.marked(item, "fio_lendario")) {
+            chance = 1.0;
+            forged.mark(item, "fio_lendario");
+            msg.send(player, "forja.tecnica_fio_lendario");
+        }
         ForgeMath.Outcome outcome = ForgeMath.upgrade(chance, rnd.nextDouble(), rnd.nextDouble(), level,
                 service.mod(player, "falha_sem_queda") >= 1);
         Upgrade other = upgrade;

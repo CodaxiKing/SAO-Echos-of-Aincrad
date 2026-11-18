@@ -497,6 +497,107 @@ Eventos: `ProfessionRankUpEvent`, `LegendaryFishEvent` (Senhor do Lago derrotado
 `FishingTournamentEndEvent` (torneio pago), `PoisonAttackEvent` (veneno de alquimia em jogador) e
 `PetTameEvent` (familiar domado) e `MarriageEvent` (casamento e divórcio).
 
+## O que cada nó da árvore faz
+
+Todos os nós das quatro árvores têm efeito (o teste `TreeEffectsTest` confere). Os números ficam em
+`config.yml → <profissão>.arvore`.
+
+**O nó que libera o ramo.** Um projeto, receita ou fórmula com `caminho:` (ou `especializacao:`)
+só é aprendido e só é produzido por quem escolheu o ramo **e comprou o nó "desbloqueio" dele**
+("Projetos de armas", "Projetos de lâminas"...). Sem o nó, o livro avisa qual falta e não é gasto.
+
+**Ferreiro**
+
+| Nó | O que faz |
+|---|---|
+| Golpe de Mestre | A primeira batida que não saiu perfeita vira perfeita, uma vez por forja |
+| Martelada Esmagadora | A última batida vale por três |
+| Reaquecer | Machados, lanças e espadas de duas mãos esfriam 30% mais devagar |
+| Peso | O atributo Peso da arma sai 10% maior |
+| Durabilidade de armaduras / couraças | A peça sai com +5% / +10% de durabilidade |
+| Defesa em placas | +10% de armadura nas placas |
+| Muralha | A placa sai com a durabilidade dobrada |
+| Couraça sem penalidade | A couraça de couro dá +3% de velocidade |
+| Segunda Pele | A couraça dá 5% de esquiva (até 20% somando as peças) |
+| Aprimoramento alto | Sem o nó, o Refinador não passa de +5 |
+| Fio Lendário | Uma vez por arma, a afiação dá certo com certeza |
+| Reparo de épicos | Só com o nó a bigorna repara itens de qualidade 75+ ou épicos e lendários do RPG |
+| Restaura o máximo | O reparo deixa o item com +10% de durabilidade máxima, uma vez por item |
+| Renascer | Um item reparado por este mestre nunca mais quebra de vez |
+
+**Culinária.** As receitas não têm categoria; o buff diz o que o prato é: força e vida máxima são
+carnes, velocidade e XP são doces e bebidas, prato de panela é festim. O que a árvore põe no prato
+fica gravado nele e vale para quem comer.
+
+| Nó | O que faz |
+|---|---|
+| Buffs de carne / de doces | +10% no valor do buff desse tipo de prato |
+| Ragu | Prato de carne excelente: o buff dura uma hora |
+| Néctar | Doce ou bebida excelente não tira o buff da comida (fica num segundo lugar) |
+| Festim com regeneração | O festim dá também 30 s de regeneração |
+| Banquete Real | O festim dá um segundo buff ao mesmo tempo (vida máxima, ou força) |
+| Alcance do buff | Quem está a até 5 blocos de quem come o festim ganha o buff por metade do tempo |
+| Cozinhar na fogueira | Clique numa fogueira com a mão vazia para cozinhar nela |
+| Rancho | O prato é comido com um clique, na hora, mesmo em combate |
+| Rações empilham | Pratos individuais empilham até 64 |
+| Pão do Viajante | O prato individual tira a fome por 20 minutos (um dia do Minecraft) |
+| Despensa | Prato individual excelente pode ser comido duas vezes |
+| Conservas sem validade | Na banca, os pratos passam do ponto em 48 h; os deste cozinheiro não |
+| Desconto em ingredientes | 10% do preço volta ao comprar ingredientes numa loja de NPC |
+
+**Pesca**
+
+| Nó | O que faz |
+|---|---|
+| Águas profundas | Sem o nó, o lançamento mais forte cai na zona do meio |
+| Caça aos lendários | Sem o nó, o peixe lendário não morde |
+| Senhor do Lago | O chefe sai da água com 20% menos vida |
+| Mergulho | Debaixo d'água, num ponto de pesca, clique com a mão vazia: pega um peixe do fundo (20 s de recarga) |
+| Arpão | Pega o peixe sem a fase de tensão, uma vez a cada 5 minutos |
+| Iscas de rank B / A | `/pesca isca <id>` faz iscas do peixe da mão: incomum para as de rank B, raro para as de rank A e a de lendário |
+| Iscas extras | +1 isca por peixe |
+| Isca Dourada | Uma isca que só este pescador faz e que garante um peixe raro da zona |
+| Banca em dobro | A banca guarda o dobro de itens |
+| Preço de venda | +10% ao vender peixe a uma loja de NPC |
+| Pesca do Dia | O primeiro peixe vendido a uma loja em cada dia vale o dobro |
+| Tesouros | Na zona funda, chance de vir um baú ou um material no lugar do peixe (sem luta) |
+| Tesouro no meio / chance | Tesouros também na zona do meio; +3% e +5% de chance |
+| Baús de rank A / itens | Itens da lista melhor; +1 item por baú |
+| Naufrágio | Um baú garantido por dia |
+| Materiais de rank A / rank / extras | Materiais da lista melhor, mais vezes, e +1 por pescaria |
+| Veio | 20% de chance de a pescaria de material render o triplo |
+
+**Alquimia**
+
+| Nó | O que faz |
+|---|---|
+| Cura mais rápida | A cura da poção acontece em 2 s a menos |
+| Elixir | A poção de cura perfeita cura na hora |
+| Cristal poupado | 20% de chance de o cristal bruto não ser gasto |
+| Cristal Puro | O cristal feito tem metade da recarga (precisa do AincradItems) |
+| Tóxicos mais fortes | Óleos 5% mais fortes; venenos duram 5% mais |
+| Aplicar rápido | Óleo ou veneno vai para a arma com um clique, sem beber |
+| Peçonha | O veneno perfeito entra um nível mais forte |
+| Fio de Fogo | O óleo perfeito causa metade do dano em quem está em volta do alvo, e põe fogo |
+| Alcance do frasco | O frasco arremessado voa 20% mais longe |
+| Tempestade | O frasco perfeito se divide em três |
+| Pó de têmpera mais forte | O pó alarga a janela da têmpera 50% a mais |
+| Catalisador | Um insumo perfeito rende também um **Catalisador Universal** |
+
+**Catalisador Universal.** Segurado na outra mão ao terminar um trabalho, é gasto e melhora o
+resultado: +5 de qualidade na forja, +15% de chance de "excelente" no prato, +10 pontos de pureza
+na alquimia e mais sorte na mordida da pesca.
+
+**Onde a árvore foi interpretada.** Alguns nós descrevem coisas que o jogo não tinha, e ficaram
+assim: "ignora metade da resistência do mob" (Peçonha) virou um nível a mais de veneno; "itens
+grandes pedem um reaquecimento a menos" virou esfriar mais devagar; "couraças não reduzem a
+velocidade" virou um pequeno bônus de velocidade, já que armadura nenhuma reduzia; "o reparo
+devolve durabilidade máxima perdida" virou +10% de durabilidade máxima; e "uma vez por pescaria"
+(Arpão) virou uma recarga de 5 minutos.
+
+**Fora das árvores, ainda não existem** na alquimia: a venda de fórmulas (a transcrição de
+pergaminhos já existe) e as resistências a paralisia e frio.
+
 ## Escolhas diferentes do plano
 
 - Os dados ficam no banco do AincradCore (não num SQLite próprio), para funcionar em rede.
@@ -507,16 +608,11 @@ Eventos: `ProfessionRankUpEvent`, `LegendaryFishEvent` (Senhor do Lago derrotado
   o jogador perderia o painel de vista).
 - Comum dura 80% do tempo da receita, bom 100% e excelente 150% (`culinaria.duracao`); o plano só
   define o excelente.
-- Os buffs específicos de ramo (ex.: `forca_buff_carne`, `festim_regeneracao`) e as técnicas dos
-  nós finais ainda não têm efeito; chegam com as receitas de cada ramo.
 - Pesca: a barra de força é de dois cliques (um abre, outro lança), porque o servidor não vê o
   jogador "segurando" o clique com a vara.
 - O ponto de pesca vale pelo lugar onde o pescador está, não por onde a boia cai.
 - O registro do maior peixe fica em `/pesca` (e no perfil do core), não no menu `/profissoes`.
 - O torneio é por andar: a inscrição vale para um andar e o prêmio é o das inscrições daquele andar.
-- Da árvore de pesca, ainda não têm efeito: pescar baús, tesouros e materiais (Caça-tesouros),
-  iscas próprias, mergulho, frescor e banca (chegam com a tarefa 23.4) e as técnicas dos nós finais.
-  A zona funda depende só da vara, não do caminho "Águas profundas".
 - Ferreiro: o reparo é um menu de confirmação (com o item na outra mão), não um painel sobre a
   bigorna. A forja e o aprimoramento usam o painel.
 - A lista de projetos é um menu, não um anel de ícones por categoria.
@@ -525,16 +621,13 @@ Eventos: `ProfessionRankUpEvent`, `LegendaryFishEvent` (Senhor do Lago derrotado
 - **Ferreiro NPC**: `/reparo` repara o item da mão só por Col, por 1,5× o preço cheio, sem material
   e sem proficiência, e recusa itens épicos e lendários (`ferreiro.npc`). Para um NPC da cidade:
   `/aincrad npc criar ferreiro_npc Ferreiro` e `/aincrad npc comando ferreiro_npc reparo`.
-- Ainda não têm efeito: a regra de que só o Refinador repara itens épicos e lendários na bigorna, os
-  bônus específicos de ramo (ex.: `defesa_placas`) e as técnicas dos nós finais. Os projetos de caminho usam `caminho:` no `forge.yml`, não os nós "desbloqueia".
+ Os projetos de caminho usam `caminho:` no `forge.yml`, não os nós "desbloqueia".
 - Alquimia: os pontos de coleta são blocos marcados por um admin, não regiões do core.
 - O livro do alquimista é um menu (`/alquimia`), não `/alquimia livro`.
 - Óleos e venenos são aplicados "bebendo" o frasco com a arma na outra mão.
 - A água da base é uma garrafa de água; qualquer poção comum do Minecraft conta.
 - O buff de poção vale junto com o de comida, mas não fica guardado como o de comida: ao trocar
   de servidor, o jogador recebe só o tempo que restava.
-- Ainda não têm efeito: a venda de fórmulas (a transcrição de pergaminhos já existe), as
-  resistências a paralisia e frio, e as técnicas dos nós finais.
 - Encomendas: o pedido é aberto por comando (`/encomenda abrir ...`); o quadro e as listas são menus.
 - A proposta tem um preço só (mão de obra e materiais juntos); o artesão compra o que falta
   pelos pedidos de material.

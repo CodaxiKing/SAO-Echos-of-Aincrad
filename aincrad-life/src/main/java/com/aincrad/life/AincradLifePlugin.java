@@ -139,6 +139,30 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         startModules();
     }
 
+    /** Os materiais de peixe das lojas. */
+    private static final java.util.Set<String> FISH = java.util.Set.of("COD", "SALMON", "TROPICAL_FISH", "PUFFERFISH");
+
+    /** Provisionador (culinária): ingredientes de loja mais baratos. */
+    private double shopDiscount(Player p, String item) {
+        if (cooking == null || cooking.registry().common(item) == null) {
+            return 0;
+        }
+        return professions.modifier(p, com.aincrad.life.model.Profession.CULINARIA, "desconto_ingredientes");
+    }
+
+    /** Peixeiro (pesca): peixe vendido à loja vale mais, e o primeiro de cada dia vale o dobro. */
+    private double shopFishBonus(Player p, String item) {
+        if (fishing == null || !FISH.contains(item.toUpperCase(Locale.ROOT))) {
+            return 0;
+        }
+        double bonus = professions.modifier(p, com.aincrad.life.model.Profession.PESCA, "preco_venda");
+        if (professions.modifier(p, com.aincrad.life.model.Profession.PESCA, "tecnica_pesca_do_dia") >= 1 && fishing.oncePerDay(p, "pesca_do_dia")) {
+            bonus += 1;
+            msg.send(p, "pesca.tecnica_pesca_do_dia");
+        }
+        return bonus;
+    }
+
     /** Módulos ligados que não têm um campo próprio, para o resumo do console. */
     private final List<String> extraModules = new ArrayList<>();
 
@@ -154,6 +178,13 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
     private void startModules() {
         AincradCore core = AincradCore.get();
         boolean anyProfession = on("culinaria") || on("pesca") || on("ferreiro") || on("alquimia");
+        if (anyProfession && hooks.hasEconomy()) {
+            try {
+                listen(new com.aincrad.life.hook.EcoShopListener(this, this::shopDiscount, this::shopFishBonus));
+            } catch (LinkageError e) {
+                getLogger().warning("AincradEconomy incompatível: sem desconto de ingredientes nem bônus de venda de peixe (" + e + ").");
+            }
+        }
         if (anyProfession) {
             listen(professions);
             listen(stations);
@@ -387,6 +418,10 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         }
         if (args.length == 0) {
             fishing.showRecords(p);
+            return;
+        }
+        if (args[0].equalsIgnoreCase("isca") || args[0].equalsIgnoreCase("iscas")) {
+            fishing.makeBait(p, args.length > 1 ? args[1] : null);
             return;
         }
         var here = fishing.pointAt(p.getLocation());

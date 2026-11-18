@@ -177,6 +177,17 @@ public final class AlchemyService {
         return professions.learnable(KIND, f.id());
     }
 
+    /** Um número dos efeitos da árvore (config.yml → alquimia.arvore). */
+    double treeValue(String key, double def) {
+        return config.decimal("alquimia.arvore." + key, def, 0, 100_000);
+    }
+
+    /** O item é o cristal bruto (o reagente dos cristais)? */
+    boolean isRawCrystal(ItemStack it) {
+        AlchemyRegistry.Reagent raw = registry.reagent("cristal_bruto");
+        return raw != null && it != null && it.getType().name().equalsIgnoreCase(raw.material());
+    }
+
     double mod(Player p, String key) {
         return professions.modifier(p, Profession.ALQUIMIA, key);
     }
@@ -283,31 +294,53 @@ public final class AlchemyService {
                     Ingredient ing = cooking.get().registry().ingredient(pr.ref());
                     it = ing == null ? null : cooking.get().ingredientItem(ing, qty);
                 } else if (pr.effect().equals("po_de_tempera") && smith.get() != null) {
-                    it = smith.get().temperPowder(qty);
+                    it = smith.get().temperPowder(qty, Math.max(0, mod(p, "forca_po_tempera")));
                 }
                 if (it == null) {
                     return 0;
                 }
                 give(p, it);
+                // Catalisador (técnica): um insumo perfeito rende também um Catalisador Universal.
+                if (purity == Purity.PERFEITA && mod(p, "tecnica_catalisador") >= 1) {
+                    give(p, professions.catalystItem(1));
+                    msg.send(p, "alquimia.tecnica_catalisador");
+                }
                 return qty;
             }
             case CRISTAL -> {
                 int qty = (int) Math.max(1, pr.value()) + (rnd.nextDouble() < mod(p, "cristal_duplo") ? 1 : 0);
+                // Cristal Puro (técnica): o cristal sai com metade da recarga.
+                if (mod(p, "tecnica_cristal_puro") >= 1
+                        && hooks.givePureCrystal(p, pr.ref(), qty, treeValue("cristal_puro_recarga", 0.5), msg.get("alquimia.cristal_puro_lore"))) {
+                    return qty;
+                }
                 return hooks.giveCrystal(p, pr.ref(), qty) ? qty : 0;
             }
             default -> {
                 double strength = switch (pr.kind()) {
                     case CURA -> mod(p, "forca_cura");
-                    case OLEO -> mod(p, "forca_oleo");
+                    case OLEO -> mod(p, "forca_oleo") + mod(p, "forca_toxico");
                     default -> 0;
                 };
                 double duration = switch (pr.kind()) {
-                    case VENENO -> mod(p, "duracao_veneno");
+                    case VENENO -> mod(p, "duracao_veneno") + mod(p, "forca_toxico");
                     case ARREMESSAVEL -> mod(p, "duracao_frasco");
                     default -> 0;
                 };
-                give(p, potions.item(f, purity, doses, strength, duration, (int) mod(p, "golpes_extras"),
-                        mod(p, "area_frasco"), mod(p, "sem_colateral") >= 1));
+                ItemStack made = potions.item(f, purity, doses, strength, duration, (int) mod(p, "golpes_extras"),
+                        mod(p, "area_frasco"), mod(p, "sem_colateral") >= 1);
+                boolean perfect = purity == Purity.PERFEITA;
+                Kind kind = pr.kind();
+                // O que a árvore do alquimista põe a mais na poção: fica gravado nela.
+                potions.tune(made,
+                        kind == Kind.CURA ? mod(p, "tempo_cura") : 0,
+                        kind == Kind.CURA && perfect && mod(p, "tecnica_elixir") >= 1,
+                        (kind == Kind.OLEO || kind == Kind.VENENO) && mod(p, "aplicar_rapido") >= 1,
+                        kind == Kind.VENENO && perfect && mod(p, "tecnica_peconha") >= 1,
+                        kind == Kind.OLEO && perfect && mod(p, "tecnica_fio_de_fogo") >= 1,
+                        kind == Kind.ARREMESSAVEL ? mod(p, "alcance_frasco") : 0,
+                        kind == Kind.ARREMESSAVEL && perfect && mod(p, "tecnica_tempestade") >= 1);
+                give(p, made);
                 return doses;
             }
         }

@@ -27,6 +27,19 @@ estacoes:
 
 # Culinária. Receitas em recipes.yml, ingredientes em ingredients.yml. Tempos em ticks (20 = 1 s).
 culinaria:
+  # Números dos efeitos da árvore do cozinheiro (trees/culinaria.yml).
+  arvore:
+    # Banquete Real: o segundo buff do festim (vida máxima; se o prato já dá vida, força em %).
+    segundo_buff_vida: 4
+    segundo_buff_forca: 5
+    # Festins com regeneração: por quantos segundos.
+    regeneracao_segundos: 30
+    # Festim que alcança aliados: que fração do tempo do buff eles recebem.
+    compartilhar_fracao: 0.5
+    # Pão do Viajante: minutos sem fome (20 = um dia do Minecraft).
+    sem_fome_minutos: 20
+    # Catalisador Universal na outra mão ao terminar o prato: chance de "excelente" a mais.
+    catalisador_chance: 0.15
   # Tipo de bancada (stations.yml) que serve de cozinha.
   estacao: kitchen
   # Cortar: marcas em pontos sorteados. "anel_ticks" é o tempo do anel para fechar; "perfeita" e
@@ -89,6 +102,32 @@ culinaria:
 
 # Pesca. Varas, iscas, peixes e pontos em fishing.yml. Tempos em ticks (20 = 1 s) onde indicado.
 pesca:
+  # Números dos efeitos da árvore do pescador (trees/pesca.yml).
+  arvore:
+    # Tesouros (Caça-tesouros): chance por mordida na zona funda, e quanto disso é baú
+    # (o resto é material).
+    tesouro_chance: 0.05
+    tesouro_chance_bau: 0.4
+    tesouro_dificuldade: 400
+    # Itens de um baú pescado, e o que pode vir nele (e nos de rank A).
+    bau_itens: 2
+    bau: [IRON_INGOT, GOLD_INGOT, EMERALD, LEATHER, STRING, NAUTILUS_SHELL]
+    bau_a: [DIAMOND, AMETHYST_SHARD, HEART_OF_THE_SEA, GOLDEN_APPLE]
+    # Materiais pescados (e os de rank A, dos Materiais raros).
+    materiais: [IRON_NUGGET, COAL, RAW_IRON, RAW_COPPER, CLAY_BALL, KELP]
+    materiais_a: [RAW_GOLD, DIAMOND, AMETHYST_SHARD, PRISMARINE_CRYSTALS]
+    # Veio: chance de a pescaria de material render o triplo.
+    veio_chance: 0.2
+    # Arpão: segundos até poder pegar outro peixe sem a fase de tensão.
+    arpao_recarga_segundos: 300
+    # Mergulhador: segundos entre um mergulho e outro.
+    mergulho_recarga_segundos: 20
+    # Senhor do Lago: fração de vida a menos com que ele sai da água.
+    senhor_do_lago_menos_vida: 0.2
+    # Produção de iscas (/pesca isca): quantas saem de um peixe.
+    iscas_por_peixe: 2
+    # Catalisador Universal na outra mão: sorte a mais na mordida.
+    catalisador_sorte: 0.25
   # Lançar: o primeiro clique abre a barra de força, que sobe e desce; o segundo lança.
   lancar:
     # Tempo de uma ida e volta da barra.
@@ -144,6 +183,15 @@ ferreiro:
   martelo_item: MACE
   # Quanto o golpe crítico dos itens forjados multiplica o dano.
   critico_multiplicador: 1.5
+  # Números dos efeitos da árvore do ferreiro (trees/ferreiro.yml).
+  arvore:
+    # Couraças leves com "sem penalidade de velocidade": % de velocidade que a peça dá.
+    velocidade_couraca: 3
+    # Segunda Pele: % de esquiva que a couraça dá, e o máximo somando as peças vestidas.
+    esquiva_segunda_pele: 5
+    esquiva_maxima: 20
+    # Catalisador Universal na outra mão ao terminar a forja: pontos de qualidade a mais.
+    catalisador_qualidade: 5
   # O ferreiro NPC das cidades (/reparo): repara o item da mão só por Col, mais caro que um
   # ferreiro jogador, sem material e sem proficiência. Faça um NPC dele com
   # /aincrad npc criar ferreiro_npc Ferreiro  e  /aincrad npc comando ferreiro_npc reparo
@@ -153,6 +201,9 @@ ferreiro:
     # Raridades (do AincradRPG) que ele não sabe reparar: são trabalho do Refinador.
     recusa_raridades: [epico, lendario]
   reparo:
+    # A partir desta qualidade de forja (ou raridade épico/lendário do AincradRPG), só o
+    # Restaurador repara o item na bigorna.
+    qualidade_fina: 75
     # Custo de um reparo completo (item com a durabilidade toda gasta): Col e unidades do material.
     col: 300
     unidades: 4
@@ -259,6 +310,12 @@ ferreiro:
 
 # Alquimia. Reagentes e pontos de coleta em reagents.yml; fórmulas em formulas.yml.
 alquimia:
+  # Números dos efeitos da árvore do alquimista (trees/alquimia.yml).
+  arvore:
+    # Cristal Puro: por quanto a recarga do cristal é multiplicada.
+    cristal_puro_recarga: 0.5
+    # Catalisador Universal na outra mão ao terminar o preparo: pontos de pureza a mais.
+    catalisador_pureza: 10
   # Tipo de bancada (stations.yml) que serve de mesa de alquimia.
   estacao: alchemy_table
   # Moer: marcas em ritmo regular. "anel_ticks" é o tempo do anel; "perfeita" e "boa", as folgas.
@@ -369,6 +426,9 @@ barracas:
   # depois, a fração abaixo.
   frescor:
     horas: 24
+    # Pratos também passam do ponto na banca, contado de quando são postos (0 = nunca).
+    # Quem tem as Conservas na árvore de culinária não tem esse prazo.
+    pratos_horas: 48
     preco_depois: 0.5
 
 # Familiares. As espécies estão em pets.yml.

@@ -390,7 +390,8 @@ final class CookingSession {
         double proficiency = professions.proficiency(player, Profession.CULINARIA);
         double score = scoreWeight <= 0 ? 0 : scoreSum / scoreWeight;
         double chance = Quality.excellentChance(cfg.rules(), proficiency, recipe.difficulty(), platingPerfect,
-                mod("chance_excelente") + (extraSpecial ? cfg.specialBonus() : 0));
+                mod("chance_excelente") + (extraSpecial ? cfg.specialBonus() : 0)
+                        + (professions.useCatalyst(player) ? service.treeValue("catalisador_chance", 0.15) : 0));
         Quality q = Quality.decide(cfg.rules(), score, burned, chance, rnd.nextDouble());
 
         int portions = recipe.portions();
@@ -401,7 +402,8 @@ final class CookingSession {
             }
             portions = Math.min(cfg.maxPortions(), portions);
         }
-        CookingService.give(player, service.dish(recipe, q, player.getName(), mod("duracao_buff"), mod("forca_buff"), portions));
+        DishPerks perks = DishPerks.of(recipe, q, this::mod, service.treeValue("segundo_buff_vida", 4), service.treeValue("segundo_buff_forca", 5));
+        CookingService.give(player, service.dish(recipe, q, player.getName(), mod("duracao_buff"), DishPerks.strength(recipe, this::mod), portions, perks));
         if (!used.isEmpty() && rnd.nextDouble() < mod("ingrediente_poupado")) {
             ItemStack spared = used.get(rnd.nextInt(used.size()));
             CookingService.give(player, spared);

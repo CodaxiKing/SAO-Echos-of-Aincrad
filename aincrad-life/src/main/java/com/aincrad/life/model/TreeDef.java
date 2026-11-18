@@ -253,6 +253,29 @@ public final class TreeDef {
         return total;
     }
 
+    /**
+     * O nó "desbloqueio" que libera os itens exclusivos de um caminho ({@code spec} null) ou de
+     * uma especialização. Null se o ramo não tem um.
+     */
+    public Node unlockNode(String path, String spec) {
+        if (path == null) {
+            return null;
+        }
+        for (Node n : nodes.values()) {
+            if ("desbloqueio".equals(n.kind()) && path.equalsIgnoreCase(n.path())
+                    && (spec == null ? n.spec() == null : spec.equalsIgnoreCase(n.spec()))) {
+                return n;
+            }
+        }
+        return null;
+    }
+
+    /** Um item exclusivo do ramo só se aprende e só se produz com o nó "desbloqueio" do ramo comprado. */
+    public boolean unlocked(String path, String spec, Set<String> owned) {
+        Node n = unlockNode(path, spec);
+        return n == null || owned.contains(n.id());
+    }
+
     /** Um item exclusivo de um caminho (e, se dado, de uma especialização) pode ser aprendido por este jogador? */
     public static boolean allows(String needPath, String needSpec, Set<String> owned) {
         if (needPath != null && !needPath.equalsIgnoreCase(pathOf(owned))) {

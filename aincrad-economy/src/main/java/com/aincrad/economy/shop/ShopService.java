@@ -314,7 +314,7 @@ public final class ShopService implements Listener {
             }
             give.add(it);
         }
-        if (!eco.withdraw(p.getUniqueId(), price, "loja:compra")) {
+        if (!eco.withdraw(p.getUniqueId(), price, "loja:compra:" + o.spec())) {
             msg.send(p, "loja.sem_saldo", eco.col(price));
             return;
         }
@@ -340,7 +340,7 @@ public final class ShopService implements Listener {
         ItemStack sample = create(o, 1);
         take(p, o, amount);
         long got = o.sell() * amount;
-        eco.deposit(p.getUniqueId(), got, "loja:venda");
+        eco.deposit(p.getUniqueId(), got, "loja:venda:" + o.spec());
         msg.send(p, "loja.vendeu", Messages.vars("qtd", amount), eco.col(got),
                 Placeholder.component("item", sample == null ? Component.text(o.spec()) : name(sample)));
     }

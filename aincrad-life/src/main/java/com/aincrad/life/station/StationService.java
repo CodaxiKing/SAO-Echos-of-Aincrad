@@ -155,6 +155,19 @@ public final class StationService implements Listener {
         return placed;
     }
 
+    /** O tipo de bancada com este id (stations.yml), ou null. */
+    public StationType type(String id) {
+        return id == null ? null : types.get(id.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Uma bancada que não está no mapa nem no banco, só para abrir o painel sobre um bloco
+     * qualquer (a fogueira do cozinheiro de campanha).
+     */
+    public Placed virtual(StationType type, org.bukkit.block.Block block, float yaw) {
+        return new Placed(-1, type, block.getWorld().getName(), block.getX(), block.getY(), block.getZ(), StationType.snapYaw(yaw));
+    }
+
     /** Roda antes de qualquer bancada abrir (as encomendas trazem os materiais do contrato). Null tira. */
     public void beforeUse(java.util.function.Consumer<Player> hook) {
         this.beforeUse = hook;

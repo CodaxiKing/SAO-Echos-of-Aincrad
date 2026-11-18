@@ -88,6 +88,10 @@ final class FishingSession {
         return professions.modifier(player, Profession.PESCA, key);
     }
 
+    /** O que mordeu não é peixe: um baú ou um material (árvore do pescador). */
+    private FishingPerks.Treasure treasure;
+    private double catalystLuck;
+
     private int biteDelay() {
         int min = Math.min(cfg.biteMin(), cfg.biteMax());
         int max = Math.max(cfg.biteMin(), cfg.biteMax());
@@ -131,10 +135,23 @@ final class FishingSession {
     private void bite() {
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
         double proficiency = professions.proficiency(player, Profession.PESCA);
-        legendary = service.registry().legendaryPossible(point, zone, bait, proficiency)
+        // O lendário só morde para quem liberou a caça aos lendários na árvore.
+        if (professions.useCatalyst(player)) {
+            // O Catalisador Universal na outra mão: esta mordida tem mais sorte.
+            catalystLuck = service.treeValue("catalisador_sorte", 0.25);
+        }
+        legendary = mod("desbloqueia_lendario") >= 1 && service.registry().legendaryPossible(point, zone, bait, proficiency)
                 && rnd.nextDouble() < point.legendary().chance() * (1 + Math.max(0, mod("chance_lendario")));
+        treasure = legendary ? null : service.rollTreasure(player, zone);
         fish = legendary ? service.registry().fish(point.legendary().fish())
-                : service.registry().roll(point, zone, service.luck(player, rod, bait, cfg), rnd.nextDouble());
+                : service.registry().roll(point, zone, service.luck(player, rod, bait, cfg) + catalystLuck, rnd.nextDouble());
+        // Isca dourada (técnica): o que morde é um dos peixes raros da zona.
+        if (!legendary && bait != null && bait.id().equals(FishingPerks.GOLDEN_BAIT)) {
+            List<Fish> rare = FishingPerks.rare(point, zone, service.registry().fishes());
+            if (!rare.isEmpty()) {
+                fish = rare.get(rnd.nextInt(rare.size()));
+            }
+        }
         if (fish == null) {
             service.end(this);
             return;
@@ -159,6 +176,19 @@ final class FishingSession {
     boolean onReel() {
         switch (phase) {
             case MORDEU -> {
+                if (treasure != null) {
+                    // Não é peixe: o baú ou o material vem direto, sem cansar nada.
+                    phase = Phase.FIM;
+                    useBait(true);
+                    hook.remove();
+                    service.giveTreasure(player, treasure);
+                    service.end(this);
+                    return true;
+                }
+                if (!legendary && service.useHarpoon(player)) {
+                    caught();
+                    return true;
+                }
                 startFight();
                 return true;
             }

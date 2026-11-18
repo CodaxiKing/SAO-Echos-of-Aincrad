@@ -302,6 +302,180 @@ public final class FishingService implements Listener {
         p.getInventory().addItem(it).values().forEach(rest -> p.getWorld().dropItemNaturally(p.getLocation(), rest));
     }
 
+    // ------------------------------------------------------------------ árvore: tesouros, iscas, mergulho
+
+    /** Um número dos efeitos da árvore (config.yml → pesca.arvore). */
+    double treeValue(String key, double def) {
+        return config.decimal("pesca.arvore." + key, def, 0, 100_000);
+    }
+
+    private double mod(Player p, String key) {
+        return professions.modifier(p, Profession.PESCA, key);
+    }
+
+    private static final java.time.format.DateTimeFormatter DAY = java.time.format.DateTimeFormatter.BASIC_ISO_DATE;
+
+    /** Marca que o jogador usou hoje uma coisa que vale uma vez por dia. @return true se ainda não tinha usado */
+    public boolean oncePerDay(Player p, String what) {
+        String today = java.time.LocalDate.now().format(DAY);
+        var profile = AincradCore.get().profile(p);
+        if (today.equals(profile.get(plugin, "dia_" + what, ""))) {
+            return false;
+        }
+        profile.set(plugin, "dia_" + what, today);
+        return true;
+    }
+
+    private final Map<UUID, Long> harpoonAt = new HashMap<>();
+    private final Map<UUID, Long> diveAt = new HashMap<>();
+
+    /** Arpão (Mergulhador): pega o peixe sem a fase de tensão, uma vez a cada recarga. */
+    boolean useHarpoon(Player p) {
+        if (mod(p, "tecnica_arpao") < 1) {
+            return false;
+        }
+        long now = System.currentTimeMillis();
+        if (now < harpoonAt.getOrDefault(p.getUniqueId(), 0L)) {
+            return false;
+        }
+        harpoonAt.put(p.getUniqueId(), now + (long) (treeValue("arpao_recarga_segundos", 300) * 1000));
+        msg.send(p, "pesca.tecnica_arpao");
+        return true;
+    }
+
+    /**
+     * O que vem na linha no lugar de um peixe, ou null. O Naufrágio garante um baú por dia, na
+     * primeira mordida do dia em que um tesouro era possível.
+     */
+    FishingPerks.Treasure rollTreasure(Player p, Zone zone) {
+        java.util.function.ToDoubleFunction<String> m = key -> mod(p, key);
+        double chance = FishingPerks.treasureChance(zone, treeValue("tesouro_chance", 0.05), m);
+        if (chance <= 0) {
+            return null;
+        }
+        if (mod(p, "tecnica_naufragio") >= 1 && oncePerDay(p, "naufragio")) {
+            msg.send(p, "pesca.tecnica_naufragio");
+            return FishingPerks.Treasure.BAU;
+        }
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        if (rnd.nextDouble() >= chance) {
+            return null;
+        }
+        return rnd.nextDouble() < treeValue("tesouro_chance_bau", 0.4) ? FishingPerks.Treasure.BAU : FishingPerks.Treasure.MATERIAL;
+    }
+
+    private ItemStack pick(String list, ThreadLocalRandom rnd) {
+        List<String> names = config.yaml().getStringList("pesca.arvore." + list);
+        if (names.isEmpty()) {
+            return null;
+        }
+        Material m = Material.matchMaterial(names.get(rnd.nextInt(names.size())));
+        return m == null || !m.isItem() ? null : new ItemStack(m);
+    }
+
+    /** Entrega o tesouro ao pescador. */
+    void giveTreasure(Player p, FishingPerks.Treasure t) {
+        java.util.function.ToDoubleFunction<String> m = key -> mod(p, key);
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        int given = 0;
+        if (t == FishingPerks.Treasure.BAU) {
+            int n = FishingPerks.chestItems((int) treeValue("bau_itens", 2), m);
+            for (int i = 0; i < n; i++) {
+                // Baús de rank A (árvore): metade dos itens vem da lista melhor.
+                ItemStack it = pick(mod(p, "desbloqueia_baus_a") >= 1 && rnd.nextBoolean() ? "bau_a" : "bau", rnd);
+                if (it != null) {
+                    give(p, it);
+                    given++;
+                }
+            }
+            msg.send(p, "pesca.pegou_bau", Messages.vars("qtd", given));
+        } else {
+            boolean vein = rnd.nextDouble() < treeValue("veio_chance", 0.2);
+            int n = FishingPerks.materialAmount(m, vein);
+            // Materiais raros: a lista melhor, e com "rank_materiais" ela vem mais vezes.
+            double better = mod(p, "desbloqueia_materiais_a") >= 1 ? 0.25 + 0.25 * mod(p, "rank_materiais") : 0;
+            ItemStack it = pick(rnd.nextDouble() < better ? "materiais_a" : "materiais", rnd);
+            if (it != null) {
+                it.setAmount(Math.min(it.getMaxStackSize(), n));
+                give(p, it);
+                given = it.getAmount();
+            }
+            msg.send(p, vein && mod(p, "tecnica_veio") >= 1 ? "pesca.pegou_veio" : "pesca.pegou_material", Messages.vars("qtd", given));
+        }
+        professions.practice(p, Profession.PESCA, (int) treeValue("tesouro_dificuldade", 400), true);
+        p.playSound(p.getLocation(), Sound.BLOCK_CHEST_OPEN, 0.8f, 1.2f);
+    }
+
+    /** /pesca isca [id]: faz iscas do peixe que o pescador tem na mão. Sem id, lista as que ele sabe fazer. */
+    public void makeBait(Player p, String id) {
+        java.util.function.ToDoubleFunction<String> m = key -> mod(p, key);
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        Fish fish = registry.fish(fishId(hand));
+        if (id == null) {
+            List<String> can = new ArrayList<>();
+            for (Bait b : registry.baits().values()) {
+                String why = FishingPerks.baitRefusal(b, null, m);
+                if (!"no".equals(why)) {
+                    can.add(b.id() + " (" + msg.raw("pesca.raridade." + FishingPerks.fishFor(FishingPerks.baitTier(b)).key()) + ")");
+                }
+            }
+            msg.send(p, "pesca.iscas_lista", Messages.vars("iscas", can.isEmpty() ? "—" : String.join(", ", can)));
+            return;
+        }
+        Bait bait = registry.bait(id.toLowerCase(Locale.ROOT));
+        if (bait == null) {
+            msg.send(p, "pesca.isca_desconhecida", Messages.vars("isca", id));
+            return;
+        }
+        String why = FishingPerks.baitRefusal(bait, fish, m);
+        if (why != null) {
+            msg.send(p, "pesca.isca_recusa_" + why, Messages.vars("isca", bait.name(),
+                    "raridade", msg.raw("pesca.raridade." + FishingPerks.fishFor(FishingPerks.baitTier(bait)).key())));
+            return;
+        }
+        hand.setAmount(hand.getAmount() - 1);
+        int n = bait.id().equals(FishingPerks.GOLDEN_BAIT) ? 1 : FishingPerks.baitsPerFish((int) treeValue("iscas_por_peixe", 2), m);
+        give(p, baitItem(bait, n));
+        professions.practice(p, Profession.PESCA, 100 + 200 * FishingPerks.baitTier(bait), true);
+        msg.send(p, "pesca.isca_feita", Messages.vars("isca", bait.name(), "qtd", n));
+    }
+
+    /**
+     * Mergulhador: debaixo d'água, num ponto de pesca, o clique com a mão vazia pega um peixe do
+     * fundo na mão, sem vara. Tem recarga.
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void onDive(org.bukkit.event.player.PlayerInteractEvent event) {
+        Player p = event.getPlayer();
+        if (event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND || !event.getAction().isRightClick()
+                || !p.getInventory().getItemInMainHand().getType().isAir() || !p.isInWater()
+                || p.getEyeLocation().getBlock().getType() != Material.WATER || mod(p, "desbloqueia_mergulho") < 1) {
+            return;
+        }
+        Point point = pointAt(p.getLocation());
+        if (point == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (now < diveAt.getOrDefault(p.getUniqueId(), 0L)) {
+            msg.actionBar(p, "pesca.mergulho_espera");
+            return;
+        }
+        diveAt.put(p.getUniqueId(), now + (long) (treeValue("mergulho_recarga_segundos", 20) * 1000));
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        Fish fish = registry.roll(point, Zone.FUNDO, 0, rnd.nextDouble());
+        if (fish == null || fish.rarity() == Rarity.LENDARIO) {
+            msg.actionBar(p, "pesca.mergulho_nada");
+            return;
+        }
+        int mm = FishingRegistry.sizeMm(fish, rnd.nextDouble());
+        give(p, fishItem(fish, mm, p.getName()));
+        register(p, point, fish, mm);
+        professions.practice(p, Profession.PESCA, fish.difficulty(), true);
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_SPLASH, 0.6f, 1.4f);
+        msg.send(p, "pesca.mergulho_pegou", Messages.vars("peixe", fish.name(), "tamanho", cm(mm)));
+    }
+
     // ------------------------------------------------------------------ sorte e registro
 
     /** A sorte do lançamento: vara, isca, proficiência, comida e nós da árvore. */
@@ -402,6 +576,10 @@ public final class FishingService implements Listener {
             }
             power = power(c, cfg, p);
             zone = registry.zone(power);
+        }
+        if (zone != null) {
+            // Águas profundas (árvore): sem o nó, o lançamento mais forte cai na zona do meio.
+            zone = FishingPerks.allowed(zone, key -> professions.modifier(p, Profession.PESCA, key));
         }
         if (zone == null || !registry.reaches(rod, zone)) {
             event.setCancelled(true);
@@ -532,7 +710,9 @@ public final class FishingService implements Listener {
         AttributeInstance hp = boss.getAttribute(Attribute.MAX_HEALTH);
         if (hp != null) {
             hp.setBaseValue(l.health());
-            boss.setHealth(hp.getValue());
+            // Caçador de lendários (técnica): o Senhor do Lago já sai da água ferido.
+            boolean worn = professions.modifier(fisher, Profession.PESCA, "tecnica_senhor_do_lago") >= 1;
+            boss.setHealth(hp.getValue() * (worn ? 1 - Math.min(0.9, treeValue("senhor_do_lago_menos_vida", 0.2)) : 1));
         }
         AttributeInstance dmg = boss.getAttribute(Attribute.ATTACK_DAMAGE);
         if (dmg != null && l.damage() > 0) {

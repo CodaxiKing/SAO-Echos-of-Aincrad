@@ -67,6 +67,14 @@ public final class AincradItemsAPI {
         return def == null ? null : registry.create(def, amount);
     }
 
+    /**
+     * Faz do cristal um cristal puro: a recarga dele é multiplicada por {@code factor} (0.5 =
+     * metade). Para o alquimista do AincradLife.
+     */
+    public static void setCooldownFactor(ItemStack crystal, double factor) {
+        com.aincrad.items.crystal.CrystalService.setCooldownFactor(crystal, factor);
+    }
+
     /** Dá cristais ao jogador (o que não couber cai no chão). @return false se o cristal não existe */
     public static boolean giveCrystal(Player player, String type, int amount) {
         CrystalDef def = find(type);

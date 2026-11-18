@@ -191,12 +191,18 @@ public final class ProfessionService implements Listener {
 
     /** Conhece o item e tem a proficiência de produção? */
     public boolean canProduce(Player p, Learnable l) {
-        return l.canProduce(proficiency(p, l.profession()), data(p).known);
+        return l.canProduce(proficiency(p, l.profession()), data(p).known)
+                && tree(l.profession()).unlocked(l.path(), l.spec(), owned(p, l.profession()));
     }
 
     public Learnable.Check canLearn(Player p, Learnable l) {
         LifeStore.PlayerLife d = data(p);
-        return l.canLearn(d.proficiency.get(l.profession()), d.known, d.tree.get(l.profession()));
+        Learnable.Check c = l.canLearn(d.proficiency.get(l.profession()), d.known, d.tree.get(l.profession()));
+        if ((c == Learnable.Check.OK || c == Learnable.Check.PROFICIENCIA)
+                && !tree(l.profession()).unlocked(l.path(), l.spec(), d.tree.get(l.profession()))) {
+            return Learnable.Check.FALTA_NO;
+        }
+        return c;
     }
 
     /** Ensina sem conferir nada (admin, quests, descoberta por experimento). */
@@ -270,6 +276,10 @@ public final class ProfessionService implements Listener {
             case JA_SABE -> msg.send(p, "saber.ja_sabe", vars);
             case PROFICIENCIA -> msg.send(p, "saber.falta_estudo", vars);
             case CAMINHO_FECHADO -> msg.send(p, "saber.caminho_fechado", vars);
+            case FALTA_NO -> {
+                TreeDef.Node need = tree(l.profession()).unlockNode(l.path(), l.spec());
+                msg.send(p, "saber.falta_no", vars, Messages.vars("no", need == null ? "?" : need.name()));
+            }
             case OK -> {
                 hand.setAmount(hand.getAmount() - 1);
                 teach(p, l);
@@ -375,6 +385,35 @@ public final class ProfessionService implements Listener {
      */
     public double modifier(Player p, Profession prof, String key) {
         return tree(prof).modifier(key, owned(p, prof));
+    }
+
+    // ------------------------------------------------------------------ catalisador universal
+
+    /**
+     * O Catalisador Universal, a técnica do alquimista de insumos: segurado na outra mão ao
+     * terminar um trabalho em qualquer profissão, melhora o resultado e é gasto.
+     */
+    public ItemStack catalystItem(int amount) {
+        ItemStack it = new ItemStack(Material.GLOWSTONE_DUST, Math.max(1, Math.min(64, amount)));
+        ItemMeta meta = it.getItemMeta();
+        meta.displayName(msg.get("saber.catalisador_nome"));
+        meta.lore(msg.list("saber.catalisador_lore"));
+        meta.setEnchantmentGlintOverride(true);
+        meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "catalisador_universal"), PersistentDataType.BYTE, (byte) 1);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    /** Gasta um Catalisador Universal da outra mão do jogador. @return true se havia um */
+    public boolean useCatalyst(Player p) {
+        ItemStack off = p.getInventory().getItemInOffHand();
+        if (off.getType().isAir() || !off.hasItemMeta()
+                || !off.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "catalisador_universal"), PersistentDataType.BYTE)) {
+            return false;
+        }
+        off.setAmount(off.getAmount() - 1);
+        msg.send(p, "saber.catalisador_usado");
+        return true;
     }
 
     /** Texto do motivo de uma recusa da árvore. */

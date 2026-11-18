@@ -87,6 +87,14 @@ final class ForgeSession implements SmithService.Session {
         return service.mod(player, key);
     }
 
+    /** O Golpe de Mestre já foi gasto nesta forja? */
+    private boolean masterUsed;
+
+    /** Machados, lanças e espadas de duas mãos: as peças que pedem mais batidas. */
+    private boolean big() {
+        return blueprint.type().hits() >= 25;
+    }
+
     // ------------------------------------------------------------------ encaixes
 
     void open() {
@@ -207,7 +215,9 @@ final class ForgeSession implements SmithService.Session {
         age++;
         if (state == State.FORJANDO) {
             // O lingote esfria com o tempo (e mais um pouco a cada batida).
-            heat = Math.max(0, heat - cfg.heatDecay() * Math.max(0.1, 1 - mod("calor_estavel")));
+            // Armas pesadas (árvore): a peça grande segura o calor e pede menos idas ao fole.
+            double keepsHeat = big() && mod("reaquecer") < 0 ? 0.7 : 1;
+            heat = Math.max(0, heat - cfg.heatDecay() * Math.max(0.1, 1 - mod("calor_estavel")) * keepsHeat);
             if (!panel.markActive() && --delay <= 0) {
                 int perfect = cfg.perfect() + (int) (professions.proficiency(player, Profession.FERREIRO) / cfg.perfectPer());
                 int good = Math.max(perfect, cfg.good());
@@ -235,7 +245,19 @@ final class ForgeSession implements SmithService.Session {
             return;
         }
         boolean ok = heatOk();
+        // Golpe de Mestre: a primeira batida que não saiu perfeita vira perfeita, uma vez por forja.
+        if (ok && h != StationPanel.Hit.PERFEITA && !masterUsed && mod("tecnica_golpe_de_mestre") >= 1) {
+            h = StationPanel.Hit.PERFEITA;
+            masterUsed = true;
+            msg.send(player, "forja.tecnica_golpe_de_mestre");
+        }
+        boolean last = work.done() + 1 >= work.needed();
         StationPanel.Hit real = work.strike(h, ok);
+        // Martelada Esmagadora: a última batida vale por três.
+        if (last && real != StationPanel.Hit.RUIM && mod("tecnica_martelada") >= 1) {
+            work.amplify(real, 2);
+            msg.send(player, "forja.tecnica_martelada");
+        }
         heat = Math.max(0, heat - cfg.heatPerHit());
         feedback = !ok ? msg.get(heat < cfg.heatLow() ? "forja.batida_fria" : "forja.batida_quente")
                 : msg.get("painel.batida_" + real.name().toLowerCase(Locale.ROOT));
@@ -314,7 +336,8 @@ final class ForgeSession implements SmithService.Session {
     private void finish(boolean tempered) {
         state = State.FIM;
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
-        double quality = Math.max(0, Math.min(100, work.quality()
+        double catalyst = professions.useCatalyst(player) ? service.treeValue("catalisador_qualidade", 5) : 0;
+        double quality = Math.max(0, Math.min(100, work.quality() + catalyst
                 + 100 * mod(blueprint.type().armor() ? "qualidade_armaduras" : "qualidade_armas")));
         Rarity rarity = ForgeMath.rarity(quality, cfg.thresholds(), cap);
         int tries = ForgeMath.tries(cfg.triesBase(), quality, cfg.triesExtraFrom(), cfg.triesExtra(), (int) mod("tentativas_extras"));
@@ -323,6 +346,7 @@ final class ForgeSession implements SmithService.Session {
         if (tempered) {
             stats.merge("durabilidade", cfg.temperBonus(), Double::sum);
         }
+        branchBonuses(stats);
         ItemStack item = service.build(blueprint, rarity, named, stats, (int) Math.round(quality), tries, player);
         SmithService.give(player, item);
         if (!used.isEmpty() && rnd.nextDouble() < mod("material_poupado")) {
@@ -343,6 +367,39 @@ final class ForgeSession implements SmithService.Session {
             msg.send(player, "forja.nomeada", vars);
         }
         panel.close(false);
+    }
+
+    /** Os bônus de ramo da árvore sobre a peça pronta (a durabilidade é em %). */
+    private void branchBonuses(Map<String, Double> stats) {
+        if (mod("atributo_peso") > 0) {
+            stats.computeIfPresent("empurrao", (k, v) -> Math.round(v * (1 + mod("atributo_peso")) * 10) / 10.0);
+        }
+        if (!blueprint.type().armor()) {
+            return;
+        }
+        double durability = 100 * mod("durabilidade_armaduras");
+        boolean leather = blueprint.material() != null && blueprint.material().toUpperCase(Locale.ROOT).startsWith("LEATHER");
+        if (leather) {
+            // Couraças leves.
+            durability += 100 * mod("durabilidade_couracas");
+            if (mod("sem_penalidade_velocidade") >= 1) {
+                stats.merge("velocidade", service.treeValue("velocidade_couraca", 3), Double::sum);
+            }
+            if (mod("tecnica_segunda_pele") >= 1) {
+                stats.merge("esquiva", service.treeValue("esquiva_segunda_pele", 5), Double::sum);
+            }
+        } else {
+            // Placas.
+            if (mod("defesa_placas") > 0) {
+                stats.computeIfPresent("armadura", (k, v) -> Math.round(v * (1 + mod("defesa_placas")) * 10) / 10.0);
+            }
+            if (mod("tecnica_muralha") >= 1) {
+                durability += 100;
+            }
+        }
+        if (durability > 0) {
+            stats.merge("durabilidade", durability, Double::sum);
+        }
     }
 
     // ------------------------------------------------------------------ holograma

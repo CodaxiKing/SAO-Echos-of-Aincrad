@@ -110,10 +110,34 @@ public final class CrystalService implements Listener {
         return !ev.isCancelled();
     }
 
+    private static final org.bukkit.NamespacedKey COOLDOWN_FACTOR = new org.bukkit.NamespacedKey("aincraditems", "recarga_x");
+
+    /** Por quanto a recarga deste cristal é multiplicada (1 = a normal). */
+    public static double cooldownFactor(ItemStack it) {
+        if (it == null || !it.hasItemMeta()) {
+            return 1;
+        }
+        Double f = it.getItemMeta().getPersistentDataContainer().get(COOLDOWN_FACTOR, org.bukkit.persistence.PersistentDataType.DOUBLE);
+        return f == null ? 1 : Math.max(0.05, Math.min(1, f));
+    }
+
+    /** Grava no cristal o multiplicador da recarga dele (0.5 = metade). */
+    public static void setCooldownFactor(ItemStack it, double factor) {
+        if (it == null || !it.hasItemMeta()) {
+            return;
+        }
+        org.bukkit.inventory.meta.ItemMeta meta = it.getItemMeta();
+        meta.getPersistentDataContainer().set(COOLDOWN_FACTOR, org.bukkit.persistence.PersistentDataType.DOUBLE, factor);
+        it.setItemMeta(meta);
+    }
+
     /** Marca a recarga e gasta um cristal (da mão principal, ou de onde estiver no inventário). */
     public void spend(Player p, CrystalDef def) {
         if (def.cooldown() > 0) {
-            cooldowns.set(p.getUniqueId(), def.cooldownGroup(), def.cooldown() * 1000L);
+            // Um cristal puro (feito por um alquimista mestre) recarrega mais depressa.
+            ItemStack used = p.getInventory().getItemInMainHand();
+            double factor = def.equals(registry.of(used)) ? cooldownFactor(used) : 1;
+            cooldowns.set(p.getUniqueId(), def.cooldownGroup(), Math.round(def.cooldown() * 1000L * factor));
         }
         if (!def.consumed()) {
             return;

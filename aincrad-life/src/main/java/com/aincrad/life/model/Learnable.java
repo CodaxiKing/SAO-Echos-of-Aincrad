@@ -20,7 +20,9 @@ public record Learnable(String kind, String id, String name, String category, Pr
 
     /** Resultado de tentar aprender. */
     public enum Check {
-        OK, JA_SABE, PROFICIENCIA, CAMINHO_FECHADO
+        OK, JA_SABE, PROFICIENCIA, CAMINHO_FECHADO,
+        /** O caminho é o certo, mas falta comprar na árvore o nó que libera estes itens. */
+        FALTA_NO
     }
 
     public Learnable {

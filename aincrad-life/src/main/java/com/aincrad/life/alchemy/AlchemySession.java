@@ -464,11 +464,24 @@ final class AlchemySession {
         state = State.FIM;
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
         double proficiency = professions.proficiency(player, Profession.ALQUIMIA);
-        double total = Math.max(0, Math.min(100, points + AlchemyMath.proficiency(cfg.rules(), proficiency, formula.difficulty())
+        double catalyst = professions.useCatalyst(player) ? service.treeValue("catalisador_pureza", 10) : 0;
+        double total = Math.max(0, Math.min(100, points + catalyst + AlchemyMath.proficiency(cfg.rules(), proficiency, formula.difficulty())
                 + 100 * mod("pureza")));
         Purity purity = AlchemyMath.purity(cfg.rules(), total, perfectBottle, flask.cap());
         int doses = AlchemyMath.doses(flask.doses(), purity, (int) mod("doses")) + (rnd.nextDouble() < mod("dose_extra") ? 1 : 0);
         int delivered = service.deliver(player, formula, purity, doses);
+        // Cristais (árvore): chance de o cristal bruto não ser gasto.
+        if (formula.product().kind() == AlchemyRegistry.Kind.CRISTAL && rnd.nextDouble() < mod("cristal_poupado")) {
+            for (ItemStack it : used) {
+                if (service.isRawCrystal(it)) {
+                    ItemStack back = it.clone();
+                    back.setAmount(1);
+                    AlchemyService.give(player, back);
+                    msg.send(player, "alquimia.cristal_poupado");
+                    break;
+                }
+            }
+        }
         if (!used.isEmpty() && rnd.nextDouble() < mod("reagente_poupado")) {
             AlchemyService.give(player, used.get(rnd.nextInt(used.size())));
             msg.send(player, "alquimia.poupou");

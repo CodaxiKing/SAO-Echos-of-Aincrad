@@ -240,7 +240,9 @@ public final class StallService implements Listener {
             msg.send(p, "barraca.uso");
             return;
         }
-        int lines = config.integer("barracas.itens_por_barraca", 27, 1, 45);
+        // Peixeiro (árvore): a banca guarda o dobro.
+        int lines = config.integer("barracas.itens_por_barraca", 27, 1, 45)
+                * (professions.modifier(p, Profession.PESCA, "banca_dobro") >= 1 ? 2 : 1);
         ItemStack unit = hand.clone();
         unit.setAmount(1);
         int amount = hand.getAmount();
@@ -248,8 +250,14 @@ public final class StallService implements Listener {
         // O frescor do peixe é contado da hora em que foi pescado; os nós do pescador alongam.
         FishingService f = fishing.get();
         long caught = f == null ? 0 : f.fishCaughtAt(unit);
-        long freshUntil = StallRules.freshUntil(caught, config.decimal("barracas.frescor.horas", 24, 0, 8760),
+        long fishFresh = StallRules.freshUntil(caught, config.decimal("barracas.frescor.horas", 24, 0, 8760),
                 professions.modifier(p, Profession.PESCA, "frescor"));
+        // Os pratos também passam do ponto na banca (contado de agora), menos os de quem tem as
+        // Conservas na árvore de culinária.
+        double dishHours = config.decimal("barracas.frescor.pratos_horas", 48, 0, 8760);
+        boolean dish = unit.hasItemMeta() && unit.getItemMeta().getPersistentDataContainer().has(new org.bukkit.NamespacedKey(plugin, "prato"));
+        long freshUntil = dish && dishHours > 0 && professions.modifier(p, Profession.CULINARIA, "sem_validade") < 1
+                ? System.currentTimeMillis() + Math.round(dishHours * 3_600_000L) : fishFresh;
         p.getInventory().setItemInMainHand(null);
         ItemStack back = hand.clone();
         run(p, c -> {

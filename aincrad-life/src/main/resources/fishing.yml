@@ -47,6 +47,12 @@ iscas:
     nome: "Isca Brilhante"
     material: GLOWSTONE_DUST
     sorte: 0.25
+  # A isca da técnica do Criador de iscas (árvore): garante um peixe raro. Só ele a faz, com
+  # /pesca isca isca_dourada, de um peixe raro na mão.
+  isca_dourada:
+    nome: "Isca Dourada"
+    material: GOLD_NUGGET
+    sorte: 0
   isca_do_senhor_do_lago:
     nome: "Isca do Senhor do Lago"
     material: NAUTILUS_SHELL

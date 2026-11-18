@@ -57,6 +57,7 @@ public final class ForgedItems {
         ATTRIBUTES.put("resistencia", new StatType(Attribute.ARMOR_TOUGHNESS, AttributeModifier.Operation.ADD_NUMBER, false));
         ATTRIBUTES.put("vida", new StatType(Attribute.MAX_HEALTH, AttributeModifier.Operation.ADD_NUMBER, false));
         ATTRIBUTES.put("empurrao", new StatType(Attribute.ATTACK_KNOCKBACK, AttributeModifier.Operation.ADD_NUMBER, false));
+        ATTRIBUTES.put("velocidade", new StatType(Attribute.MOVEMENT_SPEED, AttributeModifier.Operation.ADD_SCALAR, true));
     }
 
     private final Plugin plugin;
@@ -121,6 +122,28 @@ public final class ForgedItems {
     public double crit(ItemStack it) {
         PersistentDataContainer p = pdc(it);
         return p == null ? 0 : p.getOrDefault(keyCrit, PersistentDataType.DOUBLE, 0.0);
+    }
+
+    /** Chance de esquiva que a peça dá a quem a veste, em % (a Segunda Pele do Armoreiro). */
+    public double dodge(ItemStack it) {
+        PersistentDataContainer p = pdc(it);
+        return p == null ? 0 : p.getOrDefault(new NamespacedKey(plugin, "forja_esquiva"), PersistentDataType.DOUBLE, 0.0);
+    }
+
+    /** O item tem a marca? (ex.: "fio_lendario" já usado, "renascer", "restaurado") */
+    public boolean marked(ItemStack it, String mark) {
+        PersistentDataContainer p = pdc(it);
+        return p != null && p.has(new NamespacedKey(plugin, "marca_" + mark), PersistentDataType.BYTE);
+    }
+
+    /** Põe uma marca no item (não aparece na descrição). */
+    public void mark(ItemStack it, String mark) {
+        if (it == null || !it.hasItemMeta()) {
+            return;
+        }
+        ItemMeta meta = it.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "marca_" + mark), PersistentDataType.BYTE, (byte) 1);
+        it.setItemMeta(meta);
     }
 
     /** Qualidade da forja, de 0 a 100 (0: não é item forjado). */
@@ -216,6 +239,13 @@ public final class ForgedItems {
             if (v != 0) {
                 meta.addAttributeModifier(t.attribute(), new AttributeModifier(key, t.percent() ? v / 100.0 : v, t.op(), slot.getGroup()));
             }
+        }
+        NamespacedKey dodgeKey = new NamespacedKey(plugin, "forja_esquiva");
+        double dodge = total.getOrDefault("esquiva", 0.0);
+        if (dodge > 0) {
+            p.set(dodgeKey, PersistentDataType.DOUBLE, dodge);
+        } else {
+            p.remove(dodgeKey);
         }
         double crit = total.getOrDefault("critico", 0.0);
         if (crit > 0) {

@@ -197,6 +197,54 @@ public final class PotionService implements Listener {
         return it;
     }
 
+    private NamespacedKey flag(String name) {
+        return new NamespacedKey(plugin, "pocao_" + name);
+    }
+
+    private boolean has(PersistentDataContainer pdc, String name) {
+        return pdc.has(flag(name), PersistentDataType.BYTE);
+    }
+
+    /**
+     * Grava na poção o que a árvore do alquimista põe a mais (vale para quem a usar).
+     *
+     * @param healSeconds segundos a mais (negativo = menos) para a cura acontecer
+     * @param instant     Elixir: cura na hora
+     * @param quick       aplicar na arma com um clique, sem beber
+     * @param deep        Peçonha: o veneno entra um nível mais forte
+     * @param fireEdge    Fio de Fogo: o óleo também queima quem está em volta do alvo
+     * @param farther     o frasco voa mais longe (0.2 = +20%)
+     * @param storm       Tempestade: o frasco se divide em três
+     */
+    public void tune(ItemStack it, double healSeconds, boolean instant, boolean quick, boolean deep, boolean fireEdge, double farther, boolean storm) {
+        if (it == null || !it.hasItemMeta()) {
+            return;
+        }
+        ItemMeta meta = it.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        java.util.List<Component> lore = meta.lore() == null ? new java.util.ArrayList<>() : new java.util.ArrayList<>(meta.lore());
+        if (healSeconds != 0) {
+            pdc.set(keySeconds, PersistentDataType.DOUBLE, Math.max(1, pdc.getOrDefault(keySeconds, PersistentDataType.DOUBLE, 10.0) + healSeconds));
+        }
+        java.util.Map<String, Boolean> marks = new java.util.LinkedHashMap<>();
+        marks.put("elixir", instant);
+        marks.put("rapido", quick);
+        marks.put("peconha", deep);
+        marks.put("fio_de_fogo", fireEdge);
+        marks.put("tempestade", storm);
+        marks.forEach((name, on) -> {
+            if (on) {
+                pdc.set(flag(name), PersistentDataType.BYTE, (byte) 1);
+                lore.add(msg.get("alquimia.marca." + name));
+            }
+        });
+        if (farther > 0) {
+            pdc.set(new NamespacedKey(plugin, "pocao_alcance"), PersistentDataType.DOUBLE, farther);
+        }
+        meta.lore(lore);
+        it.setItemMeta(meta);
+    }
+
     private String effectName(String effect) {
         String first = effect.contains(",") ? effect.substring(0, effect.indexOf(',')) : effect;
         return msg.has("alquimia.efeito." + first) ? msg.raw("alquimia.efeito." + first) : first.replace('_', ' ');
@@ -236,6 +284,13 @@ public final class PotionService implements Listener {
                     return;
                 }
                 healCooldown.put(p.getUniqueId(), now + config.integer("alquimia.cura_recarga_segundos", 5, 0, 3600) * 1000L);
+                if (has(pdc, "elixir")) {
+                    // Elixir: a poção perfeita do mestre cura na hora, como um cristal.
+                    org.bukkit.attribute.AttributeInstance max = p.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+                    p.setHealth(Math.min(max == null ? 20 : max.getValue(), p.getHealth() + value));
+                    msg.actionBar(p, "alquimia.bebeu_elixir", Messages.vars("nome", name, "vida", number(value)));
+                    break;
+                }
                 // A vida volta aos poucos, duas vezes por segundo, e não de uma vez.
                 Healing h = new Healing();
                 h.steps = (int) Math.max(1, Math.round(seconds * 2));
@@ -274,28 +329,10 @@ public final class PotionService implements Listener {
             case OLEO, VENENO -> {
                 // "Beber" um óleo ou veneno é aplicar na arma que está na outra mão.
                 EquipmentSlot weaponHand = event.getHand() == EquipmentSlot.HAND ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND;
-                ItemStack weapon = p.getInventory().getItem(weaponHand);
-                if (weapon.getType().getMaxDurability() <= 0 || weapon.getAmount() != 1) {
+                if (!apply(p, pdc, kind, weaponHand)) {
                     event.setCancelled(true);
-                    msg.send(p, "alquimia.arma_na_outra_mao");
                     return;
                 }
-                ItemMeta meta = weapon.getItemMeta();
-                PersistentDataContainer w = meta.getPersistentDataContainer();
-                if (kind == Kind.OLEO) {
-                    w.set(keyOilDamage, PersistentDataType.DOUBLE, value);
-                    w.set(keyOilHits, PersistentDataType.INTEGER, hits);
-                } else {
-                    w.set(keyVenom, PersistentDataType.STRING, effect);
-                    w.set(keyVenomLevel, PersistentDataType.INTEGER, (int) Math.max(1, Math.round(value)));
-                    w.set(keyVenomSeconds, PersistentDataType.DOUBLE, seconds);
-                    w.set(keyVenomHits, PersistentDataType.INTEGER, hits);
-                    w.set(keyVenomId, PersistentDataType.STRING, pdc.getOrDefault(keyFormula, PersistentDataType.STRING, ""));
-                }
-                weapon.setItemMeta(meta);
-                p.getInventory().setItem(weaponHand, weapon);
-                p.playSound(p.getLocation(), Sound.ITEM_BOTTLE_EMPTY, 0.8f, 1.2f);
-                msg.send(p, "alquimia.aplicou", Messages.vars("nome", name, "golpes", hits));
             }
             default -> {
                 return;
@@ -310,12 +347,101 @@ public final class PotionService implements Listener {
         }
     }
 
+    /** Põe o óleo ou o veneno na arma da mão dada. @return false se não há arma ali */
+    private boolean apply(Player p, PersistentDataContainer pdc, Kind kind, EquipmentSlot weaponHand) {
+        String name = pdc.getOrDefault(keyName, PersistentDataType.STRING, "?");
+        double value = pdc.getOrDefault(keyValue, PersistentDataType.DOUBLE, 0.0);
+        int hits = pdc.getOrDefault(keyHits, PersistentDataType.INTEGER, 0);
+        ItemStack weapon = p.getInventory().getItem(weaponHand);
+        if (weapon.getType().getMaxDurability() <= 0 || weapon.getAmount() != 1) {
+            msg.send(p, "alquimia.arma_na_outra_mao");
+            return false;
+        }
+        ItemMeta meta = weapon.getItemMeta();
+        PersistentDataContainer w = meta.getPersistentDataContainer();
+        if (kind == Kind.OLEO) {
+            w.set(keyOilDamage, PersistentDataType.DOUBLE, value);
+            w.set(keyOilHits, PersistentDataType.INTEGER, hits);
+            if (has(pdc, "fio_de_fogo")) {
+                w.set(flag("fio_de_fogo"), PersistentDataType.BYTE, (byte) 1);
+            } else {
+                w.remove(flag("fio_de_fogo"));
+            }
+        } else {
+            // Peçonha: o veneno perfeito do mestre entra um nível mais forte.
+            int level = (int) Math.max(1, Math.round(value)) + (has(pdc, "peconha") ? 1 : 0);
+            w.set(keyVenom, PersistentDataType.STRING, pdc.getOrDefault(keyEffect, PersistentDataType.STRING, ""));
+            w.set(keyVenomLevel, PersistentDataType.INTEGER, level);
+            w.set(keyVenomSeconds, PersistentDataType.DOUBLE, pdc.getOrDefault(keySeconds, PersistentDataType.DOUBLE, 0.0));
+            w.set(keyVenomHits, PersistentDataType.INTEGER, hits);
+            w.set(keyVenomId, PersistentDataType.STRING, pdc.getOrDefault(keyFormula, PersistentDataType.STRING, ""));
+        }
+        weapon.setItemMeta(meta);
+        p.getInventory().setItem(weaponHand, weapon);
+        p.playSound(p.getLocation(), Sound.ITEM_BOTTLE_EMPTY, 0.8f, 1.2f);
+        msg.send(p, "alquimia.aplicou", Messages.vars("nome", name, "golpes", hits));
+        return true;
+    }
+
+    /** Aplicar rápido (árvore): o óleo ou veneno marcado vai para a arma com um clique, sem beber. */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onQuickApply(org.bukkit.event.player.PlayerInteractEvent event) {
+        ItemStack it = event.getItem();
+        if (event.getHand() == null || !event.getAction().isRightClick() || !isProduct(it)) {
+            return;
+        }
+        PersistentDataContainer pdc = it.getItemMeta().getPersistentDataContainer();
+        Kind kind = Kind.parse(pdc.get(keyKind, PersistentDataType.STRING));
+        if ((kind != Kind.OLEO && kind != Kind.VENENO) || !has(pdc, "rapido")) {
+            return;
+        }
+        event.setCancelled(true);
+        EquipmentSlot weaponHand = event.getHand() == EquipmentSlot.HAND ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND;
+        if (apply(event.getPlayer(), pdc, kind, weaponHand)) {
+            it.setAmount(it.getAmount() - 1);
+        }
+    }
+
+    /** Evita que o dano em área do Fio de Fogo e os frascos da Tempestade chamem a si mesmos. */
+    private boolean busy;
+
+    /** O frasco arremessado: voa mais longe e, com a Tempestade, se divide em três. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onThrow(org.bukkit.event.entity.ProjectileLaunchEvent event) {
+        if (busy || !(event.getEntity() instanceof org.bukkit.entity.ThrownPotion potion) || !(potion.getShooter() instanceof Player p)) {
+            return;
+        }
+        ItemStack it = potion.getItem();
+        if (!isProduct(it)) {
+            return;
+        }
+        PersistentDataContainer pdc = it.getItemMeta().getPersistentDataContainer();
+        double farther = pdc.getOrDefault(new NamespacedKey(plugin, "pocao_alcance"), PersistentDataType.DOUBLE, 0.0);
+        if (farther > 0) {
+            potion.setVelocity(potion.getVelocity().multiply(1 + farther));
+        }
+        if (has(pdc, "tempestade")) {
+            busy = true;
+            try {
+                for (double angle : new double[]{-0.3, 0.3}) {
+                    org.bukkit.entity.ThrownPotion extra = p.launchProjectile(org.bukkit.entity.ThrownPotion.class, potion.getVelocity().clone().rotateAroundY(angle));
+                    extra.setItem(it.clone());
+                }
+            } finally {
+                busy = false;
+            }
+        }
+    }
+
     // ------------------------------------------------------------------ arma com óleo ou veneno
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onHit(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player p) || !(event.getEntity() instanceof LivingEntity target)) {
             return;
+        }
+        if (busy) {
+            return; // o dano em área do próprio óleo
         }
         ItemStack weapon = p.getInventory().getItemInMainHand();
         if (!weapon.hasItemMeta()) {
@@ -327,6 +453,21 @@ public final class PotionService implements Listener {
         Integer oil = w.get(keyOilHits, PersistentDataType.INTEGER);
         if (oil != null) {
             event.setDamage(event.getDamage() + w.getOrDefault(keyOilDamage, PersistentDataType.DOUBLE, 0.0));
+            if (!busy && w.has(flag("fio_de_fogo"), PersistentDataType.BYTE)) {
+                // Fio de Fogo: metade do dano do óleo em quem está em volta do alvo.
+                double splash = w.getOrDefault(keyOilDamage, PersistentDataType.DOUBLE, 0.0) * 0.5;
+                busy = true;
+                try {
+                    for (LivingEntity near : target.getWorld().getNearbyLivingEntities(target.getLocation(), 2.5)) {
+                        if (near != target && near != p && !(near instanceof Player)) {
+                            near.damage(splash, p);
+                            near.setFireTicks(Math.max(near.getFireTicks(), 40));
+                        }
+                    }
+                } finally {
+                    busy = false;
+                }
+            }
             target.getWorld().spawnParticle(Particle.FLAME, target.getLocation().add(0, target.getHeight() * 0.6, 0), 4, 0.2, 0.2, 0.2, 0.01);
             if (oil <= 1) {
                 w.remove(keyOilHits);
