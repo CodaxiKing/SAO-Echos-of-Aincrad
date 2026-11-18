@@ -1,0 +1,75 @@
+# ============================================================
+#  AincradReputation — mensagens (MiniMessage)
+# ============================================================
+conquista:
+  titulo: "<gold><bold>Conquista!"
+  titulo_sub: "<yellow><conquista>"
+  ganhou: "<gold>Conquista: <white><conquista></white>."
+  ganhou_titulo: "<gold>Conquista: <white><conquista></white>. <gray>Título liberado: <yellow><titulo></yellow> <gray>(<white>/titulos</white>)."
+  anuncio: "<gold><white><jogador></white> conseguiu a conquista <yellow><conquista></yellow>!"
+  menu: "<dark_gray>Conquistas (<tem>)"
+  item_tem: "<green><conquista>"
+  item_falta: "<gray><conquista>"
+  descricao: "<gray><descricao>"
+  libera: "<gray>Título: <yellow><titulo>"
+
+titulo:
+  # Como o título aparece antes do nome.
+  formato: "<gray>[<gold><titulo><gray>] "
+  nenhum: "<gray>Você ainda não tem títulos. Eles vêm das conquistas (<white>/conquistas</white>)."
+  menu: "<dark_gray>Títulos"
+  item: "<gold><titulo>"
+  clique: "<yellow>Clique para usar"
+  em_uso: "<green>Em uso"
+  tirar: "<red>Ficar sem título"
+  escolheu: "<green>Seu título agora é <gold><titulo></gold>."
+  tirou: "<gray>Você está sem título."
+  recebeu: "<gold>Você recebeu o título <white><titulo></white>. <gray>Escolha em <white>/titulos</white>."
+
+cursor:
+  cor:
+    verde: "<green>verde"
+    laranja: "<gold>laranja"
+    vermelho: "<red>vermelho"
+  agora:
+    verde: "<green>Seu cursor voltou a ser verde."
+    laranja: "<gold>Seu cursor está laranja: você atacou um jogador. As cidades estão fechadas para você."
+    vermelho: "<red>Seu cursor está vermelho: você matou um jogador. As cidades estão fechadas, e quem derrotar você manda você para a prisão."
+  matou: "<red>Você matou <white><jogador></white>. Cursor vermelho por <white><tempo></white> <gray>(mortes causadas: <mortes>)."
+  info: "<gray><white><jogador></white>: cursor <cor> <dark_gray>· <gray>resta <white><tempo></white> <dark_gray>· <gray>mortes causadas: <white><mortes></white> <dark_gray>· <gray>título: <white><titulo></white> <dark_gray>· <gray>conquistas: <white><conquistas>"
+  limpo: "<green>Um admin limpou a sua reputação: cursor verde."
+
+cidades:
+  barrado: "<red>Os guardas não deixam você entrar na cidade com esse cursor."
+
+pvp:
+  desligado: "<gray>O PvP está desligado aqui."
+
+prisao:
+  preso: "<red>Você foi derrotado por <white><jogador></white> e vai para a prisão por <white><tempo></white>."
+  prendeu: "<gold>Você derrotou <white><jogador></white>, um jogador vermelho: ele vai para a prisão."
+  info: "<red>Você está preso. <gray>Resta <white><tempo></white>."
+  nao_sai: "<red>Você está preso."
+  sem_teleporte: "<red>Presos não se teleportam."
+  sem_comando: "<red>Presos não usam esse comando."
+  sem_cristal: "<red>Presos não usam cristais."
+  solto: "<green>Você cumpriu o tempo de prisão. <gray>Seu cursor agora é laranja."
+  definida: "<green>Prisão definida. Os presos aparecem onde você está."
+  selecao: "<red>Marque os dois cantos da prisão com a varinha (<white>/aincrad varinha</white>) e fique dentro dela ao dar o comando."
+
+admin:
+  offline: "<red>Jogador não encontrado online."
+  descricao_prisao: "Prisão: definir com a seleção da varinha"
+  descricao_reputacao: "Reputação: limpar a cor do cursor de um jogador"
+  descricao_titulo: "Títulos: dar um título a um jogador"
+  descricao_conquista: "Conquistas: dar uma conquista a um jogador"
+  uso_prisao: "<gray>Uso: <white>/aincrad prisao definir"
+  uso_reputacao: "<gray>Uso: <white>/aincrad reputacao limpar <jogador>"
+  uso_titulo: "<gray>Uso: <white>/aincrad titulo dar <jogador> <título>"
+  uso_conquista: "<gray>Uso: <white>/aincrad conquista dar <jogador> <id>"
+  reputacao_limpa: "<green>Reputação de <white><jogador></white> limpa: cursor verde, sem mortes, fora da prisão."
+  titulo_invalido: "<red>O título precisa ter de 1 a 48 letras, sem o sinal de menor."
+  titulo_dado: "<green><white><jogador></white> recebeu o título <gold><titulo></gold>."
+  conquista_desconhecida: "<red>Conquista desconhecida. Existem: <white><lista>"
+  conquista_dada: "<green><white><jogador></white> recebeu a conquista <gold><conquista></gold>."
+  conquista_ja_tem: "<gray><white><jogador></white> já tem a conquista <white><conquista></white>."

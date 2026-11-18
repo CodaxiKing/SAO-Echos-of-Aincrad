@@ -1,0 +1,97 @@
+# ============================================================
+#  Conquistas. Cada uma é liberada por um acontecimento de outro plugin Aincrad.
+#
+#  tipo:       primeiro_no_andar       — o primeiro jogador do servidor a entrar num andar (AincradFloors)
+#              andar_visitado          — qualquer jogador, na primeira vez num andar
+#              chefe_primeira_vitoria  — participou da primeira vitória sobre o chefe de um andar (AincradBosses)
+#              chefe_derrotado         — participou de uma vitória sobre um chefe
+#              last_attack             — deu o golpe final num chefe
+#              peixe_lendario          — pescou um lendário (AincradLife)
+#              torneio_de_pesca        — venceu o torneio semanal de pesca
+#              familiar_domado         — domou um familiar
+#              profissao_completa      — chegou a 1000 numa profissão
+#              casamento               — casou
+#  andar:      só vale neste andar (sem isto: qualquer andar).
+#  profissao:  só vale nesta profissão: culinaria, pesca, ferreiro ou alquimia.
+#  por_andar:  true — uma conquista separada para cada andar; <andar> no nome, na descrição e
+#              no título vira o número do andar.
+#  titulo:     o título que a conquista libera (até 48 letras). O jogador escolhe em /titulos.
+#  anunciar:   true — avisa o servidor quando alguém consegue.
+#
+#  Dar uma conquista à mão: /aincrad conquista dar <jogador> <id>
+#  Outros plugins: AincradReputationAPI.grantAchievement(jogador, id)
+# ============================================================
+conquistas:
+  primeiro_no_andar:
+    nome: "Primeiro no Andar <andar>"
+    descricao: "Foi o primeiro jogador a pisar no andar <andar>."
+    tipo: primeiro_no_andar
+    por_andar: true
+    titulo: "Primeiro no Andar <andar>"
+    anunciar: true
+  linha_de_frente:
+    nome: "Linha de Frente"
+    descricao: "Participou da primeira vitória sobre o chefe de um andar."
+    tipo: chefe_primeira_vitoria
+    titulo: "Linha de Frente"
+  conquistador_do_andar_1:
+    nome: "Queda de Illfang"
+    descricao: "Participou da primeira vitória sobre o chefe do andar 1."
+    tipo: chefe_primeira_vitoria
+    andar: 1
+    titulo: "Conquistador do Andar 1"
+    anunciar: true
+  beater:
+    nome: "Beater"
+    descricao: "Deu o Last Attack num chefe de andar."
+    tipo: last_attack
+    titulo: "Beater"
+    anunciar: true
+  pescador_lendario:
+    nome: "Senhor do Lago"
+    descricao: "Pescou um peixe lendário."
+    tipo: peixe_lendario
+    titulo: "Pescador Lendário"
+    anunciar: true
+  campeao_de_pesca:
+    nome: "Campeão de Pesca"
+    descricao: "Venceu o torneio semanal de pesca."
+    tipo: torneio_de_pesca
+    titulo: "Campeão de Pesca"
+  domador:
+    nome: "Domador"
+    descricao: "Domou um familiar."
+    tipo: familiar_domado
+    titulo: "Domador de Feras"
+  mestre_cuca:
+    nome: "Mestre-Cuca"
+    descricao: "Chegou a 1000 de proficiência em culinária."
+    tipo: profissao_completa
+    profissao: culinaria
+    titulo: "Mestre-Cuca"
+    anunciar: true
+  mestre_pescador:
+    nome: "Mestre Pescador"
+    descricao: "Chegou a 1000 de proficiência em pesca."
+    tipo: profissao_completa
+    profissao: pesca
+    titulo: "Mestre Pescador"
+    anunciar: true
+  mestre_ferreiro:
+    nome: "Mestre Ferreiro"
+    descricao: "Chegou a 1000 de proficiência como ferreiro."
+    tipo: profissao_completa
+    profissao: ferreiro
+    titulo: "Mestre Ferreiro"
+    anunciar: true
+  mestre_alquimista:
+    nome: "Mestre Alquimista"
+    descricao: "Chegou a 1000 de proficiência em alquimia."
+    tipo: profissao_completa
+    profissao: alquimia
+    titulo: "Mestre Alquimista"
+    anunciar: true
+  alianca:
+    nome: "Aliança"
+    descricao: "Casou em Aincrad."
+    tipo: casamento

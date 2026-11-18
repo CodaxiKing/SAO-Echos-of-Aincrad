@@ -1,0 +1,18 @@
+name: AincradReputation
+version: '${version}'
+main: com.aincrad.reputation.AincradReputationPlugin
+api-version: '1.21'
+description: Conquistas, títulos, cor do cursor (player killers), prisão e PvP por andar.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [AincradFloors, AincradBosses, AincradItems, AincradLife, AincradSocial, LuckPerms]
+
+# Os comandos de jogador (/titulos, /conquistas, /reputacao) são registrados pelo plugin ao ligar.
+
+permissions:
+  aincrad.admin:
+    description: Comandos de administração do Aincrad (/aincrad prisao, reputacao, titulo, conquista).
+    default: op
+  aincrad.reputation.bypass:
+    description: Não muda de cor de cursor e entra nas cidades com qualquer cor.
+    default: false

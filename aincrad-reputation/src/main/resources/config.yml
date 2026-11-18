@@ -1,0 +1,58 @@
+# ============================================================
+#  AincradReputation — configuração
+#  Conquistas e títulos: achievements.yml
+# ============================================================
+
+cursor:
+  # Atacar um jogador verde deixa laranja por este tempo (renova a cada ataque).
+  laranja_horas: 24
+  # Matar um jogador verde deixa vermelho por este tempo...
+  vermelho_horas: 48
+  # ...e cada morte que o jogador já causou aumenta o tempo nesta fração
+  # (0.5: a segunda morte vale 72 h, a terceira 96 h, e assim por diante).
+  vermelho_aumento_por_morte: 0.5
+
+cidades:
+  # Laranja e vermelho não entram nas zonas seguras do AincradFloors (os guardas barram na entrada).
+  # Quem já está dentro (renasceu, entrou no servidor) pode sair.
+  barrar: true
+
+prisao:
+  # Um vermelho derrotado por outro jogador vai preso. Defina a prisão com a varinha do core e
+  # /aincrad prisao definir (você precisa estar dentro da seleção: é onde os presos aparecem).
+  ativa: true
+  # Nome da região do core.
+  regiao: prisao
+  # Tempo de prisão por morte causada, e o máximo.
+  minutos_por_morte: 30
+  maximo_horas: 24
+  # Os únicos comandos que um preso usa.
+  comandos_permitidos:
+    - msg
+    - r
+    - tell
+    - reputacao
+    - titulos
+    - conquistas
+
+pvp:
+  # Andares do AincradFloors onde jogador não fere jogador.
+  andares_sem_pvp: []
+  # Regiões do core onde jogador não fere jogador.
+  regioes_sem_pvp: []
+
+titulos:
+  # O título em uso aparece antes do nome no chat.
+  no_chat: true
+  # true: em vez de mexer no chat, o plugin põe o título como prefixo do jogador no LuckPerms
+  # (o seu plugin de chat mostra). Precisa do LuckPerms no servidor.
+  luckperms: false
+  luckperms_prioridade: 50
+
+nome:
+  # O título e a cor do cursor na lista de jogadores (tab).
+  na_tab: true
+  # O título e a cor do cursor sobre a cabeça do jogador:
+  #   auto — só quando o AincradSocial não está no servidor (ele usa o mesmo lugar para a tag da guilda)
+  #   sim  — sempre      nao — nunca
+  sobre_a_cabeca: auto
