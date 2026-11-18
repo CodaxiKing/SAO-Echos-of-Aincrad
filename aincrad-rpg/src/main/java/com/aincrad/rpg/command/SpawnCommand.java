@@ -38,8 +38,9 @@ import java.util.function.Consumer;
  * {@code /aincrad spawn}: marcar uma área, dizer quais mobs nascem nela e com que level, sem
  * abrir o spawns.yml. Sem argumentos, abre o menu. Cada mudança é gravada no arquivo e vale na hora.
  */
-public final class SpawnCommand implements SubCommand {
+public final class SpawnCommand implements SubCommand, org.bukkit.event.Listener {
 
+    // O menu cobre tudo o que os comandos fazem; os comandos ficam para quem prefere digitar.
     private static final List<String> SUBS = List.of("varinha", "criar", "area", "mob", "level", "peso", "nome", "periodo",
             "remover", "maximo", "ver", "aqui", "lista", "menu");
 
@@ -47,6 +48,8 @@ public final class SpawnCommand implements SubCommand {
     private final Messages msg;
     private final SpawnService spawns;
     private final ConfigFile file;
+    /** Quem o menu está esperando digitar algo no chat (nome da área, level, nome do mob). */
+    private final Map<java.util.UUID, Consumer<String>> typing = new java.util.concurrent.ConcurrentHashMap<>();
 
     public SpawnCommand(Plugin plugin, Messages msg, SpawnService spawns, ConfigFile file) {
         this.plugin = plugin;
@@ -73,6 +76,64 @@ public final class SpawnCommand implements SubCommand {
     @Override
     public Component description() {
         return msg.get("spawn.descricao");
+    }
+
+    // ------------------------------------------------------------------ digitar no chat
+
+    /** Fecha o menu e espera o jogador digitar uma linha no chat ("cancelar" desiste). */
+    private void ask(Player p, String key, Consumer<String> then, Runnable back) {
+        p.closeInventory();
+        msg.send(p, "spawn.digite." + key);
+        java.util.UUID id = p.getUniqueId();
+        Consumer<String> handler = text -> {
+            if (text == null || text.equalsIgnoreCase("cancelar")) {
+                msg.send(p, "spawn.digite.cancelado");
+                back.run();
+            } else {
+                then.accept(text.trim());
+            }
+        };
+        typing.put(id, handler);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (typing.remove(id, handler) && p.isOnline()) {
+                msg.send(p, "spawn.digite.tempo");
+            }
+        }, 20L * 60);
+    }
+
+    /** O que o jogador digitou vai para o menu, não para o chat. */
+    @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.LOWEST, ignoreCancelled = true)
+    public void onChat(io.papermc.paper.event.player.AsyncChatEvent event) {
+        Consumer<String> handler = typing.remove(event.getPlayer().getUniqueId());
+        if (handler == null) {
+            return;
+        }
+        event.setCancelled(true);
+        String text = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(event.message());
+        Bukkit.getScheduler().runTask(plugin, () -> handler.accept(text));
+    }
+
+    @org.bukkit.event.EventHandler
+    public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
+        typing.remove(event.getPlayer().getUniqueId());
+    }
+
+    /** Botão "Marcar área nova": com os dois cantos marcados, pede o nome; sem eles, entrega a varinha. */
+    private void newArea(Player p, boolean exact) {
+        RegionManager.Selection s = AincradCore.get().regions().selection(p);
+        if (!s.complete() || !s.a().getWorld().equals(s.b().getWorld())) {
+            p.closeInventory();
+            p.getInventory().addItem(AincradCore.get().regions().wand());
+            msg.send(p, "spawn.menu_sem_selecao");
+            return;
+        }
+        ask(p, "area", name -> {
+            String id = name.toLowerCase(Locale.ROOT).replace(' ', '_');
+            create(p, id, false, exact);
+            if (SpawnEdit.regionKey(current(), id) != null) {
+                openRegion(p, id);
+            }
+        }, () -> openRegions(p));
     }
 
     // ------------------------------------------------------------------ gravar
@@ -421,6 +482,8 @@ public final class SpawnCommand implements SubCommand {
                 }
             }
         }
+        menu.button(button(Material.GRASS_BLOCK, "nova_area", pl -> newArea(pl, false)));
+        menu.button(button(Material.LADDER, "nova_area_exata", pl -> newArea(pl, true)));
         menu.button(button(Material.BLAZE_ROD, "varinha", pl -> {
             pl.getInventory().addItem(AincradCore.get().regions().wand());
             msg.send(pl, "spawn.varinha");
@@ -461,6 +524,10 @@ public final class SpawnCommand implements SubCommand {
                 msg.send(pl, "spawn.vendo", Messages.vars("regiao", key));
             }
         }).closing());
+        menu.button(button(Material.BLAZE_ROD, "refazer", pl -> {
+            create(pl, key.toLowerCase(Locale.ROOT), true, false);
+            openRegion(pl, key);
+        }));
         menu.button(button(Material.BARRIER, "excluir", pl -> AincradCore.get().menus().confirm(pl,
                 msg.get("spawn.menu.confirmar_excluir", Messages.vars("regiao", key)), yes -> {
                     edit(yes, yy -> SpawnEdit.removeRegion(yy, key));
@@ -518,6 +585,18 @@ public final class SpawnCommand implements SubCommand {
         level(menu, region, index, lv, "max_mais", Material.LIME_DYE, 0, 1);
         menu.item(button(Material.IRON_NUGGET, "peso_menos", pl -> mobChange(pl, region, index, "peso", Math.max(1, weight - 1)), "peso", weight));
         menu.item(button(Material.GOLD_NUGGET, "peso_mais", pl -> mobChange(pl, region, index, "peso", Math.min(100, weight + 1)), "peso", weight));
+        menu.item(button(Material.WRITABLE_BOOK, "digitar_level", pl -> ask(pl, "level", text -> {
+            int[] typed = SpawnRules.levels(text.replace(" ", ""));
+            if (typed == null || typed[0] < 1) {
+                msg.send(pl, "spawn.digite.level_invalido");
+                openMob(pl, region, index);
+            } else {
+                mobChange(pl, region, index, "level", SpawnEdit.levelValue(typed[0], Math.max(typed[0], typed[1])));
+            }
+        }, () -> openMob(pl, region, index)), "level", String.valueOf(SpawnEdit.levelValue(lv[0], lv[1]))));
+        menu.item(button(Material.NAME_TAG, "digitar_nome", pl -> ask(pl, "nome",
+                text -> mobChange(pl, region, index, "nome", text.equalsIgnoreCase("nenhum") ? null : text),
+                () -> openMob(pl, region, index)), "nome", String.valueOf(l.getOrDefault("nome", "—"))));
         String next = period.equals("sempre") ? "dia" : period.equals("dia") ? "noite" : "sempre";
         menu.item(button(Material.CLOCK, "periodo", pl -> mobChange(pl, region, index, "periodo", next.equals("sempre") ? null : next), "periodo", period));
         if (mob.equalsIgnoreCase("WOLF")) {

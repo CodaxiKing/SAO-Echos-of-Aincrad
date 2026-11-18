@@ -61,6 +61,16 @@ mensagens.
 4. `/aincrad spawn` — abre o **menu**: as áreas, os mobs de cada uma, botões de level mínimo e
    máximo, peso, período (sempre, dia, noite), máximo de mobs vivos, "criar um aqui para ver" e tirar.
 
+**Só pelo menu, sem comando nenhum além de `/aincrad spawn`:**
+
+1. Abra o menu e clique em **Pegar a varinha**; marque os dois cantos da área.
+2. Abra o menu de novo, clique em **Marcar área nova** e digite o nome no chat.
+3. Na área, clique em **Pôr um mob nesta área** e escolha o mob pelo ovo.
+4. No mob, use os botões de level (−1 e +1) ou **Digitar o level** (`3` ou `2-4`), e também
+   **Digitar o nome**, peso e período.
+
+O que se digita no chat para o menu não aparece para os outros jogadores.
+
 Cada mudança é gravada no `spawns.yml` e vale na hora, sem `/aincrad reload`.
 
 | Comando | O que faz |
