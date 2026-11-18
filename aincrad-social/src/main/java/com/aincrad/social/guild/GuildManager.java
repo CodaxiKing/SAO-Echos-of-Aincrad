@@ -718,6 +718,7 @@ public final class GuildManager {
                 o.sendMessage(line);
             }
         }
+        plugin.storage().publishChat(java.util.List.of(g.id()), line);
         plugin.getLogger().info("[Guilda " + g.tag() + "] " + p.getName() + ": " + text);
     }
 
@@ -744,6 +745,7 @@ public final class GuildManager {
                 }
             }
         }
+        plugin.storage().publishChat(guilds, line);
     }
 
     // ------------------------------------------------------------------ XP e manutenção
@@ -811,6 +813,11 @@ public final class GuildManager {
                 }
             }
         }
+        payRefunds();
+    }
+
+    /** Paga os reembolsos pendentes de quem está online. */
+    public void payRefunds() {
         for (Player p : Bukkit.getOnlinePlayers()) {
             payRefund(p);
         }

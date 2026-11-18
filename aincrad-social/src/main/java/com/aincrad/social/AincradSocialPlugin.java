@@ -3,7 +3,9 @@ package com.aincrad.social;
 import com.aincrad.social.config.ConfigFiles;
 import com.aincrad.social.config.Messages;
 import com.aincrad.social.config.Settings;
-import com.aincrad.social.data.YamlSocialStore;
+import com.aincrad.social.data.SocialStore;
+import com.aincrad.social.data.Storage;
+import com.aincrad.social.data.YamlStorage;
 import com.aincrad.social.api.AincradSocialAPI;
 import com.aincrad.social.api.AincradSocialAPIImpl;
 import com.aincrad.social.duel.DuelCommand;
@@ -14,7 +16,6 @@ import com.aincrad.social.guild.GuildConfig;
 import com.aincrad.social.guild.GuildListener;
 import com.aincrad.social.guild.GuildManager;
 import com.aincrad.social.guild.GuildService;
-import com.aincrad.social.guild.GuildStore;
 import com.aincrad.social.guild.GuildVault;
 import com.aincrad.social.hook.Hooks;
 import com.aincrad.social.menu.MenuHook;
@@ -27,7 +28,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 
 /**
  * AincradSocial: amigos, party, guilda e mensagens. Funciona por comandos e chat; com o AincradUI,
@@ -38,7 +38,8 @@ public final class AincradSocialPlugin extends JavaPlugin {
 
     private Settings settings;
     private Messages messages;
-    private YamlSocialStore store;
+    private Storage storage;
+    private SocialStore store;
     private Names names;
     private FriendService friends;
     private PartyService parties;
@@ -46,14 +47,11 @@ public final class AincradSocialPlugin extends JavaPlugin {
     private SocialActions actions;
     private ChatInput chatInput;
     private MenuHook menu = MenuHook.NONE;
-    private boolean saveScheduled;
     private GuildConfig guildConfig;
     private GuildService guilds;
-    private GuildStore guildStore;
     private GuildManager guildManager;
     private GuildVault guildVault;
     private Hooks hooks;
-    private boolean guildSaveScheduled;
     private DuelManager duels;
     private PartyRewards partyRewards;
 
@@ -61,8 +59,8 @@ public final class AincradSocialPlugin extends JavaPlugin {
     public void onEnable() {
         settings = new Settings(ConfigFiles.load(this, "config.yml"));
         messages = new Messages(ConfigFiles.load(this, "messages.yml"));
-        store = new YamlSocialStore(new File(getDataFolder(), "dados.yml"), getLogger());
-        store.load();
+        storage = chooseStorage();
+        store = storage.store();
         names = new Names(store);
         friends = new FriendService(store, settings.maxFriends);
         parties = new PartyService(settings.partyMax, settings.inviteSeconds * 1000L, System::currentTimeMillis);
@@ -72,8 +70,14 @@ public final class AincradSocialPlugin extends JavaPlugin {
 
         guildConfig = new GuildConfig(ConfigFiles.load(this, "guilds.yml"));
         guilds = new GuildService(guildConfig.rules, System::currentTimeMillis);
-        guildStore = new GuildStore(new File(getDataFolder(), "guildas.yml"), getLogger());
-        guildStore.load(guilds);
+        try {
+            storage.load(guilds);
+        } catch (Exception e) {
+            getLogger().log(java.util.logging.Level.SEVERE, "Não foi possível ler os dados: o AincradSocial não vai ligar", e);
+            storage = null;
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         guildManager = new GuildManager(this);
         guildVault = new GuildVault(this);
         hooks = new Hooks(getLogger());
@@ -118,11 +122,11 @@ public final class AincradSocialPlugin extends JavaPlugin {
             if (partyRewards.hookXp()) {
                 getLogger().info("Party: XP dos mobs do AincradRPG dividido entre os membros próximos.");
             }
-            guildManager.maintenance();
+            runMaintenance();
             Bukkit.getOnlinePlayers().forEach(guildManager::refreshName);
         });
         // Manutenção da guilda a cada 10 minutos (recrutas, líder inativo, guildas pequenas).
-        Bukkit.getScheduler().runTaskTimer(this, guildManager::maintenance, 12_000L, 12_000L);
+        Bukkit.getScheduler().runTaskTimer(this, this::runMaintenance, 12_000L, 12_000L);
 
         // O AincradUI liga antes (softdepend). A classe UiMenu só é carregada se ele existir.
         if (pm.isPluginEnabled("AincradUI")) {
@@ -131,6 +135,7 @@ public final class AincradSocialPlugin extends JavaPlugin {
         for (Player p : Bukkit.getOnlinePlayers()) {
             store.rememberName(p.getUniqueId(), p.getName());
         }
+        getLogger().info("Dados: " + (storage.network() ? "banco do AincradCore (valem para a rede inteira)." : "arquivos nesta pasta (só este servidor)."));
         getLogger().info("AincradSocial ligado" + (menu == MenuHook.NONE ? " (sem AincradUI: só comandos)." : " com o menu SAO."));
     }
 
@@ -140,14 +145,18 @@ public final class AincradSocialPlugin extends JavaPlugin {
         if (duels != null) {
             duels.shutdown();
         }
-        if (store != null && store.dirty()) {
-            store.save();
-        }
-        if (guildVault != null) {
+        if (guildVault != null && storage != null) {
             guildVault.saveAll();
         }
-        if (guildStore != null) {
-            guildStore.write(guildStore.snapshot(guilds));
+        if (storage != null) {
+            storage.shutdown();
+            if (storage.network()) {
+                try {
+                    com.aincrad.social.data.CoreNet.unsubscribe();
+                } catch (LinkageError | RuntimeException ignored) {
+                    // o core já desligou
+                }
+            }
         }
         if (guildManager != null) {
             guildManager.clearTeams();
@@ -155,33 +164,52 @@ public final class AincradSocialPlugin extends JavaPlugin {
         getServer().getServicesManager().unregisterAll(this);
     }
 
-    /** Agenda a gravação de guildas.yml para daqui a 5 s, fora da thread principal. */
-    public void saveGuildsSoon() {
-        if (guildSaveScheduled || !isEnabled()) {
-            return;
+    /** Banco do AincradCore quando ele existe (a rede inteira vê os mesmos dados); senão, arquivos. */
+    private Storage chooseStorage() {
+        String mode = settings.storageMode;
+        boolean core = getServer().getPluginManager().isPluginEnabled("AincradCore");
+        if (mode.equals("arquivo") || (!core && !mode.equals("banco"))) {
+            return new YamlStorage(this);
         }
-        guildSaveScheduled = true;
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            guildSaveScheduled = false;
-            String yaml = guildStore.snapshot(guilds);
-            Bukkit.getScheduler().runTaskAsynchronously(this, () -> guildStore.write(yaml));
-        }, 100L);
+        if (!core) {
+            getLogger().warning("dados.onde é \"banco\", mas o AincradCore não está no servidor: usando arquivos.");
+            return new YamlStorage(this);
+        }
+        try {
+            return CoreLink.create(this);
+        } catch (LinkageError | RuntimeException e) {
+            getLogger().log(java.util.logging.Level.WARNING, "AincradCore incompatível: usando arquivos", e);
+            return new YamlStorage(this);
+        }
     }
 
-    /** Agenda a gravação para daqui a 5 s (várias mudanças viram uma gravação só, fora da thread principal). */
-    public void saveSoon() {
-        if (saveScheduled || !isEnabled()) {
-            return;
-        }
-        saveScheduled = true;
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            saveScheduled = false;
-            if (!store.dirty()) {
-                return;
+    /** Manutenção das guildas: numa rede, só um servidor faz por vez; os outros só pagam reembolsos. */
+    private void runMaintenance() {
+        storage.exclusive("manutencao", mine -> {
+            if (mine) {
+                guildManager.maintenance();
+            } else {
+                guildManager.payRefunds();
             }
-            String yaml = store.snapshot();
-            Bukkit.getScheduler().runTaskAsynchronously(this, () -> store.write(yaml));
-        }, 100L);
+        });
+    }
+
+    /** Guildas mudaram: grava daqui a pouco, fora da thread principal. */
+    public void saveGuildsSoon() {
+        if (storage != null) {
+            storage.saveGuildsSoon();
+        }
+    }
+
+    /** Amigos, pedidos, caixa ou nomes mudaram: grava daqui a pouco, fora da thread principal. */
+    public void saveSoon() {
+        if (storage != null) {
+            storage.saveSoon();
+        }
+    }
+
+    public Storage storage() {
+        return storage;
     }
 
     /** /caixa abre a caixa no menu, quando o AincradUI existe. */
@@ -197,7 +225,7 @@ public final class AincradSocialPlugin extends JavaPlugin {
         return messages;
     }
 
-    public YamlSocialStore store() {
+    public SocialStore store() {
         return store;
     }
 

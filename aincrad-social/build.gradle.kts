@@ -14,8 +14,13 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     // Opcional em tempo de execução (softdepend): só a API é usada.
     compileOnly("com.aincrad:aincrad-ui:0.1.0")
+    compileOnly("com.aincrad:aincrad-core:0.1.0")
 
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    // Os testes do banco usam um SQLite de verdade, como os do core.
+    testImplementation("com.aincrad:aincrad-core:0.1.0")
+    testImplementation("com.zaxxer:HikariCP:6.3.0")
+    testImplementation("org.xerial:sqlite-jdbc:3.49.1.0")
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

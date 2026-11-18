@@ -45,6 +45,8 @@ public final class GuildVault implements Listener {
 
     private final AincradSocialPlugin plugin;
     private final Map<UUID, Inventory> open = new HashMap<>();
+    /** Cofres sendo recriados (mudou de tamanho): fechar os jogadores não libera a trava. */
+    private final java.util.Set<UUID> resizing = new java.util.HashSet<>();
 
     public GuildVault(AincradSocialPlugin plugin) {
         this.plugin = plugin;
@@ -112,14 +114,45 @@ public final class GuildVault implements Listener {
             plugin.messages().send(p, "guilda.sem_permissao");
             return;
         }
+        if (open.containsKey(g.id())) {
+            show(p, g);
+            return;
+        }
+        // Em rede, só um servidor por vez abre o cofre de uma guilda.
+        UUID id = g.id();
+        plugin.storage().lockVault(id, (mine, data) -> {
+            Guild now = svc().guildOf(p.getUniqueId());
+            boolean still = p.isOnline() && now != null && now.id().equals(id);
+            if (!mine) {
+                if (p.isOnline()) {
+                    plugin.messages().send(p, "guilda.cofre_ocupado");
+                }
+                return;
+            }
+            if (!open.containsKey(id) && data != null && svc().get(id) != null) {
+                svc().setVaultData(svc().get(id), data);
+            }
+            if (still) {
+                show(p, now);
+            } else if (!open.containsKey(id)) {
+                Guild g2 = svc().get(id);
+                plugin.storage().unlockVault(id, g2 == null ? "" : g2.vaultData());
+            }
+        });
+    }
+
+    /** Mostra o cofre (este servidor já tem a vez). Recria o inventário se o tamanho mudou. */
+    private void show(Player p, Guild g) {
         int size = svc().vaultSize(g);
         Inventory inv = open.get(g.id());
         if (inv == null || inv.getSize() != size) {
             ItemStack[] items = inv != null ? inv.getContents() : decode(g.vaultData(), size);
             if (inv != null) {
+                resizing.add(g.id());
                 for (var v : new ArrayList<>(inv.getViewers())) {
                     v.closeInventory();
                 }
+                resizing.remove(g.id());
             }
             Holder h = new Holder(g.id());
             inv = Bukkit.createInventory(h, size, plugin.messages().get("guilda.cofre_titulo",
@@ -139,26 +172,28 @@ public final class GuildVault implements Listener {
         if (inv == null || g == null) {
             return;
         }
-        svc().setVaultData(g, encode(inv.getContents()));
-        plugin.saveGuildsSoon();
+        String data = encode(inv.getContents());
+        svc().setVaultData(g, data);
+        plugin.storage().saveVault(guildId, data);
     }
 
-    /** Ao desligar: grava todos os cofres abertos. */
+    /** Ao desligar: grava todos os cofres abertos e libera para os outros servidores. */
     public void saveAll() {
         for (UUID id : new ArrayList<>(open.keySet())) {
-            Inventory inv = open.get(id);
+            Inventory inv = open.remove(id);
             for (var v : new ArrayList<>(inv.getViewers())) {
                 v.closeInventory();
             }
+            String data = encode(inv.getContents());
             Guild g = svc().get(id);
             if (g != null) {
-                svc().setVaultData(g, encode(inv.getContents()));
+                svc().setVaultData(g, data);
             }
+            plugin.storage().unlockVault(id, data);
         }
-        open.clear();
     }
 
-    /** A guilda acabou: os itens vão para a caixa do líder (como texto) e para o chão dele se online. */
+    /** A guilda acabou: devolve os itens do cofre (quem chama entrega ao líder). */
     public ItemStack[] drain(Guild g) {
         Inventory inv = open.remove(g.id());
         ItemStack[] items = inv != null ? inv.getContents() : decode(g.vaultData(), 54);
@@ -166,8 +201,21 @@ public final class GuildVault implements Listener {
             for (var v : new ArrayList<>(inv.getViewers())) {
                 v.closeInventory();
             }
+            plugin.storage().unlockVault(g.id(), "");
         }
         return items;
+    }
+
+    /** A guilda acabou em outro servidor: fecha o cofre de quem o tem aberto aqui, sem devolver nada. */
+    public void forceClose(UUID guildId) {
+        Inventory inv = open.remove(guildId);
+        if (inv != null) {
+            inv.clear();
+            for (var v : new ArrayList<>(inv.getViewers())) {
+                v.closeInventory();
+            }
+            plugin.storage().unlockVault(guildId, "");
+        }
     }
 
     // ------------------------------------------------------------------ cliques
@@ -253,11 +301,14 @@ public final class GuildVault implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
-        if (event.getInventory().getHolder(false) instanceof Holder h) {
-            save(h.guild);
-            if (event.getInventory().getViewers().size() <= 1) {
-                open.remove(h.guild);
-            }
+        if (!(event.getInventory().getHolder(false) instanceof Holder h) || open.get(h.guild) != event.getInventory()) {
+            return;
+        }
+        save(h.guild);
+        if (event.getInventory().getViewers().size() <= 1 && !resizing.contains(h.guild)) {
+            open.remove(h.guild);
+            Guild g = svc().get(h.guild);
+            plugin.storage().unlockVault(h.guild, g == null ? "" : g.vaultData());
         }
     }
 }

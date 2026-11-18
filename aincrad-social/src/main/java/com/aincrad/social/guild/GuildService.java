@@ -888,6 +888,34 @@ public final class GuildService {
         }
     }
 
+    /**
+     * Põe a versão de uma guilda que veio do banco no lugar da que está na memória. Os convites
+     * e os itens do cofre, que não vão no documento da guilda, continuam os de antes.
+     */
+    void replace(Guild g) {
+        Guild old = guilds.get(g.id);
+        if (old != null) {
+            for (UUID m : old.members.keySet()) {
+                byMember.remove(m, old.id);
+            }
+            g.invites.putAll(old.invites);
+            if (g.vaultData.isEmpty()) {
+                g.vaultData = old.vaultData;
+            }
+        }
+        restore(g);
+    }
+
+    /** Tira uma guilda que acabou em outro servidor (as outras guildas chegam já sem ela como aliada). */
+    void drop(UUID id) {
+        Guild g = guilds.remove(id);
+        if (g != null) {
+            for (UUID m : g.members.keySet()) {
+                byMember.remove(m, id);
+            }
+        }
+    }
+
     public void addPendingRefund(UUID p, long amount) {
         if (amount > 0) {
             pendingRefunds.merge(p, amount, Long::sum);

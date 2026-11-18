@@ -2,6 +2,14 @@
 #  AincradSocial — amigos, party e mensagens
 # ============================================================
 
+dados:
+  # Onde guardar amigos, mensagens e guildas:
+  #   auto    - no banco do AincradCore quando ele está no servidor; senão, em arquivos
+  #   banco   - no banco do AincradCore (os mesmos dados em todos os servidores da rede)
+  #   arquivo - dados.yml e guildas.yml nesta pasta (um servidor só)
+  # Na primeira vez com o banco vazio, dados.yml e guildas.yml são levados para ele e renomeados.
+  onde: auto
+
 amigos:
   maximo: 100
   # Avisa os amigos quando alguém entra ou sai do servidor.

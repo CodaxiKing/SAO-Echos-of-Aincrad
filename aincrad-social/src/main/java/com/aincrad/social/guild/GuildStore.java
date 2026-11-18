@@ -15,10 +15,8 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
- * Guildas em guildas.yml. Por enquanto em arquivo, como o resto do AincradSocial; quando o
- * aincrad-core existir, as mesmas informações vão para as tabelas MySQL do plano
- * (guilds, guild_members, guild_permissions, guild_vault, guild_ledger, guild_alliances,
- * guild_applications).
+ * Guildas em texto: todas juntas em guildas.yml (um servidor só) ou uma por vez, como documento
+ * do banco do AincradCore (ver {@code CoreStorage}).
  */
 public final class GuildStore {
 
@@ -136,6 +134,62 @@ public final class GuildStore {
         return g;
     }
 
+    // ------------------------------------------------------------------ uma guilda por vez (banco)
+
+    /** Uma guilda como texto. {@code withVault} false deixa os itens do cofre de fora. */
+    public static String encode(Guild g, boolean withVault) {
+        YamlConfiguration c = new YamlConfiguration();
+        write(c, "", g, withVault);
+        return c.saveToString();
+    }
+
+    /** O contrário de {@link #encode}. Lança RuntimeException se o texto não é uma guilda válida. */
+    public static Guild decode(UUID id, String body) {
+        YamlConfiguration c = new YamlConfiguration();
+        try {
+            c.loadFromString(body);
+        } catch (org.bukkit.configuration.InvalidConfigurationException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+        return read(id, c);
+    }
+
+    /** Põe (ou troca) a guilda no serviço. */
+    public static void replace(GuildService service, Guild g) {
+        service.replace(g);
+    }
+
+    public static void drop(GuildService service, UUID id) {
+        service.drop(id);
+    }
+
+    /** Por jogador: {reembolso pendente, quando saiu da última guilda}. Só quem tem um dos dois. */
+    public static Map<UUID, long[]> playerStates(GuildService service) {
+        Map<UUID, long[]> out = new LinkedHashMap<>();
+        service.pendingRefunds().forEach((p, v) -> out.computeIfAbsent(p, k -> new long[2])[0] = v);
+        long cutoff = System.currentTimeMillis() - service.rules().rejoinCooldownMs();
+        service.leftAt().forEach((p, t) -> {
+            if (t > cutoff) {
+                out.computeIfAbsent(p, k -> new long[2])[1] = t;
+            }
+        });
+        return out;
+    }
+
+    /** Troca o estado de um jogador pelo que veio do banco (0 apaga). */
+    public static void setPlayerState(GuildService service, UUID p, long refund, long leftAt) {
+        if (refund > 0) {
+            service.pendingRefunds().put(p, refund);
+        } else {
+            service.pendingRefunds().remove(p);
+        }
+        if (leftAt > 0) {
+            service.leftAt().put(p, leftAt);
+        } else {
+            service.leftAt().remove(p);
+        }
+    }
+
     private static UUID uuid(String s) {
         try {
             return UUID.fromString(s);
@@ -148,46 +202,7 @@ public final class GuildStore {
     public String snapshot(GuildService service) {
         YamlConfiguration c = new YamlConfiguration();
         for (Guild g : service.all()) {
-            String b = "guildas." + g.id + ".";
-            c.set(b + "nome", g.name);
-            c.set(b + "tag", g.tag);
-            c.set(b + "emblema", g.emblem);
-            c.set(b + "cor1", g.color1);
-            c.set(b + "cor2", g.color2);
-            c.set(b + "criada", g.created);
-            c.set(b + "nivel", g.level);
-            c.set(b + "xp", g.xp);
-            c.set(b + "tesouro", g.treasury);
-            c.set(b + "taxa", g.taxPercent);
-            c.set(b + "recrutamento", g.recruit.name());
-            c.set(b + "custo", g.creationCost);
-            c.set(b + "estabelecida", g.established);
-            c.set(b + "casa", g.home);
-            c.set(b + "chefes", g.bossKills);
-            c.set(b + "last_attacks", g.lastAttacks);
-            c.set(b + "andar", g.highestFloor);
-            c.set(b + "cofre", g.vaultData);
-            g.members.forEach((p, m) -> {
-                c.set(b + "membros." + p + ".cargo", m.rank.name());
-                c.set(b + "membros." + p + ".entrou", m.joined);
-                c.set(b + "membros." + p + ".visto", m.lastSeen);
-            });
-            g.perms.forEach((perm, r) -> c.set(b + "permissoes." + perm.key(), r.name()));
-            c.set(b + "aliados", g.allies.stream().map(UUID::toString).toList());
-            c.set(b + "propostas", g.allyProposals.stream().map(UUID::toString).toList());
-            g.applications.forEach((p, t) -> c.set(b + "candidaturas." + p, t));
-            List<Map<String, Object>> ledger = new ArrayList<>();
-            for (Guild.Ledger l : g.ledger) {
-                Map<String, Object> m = new LinkedHashMap<>();
-                m.put("quando", l.time());
-                m.put("quem", String.valueOf(l.who()));
-                m.put("nome", l.whoName());
-                m.put("tipo", l.type());
-                m.put("valor", l.amount());
-                m.put("detalhe", l.detail());
-                ledger.add(m);
-            }
-            c.set(b + "extrato", ledger);
+            write(c, "guildas." + g.id + ".", g, true);
         }
         service.pendingRefunds().forEach((p, v) -> c.set("reembolsos." + p, v));
         long cutoff = System.currentTimeMillis() - service.rules().rejoinCooldownMs();
@@ -197,6 +212,50 @@ public final class GuildStore {
             }
         });
         return c.saveToString();
+    }
+
+    private static void write(YamlConfiguration c, String b, Guild g, boolean withVault) {
+        c.set(b + "nome", g.name);
+        c.set(b + "tag", g.tag);
+        c.set(b + "emblema", g.emblem);
+        c.set(b + "cor1", g.color1);
+        c.set(b + "cor2", g.color2);
+        c.set(b + "criada", g.created);
+        c.set(b + "nivel", g.level);
+        c.set(b + "xp", g.xp);
+        c.set(b + "tesouro", g.treasury);
+        c.set(b + "taxa", g.taxPercent);
+        c.set(b + "recrutamento", g.recruit.name());
+        c.set(b + "custo", g.creationCost);
+        c.set(b + "estabelecida", g.established);
+        c.set(b + "casa", g.home);
+        c.set(b + "chefes", g.bossKills);
+        c.set(b + "last_attacks", g.lastAttacks);
+        c.set(b + "andar", g.highestFloor);
+        if (withVault) {
+            c.set(b + "cofre", g.vaultData);
+        }
+        g.members.forEach((p, m) -> {
+            c.set(b + "membros." + p + ".cargo", m.rank.name());
+            c.set(b + "membros." + p + ".entrou", m.joined);
+            c.set(b + "membros." + p + ".visto", m.lastSeen);
+        });
+        g.perms.forEach((perm, r) -> c.set(b + "permissoes." + perm.key(), r.name()));
+        c.set(b + "aliados", g.allies.stream().map(UUID::toString).toList());
+        c.set(b + "propostas", g.allyProposals.stream().map(UUID::toString).toList());
+        g.applications.forEach((p, t) -> c.set(b + "candidaturas." + p, t));
+        List<Map<String, Object>> ledger = new ArrayList<>();
+        for (Guild.Ledger l : g.ledger) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("quando", l.time());
+            m.put("quem", String.valueOf(l.who()));
+            m.put("nome", l.whoName());
+            m.put("tipo", l.type());
+            m.put("valor", l.amount());
+            m.put("detalhe", l.detail());
+            ledger.add(m);
+        }
+        c.set(b + "extrato", ledger);
     }
 
     public void write(String yaml) {

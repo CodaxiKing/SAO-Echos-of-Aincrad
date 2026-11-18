@@ -156,18 +156,49 @@ passam a valer.
 
 ## Dados
 
-`dados.yml`: amizades, pedidos, caixas de entrada e nomes já vistos. `guildas.yml`: guildas, membros,
-permissões, cofre, extrato, alianças, candidaturas e esperas de saída. Quando o aincrad-core existir,
-os dois vão para as tabelas MySQL do plano. Gravado 5 s depois de cada
-mudança (fora da thread principal) e ao desligar, com troca atômica do arquivo.
+`config.yml → dados.onde` escolhe onde tudo fica guardado:
+
+| Valor | Onde | Para quem |
+|---|---|---|
+| `auto` (padrão) | No banco do AincradCore quando ele está no servidor; senão, em arquivos | — |
+| `banco` | No banco do AincradCore | Rede: os mesmos amigos, mensagens e guildas em todos os servidores |
+| `arquivo` | `dados.yml` e `guildas.yml` nesta pasta | Um servidor só, sem o AincradCore |
+
+**No banco** (o MySQL da rede, ou o SQLite do core num servidor só):
+
+- **Amigos, pedidos, caixa de entrada e nomes**: uma linha por item. Só o que mudou é gravado, meio
+  segundo depois da mudança.
+- **Guildas**: um documento por guilda, com versão. Cada servidor guarda as guildas na memória e
+  relê do banco só a guilda que outro servidor mudou (o aviso vai pelo MessageBus do core).
+- **Mesma guilda mudada em dois servidores no mesmo instante**: vale a primeira gravação. O outro
+  servidor descarta a mudança dele, relê a guilda e avisa no console. A janela é de cerca de um
+  segundo; fora dela não acontece.
+- **Cofre**: os itens ficam fora do documento da guilda, e **só um servidor por vez** abre o cofre
+  de uma guilda. Quem tenta abrir em outro vê "O cofre está aberto em outro servidor". A trava é
+  liberada quando o último jogador fecha o cofre; se o servidor cair, ela vence sozinha em 60 s.
+- **Chat da guilda e da aliança** (`/g`, `/ga`): chega aos membros que estão em outros servidores.
+- **Mensagem nova**: quem está em outro servidor é avisado na hora.
+- **Manutenção das guildas** (recrutas promovidos, líder inativo, guildas pequenas desfeitas): só
+  um servidor da rede faz por vez.
+- **Primeira vez**: com o banco vazio, `dados.yml` e `guildas.yml` desta pasta são levados para o
+  banco e renomeados para `.importado`. Faça isso em **um** servidor; os outros já encontram tudo lá.
+
+Cada servidor precisa de um nome diferente em `AincradCore/config.yml → servidor`: é por ele que
+as travas sabem de quem é a vez.
+
+**Continua por servidor**, mesmo com o banco: as parties (somem ao reiniciar e não atravessam
+servidores), os convites de guilda ainda não respondidos, os duelos e o limite diário de retiradas
+do cofre de cada membro.
+
+**Em arquivo**: gravado 5 s depois de cada mudança (fora da thread principal) e ao desligar, com
+troca atômica do arquivo.
 
 ## Ficou para depois
 
-- Chat da guilda entre servidores da rede (precisa do `MessageBus` do aincrad-core).
 - Emblema como imagem do pack (hoje é um símbolo de texto) e banner da guilda (nível 5).
 - Casa da guilda comprada com o tesouro (precisa das casas do AincradEconomy).
-- Os dados no banco do core (hoje ficam em YAML, um por servidor): numa rede, amigos, caixas de
-  mensagem e guildas não são os mesmos em todos os servidores.
+- Party e convites entre servidores: a party vale só no servidor onde foi formada.
+- Aviso de amigo entrando ou saindo em outro servidor da rede.
 - Teleporte até um amigo dentro de zona segura.
 - Duelos: sem aposta de Col nem de itens, sem placar de vitórias, e o desafio é só por comando
   (ainda não há botão "Duelar" no menu SAO).

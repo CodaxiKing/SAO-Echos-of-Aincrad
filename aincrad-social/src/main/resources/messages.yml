@@ -253,6 +253,7 @@ guilda:
   reembolso: "<green>Você recebeu <white><valor> Col</white> de volta da guilda."
   cofre_devolvido: "<yellow><white><itens></white> itens do cofre foram para o seu inventário."
   cofre_titulo: "<dark_gray>Cofre · <guilda>"
+  cofre_ocupado: "<red>O cofre está aberto em outro servidor. Tente de novo em instantes."
   cofre_limite: "<red>Você já tirou o máximo de itens do cofre hoje."
   tesouro: "<gold>Tesouro: <white><valor> Col</white> <gray>· taxa <white><taxa>%</white> sobre o Col caçado"
   extrato_linha: "<dark_gray><quando></dark_gray> <white><jogador></white> <tipo> <white><valor>"

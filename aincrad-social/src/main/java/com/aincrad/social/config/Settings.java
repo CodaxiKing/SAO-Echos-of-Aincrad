@@ -17,6 +17,8 @@ public final class Settings {
     public final int inboxMax;
     public final double nearbyRadius;
     public final int typeSeconds;
+    /** Onde guardar os dados: auto (banco do core se ele existir), banco ou arquivo. */
+    public final String storageMode;
     public final boolean partyShareXp;
     public final double partyXpRadius;
     public final double partyXpBonus;
@@ -42,6 +44,7 @@ public final class Settings {
         inboxMax = Math.max(1, c.getInt("mensagens.caixa_maxima", 50));
         nearbyRadius = Math.max(1, c.getDouble("menu.raio_perto", 32));
         typeSeconds = Math.max(5, c.getInt("menu.tempo_digitar_segundos", 60));
+        storageMode = String.valueOf(c.getString("dados.onde", "auto")).toLowerCase(java.util.Locale.ROOT);
         partyShareXp = c.getBoolean("party.xp.dividir", true);
         partyXpRadius = Math.max(1, c.getDouble("party.xp.raio", 32));
         partyXpBonus = Math.max(0, c.getDouble("party.xp.bonus_por_membro", 0.1));
