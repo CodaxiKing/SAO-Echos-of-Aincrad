@@ -190,6 +190,7 @@ public final class PassiveService implements Listener {
         event.setCancelled(true);
         parryUntil.put(p.getUniqueId(), now + parryCooldown);
         parries.merge(p.getUniqueId(), 1, Integer::sum);
+        store.count(p, com.aincrad.skills.model.UniqueRules.PARRIES, 1);
         p.getWorld().playSound(p.getLocation(), "item.shield.block", 1f, 1.3f);
         p.getWorld().spawnParticle(Particle.CRIT, p.getEyeLocation().add(look.multiply(0.6)), 8, 0.2, 0.2, 0.2, 0.1);
         msg.actionBar(p, "passiva.aparou");

@@ -1,0 +1,37 @@
+# ============================================================
+#  Skills únicas
+#  Cada uma existe para UM jogador só na rede inteira, e vai para o
+#  primeiro que cumprir o critério. O critério é SECRETO: não aparece
+#  em comando nem em mensagem. O servidor só é avisado de que a skill
+#  encontrou um dono. (Este arquivo é o único lugar onde ele está —
+#  não o mostre aos jogadores.)
+#
+#  criterio:
+#    manual                      só o admin dá: /aincrad skill unica <jogador> <id>
+#    reacao                      o vencedor de /aincrad skill teste <id>
+#    aparados:300                golpes aparados com a passiva Aparar
+#    golpes:5000                 golpes acertados com uma arma
+#    skills:1000                 Sword Skills usadas
+#    proficiencia:florete:1000   chegar à proficiência numa arma
+#
+#  O que a skill única dá: as Sword Skills de skills/*.yml marcadas com
+#  "unica: <id>" passam a existir só para o dono. Duas Espadas já tem
+#  as dela em skills/duas_espadas.yml. Para uma skill única nova, crie
+#  um arquivo em skills/ com "arma:" (a arma que ela usa) e "unica: <id>".
+# ============================================================
+skills:
+  duas_espadas:
+    nome: "Duas Espadas"
+    criterio: manual
+
+# Exemplos (o anime cita dez skills únicas; os critérios aqui são sugestões):
+#
+#   espada_sagrada:
+#     nome: "Espada Sagrada"
+#     criterio: "aparados:300"
+#   lanca_divina:
+#     nome: "Lança Divina"
+#     criterio: "proficiencia:lanca:1000"
+#   passo_relampago:
+#     nome: "Passo Relâmpago"
+#     criterio: reacao

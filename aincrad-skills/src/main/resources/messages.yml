@@ -82,6 +82,7 @@ unica:
   nomes:
     duas_espadas: "Duas Espadas"
   anuncio: "<gold>A skill única <yellow><skill></yellow> encontrou um dono: <white><jogador></white>."
+  e_sua: "<gold>Uma skill única escolheu você: <yellow><skill></yellow>. <gray>Veja em <white>/skills</white>."
   teste_prepare: "<gold>Teste de reação: agache-se <white>só quando</white> o aviso aparecer. Quem se agachar antes está fora."
   teste_agora: "<red><bold>AGORA!"
   teste_agora_sub: "<gray>Agache-se"
@@ -90,7 +91,7 @@ unica:
 
 admin:
   descricao: "Skills: dar proficiência, skill única e teste de reação"
-  uso: "<gray>Uso: <white>/aincrad skill dar <jogador> <arma> <valor></white>, <white>unica <jogador> [id]</white>, <white>unica_limpar [id]</white>, <white>teste</white>, <white>lista"
+  uso: "<gray>Uso: <white>/aincrad skill dar <jogador> <arma> <valor></white>, <white>unica <jogador> [id]</white>, <white>unica_limpar [id]</white>, <white>teste [id]</white>, <white>lista"
   uso_dar: "<gray>Uso: <white>/aincrad skill dar <jogador> <arma> <0 a 1000></white> <gray>(o jogador precisa estar online)"
   uso_unica: "<gray>Uso: <white>/aincrad skill unica <jogador> [id]</white> <gray>(o jogador precisa estar online)"
   dado: "<green>Proficiência de <white><jogador></white> em <white><arma></white>: <white><valor></white>."
@@ -99,6 +100,6 @@ admin:
   unica_limpa: "<green>A skill única <white><skill></white> está sem dono."
   unica_sem_dono: "<gray>A skill única <white><skill></white> já estava sem dono."
   teste_comecou: "<green>Teste de reação começado."
-  teste_nao: "<red>Duas Espadas já tem dono, ou há um teste em andamento."
+  teste_nao: "<red>Essa skill única já tem dono, não existe, ou há um teste em andamento."
   lista: "<gold><qtd> skills: <gray><skills>"
   erro: "<red>skills/<erro>"

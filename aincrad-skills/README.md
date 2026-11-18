@@ -81,6 +81,25 @@ espada em cada mão, usa as skills do `skills/duas_espadas.yml` (Double Circular
 
 O servidor só é avisado de que a skill encontrou um dono.
 
+### Mais skills únicas, com critério secreto (`unique-skills.yml`, etapa 56)
+
+Além de Duas Espadas, o arquivo aceita quantas skills únicas o dono quiser. Cada uma vai para o
+**primeiro jogador que cumprir o critério**, e o critério não aparece em comando nem em mensagem —
+nem no console.
+
+| `criterio` | Cumpre quem |
+|---|---|
+| `manual` | Recebe do admin |
+| `reacao` | Vence `/aincrad skill teste <id>` |
+| `aparados:300` | Apara 300 golpes com a passiva Aparar |
+| `golpes:5000` | Acerta 5000 golpes com uma arma |
+| `skills:1000` | Usa 1000 Sword Skills |
+| `proficiencia:florete:1000` | Chega à proficiência na arma |
+
+Os contadores ficam no banco (`skill_counters`) e valem para a rede. O que a skill única dá: as
+Sword Skills de `skills/*.yml` marcadas com `unica: <id>` passam a existir só para o dono. Para uma
+skill única nova, crie um arquivo em `skills/` com a `arma:` que ela usa e `unica: <id>`.
+
 ## Admin
 
 | Comando | O que faz |

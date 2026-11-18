@@ -48,6 +48,7 @@ import java.util.function.BiConsumer;
 public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
 
     private ConfigFile config;
+    private ConfigFile uniqueFile;
     private Messages msg;
     private Hooks hooks;
     private SkillStore store;
@@ -78,6 +79,10 @@ public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
         passives = new PassiveService(this, msg, store, engine);
         settings();
         unique.refresh();
+        uniqueFile = core.config(this, "unique-skills.yml");
+        unique.reloadDefs(uniqueFile.yaml().getConfigurationSection("skills"), store);
+        store.onProgress(unique::check);
+        getServer().getScheduler().runTaskTimer(this, store::flushAll, 600L, 600L);
 
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(engine, this);
@@ -105,6 +110,9 @@ public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         AincradSkillsAPI.init(null, null, null);
         getServer().getServicesManager().unregisterAll(this);
+        if (store != null) {
+            store.flushAll();
+        }
     }
 
     private void settings() {
@@ -144,6 +152,8 @@ public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
     public void onReload(AincradReloadEvent event) {
         msg.reload();
         config.reload();
+        uniqueFile.reload();
+        unique.reloadDefs(uniqueFile.yaml().getConfigurationSection("skills"), store);
         settings();
         event.reloaded(getName());
     }
@@ -454,9 +464,10 @@ public final class AincradSkillsPlugin extends JavaPlugin implements Listener {
                     });
                 }
                 case "teste" -> {
-                    if (unique.startTest()) {
+                    String id = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : UniqueService.DUAL;
+                    if (unique.startTest(id)) {
                         msg.send(sender, "admin.teste_comecou");
-                        log(sender, "skill.teste", UniqueService.DUAL);
+                        log(sender, "skill.teste", id);
                     } else {
                         msg.send(sender, "admin.teste_nao");
                     }

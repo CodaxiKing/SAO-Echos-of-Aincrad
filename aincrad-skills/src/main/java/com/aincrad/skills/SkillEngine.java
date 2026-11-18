@@ -194,7 +194,10 @@ public final class SkillEngine implements Listener {
     public Fail cast(Player p, SkillDef def) {
         Fail f = tryCast(p, def);
         switch (f) {
-            case OK -> msg.actionBar(p, "skill.usou", Messages.vars("skill", def.name()));
+            case OK -> {
+                msg.actionBar(p, "skill.usou", Messages.vars("skill", def.name()));
+                store.count(p, com.aincrad.skills.model.UniqueRules.CASTS, 1);
+            }
             case RECARGA -> msg.actionBar(p, "skill.recarga", Messages.vars("skill", def.name(),
                     "tempo", String.format(Locale.ROOT, "%.1f", cooldown(p, def.id()) / 1000.0)));
             case ARMA -> msg.actionBar(p, "skill.arma", Messages.vars("skill", def.name(), "arma", msg.raw("armas." + def.weapon().key())));
@@ -370,9 +373,11 @@ public final class SkillEngine implements Listener {
         if (t == null) {
             return;
         }
+        store.count(p, com.aincrad.skills.model.UniqueRules.HITS, 1);
         int prof = d.prof(t);
         if (ThreadLocalRandom.current().nextDouble() < SkillRules.gainChance(prof, gainBase, gainMin)) {
             store.setProf(p.getUniqueId(), d, t, prof + 1);
+            store.progressed(p);
             String weapon = msg.raw("armas." + t.key());
             if ((prof + 1) % 50 == 0) {
                 msg.send(p, "proficiencia.marco", Messages.vars("arma", weapon, "valor", prof + 1));

@@ -183,6 +183,42 @@ class SkillRulesTest {
         assertFalse(SkillRules.inLine(0, 0, 0, 1, 0, 0, -1, 0, 0, 5, 1));
     }
 
+    // ------------------------------------------------------------------ 56 skills únicas com critério secreto
+
+    @Test
+    void aSkillUnicaVaiParaOPrimeiroQueCumpreOCriterio() throws Exception {
+        var R = com.aincrad.skills.model.UniqueRules.class;
+        YamlConfiguration y = new YamlConfiguration();
+        y.loadFromString("""
+                skills:
+                  duas_espadas: { nome: "Duas Espadas", criterio: manual }
+                  espada_sagrada: { nome: "Espada Sagrada", criterio: "aparados:300" }
+                  lanca_divina: { criterio: "proficiencia:lanca:1000" }
+                  veloz: { criterio: reacao }
+                  ruim: { criterio: "voar:10" }
+                  sem_numero: { criterio: "golpes" }
+                  arma_ruim: { criterio: "proficiencia:arco:10" }
+                """);
+        List<String> errors = new ArrayList<>();
+        var defs = com.aincrad.skills.model.UniqueRules.parse(y.getConfigurationSection("skills"), errors);
+        assertEquals(List.of("duas_espadas", "espada_sagrada", "lanca_divina", "veloz"), List.copyOf(defs.keySet()));
+        assertEquals(3, errors.size(), errors.toString());
+        var holy = defs.get("espada_sagrada").criterion();
+        // 299 golpes aparados não bastam; o 300º dá a skill.
+        assertFalse(holy.met(n -> n.equals("aparados") ? 299 : 9999, w -> 1000));
+        assertTrue(holy.met(n -> n.equals("aparados") ? 300 : 0, w -> 0));
+        var spear = defs.get("lanca_divina").criterion();
+        assertFalse(spear.met(n -> 99_999, w -> w == WeaponType.LANCA ? 999 : 1000));
+        assertTrue(spear.met(n -> 0, w -> w == WeaponType.LANCA ? 1000 : 0));
+        // As manuais e a de reação nunca se cumprem sozinhas.
+        assertFalse(defs.get("duas_espadas").criterion().met(n -> 99_999, w -> 1000));
+        assertFalse(defs.get("veloz").criterion().met(n -> 99_999, w -> 1000));
+        // O arquivo do plugin traz só Duas Espadas, dada à mão.
+        var bundled = com.aincrad.skills.model.UniqueRules.parse(resource("unique-skills.yml").getConfigurationSection("skills"), errors);
+        assertEquals(List.of(UniqueService.DUAL), List.copyOf(bundled.keySet()));
+        assertEquals(R, bundled.get(UniqueService.DUAL).getClass().getEnclosingClass());
+    }
+
     // ------------------------------------------------------------------ 36 passivas
 
     @Test

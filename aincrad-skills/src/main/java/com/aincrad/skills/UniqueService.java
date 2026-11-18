@@ -37,6 +37,48 @@ public final class UniqueService implements Listener {
     private final Database db;
     private final Messages msg;
     private volatile Map<String, Holder> holders = Map.of();
+    private Map<String, com.aincrad.skills.model.UniqueRules.Def> defs = Map.of();
+    private SkillStore store;
+    private String testId = DUAL;
+    private final Set<String> granting = new HashSet<>();
+
+    /** Lê o unique-skills.yml. */
+    public void reloadDefs(org.bukkit.configuration.ConfigurationSection skills, SkillStore skillStore) {
+        store = skillStore;
+        List<String> errors = new java.util.ArrayList<>();
+        defs = com.aincrad.skills.model.UniqueRules.parse(skills, errors);
+        errors.forEach(e -> plugin.getLogger().warning("unique-skills.yml: " + e));
+    }
+
+    public Map<String, com.aincrad.skills.model.UniqueRules.Def> defs() {
+        return defs;
+    }
+
+    /**
+     * O jogador avançou (aparou, acertou, usou uma skill, subiu a proficiência): se cumpriu o
+     * critério de uma skill única ainda sem dono, ela é dele.
+     */
+    public void check(Player p) {
+        SkillStore.Data d = store == null ? null : store.data(p);
+        if (d == null) {
+            return;
+        }
+        for (var def : defs.values()) {
+            if (holders.containsKey(def.id()) || granting.contains(def.id()) || !def.criterion().met(d::counter, d::prof)) {
+                continue;
+            }
+            granting.add(def.id());
+            grant(def.id(), p.getUniqueId(), p.getName()).thenAccept(ok -> {
+                granting.remove(def.id());
+                if (ok) {
+                    announce(def.id(), p.getName());
+                    msg.send(p, "unica.e_sua", Messages.vars("skill", def.name()));
+                    // O critério fica só no arquivo: nem o console diz qual foi.
+                    plugin.getLogger().info(p.getName() + " cumpriu o critério da skill única " + def.id() + ".");
+                }
+            });
+        }
+    }
 
     // Teste de reação
     private boolean testWaiting;
@@ -121,10 +163,11 @@ public final class UniqueService implements Listener {
     // ------------------------------------------------------------------ teste de reação
 
     /** Começa o teste: depois de uma espera sorteada, o primeiro a se agachar ganha Duas Espadas. */
-    public boolean startTest() {
-        if (testWaiting || testOpen || holder(DUAL) != null) {
+    public boolean startTest(String id) {
+        if (testWaiting || testOpen || holder(id) != null || (!id.equals(DUAL) && !defs.containsKey(id))) {
             return false;
         }
+        testId = id;
         testWaiting = true;
         testOut.clear();
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -167,17 +210,19 @@ public final class UniqueService implements Listener {
         }
         testOpen = false;
         long ms = System.currentTimeMillis() - testOpenAt;
-        grant(DUAL, p.getUniqueId(), p.getName()).thenAccept(ok -> {
+        String id = testId;
+        grant(id, p.getUniqueId(), p.getName()).thenAccept(ok -> {
             if (ok) {
-                announce(DUAL, p.getName());
-                plugin.getLogger().info(p.getName() + " venceu o teste de reação (" + ms + " ms) e recebeu Duas Espadas.");
+                announce(id, p.getName());
+                plugin.getLogger().info(p.getName() + " venceu o teste de reação (" + ms + " ms) e recebeu a skill única " + id + ".");
             }
         });
     }
 
     /** O servidor só fica sabendo que a skill encontrou um dono. */
     public void announce(String skill, String player) {
-        String name = msg.has("unica.nomes." + skill) ? msg.raw("unica.nomes." + skill) : skill;
+        var def = defs.get(skill);
+        String name = def != null ? def.name() : msg.has("unica.nomes." + skill) ? msg.raw("unica.nomes." + skill) : skill;
         for (Player p : Bukkit.getOnlinePlayers()) {
             msg.send(p, "unica.anuncio", Messages.vars("skill", name, "jogador", player));
         }

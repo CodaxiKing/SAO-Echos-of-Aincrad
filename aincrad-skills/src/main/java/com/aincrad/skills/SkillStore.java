@@ -24,7 +24,9 @@ public final class SkillStore {
             "CREATE TABLE IF NOT EXISTS skill_slots (uuid VARCHAR(36) NOT NULL, slot INT NOT NULL, skill VARCHAR(64) NOT NULL, "
                     + "PRIMARY KEY (uuid, slot))",
             "CREATE TABLE IF NOT EXISTS skill_unique (skill VARCHAR(32) NOT NULL PRIMARY KEY, uuid VARCHAR(36) NOT NULL, "
-                    + "name VARCHAR(16) NOT NULL, at_time BIGINT NOT NULL)");
+                    + "name VARCHAR(16) NOT NULL, at_time BIGINT NOT NULL)",
+            "CREATE TABLE IF NOT EXISTS skill_counters (uuid VARCHAR(36) NOT NULL, counter VARCHAR(24) NOT NULL, value BIGINT NOT NULL, "
+                    + "PRIMARY KEY (uuid, counter))");
 
     /** Os espaços das passivas ficam a partir deste número na tabela. */
     private static final int PASSIVE_BASE = 10;
@@ -34,6 +36,13 @@ public final class SkillStore {
         private final Map<WeaponType, Integer> prof = new EnumMap<>(WeaponType.class);
         private final String[] active = new String[SkillRules.ACTIVE_SLOTS];
         private final Passive[] passive = new Passive[SkillRules.PASSIVE_SLOTS];
+        private final Map<String, Long> counters = new java.util.HashMap<>();
+        private final java.util.Set<String> dirty = new java.util.HashSet<>();
+
+        /** Um contador do jogador (golpes aparados, golpes acertados, skills usadas). */
+        public long counter(String name) {
+            return counters.getOrDefault(name, 0L);
+        }
 
         public int prof(WeaponType t) {
             return prof.getOrDefault(t, 0);
@@ -105,6 +114,7 @@ public final class SkillStore {
                 }
                 return null;
             }, u);
+            Database.query(c, "SELECT counter, value FROM skill_counters WHERE uuid = ?", rs -> d.counters.put(rs.getString(1), rs.getLong(2)), u);
             return d;
         }).thenAccept(d -> AincradCore.get().runSync(() -> {
             if (plugin.getServer().getPlayer(id) != null) {
@@ -117,7 +127,56 @@ public final class SkillStore {
     }
 
     public void unload(UUID id) {
-        cache.remove(id);
+        Data d = cache.remove(id);
+        if (d != null) {
+            flush(id, d);
+        }
+    }
+
+    private java.util.function.Consumer<Player> progress = p -> { };
+
+    /** Quem quer saber quando um jogador avança (as skills únicas conferem os critérios). */
+    public void onProgress(java.util.function.Consumer<Player> listener) {
+        progress = listener;
+    }
+
+    public void progressed(Player p) {
+        progress.accept(p);
+    }
+
+    /** Soma a um contador do jogador. Vai para o banco na próxima gravação (a cada 30 segundos, e ao sair). */
+    public void count(Player p, String name, long add) {
+        Data d = data(p);
+        if (d == null || add <= 0) {
+            return;
+        }
+        d.counters.merge(name, add, Long::sum);
+        d.dirty.add(name);
+        progress.accept(p);
+    }
+
+    private void flush(UUID id, Data d) {
+        if (d.dirty.isEmpty()) {
+            return;
+        }
+        Map<String, Long> values = new java.util.HashMap<>();
+        d.dirty.forEach(n -> values.put(n, d.counter(n)));
+        d.dirty.clear();
+        String sql = db.upsert("skill_counters", List.of("uuid", "counter"), List.of("value"));
+        db.async(c -> {
+            for (var e : values.entrySet()) {
+                Database.update(c, sql, id.toString(), e.getKey(), e.getValue());
+            }
+            return null;
+        }).exceptionally(ex -> {
+            plugin.getLogger().log(Level.WARNING, "Não foi possível gravar os contadores de " + id, ex);
+            return null;
+        });
+    }
+
+    /** Grava os contadores que mudaram. */
+    public void flushAll() {
+        cache.forEach(this::flush);
     }
 
     public void setProf(UUID id, Data d, WeaponType t, int value) {
