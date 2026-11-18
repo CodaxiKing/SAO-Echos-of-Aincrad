@@ -106,8 +106,30 @@ leilao:
   voltar: "<gray>Voltar"
   fechar: "<gray>Fechar"
 
+leilao_casa:
+  so_por_lance: "<yellow>Esta casa é vendida por leilão. Use <white>/casa leilao</white> para ver e <white>/casa lance <valor></white> para dar um lance."
+  sem_leilao: "<gray>Esta casa não está em leilão."
+  fechado: "<gray>A casa <white><casa></white> é de <white><dono></white>. Ela volta a leilão quando ele sair."
+  tem_dono: "<red>A casa <white><casa></white> tem dono (<white><dono></white>). Despeje antes, ou espere ele vender."
+  aberto: "<green>Leilão da casa <white><casa></white> aberto por <white><horas></white> h, lance mínimo <yellow><col></yellow>."
+  removido: "<green>A casa <white><casa></white> deixou de ser de leilão."
+  info: "<gold>Leilão da casa <white><casa></white>: <yellow><col></yellow> por <white><jogador></white> <dark_gray>· <gray>faltam <white><horas>h <minutos>min</white> <dark_gray>· <gray>próximo lance: <white><proximo>"
+  info_sem_lance: "<gold>Leilão da casa <white><casa></white>: sem lances, mínimo <yellow><col></yellow> <dark_gray>· <gray>faltam <white><horas>h <minutos>min"
+  lance_dado: "<green>Seu lance pela casa <white><casa></white>: <yellow><col></yellow>. <gray>O Col fica guardado; se alguém superar, volta para você."
+  superado: "<red><white><jogador></white> superou o seu lance pela casa <white><casa></white> com <yellow><col></yellow>. <gray>Seu Col voltou."
+  perdeu_a_vez: "<red>Outro lance entrou antes do seu. Seu Col voltou; veja o valor de novo em <white>/casa leilao</white>."
+  anuncio_aberto: "<gold>A casa <white><casa></white> está em leilão. Lance mínimo: <yellow><col></yellow>."
+  anuncio_lance: "<gray><white><jogador></white> deu <yellow><col></yellow> pela casa <white><casa></white>."
+  anuncio_fim: "<gold><white><jogador></white> levou a casa <white><casa></white> por <yellow><col></yellow>."
+  bloqueio:
+    sem_leilao: "<gray>Esta casa não está em leilão."
+    fechado: "<gray>O leilão desta casa está fechado."
+    baixo: "<red>O lance precisa ser de pelo menos <yellow><col></yellow>."
+    ja_e_seu: "<gray>O maior lance já é seu."
+    limite_de_casas: "<red>Você já tem o máximo de casas."
+
 casa:
-  uso: "<gray>Uso: <white>/casa [info|comprar|ir|convidar <j>|remover <j>|definirspawn|vender]"
+  uso: "<gray>Uso: <white>/casa [info|comprar|lance <valor>|leilao|ir|convidar <j>|remover <j>|definirspawn|vender]"
   info: "<gold>Casa <white><casa></white> <gray>(andar <white><andar></white>) — dono <white><dono></white>; convidados: <white><convidados>"
   info_venda: "<gold>Casa <white><casa></white> <gray>(andar <white><andar></white>) <green>à venda por <yellow><col></yellow> — <white><click:run_command:'/casa comprar'>/casa comprar</click>"
   nenhuma: "<gray>Você não tem casa. Entre numa casa à venda e use <white>/casa comprar</white>."
@@ -136,7 +158,7 @@ casa:
 
 admin:
   descricao_casa: "Casas: criar na seleção, remover, despejar, listar"
-  uso_casa: "<gray>Uso: <white>/aincrad casa criar <nome> <preço> [andar]</white>, <white>remover <nome></white>, <white>despejar <nome></white>, <white>listar"
+  uso_casa: "<gray>Uso: <white>/aincrad casa criar <nome> <preço> [andar]</white>, <white>remover <nome></white>, <white>despejar <nome></white>, <white>leilao <nome> <lance mínimo> [horas]</white>, <white>leilao <nome> tirar</white>, <white>listar"
   casa_feito: "<green>Feito: <white><casa></white>."
   casa_lista: "<gray>Casas: <white><casas>"
   descricao_col: "Admin do Col: dar, tirar, definir, ver"

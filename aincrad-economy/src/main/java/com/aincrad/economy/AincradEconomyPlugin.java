@@ -42,6 +42,7 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
             core.database().migrate("economy_shops", ShopService.MIGRATIONS);
             core.database().migrate("economy_auctions", AuctionService.MIGRATIONS);
             core.database().migrate("economy_houses", HouseService.MIGRATIONS);
+            core.database().migrate("economy_house_auctions", com.aincrad.economy.house.HouseAuctionService.MIGRATIONS);
             core.database().migrate("economy_holds", HoldService.MIGRATIONS);
         } catch (SQLException e) {
             getLogger().severe("Banco indisponível, o AincradEconomy não vai ligar: " + e.getMessage());
@@ -51,7 +52,8 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         Accounts accounts = new Accounts(core.database(), getLogger(), core.server(),
                 config.integer("saldo_inicial", 100, 0, Integer.MAX_VALUE), id -> getServer().getPlayer(id) != null);
         eco = new EconomyService(this, accounts, msg, config);
-        AincradEconomyAPI.holds(new HoldService(eco, core.database(), getLogger()));
+        HoldService holds = new HoldService(eco, core.database(), getLogger());
+        AincradEconomyAPI.holds(holds);
         shops = new ShopService(this, eco, core.config(this, "shops.yml"), core.database());
         try {
             shops.loadLinksBlocking();
@@ -124,7 +126,18 @@ public final class AincradEconomyPlugin extends JavaPlugin implements Listener {
         }
         core.commands().register(this, AdminCommands.col(eco));
         core.commands().register(this, AdminCommands.shop(eco, shops));
+        com.aincrad.economy.house.HouseAuctionService houseAuctions =
+                new com.aincrad.economy.house.HouseAuctionService(this, eco, holds, houses, core.database());
+        try {
+            houseAuctions.loadBlocking();
+        } catch (SQLException e) {
+            getLogger().warning("Não foi possível ler os leilões de casas: " + e.getMessage());
+        }
+        houses.auctions(houseAuctions);
+        getServer().getScheduler().runTaskTimer(this, houseAuctions::tick, 200L, 600L);
+        getServer().getScheduler().runTaskTimer(this, houseAuctions::refresh, 1200L, 1200L);
         MarketCommands market = new MarketCommands(eco, auction, houses);
+        market.houseAuctions(houseAuctions);
         for (String name : new String[]{"leilao", "casa"}) {
             PluginCommand c = getCommand(name);
             if (c != null) {

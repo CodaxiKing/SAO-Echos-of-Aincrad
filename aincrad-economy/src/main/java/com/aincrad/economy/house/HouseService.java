@@ -72,6 +72,12 @@ public final class HouseService implements Listener {
     private final Database db;
     /** Pelo nome da região. */
     private final Map<String, House> byRegion = new ConcurrentHashMap<>();
+    private HouseAuctionService auctions;
+
+    /** As casas de leilão não têm preço fixo: comprar é pelo lance, e ao ficar sem dono voltam a leilão. */
+    public void auctions(HouseAuctionService service) {
+        auctions = service;
+    }
 
     public HouseService(Plugin plugin, EconomyService eco, Database db) {
         this.plugin = plugin;
@@ -210,6 +216,9 @@ public final class HouseService implements Listener {
         }
         h.owner(null, null);
         save(h);
+        if (auctions != null) {
+            auctions.reopen(h.name());
+        }
         return true;
     }
 
@@ -223,6 +232,10 @@ public final class HouseService implements Listener {
         }
         if (!h.forSale()) {
             msg.send(p, "casa.ja_tem_dono", Messages.vars("dono", String.valueOf(h.ownerName())));
+            return;
+        }
+        if (auctions != null && auctions.auctioned(h.name())) {
+            msg.send(p, "leilao_casa.so_por_lance");
             return;
         }
         int max = eco.config().integer("casas.max_por_jogador", 1, 0, 100);
@@ -262,6 +275,9 @@ public final class HouseService implements Listener {
         long back = (long) Math.floor(h.price() * rate);
         h.owner(null, null);
         save(h);
+        if (auctions != null) {
+            auctions.reopen(h.name());
+        }
         eco.deposit(p.getUniqueId(), back, "casa:venda");
         msg.send(p, "casa.vendeu", Messages.vars("casa", h.name()), eco.col(back));
     }

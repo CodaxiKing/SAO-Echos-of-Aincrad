@@ -37,6 +37,10 @@ casas:
   max_por_jogador: 1
   max_convidados: 10
   reembolso: 0.5          # fração do preço devolvida no /casa vender
+  # Casas com vista: vendidas por leilão (/aincrad casa leilao <nome> <lance mínimo> <horas>).
+  leilao:
+    incremento: 0.05      # cada lance precisa superar o anterior em 5%
+    prorrogar_minutos: 5  # um lance no fim do prazo estica o leilão por este tempo
 
 # Nome da moeda nas mensagens e no Vault.
 moeda:

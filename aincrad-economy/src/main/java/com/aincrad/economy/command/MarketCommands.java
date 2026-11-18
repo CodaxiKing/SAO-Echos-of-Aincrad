@@ -25,6 +25,11 @@ public final class MarketCommands implements TabExecutor {
     private final EconomyService eco;
     private final AuctionService auction;
     private final HouseService houses;
+    private com.aincrad.economy.house.HouseAuctionService houseAuctions;
+
+    public void houseAuctions(com.aincrad.economy.house.HouseAuctionService service) {
+        houseAuctions = service;
+    }
 
     public MarketCommands(EconomyService eco, AuctionService auction, HouseService houses) {
         this.eco = eco;
@@ -81,6 +86,22 @@ public final class MarketCommands implements TabExecutor {
         String op = args.length == 0 ? "info" : args[0].toLowerCase(Locale.ROOT);
         if (op.equals("comprar")) {
             houses.buy(p);
+            return;
+        }
+        if ((op.equals("lance") || op.equals("leilao")) && houseAuctions != null) {
+            House here = houses.at(p.getLocation());
+            if (here == null) {
+                msg.send(p, "casa.fora");
+            } else if (op.equals("leilao") || args.length < 2) {
+                houseAuctions.info(p, here);
+            } else {
+                long amount = EcoMath.parse(args[1]);
+                if (amount <= 0) {
+                    msg.send(p, "casa.uso");
+                } else {
+                    houseAuctions.bid(p, here, amount);
+                }
+            }
             return;
         }
         if (op.equals("info")) {
@@ -166,7 +187,7 @@ public final class MarketCommands implements TabExecutor {
         if (args.length == 1) {
             List<String> opts = command.getName().equalsIgnoreCase("leilao")
                     ? List.of("vender", "retirar")
-                    : List.of("info", "comprar", "ir", "convidar", "remover", "definirspawn", "vender");
+                    : List.of("info", "comprar", "lance", "leilao", "ir", "convidar", "remover", "definirspawn", "vender");
             return filter(opts, args[0]);
         }
         if (args.length == 2 && command.getName().equalsIgnoreCase("casa")
@@ -220,6 +241,30 @@ public final class MarketCommands implements TabExecutor {
                         }
                         houses.create(p, args[1], price, floor);
                     }
+                    case "leilao" -> {
+                        // /aincrad casa leilao <nome> <lance mínimo> <horas>  |  /aincrad casa leilao <nome> tirar
+                        House h = args.length > 2 ? houses.byName(args[1]) : null;
+                        if (h == null || houseAuctions == null) {
+                            msg.send(sender, "admin.uso_casa");
+                            return;
+                        }
+                        if (args[2].equalsIgnoreCase("tirar")) {
+                            houseAuctions.remove(sender, h.name());
+                            return;
+                        }
+                        long min = EcoMath.parse(args[2]);
+                        int hours;
+                        try {
+                            hours = args.length > 3 ? Integer.parseInt(args[3]) : 48;
+                        } catch (NumberFormatException e) {
+                            hours = -1;
+                        }
+                        if (min <= 0 || hours < 1 || hours > 24 * 60) {
+                            msg.send(sender, "admin.uso_casa");
+                            return;
+                        }
+                        houseAuctions.start(sender, h, min, hours);
+                    }
                     case "remover", "despejar" -> {
                         if (args.length < 2) {
                             msg.send(sender, "admin.uso_casa");
@@ -242,9 +287,9 @@ public final class MarketCommands implements TabExecutor {
             @Override
             public List<String> complete(CommandSender sender, String[] args) {
                 if (args.length == 1) {
-                    return filter(List.of("criar", "remover", "despejar", "listar"), args[0]);
+                    return filter(List.of("criar", "remover", "despejar", "leilao", "listar"), args[0]);
                 }
-                if (args.length == 2 && (args[0].equalsIgnoreCase("remover") || args[0].equalsIgnoreCase("despejar"))) {
+                if (args.length == 2 && (args[0].equalsIgnoreCase("remover") || args[0].equalsIgnoreCase("despejar") || args[0].equalsIgnoreCase("leilao"))) {
                     List<String> names = new ArrayList<>();
                     houses.all().forEach(h -> names.add(h.name()));
                     return filter(names, args[1]);

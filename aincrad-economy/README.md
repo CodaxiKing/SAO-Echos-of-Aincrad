@@ -37,6 +37,25 @@ A moeda **Col** e o que se compra com ela (etapas A3–A4 do plano). Precisa do 
   (`/casa convidar <jogador>`) e admins quebram, colocam, abrem portas, baús, botões, molduras e
   suportes de armadura. Casa sem dono: só admin mexe. `/casa vender` devolve `reembolso` do preço.
 
+## Casas com vista: venda por leilão (etapa 50)
+
+Casas raras — a cabana do andar 22 — não têm preço fixo: vão a **leilão**.
+
+- O admin cria a casa normalmente e a põe em leilão: `/aincrad casa leilao <nome> <lance mínimo>
+  [horas]` (48 h por padrão). Dali em diante ela é uma casa de leilão; `/aincrad casa leilao <nome>
+  tirar` devolve o preço fixo.
+- Dentro da casa: `/casa leilao` mostra o lance atual e o tempo que falta; `/casa lance <valor>` dá
+  um lance. `/casa comprar` não vale para ela.
+- O lance sai do saldo e fica em **custódia**. Quem é superado recebe o Col de volta na hora.
+- Cada lance precisa superar o anterior em `casas.leilao.incremento` (5%). Um lance nos últimos
+  `prorrogar_minutos` estica o prazo, para ninguém ganhar no último segundo.
+- No fim do prazo **o maior lance leva** a casa e o Col sai de circulação. Sem lances, o leilão
+  recomeça.
+- Quando o dono **vende ou é despejado, a casa volta a leilão** sozinha.
+- O limite de casas por jogador (`casas.max_por_jogador`) vale para os lances.
+
+> Compila e passa nos testes de regras, mas não foi testado num servidor de verdade.
+
 ## Comandos
 
 | Comando | O que faz | Permissão |
