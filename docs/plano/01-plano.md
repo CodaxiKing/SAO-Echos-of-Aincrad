@@ -550,6 +550,8 @@ O AincradReputation (etapas 26–27) já tem código, na pasta `aincrad-reputati
 
 A quarta leva (etapas 39 a 43) também tem código, sem teste em servidor: o Monumento da Vida no AincradReputation, o dia do anúncio e o fim de jogo no AincradFloors (`deathgame.yml`), os chefes de campo e de evento (`roaming.yml`, com o Nicholas) e os informantes no AincradBosses. Os pacotes de conteúdo por andar (A1, A2…) continuam por fazer.
 
+Da quinta leva já têm código, sem teste em servidor: o AincradWorld (pasta `aincrad-world/`) com o jornal (44), o calendário (57), o dia e noite (58) e o clima (59), e os mobs raros no AincradRPG (45).
+
 Fora das etapas, o AincradRPG ganhou os **mobs por região** (`spawns.yml`): cada região do core pode ter a sua lista de mobs, do Minecraft ou do MythicMobs, com level e peso. É a base dos mobs de cada pacote de andar (A1, A2…).
 
 **O que cada um dos três traz**

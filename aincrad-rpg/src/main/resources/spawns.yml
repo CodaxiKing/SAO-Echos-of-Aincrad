@@ -18,6 +18,10 @@
 #          Para mob do MythicMobs, escolha o modelo no arquivo do
 #          próprio MythicMobs (é o caminho normal).
 #
+#  clima:   só nasce com este clima do AincradWorld: limpo, chuva, neve ou nevoa
+#  periodo: só nasce de dia ou de noite
+#          (é assim que a névoa ou a noite trocam os mobs de uma região)
+#
 #  O level do mob vale para XP, vida e dano pelas regras do mobs.yml.
 #  Não use LevelModifiers no MythicMobs, ou a vida escala duas vezes.
 #  Os mobs daqui não são salvos com o mapa: somem quando ninguém está
@@ -42,3 +46,5 @@ regioes: {}
 #       - { mob: "mythic:JavaliFrenetico", peso: 3, level: "1-2" }
 #       - { mob: "mythic:LoboTerrivel", peso: 1, level: "2-4" }
 #       - { mob: PIG, modelo: javali, peso: 1, level: 1 }
+#       - { mob: "mythic:LoboDaNevoa", peso: 4, level: "3-5", clima: nevoa }
+#       - { mob: SKELETON, peso: 2, level: "2-4", periodo: noite }

@@ -59,6 +59,9 @@ item:
 encantamento:
   bloqueado: "<red>Não existem encantamentos em Aincrad."
 
+raro:
+  pegou: "<gold>Você pegou um mob raro: <white><mob></white>!"
+
 admin:
   descricao: "Admin do RPG: XP, level, itens e pontos"
   uso: "<gray>Uso: <white>/aincrad rpg xp dar|tirar <jogador> <qtd></white>, <white>level <jogador> <n></white>, <white>item <id> [raridade] [jogador]</white>, <white>resetar <jogador></white>, <white>info <jogador></white>, <white>spawns</white>, <white>mob <mob> [level] [modelo]"
@@ -69,6 +72,7 @@ admin:
   raridade_invalida: "<red>Raridade inválida. Use comum, incomum, raro, epico ou lendario."
   item_dado: "<green>Item <white><id></white> entregue para <white><jogador></white>."
   resetado: "<yellow>Pontos de <white><jogador></white> devolvidos."
+  uso_raro: "<gray>Uso: <white>/aincrad rpg raro <id></white>. Mobs raros: <white><lista>"
   uso_mob: "<gray>Uso: <white>/aincrad rpg mob <ZOMBIE|mythic:Nome> [level] [modelo]"
   mob_criado: "<green>Mob <white><mob></white> criado onde você está."
   mob_falhou: "<red>Não foi possível criar <white><mob></white>. <gray>O motivo está no console."

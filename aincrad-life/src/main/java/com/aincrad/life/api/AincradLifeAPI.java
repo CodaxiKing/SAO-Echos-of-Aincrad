@@ -31,6 +31,25 @@ public final class AincradLifeAPI {
         food = f;
     }
 
+    private static com.aincrad.life.cooking.CookingService cooking;
+
+    /** Interno: o módulo de culinária (null quando desligado). */
+    public static void cooking(com.aincrad.life.cooking.CookingService c) {
+        cooking = c;
+    }
+
+    /**
+     * O item de um ingrediente do ingredients.yml (para drops de mobs e recompensas de quest).
+     * Null se o ingrediente não existe ou a culinária está desligada.
+     */
+    public static org.bukkit.inventory.ItemStack createIngredient(String id, int amount) {
+        if (cooking == null || id == null) {
+            return null;
+        }
+        var ingredient = cooking.registry().ingredient(id.toLowerCase(java.util.Locale.ROOT));
+        return ingredient == null ? null : cooking.ingredientItem(ingredient, amount);
+    }
+
     /** Interno: o módulo de familiares (null quando desligado). */
     public static void pets(com.aincrad.life.pets.PetService p) {
         pets = p;

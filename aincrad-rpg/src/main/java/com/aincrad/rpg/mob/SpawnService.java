@@ -205,7 +205,8 @@ public final class SpawnService implements Listener {
                 if (at == null) {
                     continue;
                 }
-                Entry e = SpawnRules.pick(a.mobs(), rnd.nextDouble());
+                // Só as linhas que valem com o clima e o período de agora: é assim que a névoa troca os mobs.
+                Entry e = SpawnRules.pick(SpawnRules.fitting(a.mobs(), Conditions.weather(at), Conditions.night(w)), rnd.nextDouble());
                 Entity mob = e == null ? null : spawn(e, at, a.region());
                 if (mob != null) {
                     mob.getPersistentDataContainer().set(keyRegion, PersistentDataType.STRING, a.region());
@@ -240,11 +241,16 @@ public final class SpawnService implements Listener {
 
     /** Um lugar dentro da região, perto de um jogador mas não em cima de nenhum, com chão e espaço. */
     private static Location place(Area a, Region r, World w, List<Player> near, List<Player> all, ThreadLocalRandom rnd) {
-        double min = (double) a.minDistance() * a.minDistance();
+        return placeNear(a.radius(), a.minDistance(), r, w, near, all, rnd);
+    }
+
+    /** O mesmo, com o raio e a distância mínima dados (os mobs raros usam). */
+    static Location placeNear(int radius, int minDistance, Region r, World w, List<Player> near, List<Player> all, ThreadLocalRandom rnd) {
+        double min = (double) minDistance * minDistance;
         for (int t = 0; t < TRIES; t++) {
             Location pl = near.get(rnd.nextInt(near.size())).getLocation();
-            int x = clamp(pl.getBlockX() + rnd.nextInt(-a.radius(), a.radius() + 1), r.minX(), r.maxX());
-            int z = clamp(pl.getBlockZ() + rnd.nextInt(-a.radius(), a.radius() + 1), r.minZ(), r.maxZ());
+            int x = clamp(pl.getBlockX() + rnd.nextInt(-radius, radius + 1), r.minX(), r.maxX());
+            int z = clamp(pl.getBlockZ() + rnd.nextInt(-radius, radius + 1), r.minZ(), r.maxZ());
             if (!w.isChunkLoaded(x >> 4, z >> 4)) {
                 continue;
             }

@@ -27,11 +27,13 @@ public final class AdminCommand implements SubCommand {
     private final RpgService rpg;
     private final ItemService items;
     private final SpawnService spawns;
+    private final com.aincrad.rpg.mob.RareMobService rares;
 
-    public AdminCommand(RpgService rpg, ItemService items, SpawnService spawns) {
+    public AdminCommand(RpgService rpg, ItemService items, SpawnService spawns, com.aincrad.rpg.mob.RareMobService rares) {
         this.rpg = rpg;
         this.items = items;
         this.spawns = spawns;
+        this.rares = rares;
     }
 
     @Override
@@ -61,7 +63,7 @@ public final class AdminCommand implements SubCommand {
             msg.send(sender, "admin.uso");
             return;
         }
-        if (List.of("xp", "level", "item", "resetar", "mob").contains(args[0].toLowerCase(Locale.ROOT))) {
+        if (List.of("xp", "level", "item", "resetar", "mob", "raro").contains(args[0].toLowerCase(Locale.ROOT))) {
             // Registro de ações de admin (AincradAdmin): o comando como foi digitado.
             org.bukkit.Bukkit.getPluginManager().callEvent(new com.aincrad.core.AincradAdminActionEvent(sender, "rpg", "rpg." + args[0].toLowerCase(Locale.ROOT), String.join(" ", args)));
         }
@@ -88,6 +90,16 @@ public final class AdminCommand implements SubCommand {
             }
             case "spawns" -> spawns(sender);
             case "mob" -> mob(sender, args);
+            case "raro" -> {
+                // Faz um mob raro aparecer onde o admin está, para testar (sem esperar a chance).
+                com.aincrad.rpg.model.RareRules.Def d = args.length < 2 ? null : rares.defs().get(args[1].toLowerCase(Locale.ROOT));
+                if (!(sender instanceof Player p) || d == null) {
+                    msg.send(sender, "admin.uso_raro", Messages.vars("lista", rares.defs().isEmpty() ? "—" : String.join(", ", rares.defs().keySet())));
+                    rares.errors().forEach(e -> msg.send(sender, "admin.spawns_erro", Messages.vars("erro", e)));
+                } else {
+                    msg.send(sender, rares.spawn(d, p.getLocation()) ? "admin.mob_criado" : "admin.mob_falhou", Messages.vars("mob", d.id()));
+                }
+            }
             default -> msg.send(sender, "admin.uso");
         }
     }
@@ -124,7 +136,7 @@ public final class AdminCommand implements SubCommand {
             msg.send(sender, "admin.uso_mob");
             return;
         }
-        SpawnRules.Entry e = new SpawnRules.Entry(ref, 1, lv[0], lv[1], args.length > 3 ? args[3] : null);
+        SpawnRules.Entry e = new SpawnRules.Entry(ref, 1, lv[0], lv[1], args.length > 3 ? args[3] : null, null, null);
         if (spawns.spawn(e, p.getLocation(), "/aincrad rpg mob") == null) {
             msg.send(sender, "admin.mob_falhou", Messages.vars("mob", ref.text()));
         } else {
@@ -226,12 +238,13 @@ public final class AdminCommand implements SubCommand {
     @Override
     public List<String> complete(CommandSender sender, String[] args) {
         List<String> opts = switch (args.length) {
-            case 1 -> List.of("xp", "level", "item", "resetar", "info", "spawns", "mob");
+            case 1 -> List.of("xp", "level", "item", "resetar", "info", "spawns", "mob", "raro");
             case 2 -> switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "xp" -> List.of("dar", "tirar");
                 case "item" -> new ArrayList<>(items.ids());
                 case "spawns" -> List.of();
                 case "mob" -> List.of("mythic:");
+                case "raro" -> new ArrayList<>(rares.defs().keySet());
                 default -> players();
             };
             case 3 -> switch (args[0].toLowerCase(Locale.ROOT)) {

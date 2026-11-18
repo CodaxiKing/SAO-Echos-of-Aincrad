@@ -15,6 +15,8 @@
 #  evento:  data (MM-DD), hora (HH:MM) e duracao_minutos. Aparece
 #           uma vez por ano nessa janela e some quando ela acaba.
 #           Derrotado, só volta no ano seguinte.
+#           calendario: <id> usa uma data do calendar.yml do AincradWorld
+#           no lugar da "data" (que fica como reserva, sem o AincradWorld).
 # ============================================================
 campo: {}
 evento: {}
@@ -29,6 +31,7 @@ evento: {}
 # evento:
 #   nicholas:
 #     regiao: floresta_andar35
-#     data: "12-24"
+#     calendario: natal       # a data "natal" do AincradWorld
+#     data: "12-24"           # reserva, sem o AincradWorld
 #     hora: "23:00"
 #     duracao_minutos: 120

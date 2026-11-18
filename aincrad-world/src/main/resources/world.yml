@@ -1,0 +1,25 @@
+# ============================================================
+#  AincradWorld — jornal e dia e noite
+#  O calendário fica em calendar.yml e o clima em weather.yml.
+# ============================================================
+jornal:
+  # Notícias por página do livro.
+  noticias_por_pagina: 5
+  # As edições mais velhas que isto são apagadas. 0 = guarda para sempre.
+  guardar_semanas: 52
+  # Preço em Col do livro em /jornal comprar (ler em /jornal é de graça).
+  # Para vender por NPC: /aincrad npc comando <id> jornal comprar (AincradQuests).
+  preco: 20
+
+# À noite, fora das zonas seguras, os mobs com level do AincradRPG ficam mais fortes
+# e rendem mais. ATENÇÃO: isto mexe no equilíbrio do servidor inteiro.
+noite:
+  ativa: true
+  # Multiplica o level do mob que nasce de noite.
+  level: 1.25
+  # Multiplica o XP do abate feito de noite.
+  xp: 1.5
+  # Multiplica os drops do mob que nasceu de noite.
+  drop: 1.5
+  # Avisa na tela quem está fora das cidades quando anoitece.
+  aviso: true

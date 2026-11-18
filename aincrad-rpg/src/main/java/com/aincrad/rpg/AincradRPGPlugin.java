@@ -30,6 +30,8 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
     private ConfigFile mobs;
     private ConfigFile spawnFile;
     private SpawnService spawns;
+    private ConfigFile rareFile;
+    private com.aincrad.rpg.mob.RareMobService rares;
     private Messages msg;
     private PlayerStore store;
     private RpgService rpg;
@@ -67,7 +69,11 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         spawns = new SpawnService(this, mobService);
         getServer().getPluginManager().registerEvents(spawns, this);
         spawns.reload(spawnFile);
-        core.commands().register(this, new AdminCommand(rpg, items, spawns));
+        rareFile = core.config(this, "rare-mobs.yml");
+        rares = new com.aincrad.rpg.mob.RareMobService(this, msg, spawns, items);
+        getServer().getPluginManager().registerEvents(rares, this);
+        rares.reload(rareFile);
+        core.commands().register(this, new AdminCommand(rpg, items, spawns, rares));
         AincradRPGAPI.init(rpg, mobService, items, status);
         getServer().getServicesManager().register(AincradRPGAPI.class, AincradRPGAPI.instance(), this, ServicePriority.Normal);
 
@@ -98,6 +104,9 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         AincradRPGAPI.init(null, null, null, null);
         getServer().getServicesManager().unregisterAll(this);
+        if (rares != null) {
+            rares.shutdown();
+        }
         if (spawns != null) {
             spawns.shutdown();
         }
@@ -122,6 +131,8 @@ public final class AincradRPGPlugin extends JavaPlugin implements Listener {
         items.reload(s);
         spawnFile.reload();
         spawns.reload(spawnFile);
+        rareFile.reload();
+        rares.reload(rareFile);
         for (Player p : getServer().getOnlinePlayers()) {
             rpg.applyAttributes(p);
             rpg.refresh(p);

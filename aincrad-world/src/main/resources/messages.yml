@@ -1,0 +1,60 @@
+# ============================================================
+#  AincradWorld — mensagens (MiniMessage)
+# ============================================================
+
+# O texto de cada tipo de notícia. Deixe em branco ("") para o tipo não entrar no jornal.
+noticia:
+  andar: "O andar <andar> foi liberado: <nome>."
+  chefe: "<chefe>, o chefe do andar <andar>, caiu. Last Attack: <jogador>."
+  torneio: "<jogador> venceu o torneio de pesca com um peixe de <tamanho> cm."
+  casamento: "<a> e <b> se casaram."
+  preso: "<jogador> foi derrotado por <captor> e está na prisão."
+  conquista: "<jogador> conseguiu a conquista <conquista>."
+  estacao: "Começou a estação: <estacao>."
+  data: "Hoje é <nome>."
+
+jornal:
+  titulo: "Notícias do Castelo <edicao>"
+  autor: "Aincrad"
+  capa:
+    - "<dark_red><bold>Notícias do Castelo"
+    - "<dark_gray>Edição <edicao>"
+    - ""
+    - "<black>Notícias da semana: <dark_blue><noticias>"
+    - ""
+    - "<dark_gray>Edições antigas: /jornal lista"
+  sem_noticias: "<dark_gray>Nada aconteceu nesta semana. Ainda."
+  linha: "<dark_gray><data></dark_gray> <black><texto>"
+  menu: "<dark_gray>Edições do jornal"
+  menu_noticias: "<gray><noticias> notícia(s)"
+  nenhuma_edicao: "<gray>Ainda não saiu nenhuma edição."
+  edicao_invalida: "<red>Não existe a edição <white><edicao></white>. <gray>Veja em <white>/jornal lista</white>."
+  erro: "<red>Não foi possível abrir o jornal agora."
+  sem_col: "<red>O jornal custa <white><preco> Col</white>."
+  comprou: "<green>Você comprou o jornal <white><edicao></white> <gray>(<preco> Col)."
+
+estacao:
+  primavera: "Primavera"
+  verao: "Verão"
+  outono: "Outono"
+  inverno: "Inverno"
+
+calendario:
+  hoje: "<gold><estacao></gold> <gray>dia <white><dia></white> de <dias> <dark_gray>· <gray>ano <white><ano></white> de Aincrad"
+  linha: "<gray>• <white><nome></white> <dark_gray>em <dias> dia(s)"
+  linha_hoje: "<gray>• <white><nome></white> <gold>hoje"
+  clima: "<gray>Clima aqui: <white><clima>"
+  estacao_mudou: "<gold>A estação mudou: agora é <white><estacao></white>."
+  data_hoje: "<gold>Hoje é <white><nome></white>."
+
+clima:
+  limpo: "limpo"
+  chuva: "chuva"
+  neve: "neve"
+  nevoa: "névoa"
+  nevoa_chegou: "<gray>A névoa desceu. Mal dá para ver à frente."
+
+noite:
+  anoiteceu: "<dark_red>Anoiteceu"
+  anoiteceu_sub: "<gray>Os monstros ficam mais fortes fora das cidades"
+  amanheceu: "<yellow>Amanheceu."

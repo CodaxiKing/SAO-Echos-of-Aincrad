@@ -36,6 +36,7 @@ Precisa do **AincradCore** (banco, mensagens, menus, regiões, `/aincrad`).
 | `/aincrad rpg resetar <jogador>` · `info <jogador>` | Devolve pontos · mostra os dados | `aincrad.rpg.admin` |
 | `/aincrad rpg spawns` | Regiões do `spawns.yml`: mobs vivos, máximo e o que está errado | `aincrad.rpg.admin` |
 | `/aincrad rpg mob <ZOMBIE\|mythic:Nome> [level] [modelo]` | Cria um mob onde você está, para testar | `aincrad.rpg.admin` |
+| `/aincrad rpg raro <id>` | Faz um mob raro aparecer onde você está | `aincrad.rpg.admin` |
 
 `/aincrad reload` recarrega `config.yml`, `levels.yml`, `mobs.yml`, `spawns.yml`, `items.yml` e as
 mensagens.
@@ -76,8 +77,31 @@ Para os campos terem os mobs deles — o javali e o lobo do andar 1, por exemplo
 - Os mobs nascem só com jogador por perto, no chão mais próximo da altura dele (serve para campo
   e para labirinto), e não são salvos com o mapa: somem quando ninguém está perto ou o servidor
   reinicia, e voltam a nascer.
+- `clima: nevoa` e `periodo: noite` numa linha fazem o mob nascer só com esse clima (do
+  AincradWorld) ou nesse período: é assim que a névoa ou a noite trocam os mobs de uma região.
 - O MythicMobs e o ModelEngine são opcionais e chamados por reflexão. **Esta parte compila e passa
   nos testes de regras, mas não foi testada com os dois plugins num servidor.**
+
+## Mobs raros (`rare-mobs.yml`)
+
+Mobs que aparecem com chance baixa perto de um jogador que está na região, **fogem dele** e, se
+forem pegos, soltam um drop raro. Só existe um de cada por vez, e ele some depois de um tempo.
+
+```yaml
+mobs:
+  coelho_do_ragu:
+    mob: RABBIT
+    nome: "<gold>Ragout Rabbit"
+    regiao: campos_andar1
+    chance: 0.01                    # por rodada de 30 s, por jogador na região
+    level: 1
+    foge: true
+    drop: "life:carne_coelho_raro"  # MATERIAL, rpg:<id> ou life:<ingrediente do AincradLife>
+```
+
+O coelho do ragu solta a carne que o Ensopado de Coelho do AincradLife pede como ingrediente de
+rank S. `periodo:` e `clima:` valem aqui também. Para testar sem esperar a chance:
+`/aincrad rpg raro <id>`. O arquivo vem vazio.
 
 ## Banco
 

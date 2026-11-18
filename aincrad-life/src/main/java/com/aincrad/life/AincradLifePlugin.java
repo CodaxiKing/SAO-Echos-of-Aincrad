@@ -306,6 +306,7 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         }
         AincradLifeAPI.init(professions, inns);
         AincradLifeAPI.food(foodBuffs);
+        AincradLifeAPI.cooking(cooking);
         AincradLifeAPI.pets(pets);
         AincradLifeAPI.marriages(marriages);
         uiEntries();
@@ -541,6 +542,7 @@ public final class AincradLifePlugin extends JavaPlugin implements Listener {
         }
         AincradLifeAPI.init(null, null);
         AincradLifeAPI.food(null);
+        AincradLifeAPI.cooking(null);
         AincradLifeAPI.pets(null);
         AincradLifeAPI.marriages(null);
         getServer().getServicesManager().unregisterAll(this);

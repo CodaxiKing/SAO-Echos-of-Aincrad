@@ -1,0 +1,28 @@
+# ============================================================
+#  Calendário de Aincrad
+#  As estações giram a partir de "inicio", cada uma com
+#  "dias_por_estacao" dias de verdade. Com 7 dias, o ano de
+#  Aincrad (quatro estações) dura 28 dias.
+# ============================================================
+inicio: "2026-01-01"
+dias_por_estacao: 7
+estacoes: [primavera, verao, outono, inverno]
+
+# Datas marcadas. Duas formas:
+#   dia: "12-24"                -> um dia do ano de verdade (MM-DD)
+#   estacao: outono, dia: 3     -> o 3º dia de cada outono
+# Quando a data começa, o servidor é avisado, ela entra no jornal e os outros plugins
+# recebem o CalendarDateEvent. O Nicholas do AincradBosses usa a data "natal"
+# (roaming.yml -> calendario: natal).
+datas:
+  natal:
+    nome: "Noite de Natal"
+    dia: "12-24"
+  festival_da_colheita:
+    nome: "Festival da Colheita"
+    estacao: outono
+    dia: 3
+  festival_das_flores:
+    nome: "Festival das Flores"
+    estacao: primavera
+    dia: 1

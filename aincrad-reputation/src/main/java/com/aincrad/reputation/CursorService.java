@@ -178,6 +178,8 @@ public final class CursorService implements Listener {
             reputation.setJail(victim, now + time);
             msg.send(victim, "prisao.preso", Messages.vars("tempo", TimeFormat.duration(time, 2), "jogador", killer.getName()));
             msg.send(killer, "prisao.prendeu", Messages.vars("jogador", victim.getName()));
+            org.bukkit.Bukkit.getPluginManager().callEvent(new com.aincrad.reputation.api.PlayerJailEvent(victim, killer, now + time,
+                    reputation.rep(victim).cursor().kills()));
         }
     }
 

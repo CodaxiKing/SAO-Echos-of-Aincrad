@@ -154,7 +154,7 @@ public final class RoamingService implements Listener {
             long[] s = of(e.id());
             long despawn = 0;
             if (e.event()) {
-                Window win = RoamingRules.window(e, now, ZoneId.systemDefault());
+                Window win = window(e, now);
                 if (!RoamingRules.eventActive(win, now, s[1])) {
                     announced.remove(e.id());
                     continue;
@@ -179,6 +179,25 @@ public final class RoamingService implements Listener {
                 }
             }
         }
+    }
+
+    /** A janela do evento: pela data do calendário do AincradWorld, quando há; senão, pela "data" fixa. */
+    private static Window window(Entry e, long now) {
+        if (e.calendar() != null) {
+            org.bukkit.plugin.Plugin world = Bukkit.getPluginManager().getPlugin("AincradWorld");
+            if (world != null && world.isEnabled()) {
+                try {
+                    Object start = Class.forName("com.aincrad.world.api.AincradWorldAPI", true, world.getClass().getClassLoader())
+                            .getMethod("getDateStart", String.class).invoke(null, e.calendar());
+                    if (start instanceof Long day && day >= 0) {
+                        return RoamingRules.windowOn(e, day);
+                    }
+                } catch (ReflectiveOperationException | RuntimeException ignored) {
+                    // AincradWorld incompatível: vale a data fixa, se houver.
+                }
+            }
+        }
+        return RoamingRules.window(e, now, ZoneId.systemDefault());
     }
 
     private static boolean someoneNear(Location at) {

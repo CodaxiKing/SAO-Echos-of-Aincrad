@@ -1,0 +1,10 @@
+name: AincradWorld
+version: '${version}'
+main: com.aincrad.world.AincradWorldPlugin
+api-version: '1.21'
+description: O mundo vivo do Aincrad - jornal semanal, calendário com estações, dia e noite e clima por andar.
+authors: [CodaxiKing]
+depend: [AincradCore]
+softdepend: [AincradFloors, AincradBosses, AincradLife, AincradReputation, AincradRPG, AincradEconomy]
+
+# Os comandos de jogador (/jornal, /calendario) são registrados pelo plugin ao ligar.

@@ -8,7 +8,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-core/` | **AincradCore** — config, mensagens, /aincrad, banco, regiões, menus, perfil, MessageBus | pronto (etapa 0) |
 | `aincrad-ui/` | **AincradUI** — menu de ícones estilo SAO, HUD em barras, telas planas com cursor (loja), vida crítica, tela de morte | pronto (etapas 14–17), com as artes do SAO-UI/sao-assets |
 | `aincrad-social/` | **AincradSocial** — amigos, party, guilda (como no anime) e mensagens | pronto (dados em YAML até o aincrad-core) |
-| `aincrad-rpg/` | **AincradRPG** — level, XP, atributos, level dos mobs, mobs por região (Minecraft e MythicMobs), itens com raridade | pronto (etapas A1–A2); os mobs por região têm código, sem teste em servidor |
+| `aincrad-rpg/` | **AincradRPG** — level, XP, atributos, level dos mobs, mobs por região (Minecraft e MythicMobs), itens com raridade | pronto (etapas A1–A2); os mobs por região e os mobs raros (etapa 45) têm código, sem teste em servidor |
 | `aincrad-economy/` | **AincradEconomy** — Col, Vault, lojas de NPC, /pagar, troca segura, leilão, casas e custódia | pronto (etapas A3–A4, mais a custódia das encomendas) |
 | `aincrad-floors/` | **AincradFloors** — andares, bloqueio de entrada, zona segura, anúncio, Teleport Gates, o dia do anúncio e o fim de jogo | pronto (etapas 1–4); etapas 40 e 43 com código, sem teste em servidor |
 | `aincrad-bosses/` | **AincradBosses** — chefes com fases e habilidades, sala, Last Attack, liberação do andar, labirinto | pronto (etapas 5–9, 18–19: proteção contra abuso, guia, raid, editor); chefes de campo e de evento e informantes (etapas 41–42) com código, sem teste em servidor |
@@ -18,6 +18,7 @@ Cada plugin fica na sua própria pasta, com seu próprio projeto Gradle.
 | `aincrad-admin/` | **AincradAdmin** — registro das ações de administração (`/aincrad log`), Discord por webhook, ranking em site, backup diário com restauração e `/aincrad status` | etapas 28–30 com código, sem teste em servidor |
 | `aincrad-skills/` | **AincradSkills** — proficiência por arma, Sword Skills ativas e passivas, atalhos e a skill única Duas Espadas | código pronto (etapas 34–36), sem teste em servidor |
 | `aincrad-quests/` | **AincradQuests** — quests em etapas, diárias e semanais, quest de party, NPCs com diálogo e diário | código pronto (etapas 37–38), sem teste em servidor |
+| `aincrad-world/` | **AincradWorld** — jornal semanal, calendário com estações e datas, dia e noite e clima por andar | código pronto (etapas 44, 57–59), sem teste em servidor |
 | `aincrad-effects/` | **AincradEffects** — motor de efeitos do servidor e resource pack único | pronto (etapas 10–13): motor geral e integração com andares e chefes |
 
 ## Plano

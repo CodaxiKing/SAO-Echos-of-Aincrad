@@ -51,8 +51,15 @@ public final class SpawnRules {
      *
      * @param minLevel 0 = usa a faixa de level do lugar (mobs.yml)
      * @param model    modelo do ModelEngine posto sobre o mob (ou null)
+     * @param weather  só nasce com este clima do AincradWorld ("nevoa"), ou null
+     * @param night    só nasce de noite (true), só de dia (false), ou null
      */
-    public record Entry(MobRef mob, int weight, int minLevel, int maxLevel, String model) {
+    public record Entry(MobRef mob, int weight, int minLevel, int maxLevel, String model, String weather, Boolean night) {
+
+        /** O clima e o período de agora servem para esta linha? */
+        public boolean fits(String weatherNow, boolean nightNow) {
+            return RareRules.matches(weather, night, weatherNow, nightNow);
+        }
 
         public boolean fixedLevel() {
             return minLevel > 0;
@@ -97,6 +104,17 @@ public final class SpawnRules {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /** As linhas que valem com o clima e o período de agora. */
+    public static List<Entry> fitting(List<Entry> entries, String weather, boolean night) {
+        List<Entry> out = new ArrayList<>();
+        for (Entry e : entries) {
+            if (e.fits(weather, night)) {
+                out.add(e);
+            }
+        }
+        return out;
     }
 
     /** Sorteia uma linha pelo peso, com {@code roll} entre 0 e 1. */
@@ -166,8 +184,16 @@ public final class SpawnRules {
                     continue;
                 }
                 Object model = m.get("modelo");
+                Object weather = m.get("clima");
+                Boolean[] night = RareRules.period(m.get("periodo") == null ? null : m.get("periodo").toString());
+                if (night == null) {
+                    errors.add(where + ": 'periodo' precisa ser dia ou noite");
+                    continue;
+                }
                 mobs.add(new Entry(ref, weight, lv[0], lv[1],
-                        model == null || model.toString().isBlank() ? null : model.toString().trim()));
+                        model == null || model.toString().isBlank() ? null : model.toString().trim(),
+                        weather == null || weather.toString().isBlank() ? null : weather.toString().trim().toLowerCase(Locale.ROOT),
+                        night[0]));
             }
             if (mobs.isEmpty()) {
                 errors.add(key + ": nenhum mob válido na lista 'mobs'");

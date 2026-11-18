@@ -1,0 +1,40 @@
+# ============================================================
+#  Clima por andar
+#  A cada "duracao_minutos" o clima de cada andar é sorteado de
+#  novo. As chances vão de 0 a 1; o que sobra é tempo limpo.
+#
+#  chuva: o jogador vê chuva (onde o bioma é frio, o Minecraft
+#         mostra neve; onde é seco, nada cai)
+#  neve:  igual à chuva para o jogo: use nos andares de bioma frio
+#  nevoa: a distância de visão do jogador cai para
+#         "distancia_de_visao" pedaços enquanto dura
+#
+#  O AincradRPG pode trocar os mobs conforme o clima: no spawns.yml,
+#  ponha  clima: nevoa  numa linha de mob.
+#  Sem o AincradFloors, vale o "padrao" para o servidor todo.
+#  ATENÇÃO: o clima muda quais mobs aparecem. Mexe no equilíbrio.
+# ============================================================
+ativo: true
+duracao_minutos: 20
+# false = dentro das zonas seguras o tempo é sempre limpo.
+nas_cidades: true
+
+nevoa:
+  distancia_de_visao: 3
+
+# Vale para os andares que não estão em "andares".
+padrao: { chuva: 0.15, neve: 0, nevoa: 0.05 }
+
+# Por andar: "padrao" e, se quiser, uma linha por estação.
+andares:
+  # O andar 4: coberto de água.
+  4:
+    padrao: { chuva: 0.5, nevoa: 0.2 }
+  # O andar 22: floresta calma.
+  22:
+    padrao: { chuva: 0.1 }
+    inverno: { neve: 0.4 }
+  # O andar 35: a Floresta da Perdição.
+  35:
+    padrao: { nevoa: 0.6, chuva: 0.1 }
+    inverno: { nevoa: 0.4, neve: 0.4 }

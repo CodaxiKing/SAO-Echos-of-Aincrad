@@ -35,12 +35,13 @@ public final class RoamingRules {
      * @param time          evento: a hora em que aparece
      * @param durationMs    evento: quanto tempo fica
      * @param announce      avisa o servidor quando aparece
+     * @param calendar      evento: id de uma data do calendário do AincradWorld (ou null)
      */
     public record Entry(String id, String boss, String region, String spot, long intervalMs, MonthDay date, LocalTime time,
-                        long durationMs, boolean announce) {
+                        long durationMs, boolean announce, String calendar) {
 
         public boolean event() {
-            return date != null;
+            return date != null || calendar != null;
         }
     }
 
@@ -85,9 +86,17 @@ public final class RoamingRules {
             }
             MonthDay date = null;
             LocalTime time = LocalTime.MIDNIGHT;
+            String calendar = null;
             if (event) {
+                calendar = s.getString("calendario");
+                if (calendar != null && calendar.isBlank()) {
+                    calendar = null;
+                }
                 try {
-                    date = MonthDay.parse("--" + s.getString("data", ""));
+                    // Com "calendario", a "data" é opcional: só vale se o AincradWorld não estiver ligado.
+                    if (calendar == null || s.getString("data") != null) {
+                        date = MonthDay.parse("--" + s.getString("data", ""));
+                    }
                     time = LocalTime.parse(s.getString("hora", "00:00"), DateTimeFormatter.ofPattern("H:mm"));
                 } catch (DateTimeParseException e) {
                     errors.add(key + ": 'data' precisa ser MM-DD (12-24) e 'hora' HH:MM");
@@ -98,7 +107,8 @@ public final class RoamingRules {
             out.put(id, new Entry(id, s.getString("chefe", id).toLowerCase(Locale.ROOT), region.toLowerCase(Locale.ROOT),
                     spot == null || spot.isBlank() ? null : spot,
                     Math.max(60_000L, Math.round(s.getDouble("intervalo_horas", 6) * 3_600_000L)), date, time,
-                    Math.max(60_000L, Math.round(s.getDouble("duracao_minutos", 60) * 60_000L)), s.getBoolean("avisar", true)));
+                    Math.max(60_000L, Math.round(s.getDouble("duracao_minutos", 60) * 60_000L)), s.getBoolean("avisar", true),
+                    calendar == null ? null : calendar.toLowerCase(Locale.ROOT)));
         }
     }
 
@@ -112,6 +122,9 @@ public final class RoamingRules {
      * por 2 horas), a que começou no ano passado e ainda não acabou. Null em 29/02 de ano comum.
      */
     public static Window window(Entry e, long now, ZoneId zone) {
+        if (e.date() == null) {
+            return null;
+        }
         int year = Instant.ofEpochMilli(now).atZone(zone).getYear();
         Window last = windowOf(e, year - 1, zone);
         if (last != null && last.contains(now)) {
@@ -131,6 +144,12 @@ public final class RoamingRules {
         } catch (DateTimeException ex) {
             return null;
         }
+    }
+
+    /** A janela a partir do começo do dia que o calendário do AincradWorld deu para a data. */
+    public static Window windowOn(Entry e, long dayStart) {
+        long start = dayStart + e.time().toSecondOfDay() * 1000L;
+        return new Window(start, start + e.durationMs());
     }
 
     /** O chefe de evento deve estar no mundo agora? Não, se já foi derrotado nesta janela. */

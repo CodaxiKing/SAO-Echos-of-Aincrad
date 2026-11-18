@@ -47,13 +47,22 @@ class RoamingRulesTest {
               virada: { chefe: nicholas, regiao: x, data: "12-31", hora: "23:30", duracao_minutos: 60 }
               data_ruim: { regiao: x, data: "24/12" }
               lobo_alfa: { regiao: x, data: "01-01" }
+              colheita: { chefe: nicholas, regiao: x, calendario: Festival_da_Colheita, hora: "20:00", duracao_minutos: 90 }
             """;
 
     @Test
     void oArquivoELidoEOsErrosSaoApontados() throws Exception {
         List<String> errors = new ArrayList<>();
         Map<String, Entry> m = parse(YAML, errors);
-        assertEquals(List.of("lobo_alfa", "nicholas", "virada"), List.copyOf(m.keySet()));
+        assertEquals(List.of("lobo_alfa", "nicholas", "virada", "colheita"), List.copyOf(m.keySet()));
+        // Evento pela data do calendário do AincradWorld: sem "data" fixa, a janela vem do dia que ele der.
+        Entry harvest = m.get("colheita");
+        assertTrue(harvest.event());
+        assertEquals("festival_da_colheita", harvest.calendar());
+        assertNull(RoamingRules.window(harvest, at(2026, 6, 1, 12, 0), ZONE));
+        Window hw = RoamingRules.windowOn(harvest, at(2026, 6, 1, 0, 0));
+        assertEquals(at(2026, 6, 1, 20, 0), hw.start());
+        assertEquals(at(2026, 6, 1, 21, 30), hw.end());
         assertEquals(3, errors.size(), errors.toString());
         Entry wolf = m.get("lobo_alfa");
         assertFalse(wolf.event());

@@ -1,0 +1,36 @@
+# ============================================================
+#  Mobs raros de andar
+#  Aparecem com chance baixa perto de um jogador que está na
+#  região, fogem dele e, se forem pegos, soltam um drop raro.
+#  Só existe um de cada por vez.
+#
+#  mob:      RABBIT, ou mythic:Nome (MythicMobs)
+#  regiao:   região do core onde pode aparecer
+#  chance:   por rodada ("intervalo" segundos), por jogador na região
+#  periodo:  dia ou noite (opcional)
+#  clima:    limpo, chuva, neve ou nevoa — do AincradWorld (opcional)
+#  level:    3, "2-4" ou {min, max}
+#  foge:     corre do jogador que chega a 10 blocos
+#  drop:     MATERIAL, rpg:<id do items.yml> ou life:<ingrediente do AincradLife>
+#  some_em_segundos: quanto tempo fica se ninguém o pegar
+#
+#  Testar sem esperar a chance:  /aincrad rpg raro <id>
+# ============================================================
+intervalo: 30
+
+mobs: {}
+
+# Exemplo: o coelho do ragu. A carne dele é o ingrediente de rank S do
+# Ensopado de Coelho (recipes.yml do AincradLife).
+#
+# mobs:
+#   coelho_do_ragu:
+#     mob: RABBIT
+#     nome: "<gold>Ragout Rabbit"
+#     regiao: campos_andar1
+#     chance: 0.01
+#     level: 1
+#     foge: true
+#     drop: "life:carne_coelho_raro"
+#     drop_quantidade: 1
+#     some_em_segundos: 120
