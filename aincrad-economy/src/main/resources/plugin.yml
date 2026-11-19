@@ -5,7 +5,11 @@ api-version: '1.21'
 description: Col (moeda da rede), lojas de NPC, /pagar, troca segura, leilão e casas do Aincrad.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [Vault, AincradRPG, AincradUI, AincradFloors]
+# Ordem de carga da rede Aincrad (o Paper recusa dependências em círculo): Core, Effects, UI,
+# RPG, Economy, Floors, Bosses, Items, Life, Reputation, Duels, Social, Skills, Quests, World,
+# Admin. Um plugin só lista aqui os que vêm ANTES dele; os que vêm depois são achados em tempo
+# de execução. O teste LoadOrderTest do aincrad-core confere.
+softdepend: [Vault, AincradRPG, AincradUI]
 # Liga antes dos plugins que procuram a economia ao ligar.
 loadbefore: [AincradSocial]
 

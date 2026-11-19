@@ -5,7 +5,11 @@ api-version: '1.21'
 description: Andares do Aincrad — bloqueio, liberação, anúncio, zona segura e Teleport Gates.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [PlaceholderAPI, AincradSocial]
+# Ordem de carga da rede Aincrad (o Paper recusa dependências em círculo): Core, Effects, UI,
+# RPG, Economy, Floors, Bosses, Items, Life, Reputation, Duels, Social, Skills, Quests, World,
+# Admin. Um plugin só lista aqui os que vêm ANTES dele; os que vêm depois são achados em tempo
+# de execução. O teste LoadOrderTest do aincrad-core confere.
+softdepend: [PlaceholderAPI]
 # Liga antes de quem procura os andares ao ligar.
 loadbefore: [AincradBosses]
 

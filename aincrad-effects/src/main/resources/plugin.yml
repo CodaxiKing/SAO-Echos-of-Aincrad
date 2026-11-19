@@ -4,7 +4,11 @@ main: com.aincrad.effects.AincradEffectsPlugin
 api-version: '1.21'
 description: Motor de efeitos visuais e sonoros do servidor, com resource pack único.
 authors: [CodaxiKing]
-softdepend: [PlaceholderAPI, AincradFloors, AincradBosses]
+# Ordem de carga da rede Aincrad (o Paper recusa dependências em círculo): Core, Effects, UI,
+# RPG, Economy, Floors, Bosses, Items, Life, Reputation, Duels, Social, Skills, Quests, World,
+# Admin. Um plugin só lista aqui os que vêm ANTES dele; os que vêm depois são achados em tempo
+# de execução. O teste LoadOrderTest do aincrad-core confere.
+softdepend: [PlaceholderAPI]
 
 commands:
   efeito:

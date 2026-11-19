@@ -5,7 +5,11 @@ api-version: '1.21'
 description: A vida no Aincrad — profissões, encomendas, barracas, estalagens, familiares e casamento.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [AincradRPG, AincradEconomy, AincradFloors, AincradEffects, AincradUI, AincradItems, AincradSocial, AincradBosses]
+# Ordem de carga da rede Aincrad (o Paper recusa dependências em círculo): Core, Effects, UI,
+# RPG, Economy, Floors, Bosses, Items, Life, Reputation, Duels, Social, Skills, Quests, World,
+# Admin. Um plugin só lista aqui os que vêm ANTES dele; os que vêm depois são achados em tempo
+# de execução. O teste LoadOrderTest do aincrad-core confere.
+softdepend: [AincradRPG, AincradEconomy, AincradFloors, AincradEffects, AincradUI, AincradItems, AincradBosses]
 
 # Os comandos de jogador (/profissoes, /pesca, /alquimia, /encomenda, /contrato, /contratar, /catalogo, /material, /artesaos, /barraca, /familiar, /casar, /casal, /divorciar, /estalagem) são registrados pelo plugin só quando o módulo
 # deles está ligado em config.yml → modulos.

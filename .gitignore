@@ -21,3 +21,6 @@ Thumbs.db
 # Python
 __pycache__/
 previas/
+
+# Jars prontos para copiar para o servidor
+dist/

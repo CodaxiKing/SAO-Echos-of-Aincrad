@@ -5,7 +5,11 @@ api-version: '1.21'
 description: Conquistas, títulos, cor do cursor (player killers), prisão e PvP por andar.
 authors: [CodaxiKing]
 depend: [AincradCore]
-softdepend: [AincradFloors, AincradBosses, AincradItems, AincradLife, AincradEconomy, AincradSocial, LuckPerms]
+# Ordem de carga da rede Aincrad (o Paper recusa dependências em círculo): Core, Effects, UI,
+# RPG, Economy, Floors, Bosses, Items, Life, Reputation, Duels, Social, Skills, Quests, World,
+# Admin. Um plugin só lista aqui os que vêm ANTES dele; os que vêm depois são achados em tempo
+# de execução. O teste LoadOrderTest do aincrad-core confere.
+softdepend: [AincradFloors, AincradBosses, AincradItems, AincradLife, AincradEconomy, LuckPerms]
 
 # Os comandos de jogador (/titulos, /conquistas, /reputacao) são registrados pelo plugin ao ligar.
 
