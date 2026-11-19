@@ -11,6 +11,10 @@ commands:
     description: Abre o menu principal.
     usage: /menu
     permission: aincrad.ui.menu
+  hud:
+    description: Encaixa a HUD na sua tela (a posição depende da resolução e da escala de interface).
+    usage: /hud tela <largura> <altura> [escala] | fora [px] | dentro [px] | padrao
+    permission: aincrad.ui.menu
   creditos:
     description: Mostra os créditos das artes.
     usage: /creditos

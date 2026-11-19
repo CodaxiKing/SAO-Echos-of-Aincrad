@@ -16,8 +16,11 @@ public final class PlayerPrefs {
     private final NamespacedKey modeKey;
     private final NamespacedKey hudKey;
     private final NamespacedKey hudDxKey;
-    /** Quanto o jogador pode puxar a HUD para o centro, em pixels de interface. */
-    public static final int HUD_DX_MAX = 160;
+    /**
+     * Quanto o jogador pode mover a HUD, em pixels de interface. Precisa cobrir uma tela de 4K
+     * com a interface na escala 1 (1920 pixels de interface para cada lado).
+     */
+    public static final int HUD_DX_MAX = 1700;
 
     public PlayerPrefs(AincradUIPlugin plugin) {
         this.plugin = plugin;

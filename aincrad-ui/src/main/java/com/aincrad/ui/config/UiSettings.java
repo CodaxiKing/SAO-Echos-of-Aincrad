@@ -85,6 +85,8 @@ public final class UiSettings {
     /** A HUD em barras usa as artes do pack (moldura do anime, ícones de skill). */
     public final boolean flatArt;
     public final boolean flatHotbar;
+    /** O ícone do menu SAO nos espaços de fabricação do inventário (tecla E). */
+    public final boolean inventoryButton;
     public final boolean flatHideVanilla;
     public final boolean flatEnabled;
     public final double flatSensitivity;
@@ -104,6 +106,7 @@ public final class UiSettings {
     public UiSettings(YamlConfiguration c) {
         defaultMode = DrawMode.parse(c.getString("menu.modo_padrao"), DrawMode.CURSOR);
         gestureEnabled = c.getBoolean("menu.gesto.ativo", true);
+        inventoryButton = c.getBoolean("menu.botao_no_inventario", true);
         gestureEmptyHand = c.getBoolean("menu.gesto.mao_vazia", true);
         menuDistance = clamp(c.getDouble("menu.distancia", 2.2), 1.2, 6.0);
         menuScale = clamp(c.getDouble("menu.escala", 1.0), 0.3, 3.0);

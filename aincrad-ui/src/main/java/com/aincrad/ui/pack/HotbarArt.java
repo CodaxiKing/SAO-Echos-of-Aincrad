@@ -8,8 +8,10 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 
 /**
- * Hotbar em bolinhas, desenhada em 4× a resolução do Minecraft (o jogo estica o sprite para o
- * tamanho original, então as posições dos 9 espaços continuam as mesmas).
+ * Hotbar em bolinhas. O anel do espaço escolhido e a mão secundária são desenhados em 4× a
+ * resolução do Minecraft (o jogo estica o sprite para o tamanho original). A faixa dos nove
+ * espaços é desenhada em 4× e reduzida para os 182×22 do sprite original: em 728×88 ela apareceu
+ * no jogo como o quadriculado rosa e preto de textura ausente, e no tamanho do Minecraft não.
  */
 final class HotbarArt {
 
@@ -48,7 +50,27 @@ final class HotbarArt {
             circle(g, 11 + 20 * i, 11, 9.25, FILL, RING, 0.75);
         }
         g.dispose();
-        return img;
+        // Reduz para o tamanho do sprite do Minecraft, com a média dos pixels (as bordas ficam suaves).
+        BufferedImage small = new BufferedImage(182, 22, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < 22; y++) {
+            for (int x = 0; x < 182; x++) {
+                long a = 0, r = 0, gr = 0, b = 0;
+                for (int dy = 0; dy < S; dy++) {
+                    for (int dx = 0; dx < S; dx++) {
+                        int p = img.getRGB(x * S + dx, y * S + dy);
+                        int pa = p >>> 24;
+                        a += pa;
+                        r += ((p >> 16) & 0xFF) * pa;
+                        gr += ((p >> 8) & 0xFF) * pa;
+                        b += (p & 0xFF) * pa;
+                    }
+                }
+                if (a > 0) {
+                    small.setRGB(x, y, (int) (a / (S * S)) << 24 | (int) (r / a) << 16 | (int) (gr / a) << 8 | (int) (b / a));
+                }
+            }
+        }
+        return small;
     }
 
     /** 24×23, desenhado 1 px acima e à esquerda do espaço escolhido. */

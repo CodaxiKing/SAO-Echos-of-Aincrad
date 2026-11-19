@@ -202,11 +202,43 @@ desliga no `ui.yml`. A prévia `build/preview/hud_completa.png`, gerada pelos te
   imagem "You are dead" e som. Mobs também se desfazem (configurável).
 - **Logout**: pede confirmação. `logout.modo_death_game: true` troca por uma mensagem, como no anime.
 
+## A tecla E e o botão no inventário
+
+A tecla E abre o inventário **dentro do Minecraft do jogador**, sem avisar o servidor: não há
+evento para cancelar nem para trocar pela nossa tela, e só um mod de cliente conseguiria. O que
+o plugin faz é pôr o ícone do menu nos quatro espaços de fabricação do inventário
+(`menu.botao_no_inventario`, ligado por padrão). O jogador aperta E, clica no ícone, o inventário
+fecha e o menu SAO abre.
+
+O ícone é um item de verdade preso à grade: não dá para pegar, arrastar, largar nem trocar por
+tecla numérica; ele sai da grade quando o inventário fecha, não cai na morte, e uma varredura a
+cada 2 s apaga qualquer cópia que apareça na mochila. Não aparece no criativo nem no espectador.
+Enquanto está ligado, a fabricação 2×2 do inventário fica ocupada (a bancada continua normal).
+
+## A HUD fora do canto
+
+A HUD em barras é desenhada a partir do **centro** da tela, e o servidor não tem como saber a
+largura da tela de cada jogador. O padrão (`hud.barras.deslocamento_x: 232`) encosta nos cantos
+numa interface de 480 pixels de largura, que é 1920×1080 com a escala de interface 4. Numa janela
+menor, ou com outra escala, a HUD aparece longe do canto.
+
+Cada jogador acerta a sua uma vez, e fica gravado nele:
+
+- `/hud tela 1920 1080 2` — tamanho da janela do jogo e a escala de interface (Opções → Vídeo).
+  Sem a escala, vale a "Auto".
+- `/hud fora` e `/hud dentro` movem 8 pixels por vez (`/hud fora 20` move 20).
+- Nas Opções do menu, os botões − e + fazem o mesmo acerto fino.
+
+Se quase todos os jogadores usam a mesma escala, mude o padrão em `hud.barras.deslocamento_x`:
+metade da largura da interface menos 8 (escala 2 em 1080p: 472; escala 3: 312; escala 4: 232).
+
 ## Comandos e permissões
 
 | Comando | O que faz | Permissão |
 |---|---|---|
 | `/menu` | Abre o menu principal | `aincrad.ui.menu` (todos) |
+| `/hud tela <largura> <altura> [escala]` | Encaixa a HUD nos cantos da tela do jogador (ver abaixo) | `aincrad.ui.menu` (todos) |
+| `/hud fora [px]` · `/hud dentro [px]` · `/hud padrao` | Acerto fino da posição, e volta ao padrão | `aincrad.ui.menu` (todos) |
 | `/creditos` | Mostra os créditos das artes | todos |
 | `/aincrad ui teste <tela>` | Abre uma tela ou HUD: `menu`, `perfil`, `detalhes`, `confirmar`, `opcoes`, `ajuda`, `icones`, `morte`, `critico`, `sons` | `aincrad.admin` |
 | `/aincrad ui reload` | Recarrega configs e regera o pack | `aincrad.admin` |

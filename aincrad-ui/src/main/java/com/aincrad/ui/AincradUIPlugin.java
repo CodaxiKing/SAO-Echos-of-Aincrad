@@ -45,6 +45,7 @@ public final class AincradUIPlugin extends JavaPlugin {
     private com.aincrad.ui.hud.BannerService banners;
     private FlatManager flat;
     private DeathEffects deathEffects;
+    private com.aincrad.ui.listener.InventoryButton inventoryButton;
 
     @Override
     public void onEnable() {
@@ -83,6 +84,17 @@ public final class AincradUIPlugin extends JavaPlugin {
             }
         }
 
+        inventoryButton = new com.aincrad.ui.listener.InventoryButton(this);
+        pm.registerEvents(inventoryButton, this);
+        getServer().getScheduler().runTaskTimer(this, inventoryButton::tick, 40L, 40L);
+
+        PluginCommand hudCmd = getCommand("hud");
+        if (hudCmd != null) {
+            com.aincrad.ui.command.HudCommand hc = new com.aincrad.ui.command.HudCommand(this);
+            hudCmd.setExecutor(hc);
+            hudCmd.setTabCompleter(hc);
+        }
+
         AincradUIAPIImpl uiApi = new AincradUIAPIImpl(this);
         getServer().getServicesManager().register(AincradUIAPI.class, uiApi, this, ServicePriority.Normal);
         // Com o AincradCore, os menus dele marcados como flutuantes abrem no estilo SAO.
@@ -110,6 +122,9 @@ public final class AincradUIPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (inventoryButton != null) {
+            inventoryButton.shutdown();
+        }
         if (coreMenus) {
             try {
                 com.aincrad.ui.core.CoreMenuBridge.unregister();

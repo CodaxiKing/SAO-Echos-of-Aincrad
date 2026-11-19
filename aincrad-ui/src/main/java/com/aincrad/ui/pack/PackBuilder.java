@@ -107,6 +107,7 @@ public final class PackBuilder {
         writeSpaceFont();
         writeTextFonts();
         writeItemModels(glyphs);
+        writeItemAtlas(glyphs);
         writeSounds(settings);
         File barDir = new File(root, "assets/minecraft/textures/gui/sprites/boss_bar");
         File bg = new File(barDir, "white_background.png");
@@ -276,6 +277,31 @@ public final class PackBuilder {
         JsonObject font = new JsonObject();
         font.add("providers", providers);
         writeJson(new File(root, "assets/aincrad/font/space.json"), font);
+    }
+
+    /**
+     * Põe as texturas dos glifos no atlas de itens do jogo. Um modelo de item só enxerga texturas
+     * que estão num atlas, e por padrão o atlas só lê a pasta {@code textures/item}: sem este
+     * arquivo, todo ícone do menu de baú aparece como o quadriculado rosa e preto.
+     */
+    private void writeItemAtlas(GlyphRegistry glyphs) throws IOException {
+        JsonArray sources = new JsonArray();
+        java.util.Set<String> seen = new java.util.TreeSet<>();
+        for (Glyph g : glyphs.all()) {
+            if (!g.present()) {
+                continue;
+            }
+            String tex = g.texture().endsWith(".png") ? g.texture().substring(0, g.texture().length() - 4) : g.texture();
+            if (seen.add(tex)) {
+                JsonObject one = new JsonObject();
+                one.addProperty("type", "minecraft:single");
+                one.addProperty("resource", "aincrad:" + tex);
+                sources.add(one);
+            }
+        }
+        JsonObject atlas = new JsonObject();
+        atlas.add("sources", sources);
+        writeJson(new File(root, "assets/minecraft/atlases/items.json"), atlas);
     }
 
     /** Um modelo e uma definição de item por glifo, para o menu de baú (item_model aincrad:ui/...). */

@@ -12,6 +12,8 @@ menu:
   em_breve: "<gray><nome> <dark_gray>— <yellow>em breve"
   em_breve_lore: "<dark_gray>🔒 Em breve"
   dica_cursor: "<gray>Mire e clique para escolher · <white>agache</white> para voltar"
+  botao_inventario: "<aqua><bold>Menu"
+  botao_inventario_lore: "<gray>Clique para abrir o menu"
 
 perfil:
   titulo: "<dark_gray>Perfil"
@@ -95,6 +97,13 @@ confirmar:
   titulo: "<dark_gray>Confirmar"
   sim: "<green>Sim"
   nao: "<red>Não"
+
+hud_cmd:
+  uso:
+    "<gray>A HUD fora do canto? Diga o tamanho da janela do jogo e a escala de interface: <white>/hud tela <largura> <altura> [escala]</white> <gray>(ex.: <white>/hud tela 1920 1080 2</white>; sem escala = Auto). Acerto fino: <white>/hud fora</white> e <white>/hud dentro</white>. Voltar: <white>/hud padrao</white>."
+  tela: "<green>HUD ajustada para <white><largura>×<altura></white>, escala <white><escala></white>. <gray>Ficou um pouco fora? <white>/hud fora</white> ou <white>/hud dentro</white>."
+  movida: "<green>HUD movida. <gray>Posição: <white><posicao></white>."
+  padrao: "<green>HUD na posição padrão do servidor."
 
 opcoes:
   titulo: "<dark_gray>Opções"

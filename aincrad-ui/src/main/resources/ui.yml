@@ -12,6 +12,11 @@ menu:
     ativo: true
     # Só abre com a mão principal vazia.
     mao_vazia: true
+  # Põe o ícone do menu nos quatro espaços de fabricação do inventário: o jogador aperta E e
+  # clica no ícone para abrir o menu SAO. (A tecla E em si não pode ser trocada por um plugin:
+  # o Minecraft abre o inventário sem avisar o servidor.) Enquanto isto está ligado, a
+  # fabricação 2x2 do inventário fica ocupada; a bancada continua normal.
+  botao_no_inventario: true
   # Distância (blocos) entre os olhos do jogador e o menu no modo cursor.
   distancia: 2.2
   # Multiplica o tamanho e o espaçamento de todos os ícones do modo cursor.
