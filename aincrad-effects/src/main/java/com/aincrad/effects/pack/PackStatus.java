@@ -52,7 +52,19 @@ public final class PackStatus implements Listener {
                 plugin.messages().send(p, "pack_recusado");
                 onSettled.accept(p);
             }
-            case FAILED_DOWNLOAD, INVALID_URL, FAILED_RELOAD, DISCARDED -> {
+            case FAILED_DOWNLOAD, INVALID_URL -> {
+                loaded.remove(p.getUniqueId());
+                // O jogo só diz "falhou"; o console diz de onde ele tentou baixar.
+                String from = plugin.pack().sentUrl(p);
+                plugin.getLogger().warning("O pack não chegou a " + p.getName() + " (" + event.getStatus() + "). Endereço enviado: " + from
+                        + " — abra-o num navegador: se não baixar, a porta do pack está fechada no host ou"
+                        + " pack.servidor_embutido.endereco_publico está errado (config.yml).");
+                if (p.hasPermission("aincrad.admin") && from != null) {
+                    plugin.messages().send(p, "pack_falhou_admin", net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.unparsed("url", from));
+                }
+                onSettled.accept(p);
+            }
+            case FAILED_RELOAD, DISCARDED -> {
                 loaded.remove(p.getUniqueId());
                 onSettled.accept(p);
             }
@@ -64,5 +76,6 @@ public final class PackStatus implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         loaded.remove(event.getPlayer().getUniqueId());
+        plugin.pack().forget(event.getPlayer());
     }
 }

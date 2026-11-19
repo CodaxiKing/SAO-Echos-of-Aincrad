@@ -20,7 +20,10 @@ pack:
     ativo: true
     porta: 8163
     # Endereço que os jogadores usam para baixar, ex.: http://123.45.67.89:8163
-    # Vazio = http://<server-ip do server.properties ou localhost>:<porta> (só serve para teste local).
+    # Vazio = automático: cada jogador baixa do mesmo endereço que digitou para entrar no
+    # servidor, nesta porta. Nos dois casos a porta precisa estar aberta no host (num painel
+    # de hospedagem, crie uma alocação de porta extra). Se o host não deixa abrir porta, hospede
+    # o .zip fora e use "url" acima.
     endereco_publico: ""
 
 limites:

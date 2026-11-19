@@ -55,6 +55,11 @@ public final class PackManager {
     private PackHttpServer http;
     private String hash;
     private String url;
+    /** Sem endereco_publico: cada jogador recebe o endereço que usou para entrar no servidor. */
+    private boolean perPlayer;
+    private int perPlayerPort;
+    /** O último endereço enviado a cada jogador, para o aviso quando o download falha. */
+    private final Map<java.util.UUID, String> sent = new java.util.concurrent.ConcurrentHashMap<>();
     private boolean buildScheduled;
     private List<String> lastConflicts = List.of();
 
@@ -227,6 +232,7 @@ public final class PackManager {
 
     private void setupDelivery(Settings s) {
         url = null;
+        perPlayer = false;
         if (!s.packUrl.isEmpty()) {
             stopHttp();
             url = s.packUrl;
@@ -247,14 +253,31 @@ public final class PackManager {
                 return;
             }
         }
-        String base = s.packServerPublicAddress;
-        if (base.isEmpty()) {
-            String ip = Bukkit.getIp();
-            base = "http://" + (ip == null || ip.isBlank() ? "localhost" : ip) + ":" + s.packServerPort;
-            plugin.getLogger().warning("pack.servidor_embutido.endereco_publico vazio: usando " + base
-                    + " (funciona só para quem joga na mesma máquina/rede).");
+        if (s.packServerPublicAddress.isBlank()) {
+            perPlayer = true;
+            perPlayerPort = s.packServerPort;
+            plugin.getLogger().info("pack.servidor_embutido.endereco_publico vazio: cada jogador baixa o pack do endereço que usou"
+                    + " para entrar, na porta " + s.packServerPort + ". Essa porta precisa estar aberta no host.");
         }
-        url = (base.endsWith("/") ? base.substring(0, base.length() - 1) : base) + "/" + ZIP_NAME + "?h=" + hash;
+        url = PackAddress.url(PackAddress.base(s.packServerPublicAddress, null, Bukkit.getIp(), s.packServerPort), ZIP_NAME, hash);
+    }
+
+    /** O endereço de onde este jogador baixa o pack. */
+    private String urlFor(Player player) {
+        if (!perPlayer) {
+            return url;
+        }
+        java.net.InetSocketAddress host = player.getVirtualHost();
+        return PackAddress.url(PackAddress.base("", host == null ? null : host.getHostString(), Bukkit.getIp(), perPlayerPort), ZIP_NAME, hash);
+    }
+
+    /** O último endereço de pack enviado ao jogador, ou null. */
+    public String sentUrl(Player player) {
+        return sent.get(player.getUniqueId());
+    }
+
+    public void forget(Player player) {
+        sent.remove(player.getUniqueId());
     }
 
     public boolean sendTo(Player player) {
@@ -262,8 +285,9 @@ public final class PackManager {
             return false;
         }
         Settings s = plugin.settings();
+        String target = urlFor(player);
         try {
-            ResourcePackInfo info = ResourcePackInfo.resourcePackInfo(packId, URI.create(url), hash);
+            ResourcePackInfo info = ResourcePackInfo.resourcePackInfo(packId, URI.create(target), hash);
             ResourcePackRequest.Builder req = ResourcePackRequest.resourcePackRequest()
                     .packs(info)
                     .required(s.packRequired)
@@ -272,9 +296,10 @@ public final class PackManager {
                 req.prompt(Messages.parse(s.packPrompt));
             }
             player.sendResourcePacks(req.build());
+            sent.put(player.getUniqueId(), target);
             return true;
         } catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("URL do pack inválida: " + url);
+            plugin.getLogger().warning("URL do pack inválida: " + target);
             return false;
         }
     }
